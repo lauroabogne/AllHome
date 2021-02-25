@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    >
+    <data>
+        <import type="com.example.allhome.grocerylist.GroceryUtil"/>
+        <variable
+            name="groceryListViewModel"
+            type="com.example.allhome.grocerylist.viewmodel.GroceryListViewModel" />
+
+    </data>
+    <LinearLayout
+        android:id="@+id/coordinator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context=".grocerylist.SingleGroceryListActivity">
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/grocery_item_recyclerview"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:listitem="@layout/grocery_list_item" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:orientation="horizontal"
+                android:padding="5dp">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView4"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@{GroceryUtil.INSTANCE.totalItemsToBuyCount(groceryListViewModel.totalItemCountToBuy)}" />
+
+                    <TextView
+                        android:id="@+id/textView6"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@{GroceryUtil.INSTANCE.formatNumberToStringForMoneyWithCommanAndDecimal(groceryListViewModel.moneySign,groceryListViewModel.totalItemToBuyAmount)}"
+                        android:textSize="18sp" />
+                </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView5"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_horizontal"
+                        android:text="@{GroceryUtil.INSTANCE.totalItemsBoughtCount(groceryListViewModel.totalItemCountBought)}" />
+                         />
+
+                    <TextView
+                        android:id="@+id/textView7"
+                        android:layout_width="match_parent"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"
+                        android:gravity="center"
+                        android:text="@{GroceryUtil.INSTANCE.formatNumberToStringForMoneyWithCommanAndDecimal(groceryListViewModel.moneySign,groceryListViewModel.totalItemBoughtAmount)}"
+                        android:textSize="18sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                app:srcCompat="@android:drawable/ic_input_add"
+                tools:ignore="VectorDrawableCompat" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+</layout>
