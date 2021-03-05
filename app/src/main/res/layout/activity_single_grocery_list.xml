@@ -24,7 +24,7 @@
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/grocery_list_item" />
+            tools:listitem="@layout/grocery_list_product" />
 
         <LinearLayout
             android:layout_width="match_parent"

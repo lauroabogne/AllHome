@@ -11,7 +11,7 @@ import androidx.room.PrimaryKey
         @ColumnInfo(name = "grocery_list_unique_id") val groceryListUniqueId:String,
         @ColumnInfo(name = "sequence") val sequence:Int = 0,
         @ColumnInfo(name = "item_name") val itemName:String,
-        @ColumnInfo(name = "quantity") val quantity:Double,
+        @ColumnInfo(name = "quantity") var quantity:Double,
         @ColumnInfo(name = "unit") val unit:String,
         @ColumnInfo(name = "price_per_unit") val pricePerUnit:Double,
         @ColumnInfo(name="category") val category:String,

@@ -36,5 +36,15 @@ interface GroceryItemDAO {
     fun updateItem(itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,imageName:String,id:Int):Int
     @Query("UPDATE grocery_items SET bought = :bought WHERE id=:id AND item_name = :itemName")
     fun updateItem(bought:Int,id:Int,itemName: String):Int
+    @Query("SELECT item_name from grocery_items WHERE item_name LIKE '%'||:itemName||'%' ORDER BY item_name")
+    fun getItems(itemName:String):List<String>
+
+    @Query("SELECT * from grocery_items WHERE item_name LIKE '%'||:itemName||'%' GROUP BY item_name ORDER BY item_name")
+    fun getGroceryItemEntities(itemName:String):List<GroceryItemEntity>
+
+    @Query("SELECT unit from grocery_items WHERE unit LIKE '%'||:searchTerm||'%' GROUP BY unit ORDER BY unit")
+    fun getGroceryItemEntityUnits(searchTerm:String):List<String>
+    @Query("SELECT category from grocery_items WHERE category LIKE '%'||:searchTerm||'%' GROUP BY category ORDER BY category")
+    fun getGroceryItemEntityCategories(searchTerm:String):List<String>
 
 }
