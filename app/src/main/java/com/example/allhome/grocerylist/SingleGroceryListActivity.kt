@@ -78,13 +78,27 @@ class SingleGroceryListActivity : AppCompatActivity() {
         mGroceryListViewModel.sortingAndGrouping.observe(this, Observer {
             when(it){
                 GroceryListViewModel.SORT_ALPHABETICALLY->{
-                    mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
-                    mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
-                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+
+                    CoroutineScope(IO).launch {
+                        mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
+                        mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
+                        withContext(Main){
+                            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+                        }
+                    }
+
+
                 }
                 GroceryListViewModel.GROUP_BY_CATEGORY->{
-                    mGroceryListViewModel.groupByCategory()
-                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+
+                    CoroutineScope(IO).launch {
+                        mGroceryListViewModel.groupByCategory()
+                        withContext(Main){
+                            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+                        }
+                    }
+
+
                 }
             }
         })
@@ -270,6 +284,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
             val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
             val oldItemIndex = data?.getIntExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
+
             CoroutineScope(IO).launch {
                 val groceryItemEntityUpdated = mGroceryListViewModel.getGroceryListItem(this@SingleGroceryListActivity, updatedGroceryListId!!, groceryListUniqueId)
 
@@ -319,8 +334,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
                                 itemViewHolder.groceryListItemBinding.groceryItemParentLayout.startAnimation(fadeInAnimation)
                                 dataBindingUtil.groceryItemRecyclerview.removeOnScrollListener(this)
 
-                                //val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForLayoutPosition(itemNewIndex!!)
-                                //viewHolder?.itemView?.setBackgroundColor(Color.RED)
 
                                 found = true
                             }

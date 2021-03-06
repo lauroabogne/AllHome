@@ -75,9 +75,6 @@ class GroceryListFragment : Fragment() {
 
         })
 
-       /* mDataBindingUtil.groceryListRecyclerview.addOnScrollListener(OnScrollChangedListener {
-
-        })*/
 
         mDataBindingUtil.fab.setOnClickListener{
             showGroceryListNameInput()

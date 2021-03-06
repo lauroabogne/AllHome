@@ -114,8 +114,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
             if (isChecked && buttonView!!.isPressed) {
 
                 CoroutineScope(IO).launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName
-                    )
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
                     withContext(Main) {
 
                         groceryItemEntity.bought = 1
