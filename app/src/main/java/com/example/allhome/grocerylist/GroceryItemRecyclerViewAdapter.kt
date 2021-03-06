@@ -4,18 +4,15 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.ScaleAnimation
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
-import androidx.core.view.marginLeft
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
-import com.example.allhome.databinding.GroceryListItemBinding
+import com.example.allhome.databinding.GroceryListProductBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -34,9 +31,9 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
     lateinit var mSelectedView: View
     val mSingleGroceryListActivity: SingleGroceryListActivity = contextParams as SingleGroceryListActivity
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroceryItemRecyclerViewAdapter.ItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
-        val groceryListItemBinding = GroceryListItemBinding.inflate(layoutInflater, parent, false)
+        val groceryListItemBinding = GroceryListProductBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding)
 
         return itemViewHolder;
@@ -86,8 +83,8 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
 
     }
 
-    inner class ItemViewHolder(groceryListItemBindingParams: GroceryListItemBinding) : RecyclerView.ViewHolder(groceryListItemBindingParams.root), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-        var groceryListItemBinding: GroceryListItemBinding
+    inner class ItemViewHolder(groceryListItemBindingParams: GroceryListProductBinding) : RecyclerView.ViewHolder(groceryListItemBindingParams.root), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+        var groceryListItemBinding: GroceryListProductBinding
 
         init {
             groceryListItemBinding = groceryListItemBindingParams
@@ -112,24 +109,12 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
 
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
             val singleGroceryListActivity: SingleGroceryListActivity = context as SingleGroceryListActivity
-
-            onCheckChangedForSortAphabetically(buttonView, isChecked)
-
-            /*if(singleGroceryListActivity.mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY){
-                onCheckChangedForSortAphabetically(buttonView, isChecked)
-            }else{
-                onCheckChangeForGroupByCategory(buttonView, isChecked)
-            }*/
-        }
-        fun onCheckChangedForSortAphabetically(buttonView: CompoundButton?, isChecked: Boolean){
-            val singleGroceryListActivity: SingleGroceryListActivity = context as SingleGroceryListActivity
             val groceryItemEntity: GroceryItemEntity = singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList[adapterPosition]
 
             if (isChecked && buttonView!!.isPressed) {
 
                 CoroutineScope(IO).launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName
-                    )
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
                     withContext(Main) {
 
                         groceryItemEntity.bought = 1
@@ -155,7 +140,6 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
                         groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#E5E2E2"))
                     }
                 }
-
 
             } else if (!isChecked && buttonView!!.isPressed) {
 
@@ -187,46 +171,9 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
                     }
                 }
             }
+
         }
-        fun onCheckChangeForGroupByCategory(buttonView: CompoundButton?, isChecked: Boolean){
-             val groceryItemEntity: GroceryItemEntity = mSingleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList[adapterPosition]
 
-            if (isChecked && buttonView!!.isPressed) {
-                CoroutineScope(IO).launch {
-                    mSingleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
-                    withContext(Main) {
-                        groceryItemEntity.bought = 1
-                        mSingleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.remove(groceryItemEntity)
-                        mSingleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems.add(groceryItemEntity)
-                        mSingleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(mSingleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, mSingleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
-
-                        mSingleGroceryListActivity.mGroceryListViewModel.groupByCategory()
-                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#E5E2E2"))
-
-                        val newIndex = mSingleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntity)
-                        notifyItemMoved(adapterPosition, newIndex)
-                    }
-                }
-
-            }else if (!isChecked && buttonView!!.isPressed) {
-
-                CoroutineScope(IO).launch {
-                    mSingleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
-                    withContext(Main) {
-                        groceryItemEntity.bought = 0
-                        mSingleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.add(groceryItemEntity)
-                        mSingleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems.remove(groceryItemEntity)
-                        mSingleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(mSingleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, mSingleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
-                        mSingleGroceryListActivity.mGroceryListViewModel.groupByCategory()
-                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.WHITE)
-
-                        val newIndex = mSingleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntity)
-                        notifyItemMoved(adapterPosition, newIndex)
-                    }
-                }
-
-            }
-        }
     }
 
     inner class CustomPopupMenu(var context: Context, var adapterPosition: Int) : PopupMenu.OnMenuItemClickListener {
@@ -242,25 +189,15 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
 
                 }
                 R.id.edit -> {
+
+
                     val selectedGroceryListAutoGeneratedId = groceryItemEntity.groceryListUniqueId
                     val intent = Intent(context, AddGroceryListItemActivity::class.java)
 
-                    intent.putExtra(
-                            AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,
-                            selectedGroceryListAutoGeneratedId
-                    )
-                    intent.putExtra(
-                            AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,
-                            groceryItemEntity.id
-                    )
-                    intent.putExtra(
-                            AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,
-                            adapterPosition
-                    )
-                    intent.putExtra(
-                            AddGroceryListItemActivity.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,
-                            AddGroceryListItemActivity.UPDATE_RECORD_ACTION
-                    )
+                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, selectedGroceryListAutoGeneratedId)
+                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryItemEntity.id)
+                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, adapterPosition)
+                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemActivity.UPDATE_RECORD_ACTION)
 
                     singleGroceryListActivity.startActivityForResult(
                             intent,
@@ -273,21 +210,20 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
 
 
                     CoroutineScope(IO).launch {
-                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(
-                                context,
-                                groceryItemEntity.id,
-                                groceryItemEntity.groceryListUniqueId,
-                                adapterPosition
-                        )
+                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.id, groceryItemEntity.groceryListUniqueId)
+                        singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.remove(groceryItemEntity)
+                        singleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, singleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
+
                         withContext(Dispatchers.Main) {
 
-                            singleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, singleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
+                            if(singleGroceryListActivity.mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.GROUP_BY_CATEGORY){
+                                singleGroceryListActivity.mGroceryListViewModel.groupByCategory()
+                            }
 
                             notifyItemRemoved(adapterPosition)
-                            notifyItemRangeChanged(
-                                    adapterPosition,
-                                    singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.size
-                            )
+                             notifyItemRangeChanged(adapterPosition, singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.size)
+
+
                         }
                     }
 

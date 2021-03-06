@@ -9,10 +9,6 @@
 
     <string name="new_grocery_item">New Item</string>
 
-    <string name="menu_home">Home</string>
-    <string name="menu_gallery">Gallery</string>
-    <string name="menu_slideshow">Slideshow</string>
-
     <string name="menu_grocery_list">Grocery List</string>
     <string name="menu_pantry">Pantry</string>
     <string name="menu_recipes">Recipes</string>
@@ -22,13 +18,8 @@
     <string name="menu_todo">To Do</string>
     <string name="title_activity_grocery_list_activity">Grocery List</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="first_fragment_label">First Fragment</string>
-    <string name="second_fragment_label">Second Fragment</string>
-    <string name="next">Next</string>
-    <string name="previous">Previous</string>
 
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="title_activity_create_grocery_list">CreateGroceryListActivity</string>
     <string name="title_activity_single_grocery_list">Lauro birthday long list this is the long list</string>
+    <!-- TODO: Remove or change this placeholder text -->
 </resources>

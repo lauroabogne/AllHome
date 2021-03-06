@@ -21,7 +21,8 @@ data class GroceryListEntity(
 @Parcelize
 data class GroceryListWithItemCount(
     @Embedded val groceryListEntity: GroceryListEntity,
-    val itemCount:Int
+    val itemCount:Int,
+    val itemBought:Int
 )
 
 

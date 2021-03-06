@@ -2,6 +2,7 @@ package com.example.allhome.grocerylist
 
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
+import com.example.allhome.data.entities.GroceryListWithItemCount
 import java.text.DecimalFormat
 
 object GroceryUtil {
@@ -86,5 +87,11 @@ object GroceryUtil {
         }
        return moneySign+" "+withCommaAndWithDecimalFormater.format(anyNumber)
     }
+    fun concatTotalItemAndTotalBoughtItem(totalItem:Int,totalBoughtItem:Int):String{
+
+        return totalBoughtItem.toString()+"/"+totalItem.toString()
+    }
+
+
 
 }
