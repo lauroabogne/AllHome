@@ -5,6 +5,7 @@
 
     <data>
         <import type="com.example.allhome.grocerylist.GroceryUtil" />
+        <import type="android.view.View" />
         <variable
             name="groceryListWithCount"
             type="com.example.allhome.data.entities.GroceryListWithItemCount" />
@@ -12,10 +13,10 @@
     </data>
 
     <androidx.cardview.widget.CardView
-        android:id="@+id/grocery_item_parent_layout"
+        android:id="@+id/grocery_item_list_parent_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
+
         android:layout_marginLeft="10dp"
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
@@ -27,13 +28,19 @@
         android:padding="0dp"
         app:cardCornerRadius="0dp"
         app:cardElevation="2dp"
+        app:contentPaddingTop="5dp"
         app:contentPaddingBottom="5dp"
         app:contentPaddingLeft="10dp"
-        app:contentPaddingRight="10dp">
+        app:contentPaddingRight="10dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:minHeight="50dp"
+        >
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:gravity="center"
             android:orientation="horizontal">
 
             <LinearLayout
@@ -44,13 +51,14 @@
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
                     android:orientation="horizontal">
 
                     <TextView
                         android:id="@+id/textView8"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="match_parent"
                         android:layout_weight="1"
                         android:paddingTop="4dp"
                         android:paddingBottom="4dp"
@@ -63,6 +71,7 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
                     android:orientation="horizontal">
 
                     <ImageButton
@@ -73,6 +82,7 @@
                         android:layout_marginLeft="4dp"
                         android:layout_weight="0"
                         android:background="@null"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasLocation(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}"
                         app:srcCompat="@drawable/ic_baseline_pin_drop_24"
                         tools:ignore="VectorDrawableCompat" />
 
@@ -84,6 +94,7 @@
                         android:layout_marginLeft="4dp"
                         android:layout_weight="0"
                         android:background="@null"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasScheduleDate(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}"
                         app:srcCompat="@drawable/ic_baseline_calendar_today_24"
                         tools:ignore="VectorDrawableCompat" />
 
@@ -95,24 +106,28 @@
                         android:layout_marginLeft="4dp"
                         android:layout_weight="0"
                         android:gravity="center"
-                        android:text="March 10, 2021"
-                        android:textSize="12sp" />
+                        android:text="@{GroceryUtil.INSTANCE.formatGroceryScheduledDateForGroceryListViewing(groceryListWithCount.groceryListEntity.shoppingDatetime)}"
+                        android:textSize="14sp"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasScheduleDate(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}" />
                 </LinearLayout>
             </LinearLayout>
 
             <TextView
-                android:id="@+id/textView9"
+
+                android:id="@+id/itemCountAndBoughtTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_weight="0"
+                android:background="?selectableItemBackgroundBorderless"
                 android:gravity="center"
-                android:text="@{GroceryUtil.INSTANCE.concatTotalItemAndTotalBoughtItem(groceryListWithCount.itemCount,groceryListWithCount.itemBought)}" />
+                android:text="@{GroceryUtil.INSTANCE.concatTotalItemAndTotalBoughtItem(groceryListWithCount.itemCount,groceryListWithCount.itemBought)}"
+                tools:text="0/10" />
 
             <ImageView
-                android:id="@+id/imageView2"
+                android:id="@+id/moreActionImageView"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
                 android:layout_weight="0"
+                android:background="?selectableItemBackgroundBorderless"
                 app:srcCompat="@drawable/ic_baseline_more_vert_24"
                 tools:ignore="VectorDrawableCompat" />
 

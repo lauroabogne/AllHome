@@ -46,5 +46,7 @@ interface GroceryItemDAO {
     fun getGroceryItemEntityUnits(searchTerm:String):List<String>
     @Query("SELECT category from grocery_items WHERE category LIKE '%'||:searchTerm||'%' GROUP BY category ORDER BY category")
     fun getGroceryItemEntityCategories(searchTerm:String):List<String>
+    @Query("INSERT INTO grocery_items (grocery_list_unique_id,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought) SELECT :newGroceryListUniqueId,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought FROM grocery_items WHERE grocery_list_unique_id= :oldGroceryListUniqueId")
+    fun copy(oldGroceryListUniqueId:String,newGroceryListUniqueId:String)
 
 }

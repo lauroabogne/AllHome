@@ -1,9 +1,16 @@
 package com.example.allhome.grocerylist
 
+import android.util.Log
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
-import com.example.allhome.data.entities.GroceryListWithItemCount
+import org.joda.time.DateTime
+import org.joda.time.Days
+import org.joda.time.format.DateTimeFormat
+import org.joda.time.format.DateTimeFormatter
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
+
 
 object GroceryUtil {
 
@@ -21,10 +28,10 @@ object GroceryUtil {
 
         if(groceryItemEntity.quantity > 0 && groceryItemEntity.unit.trim().length > 0 && groceryItemEntity.pricePerUnit > 0){
 
-            return formatNumber(groceryItemEntity.quantity)+" "+groceryItemEntity.unit+" x "+formatNumber(groceryItemEntity.pricePerUnit)+" = ₱ "+formatNumber(groceryItemEntity.quantity* groceryItemEntity.pricePerUnit )
+            return formatNumber(groceryItemEntity.quantity)+" "+groceryItemEntity.unit+" x "+formatNumber(groceryItemEntity.pricePerUnit)+" = ₱ "+formatNumber(groceryItemEntity.quantity * groceryItemEntity.pricePerUnit)
         }
         if(groceryItemEntity.quantity <= 0 && groceryItemEntity.unit.trim().length > 0 && groceryItemEntity.pricePerUnit > 0){
-            return formatNumber(groceryItemEntity.quantity)+" "+groceryItemEntity.unit+" x "+formatNumber(groceryItemEntity.pricePerUnit)+" = ₱ "+formatNumber(groceryItemEntity.quantity* groceryItemEntity.pricePerUnit)
+            return formatNumber(groceryItemEntity.quantity)+" "+groceryItemEntity.unit+" x "+formatNumber(groceryItemEntity.pricePerUnit)+" = ₱ "+formatNumber(groceryItemEntity.quantity * groceryItemEntity.pricePerUnit)
         }
 
         if(groceryItemEntity.quantity > 0 && groceryItemEntity.unit.trim().length > 0 && groceryItemEntity.pricePerUnit <= 0){
@@ -46,12 +53,12 @@ object GroceryUtil {
         return groceryItemEntity.quantity > 0
     }
 
-    fun formatNumber(anyNumber:Double) : String{
+    fun formatNumber(anyNumber: Double) : String{
 
         return if(anyNumber % 1 == 0.0 ) withCommaAndWithoutDecimalFormater.format(anyNumber) else withCommaAndWithDecimalFormater.format(anyNumber)
 
     }
-    fun formatNumberToStringForEditing(anyNumber:Double):String{
+    fun formatNumberToStringForEditing(anyNumber: Double):String{
         if(anyNumber <=0){
             return ""
         }
@@ -73,24 +80,107 @@ object GroceryUtil {
         return "10dp"
 
     }
-    fun totalItemsToBuyCount(totalItemCount:Int):String{
+    fun totalItemsToBuyCount(totalItemCount: Int):String{
 
         return "TO EXPENSE ("+totalItemCount+")"
     }
-    fun totalItemsBoughtCount(totalItemCount:Int):String{
+    fun totalItemsBoughtCount(totalItemCount: Int):String{
 
         return "IN CART ("+totalItemCount+")"
     }
-    fun formatNumberToStringForMoneyWithCommanAndDecimal(moneySign:String,anyNumber:Double):String{
+    fun formatNumberToStringForMoneyWithCommanAndDecimal(moneySign: String, anyNumber: Double):String{
         if(anyNumber == 0.0){
             return moneySign+" 0"
         }
        return moneySign+" "+withCommaAndWithDecimalFormater.format(anyNumber)
     }
-    fun concatTotalItemAndTotalBoughtItem(totalItem:Int,totalBoughtItem:Int):String{
 
+    fun concatTotalItemAndTotalBoughtItem(totalItem: Int, totalBoughtItem: Int):String{
         return totalBoughtItem.toString()+"/"+totalItem.toString()
     }
+    fun formatGroceryScheduledDate(stringDate: String?):String {
+        if(stringDate == null || stringDate.trim().length <=0 || stringDate.trim().equals("0000-00-00 00:00:00") ){
+            return ""
+        }
+        val splitedStringDateTime = stringDate.split(" ")
+        if(splitedStringDateTime[1].equals("00:00:00")){
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd h:mm:ss")
+            val date: Date? = simpleDateFormat.parse(stringDate)
+            return SimpleDateFormat("MMMM d, Y").format(date)
+        }else{
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd h:mm:ss")
+            val date: Date? = simpleDateFormat.parse(stringDate)
+            return SimpleDateFormat("MMMM d, Y h:mm a").format(date)
+        }
+    }
+
+    fun formatGroceryScheduledDateForGroceryListViewing(stringDate: String?):String?{
+
+        if(stringDate == null || stringDate.trim().length <=0 || stringDate.trim().equals("0000-00-00 00:00:00") ){
+            return ""
+        }
+
+        val splitedStringDateTime = stringDate.split(" ")
+
+        val currentDateTime = DateTime()
+        val dateTimeFormatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd")
+        val currentDateString =  dateTimeFormatter.print(currentDateTime)
+
+        if(splitedStringDateTime[1].equals("00:00:00")){
+
+            val scheduleDateTime = DateTime.parse(splitedStringDateTime[0], DateTimeFormat.forPattern("yyyy-MM-dd"))
+            val currentDate = DateTime.parse(currentDateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
+            val days = Days.daysBetween(currentDate, scheduleDateTime).days
+
+            if(days == 0){
+                return "Today"
+
+            }else if(days == 1){
+                return "Tommorow"
+            }else if(days in 2..6){
+                return  DateTimeFormat.forPattern("EEEE").print(DateTime().plusDays(days))
+
+            }else{
+                return  DateTimeFormat.forPattern("MMMM d, Y").print(scheduleDateTime)
+            }
+
+
+        }else{
+
+            val scheduleDateTime = DateTime.parse(splitedStringDateTime[0], DateTimeFormat.forPattern("yyyy-MM-dd"))
+            val currentDate = DateTime.parse(currentDateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
+            val days = Days.daysBetween(currentDate, scheduleDateTime).days
+            val hourString = DateTimeFormat.forPattern("h:mm a").print(DateTime.parse(splitedStringDateTime[1], DateTimeFormat.forPattern("HH:mm:ss")))
+            if(days == 0){
+                return "Today "+hourString
+
+            }else if(days == 1){
+                return "Tommorow "+hourString
+            }else if(days in 2..6){
+                return  DateTimeFormat.forPattern("EEEE").print(DateTime().plusDays(days))+" "+hourString
+
+            }else{
+                return  DateTimeFormat.forPattern("MMMM d, Y").print(scheduleDateTime)+" "+hourString
+            }
+
+        }
+
+        return null
+    }
+
+    fun doGroceryListHasLocation(groceryListEntity: GroceryListEntity):Boolean{
+        if(groceryListEntity.location.trim().length <=0){
+            return false
+        }
+        return true
+    }
+    fun doGroceryListHasScheduleDate(groceryListEntity: GroceryListEntity):Boolean{
+        if(groceryListEntity.shoppingDatetime.trim().length <=0 || groceryListEntity.shoppingDatetime.trim().equals("0000-00-00 00:00:00")){
+            return false
+        }
+        return true
+    }
+
 
 
 

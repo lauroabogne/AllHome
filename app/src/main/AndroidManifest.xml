@@ -9,9 +9,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
+        <activity android:name=".grocerylist.GroceryListInformationActivity"></activity>
         <activity
-            android:name=".grocerylist.SingleGroceryListActivity"
-            android:label="@string/title_activity_single_grocery_list"></activity>
+            android:name=".grocerylist.SingleGroceryListActivity"/>
         <activity
             android:name=".grocerylist.CreateGroceryListActivity"
             android:label="@string/title_activity_create_grocery_list"

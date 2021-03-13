@@ -30,6 +30,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
     var context: Context = contextParams;
     lateinit var mSelectedView: View
     val mSingleGroceryListActivity: SingleGroceryListActivity = contextParams as SingleGroceryListActivity
+    val mGroceryListViewModel = mSingleGroceryListActivity.mGroceryListViewModel
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroceryItemRecyclerViewAdapter.ItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -113,7 +114,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
 
             if (isChecked && buttonView!!.isPressed) {
 
-                CoroutineScope(IO).launch {
+                mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
                     withContext(Main) {
 
@@ -144,7 +145,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
             } else if (!isChecked && buttonView!!.isPressed) {
 
 
-                CoroutineScope(IO).launch {
+                mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
                     withContext(Main) {
                         groceryItemEntity.bought = 0
@@ -209,7 +210,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
                 R.id.delete -> {
 
 
-                    CoroutineScope(IO).launch {
+                    mGroceryListViewModel.coroutineScope.launch {
                         singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.id, groceryItemEntity.groceryListUniqueId)
                         singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.remove(groceryItemEntity)
                         singleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, singleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)

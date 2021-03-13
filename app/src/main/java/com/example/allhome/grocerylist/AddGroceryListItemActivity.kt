@@ -3,8 +3,8 @@ package com.example.allhome.grocerylist
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.appcompat.app.AppCompatActivity
@@ -119,9 +119,12 @@ class AddGroceryListItemActivity : AppCompatActivity() {
          val doublePricePerUnit = if(pricePerUnitString.trim().isNotEmpty()) pricePerUnitString.toDouble() else 0.0
 
         val groceryItemEntity = GroceryItemEntity(
-                groceryListUniqueId = groceryListUniqueId, sequence = 1, itemName = itemName, quantity = doubleQuantity, unit = unit, pricePerUnit = doublePricePerUnit, category = category, notes = notes, imageName = "", bought = 0
+            groceryListUniqueId = groceryListUniqueId, sequence = 1, itemName = itemName, quantity = doubleQuantity, unit = unit, pricePerUnit = doublePricePerUnit, category = category, notes = notes, imageName = "", bought = 0
         )
-
+        // hide soft keyboard
+        val view: View = findViewById(android.R.id.content)
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
          CoroutineScope(IO).launch {
              AllHomeDatabase.getDatabase(this@AddGroceryListItemActivity).groceryItemDAO().addItem(groceryItemEntity)
@@ -149,6 +152,12 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         val doubleQuantity = if(quantityString.trim().isNotEmpty()) quantityString.toDouble() else 0.0
         val doublePricePerUnit = if(pricePerUnitString.trim().isNotEmpty()) pricePerUnitString.toDouble() else 0.0
 
+        // hide soft keyboard
+        val view: View = findViewById(android.R.id.content)
+        val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
+        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+
+
         CoroutineScope(IO).launch {
 
             mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, "", groceryListItemId)
@@ -156,7 +165,6 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
             withContext(Main){
 
-                Toast.makeText(this@AddGroceryListItemActivity, "Updated record", Toast.LENGTH_SHORT).show()
                 val intent = Intent()
                 intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
                 intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
