@@ -1,10 +1,14 @@
 package com.example.allhome.grocerylist.viewmodel
 
 import android.content.Context
+import android.graphics.Color
 import android.util.Log
+import android.view.View
 import androidx.databinding.Bindable
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
 import com.example.allhome.data.entities.GroceryListWithItemCount
 import kotlinx.coroutines.CoroutineName
@@ -34,4 +38,7 @@ class GroceryListInformationActivityViewModel: ViewModel() {
     }
 
 
+
+
 }
+

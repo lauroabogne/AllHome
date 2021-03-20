@@ -166,8 +166,9 @@
             <ImageButton
                 android:id="@+id/add_img_btn"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight="0"
+                android:background="@null"
                 app:srcCompat="@drawable/ic_menu_camera" />
 
         </LinearLayout>
@@ -175,15 +176,15 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="500dp"
-            android:background="#C34A4A"
             android:minHeight="500dp">
 
             <ImageView
                 android:id="@+id/item_imageview"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:src="@drawable/ic_menu_manage"
-                tools:srcCompat="@tools:sample/backgrounds/scenic" />
+                android:scaleType="centerCrop"
+                android:setImageToImageViewForAddingItem="@{groceryListViewModel}"
+                />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </LinearLayout>
 

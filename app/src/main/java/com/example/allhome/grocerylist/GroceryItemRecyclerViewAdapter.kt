@@ -3,9 +3,12 @@ package com.example.allhome.grocerylist
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
+import android.util.Log
 import android.view.*
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -20,9 +23,10 @@ import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.util.*
 
-class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.Adapter<GroceryItemRecyclerViewAdapter.ItemViewHolder>() {
+class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<GroceryItemRecyclerViewAdapter.ItemViewHolder>() {
 
     var mGroceryItems: List<GroceryItemEntity> = arrayListOf()
     var mTouchHelper: ItemTouchHelper? = null
@@ -35,7 +39,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): GroceryItemRecyclerViewAdapter.ItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val groceryListItemBinding = GroceryListProductBinding.inflate(layoutInflater, parent, false)
-        val itemViewHolder = ItemViewHolder(groceryListItemBinding)
+        val itemViewHolder = ItemViewHolder(groceryListItemBinding,productImageClickListener)
 
         return itemViewHolder;
     }
@@ -64,6 +68,8 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
         holder.groceryListItemBinding.groceryItemEntity = groceryItemEntity
         holder.groceryListItemBinding.executePendingBindings()
 
+        holder.groceryListItemBinding.itemImage.setTag(groceryItemEntity)
+
         if(groceryItemEntity.forCategoryDivider){
             holder.groceryListItemBinding.itemInformationLinearlayout.visibility = View.GONE
             holder.groceryListItemBinding.categoryDivierTextview.visibility = View.VISIBLE
@@ -72,40 +78,58 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context) : RecyclerView.
         }else{
             holder.groceryListItemBinding.itemInformationLinearlayout.visibility = View.VISIBLE
             holder.groceryListItemBinding.categoryDivierTextview.visibility = View.GONE
-
             holder.groceryListItemBinding.checkBox.isChecked = holder.groceryListItemBinding.groceryItemEntity?.bought == 1
             if (groceryItemEntity.bought == 0) {
                 holder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.WHITE)
             } else {
                 holder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#E5E2E2"))
             }
+
+
+           /* val imageUri = GroceryUtil.getImageFromPath(context,groceryItemEntity.imageName)
+
+            imageUri?.let {
+                holder.groceryListItemBinding.itemImage.setImageURI(it)
+                holder.groceryListItemBinding.itemImage.visibility = View.VISIBLE
+            }?:run {
+                holder.groceryListItemBinding.itemImage.visibility = View.GONE
+            }*/
         }
 
 
     }
 
-    inner class ItemViewHolder(groceryListItemBindingParams: GroceryListProductBinding) : RecyclerView.ViewHolder(groceryListItemBindingParams.root), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-        var groceryListItemBinding: GroceryListProductBinding
 
+
+    inner class ItemViewHolder(groceryListItemBindingParams: GroceryListProductBinding,productImageClickListenerParams:View.OnClickListener) : RecyclerView.ViewHolder(groceryListItemBindingParams.root), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
+        var groceryListItemBinding: GroceryListProductBinding
+        var productImageClickListener:View.OnClickListener
         init {
+            productImageClickListener = productImageClickListenerParams
             groceryListItemBinding = groceryListItemBindingParams
             groceryListItemBinding.groceryItemNameTextview.setOnClickListener(this)
             groceryListItemBinding.otherInformationTextview.setOnClickListener(this)
             groceryListItemBinding.checkBox.setOnCheckedChangeListener(this)
+            groceryListItemBinding.itemImage.setOnClickListener(productImageClickListener)
         }
 
         override fun onClick(view: View?) {
             val singleGroceryListActivity: SingleGroceryListActivity = context as SingleGroceryListActivity
             val groceryItemEntity = singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList[adapterPosition]
 
-            if (groceryItemEntity.bought == 1) {
-                // do nothing
-                return;
+            val id = view?.id
+            if(id == R.id.grocery_item_name_textview || id == R.id.other_information_textview){
+                if (groceryItemEntity.bought == 1) {
+                    // do nothing
+                    return;
+                }
+                val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
+                popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
+                popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition))
+                popupMenu.show()
+
             }
-            val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
-            popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
-            popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition))
-            popupMenu.show()
+
         }
 
         override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {

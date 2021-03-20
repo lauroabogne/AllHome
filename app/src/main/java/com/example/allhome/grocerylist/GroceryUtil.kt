@@ -1,19 +1,26 @@
 package com.example.allhome.grocerylist
 
+import android.content.Context
+import android.net.Uri
 import android.util.Log
+import android.view.View
+import androidx.databinding.Bindable
+import androidx.databinding.BindingAdapter
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import org.joda.time.format.DateTimeFormatter
+import java.io.File
 import java.text.DecimalFormat
 import java.text.SimpleDateFormat
 import java.util.*
 
 
 object GroceryUtil {
-
+    val FINAL_IMAGES_LOCATION = "item_images"
+    val TEMPORARY_IMAGES_LOCATION = "temporary_images";
     val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
     val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
@@ -180,6 +187,56 @@ object GroceryUtil {
         }
         return true
     }
+
+
+    fun doImageFromPathExists(context: Context, imageName:String): Boolean {
+
+        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        if(!storageDir.exists()){
+            return false
+        }
+        val imageFile  = File(storageDir, imageName)
+
+        if(imageFile.exists() && imageFile.isFile){
+
+            return true
+        }
+
+        return false
+    }
+
+    fun renameImageFile(context: Context, previousImageName:String, newImageName:String) {
+
+        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val imageFile  = File(storageDir, previousImageName)
+        imageFile.renameTo(File(storageDir, newImageName))
+
+    }
+
+    fun deleteImageFile(context: Context, imageName:String) {
+
+        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val imageFile  = File(storageDir, imageName)
+        imageFile.delete()
+
+    }
+
+    fun getImageFromPath(context: Context, imageName:String): Uri? {
+
+        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        if(!storageDir.exists()){
+            return null
+        }
+        val imageFile  = File(storageDir, imageName)
+
+        if(imageFile.exists() && imageFile.isFile){
+            return Uri.fromFile(imageFile)
+        }
+
+        return null
+    }
+
+
 
 
 
