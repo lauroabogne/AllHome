@@ -4,8 +4,7 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.ImageDecoder
+import android.graphics.*
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
@@ -24,6 +23,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
@@ -115,16 +115,17 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         dataBindingUtil.itemNameTextinput.threshold = 0
         dataBindingUtil.itemNameTextinput.setAdapter(itemNameAutoSuggestCustomAdapter)
         dataBindingUtil.itemNameTextinput.onItemClickListener =  OnItemClickListener { parent, view, position, id ->
-            val groceryItemEntity:GroceryItemEntity = parent.getItemAtPosition(position) as GroceryItemEntity
 
-
+            val groceryItemEntityForAutoSuggest:GroceryItemEntityForAutoSuggest = parent.getItemAtPosition(position) as GroceryItemEntityForAutoSuggest
+            val groceryItemEntity:GroceryItemEntity = groceryItemEntityForAutoSuggest.groceryItemEntity
             dataBindingUtil.groceryListViewModel?.selectedGroceryItem= groceryItemEntity
             // set 1 as default value
             dataBindingUtil.groceryListViewModel?.selectedGroceryItem!!.quantity = 1.0
 
-
-
-
+            val imageUri = GroceryUtil.getImageFromPath(this, groceryItemEntity.imageName)
+            if(imageUri !=null){
+                dataBindingUtil.groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri = imageUri
+            }
 
             dataBindingUtil.invalidateAll()
         }
@@ -495,11 +496,13 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     /**
      * Item name auto suggest adapter
      */
-    class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntity>):
-        ArrayAdapter<GroceryItemEntity>(context, 0, groceryItemEntitiesParams) {
-        private var groceryItemEntities: List<GroceryItemEntity>? = null
+    inner class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntityForAutoSuggest>):
+        ArrayAdapter<GroceryItemEntityForAutoSuggest>(context, 0, groceryItemEntitiesParams) {
+        private var groceryItemEntities: List<GroceryItemEntityForAutoSuggest>? = null
         init{
             groceryItemEntities = ArrayList(groceryItemEntitiesParams)
+
+
         }
 
         private var filter  = object: Filter(){
@@ -511,7 +514,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                     val results = FilterResults()
                     searchJob = launch(IO) {
                         val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntities(searchTerm)
+                        val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntitiesForAutoSuggest(searchTerm,groceryListUniqueId)
                         results.apply {
                             results.values = arrayList
                             results.count = arrayList.size
@@ -528,11 +531,11 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                     return
                 }
                 clear()
-                val res:List<GroceryItemEntity> = results?.values as ArrayList<GroceryItemEntity>
+                val res:List<GroceryItemEntityForAutoSuggest> = results?.values as ArrayList<GroceryItemEntityForAutoSuggest>
                 addAll(res)
             }
             override fun convertResultToString(resultValue: Any?): CharSequence {
-                return (resultValue as GroceryItemEntity).itemName
+                return (resultValue as GroceryItemEntityForAutoSuggest).groceryItemEntity.itemName
             }
         }
         override fun getFilter(): Filter {
@@ -546,7 +549,20 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                 textView = convertView as TextView?
             }
             val groceryItemEntity = getItem(position)
-            textView!!.setText(groceryItemEntity?.itemName)
+            textView!!.setText(groceryItemEntity?.groceryItemEntity?.itemName)
+
+            if(groceryItemEntity?.itemInListCount!! > 0){
+                textView.setPaintFlags(textView.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+                textView.setTextColor(Color.GRAY)
+
+            }else{
+                textView.setPaintFlags(0)
+                textView.setTextColor(Color.parseColor("#000000"))
+            }
+
+
+
+
             return textView!!
         }
     }

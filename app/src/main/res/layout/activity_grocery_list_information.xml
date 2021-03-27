@@ -50,19 +50,19 @@
                 android:id="@+id/scheduleTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:focusable="false"
-                android:longClickable="false"
                 android:cursorVisible="false"
-                android:text="@{GroceryUtil.INSTANCE.formatGroceryScheduledDate(GroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime)}"
-                android:inputType="none"
+                android:focusable="false"
                 android:hint="Schedule"
-                />
+                android:inputType="none"
+                android:longClickable="false"
+                android:text="@{GroceryUtil.INSTANCE.formatGroceryScheduledDate(GroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime)}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
             android:id="@+id/calendarImageView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
             android:paddingLeft="12dp"
             android:paddingTop="10dp"
             android:paddingRight="12dp"
@@ -72,9 +72,7 @@
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
             app:layout_constraintTop_toTopOf="@+id/textInputLayout2"
             app:srcCompat="@drawable/ic_calendar"
-            tools:ignore="VectorDrawableCompat"
-            android:background="?selectableItemBackgroundBorderless"
-            />
+            tools:ignore="VectorDrawableCompat" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout4"
@@ -91,13 +89,14 @@
                 android:layout_height="wrap_content"
                 android:hint="Location"
                 android:text="@{GroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.location}" />
-                />
+            />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageView
             android:id="@+id/locationImageView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
             android:paddingLeft="12dp"
             android:paddingTop="10dp"
             android:paddingRight="12dp"
@@ -106,8 +105,33 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textInputLayout4"
             app:srcCompat="@drawable/ic_location"
-            tools:ignore="VectorDrawableCompat"
-            android:background="?selectableItemBackgroundBorderless"/>
+            tools:ignore="VectorDrawableCompat" />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout3"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toStartOf="@+id/notificationSpinner"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout4">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/notificationTextInputEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Notify"
+                android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <Spinner
+            android:id="@+id/notificationSpinner"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:entries="@array/grocery_alarm_options"
+            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout3"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textInputLayout3" />
 
 
     </androidx.constraintlayout.widget.ConstraintLayout>

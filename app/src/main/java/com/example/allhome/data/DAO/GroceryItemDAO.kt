@@ -6,6 +6,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 
 @Dao
 interface GroceryItemDAO {
@@ -41,6 +42,9 @@ interface GroceryItemDAO {
 
     @Query("SELECT * from grocery_items WHERE item_name LIKE '%'||:itemName||'%' GROUP BY item_name ORDER BY item_name")
     fun getGroceryItemEntities(itemName:String):List<GroceryItemEntity>
+
+    @Query("SELECT *,(SELECT COUNT(*)  from grocery_items as gi WHERE gi.item_name = grocery_items.item_name  AND gi.grocery_list_unique_id =:groceryListUniqueId) AS itemInListCount from grocery_items WHERE item_name LIKE '%'||:itemName||'%' GROUP BY item_name ORDER BY item_name")
+    fun getGroceryItemEntitiesForAutoSuggest(itemName:String,groceryListUniqueId:String):List<GroceryItemEntityForAutoSuggest>
 
     @Query("SELECT unit from grocery_items WHERE unit LIKE '%'||:searchTerm||'%' GROUP BY unit ORDER BY unit")
     fun getGroceryItemEntityUnits(searchTerm:String):List<String>

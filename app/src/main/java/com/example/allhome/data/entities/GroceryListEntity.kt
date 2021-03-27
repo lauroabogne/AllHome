@@ -18,7 +18,8 @@ data class GroceryListEntity(
         @ColumnInfo(name = "shopping_datetime") var shoppingDatetime:String,
         @ColumnInfo(name = "location") var location:String,
         @ColumnInfo(name = "longitude") var longitude:Double,
-        @ColumnInfo(name = "latitude") var latitude:Double
+        @ColumnInfo(name = "latitude") var latitude:Double,
+        @ColumnInfo(name = "viewing_type",defaultValue="0") var viewingType:Int
 )
 
 @Parcelize

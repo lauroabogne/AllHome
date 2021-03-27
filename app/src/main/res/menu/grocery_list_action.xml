@@ -8,6 +8,9 @@
         android:id="@+id/view_items_menu"
         android:title="Go shopping" />
     <item
+        android:id="@+id/share_menu"
+        android:title="Share" />
+    <item
         android:id="@+id/duplicate_menu"
         android:title="Duplicate" />
     <item

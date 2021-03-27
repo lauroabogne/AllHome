@@ -10,6 +10,7 @@ import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
+import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -80,9 +81,17 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
             holder.groceryListItemBinding.categoryDivierTextview.visibility = View.GONE
             holder.groceryListItemBinding.checkBox.isChecked = holder.groceryListItemBinding.groceryItemEntity?.bought == 1
             if (groceryItemEntity.bought == 0) {
+
                 holder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.WHITE)
+
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    (holder.groceryListItemBinding.root as CardView).cardElevation = 10F
+                }
             } else {
-                holder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#E5E2E2"))
+                holder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#F2F3F4"))
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    (holder.groceryListItemBinding.root as CardView).cardElevation = 0F
+                }
             }
 
 
@@ -138,6 +147,11 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
             if (isChecked && buttonView!!.isPressed) {
 
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    (groceryListItemBinding.root as CardView).cardElevation = 0F
+                    (groceryListItemBinding.root as CardView).elevation = 0F
+                }
+
                 mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
                     withContext(Main) {
@@ -162,12 +176,16 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                         val layoutManager: LinearLayoutManager = singleGroceryListActivity.dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager
                         val visible: Int = layoutManager.findFirstVisibleItemPosition()
                         layoutManager.scrollToPosition(visible)
-                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#E5E2E2"))
+                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#F2F3F4"))
                     }
                 }
 
             } else if (!isChecked && buttonView!!.isPressed) {
 
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                    (groceryListItemBinding.root as CardView).cardElevation = 10F
+                    (groceryListItemBinding.root as CardView).elevation = 10F
+                }
 
                 mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity!!.id, groceryItemEntity!!.itemName)

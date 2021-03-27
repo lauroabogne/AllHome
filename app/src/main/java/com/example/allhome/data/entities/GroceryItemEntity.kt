@@ -5,12 +5,10 @@ import android.net.Uri
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
+import androidx.cardview.widget.CardView
 import androidx.databinding.Bindable
 import androidx.databinding.BindingAdapter
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.Ignore
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 
@@ -22,7 +20,7 @@ import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
     @ColumnInfo(name = "quantity") var quantity:Double,
     @ColumnInfo(name = "unit") val unit:String,
     @ColumnInfo(name = "price_per_unit") val pricePerUnit:Double,
-    @ColumnInfo(name="category") val category:String,
+    @ColumnInfo(name="category") var category:String,
     @ColumnInfo(name = "notes") val notes:String,
     @ColumnInfo(name = "image_name") var imageName:String,
     @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int
@@ -36,6 +34,10 @@ import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 
 
 }
+data class GroceryItemEntityForAutoSuggest(
+    @Embedded val groceryItemEntity: GroceryItemEntity,
+    var itemInListCount: Int = 0
+)
 
 @BindingAdapter("android:productImage")
 fun setImageToImageView(view: View, groceryListItemEntity: GroceryItemEntity?){
@@ -68,6 +70,21 @@ fun setImageToImageViewForAddingItem(view: View, groceryListViewModel: GroceryLi
         return
     }
 
-    view.setBackgroundColor(Color.RED)
+
+}
+@BindingAdapter("android:setCardElevation")
+fun setCardElevation(view: View,groceryItemEntity:GroceryItemEntity){
+
+
+    if(groceryItemEntity.bought == 1 && !groceryItemEntity.forCategoryDivider){
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            (view as CardView).cardElevation = 0F
+        }
+    }else{
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+            (view as CardView).cardElevation = 10F
+        }
+    }
+
 
 }

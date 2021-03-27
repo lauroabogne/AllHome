@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.ActionBarDrawerToggle
 import com.google.android.material.navigation.NavigationView
 import androidx.navigation.ui.AppBarConfiguration
@@ -13,12 +14,18 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.fragment.app.Fragment
+import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
+import com.example.allhome.grocerylist.SingleGroceryListActivity
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var drawerLayout: DrawerLayout;
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,20 +49,28 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_grocery_list->{
                     //val intent = Intent (applicationContext,GroceryListActivity::class.java)
                     //startActivity(intent)
-                    fragmentProcessor()
+                    fragmentProcessor(GroceryListFragment())
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
-
 
             }
             true
         }
+        fragmentProcessor(GroceryListFragment())
 
+
+        intent?.action?.let{
+            intent?.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+                val intent = Intent(this, SingleGroceryListActivity::class.java)
+                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
+                startActivity(intent)
+            }
+        }
     }
 
-    fun fragmentProcessor(){
+    fun fragmentProcessor(fragment: Fragment){
         supportFragmentManager.beginTransaction().apply {
-            replace(R.id.home_fragment_container,GroceryListFragment())
+            replace(R.id.home_fragment_container,fragment)
             commit()
         }
 
@@ -64,6 +79,21 @@ class MainActivity : AppCompatActivity() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         drawerLayout.openDrawer(GravityCompat.START)
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        intent?.action?.let{
+            intent?.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+                val intent = Intent(this, SingleGroceryListActivity::class.java)
+                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
+                startActivity(intent)
+            }
+        }
+
+
+        Toast.makeText(this,"NEW INTENT",Toast.LENGTH_SHORT).show()
     }
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
