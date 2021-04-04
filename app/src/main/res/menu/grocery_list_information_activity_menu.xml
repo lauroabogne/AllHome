@@ -5,6 +5,6 @@
         android:id="@+id/update_menu"
         android:title="Update" />
     <item
-        android:id="@+id/view_items_menu"
+        android:id="@+id/go_shopping_menu"
         android:title="Go shopping" />
 </menu>

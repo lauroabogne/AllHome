@@ -7,6 +7,7 @@ import android.app.TimePickerDialog
 import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Log
@@ -67,17 +68,21 @@ class GroceryListInformationActivity : AppCompatActivity() {
 
 
 
-
-
         mDataBindingUtil.calendarImageView.setOnClickListener({
-
+            showCalendar()
         })
 
         mDataBindingUtil.scheduleTextInputEditText.setOnClickListener({
             showCalendar()
         })
         mDataBindingUtil.locationImageView.setOnClickListener({
-            Toast.makeText(this, "Location", Toast.LENGTH_SHORT).show()
+
+            val location = mDataBindingUtil.locationTextInputEditText.text.toString()
+
+            val gmmIntentUri = Uri.parse("geo:0,0?q="+location)
+            val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+            mapIntent.setPackage("com.google.android.apps.maps")
+            startActivity(mapIntent)
         })
     }
 
@@ -93,13 +98,19 @@ class GroceryListInformationActivity : AppCompatActivity() {
             R.id.update_menu -> {
 
 
-
                 /*if (true) {
                     Toast.makeText(this, "Alarmed set", Toast.LENGTH_SHORT).show()
                     return false
                 }*/
+
+                val notifyType = mDataBindingUtil.notificationSpinner.selectedItem.toString()
+                val notifyText = mDataBindingUtil.notificationTextInputEditText.text.toString()
+                val notifyInt = notifyText.toInt()
+
                 mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.name = mDataBindingUtil.nameTextInputEditText.text.toString().trim()
                 mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.location = mDataBindingUtil.locationTextInputEditText.text.toString().trim()
+                mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.notify = notifyInt
+                mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.notifyType = notifyType
 
                 mGroceryListInformationActivityViewModel.coroutineScope.launch {
                     mGroceryListInformationActivityViewModel.updateGroceryList(this@GroceryListInformationActivity, mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity)
@@ -115,7 +126,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
                     }
                 }
             }
-            R.id.view_items_menu -> {
+            R.id.go_shopping_menu -> {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
                 intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
                 this.startActivity(intent)
@@ -157,14 +168,14 @@ class GroceryListInformationActivity : AppCompatActivity() {
 
         }
         val timePickerDialog = TimePickerDialog(this, timeSetListener, calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), false)
-        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "Cancel", DialogInterface.OnClickListener { dialog, which ->
+        timePickerDialog.setButton(DialogInterface.BUTTON_NEGATIVE, "No time", DialogInterface.OnClickListener { dialog, which ->
             mDataBindingUtil.groceryListInformationActivityViewModel!!.mGroceryListWithItemCount!!.groceryListEntity.shoppingDatetime = date + " 00:00:00"
             mDataBindingUtil.invalidateAll()
         })
         timePickerDialog.show()
 
     }
-    fun createAlarm(groceryListUniqueId:String){
+    private fun createAlarm(groceryListUniqueId: String){
 
         mDataBindingUtil.groceryListInformationActivityViewModel!!.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime
 
@@ -172,7 +183,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
         val notificationTypeSelected =mDataBindingUtil.notificationSpinner.selectedItem.toString()
 
         val notificationDatetime = generatedAlarmDatetime(notificationStringData, notificationTypeSelected)
-        Log.e("selected", notificationTypeSelected);
+
 
         // Get AlarmManager instance
         val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -180,21 +191,29 @@ class GroceryListInformationActivity : AppCompatActivity() {
         val intent = createIntent(groceryListUniqueId)
         val pendingIntent = createPendingIntent(intent)
 
-        //val ALARM_DELAY_IN_SECOND = 60
-       // val alarmTimeAtUTC = System.currentTimeMillis() + (ALARM_DELAY_IN_SECOND * 1000L)
+        //cancel if there is alarm set previously
+        alarmManager.cancel(pendingIntent)
+
+        if(notificationDatetime <=0){
+
+            /**
+             * do nothing
+             */
+            return
+        }
 
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 
-            Log.e("executed", "break1")
+
             alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
 
         }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 
-            Log.e("executed", "break2")
+
             alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
         }else{
-            Log.e("executed", "break4")
+
             alarmManager.set(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
         }
     }
@@ -202,12 +221,18 @@ class GroceryListInformationActivity : AppCompatActivity() {
     private fun generatedAlarmDatetime(notifyValue: Int, notifyType: String):Long{
 
 
-        val shoppingDateTimeString = mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime
+        var shoppingDateTimeString:String = mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime
 
+        if(shoppingDateTimeString.length <=0){
+
+            return 0
+        }
+        if(shoppingDateTimeString.split(" ").size <=1){
+            shoppingDateTimeString = shoppingDateTimeString+" 00:00:00"
+        }
 
         val formatter: DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
         val datetime:DateTime = formatter.parseDateTime(shoppingDateTimeString)
-
 
 
         when(notifyType){
@@ -215,25 +240,25 @@ class GroceryListInformationActivity : AppCompatActivity() {
                 return 0
             }
             resources.getString(R.string.grocery_notification_same_day_and_time) -> {
-                Toast.makeText(this, "NOne", Toast.LENGTH_SHORT).show()
+
                 return datetime.millis;
             }
             resources.getString(R.string.grocery_notification_minute_before) -> {
-                Toast.makeText(this, "NOne", Toast.LENGTH_SHORT).show()
-                return datetime.plusMinutes(notifyValue).millis
+
+                return datetime.minusMinutes(notifyValue).millis
             }
             resources.getString(R.string.grocery_notification_hour_before) -> {
-                Toast.makeText(this, "NOne", Toast.LENGTH_SHORT).show()
-                return datetime.plusHours(notifyValue).millis
+
+                return datetime.minusHours(notifyValue).millis
             }
             resources.getString(R.string.grocery_notification_day_before) -> {
-                Toast.makeText(this, "NOne", Toast.LENGTH_SHORT).show()
-                return datetime.plusDays(notifyValue).millis
+
+                return datetime.minusDays(notifyValue).millis
             }
         }
         return 0
     }
-    private fun createIntent(groceryListUniqueId:String):Intent{
+    private fun createIntent(groceryListUniqueId: String):Intent{
         val intent = Intent(this, GroceryListNotificationReceiver::class.java)
         intent.setAction(GroceryListNotificationReceiver.GROCERY_NOTIFICATION_ACTION)
         intent.putExtra(GroceryListNotificationReceiver.GROCERY_LIST_UNIQUE_ID, groceryListUniqueId)

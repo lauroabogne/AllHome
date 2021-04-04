@@ -2,18 +2,11 @@ package com.example.allhome.grocerylist
 
 import android.animation.*
 import android.annotation.SuppressLint
-import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.graphics.*
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.provider.MediaStore
 import android.util.Log
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -22,9 +15,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -32,22 +23,15 @@ import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
-import com.example.allhome.MainActivity
 import com.example.allhome.R
-import com.example.allhome.data.GroceryItem
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.databinding.ActivitySingleGroceryListBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
-import java.text.SimpleDateFormat
 import java.util.*
 
 
@@ -103,20 +87,20 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         }
 
-        val groceryItemRecyclerViewAdapter = GroceryItemRecyclerViewAdapter(this,productImageClickListener)
+        val groceryItemRecyclerViewAdapter = GroceryItemRecyclerViewAdapter(this, productImageClickListener)
 
         dataBindingUtil.groceryItemRecyclerview.adapter = groceryItemRecyclerViewAdapter
 
         mGroceryListViewModel.selectedGroceryList.observe(this, Observer {
             supportActionBar?.title = it.name;
 
-            Log.e("CHANGE","CHNAGED")
-            if(it.viewingType == GroceryListViewModel.GROUP_BY_CATEGORY){
+            Log.e("CHANGE", "CHNAGED")
+            if (it.viewingType == GroceryListViewModel.GROUP_BY_CATEGORY) {
 
                 mGroceryListViewModel.coroutineScope.launch {
 
                     mGroceryListViewModel.groupByCategory()
-                    withContext(Main){
+                    withContext(Main) {
                         mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.GROUP_BY_CATEGORY
                         dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
                     }
@@ -149,7 +133,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
         if (mGroceryListViewModel.selectedGroceryListItemList.isNullOrEmpty()) {
 
             mGroceryListViewModel.coroutineScope.launch {
-                val groceryItemEntities = mGroceryListViewModel.getGroceryItems(this@SingleGroceryListActivity, groceryListUniqueId)
+                val groceryItemEntities = mGroceryListViewModel.getGroceryItems(this@SingleGroceryListActivity, groceryListUniqueId,GroceryItemEntityValues.ACTIVE_STATUS)
                 mGroceryListViewModel.separateBougthItems(groceryItemEntities)
                 mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
                 groceryItemRecyclerViewAdapter.mGroceryItems = mGroceryListViewModel.selectedGroceryListItemList
@@ -270,7 +254,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         finish();
         startActivity(intent);
-        Toast.makeText(this,"New intent",Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "New intent", Toast.LENGTH_SHORT).show()
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -438,22 +422,27 @@ class SingleGroceryListActivity : AppCompatActivity() {
     }
 
     override fun onBackPressed() {
-
+        val returnIntent = Intent()
+        returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+        setResult(RESULT_OK, returnIntent)
         finish()
 
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             android.R.id.home -> {
-                finish()
 
+                val returnIntent = Intent()
+                returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                setResult(RESULT_OK, returnIntent)
+                finish()
 
 
             }
             R.id.menu_sort_by_category -> {
                 mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.GROUP_BY_CATEGORY
                 mGroceryListViewModel.coroutineScope.launch {
-                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity,GroceryListViewModel.GROUP_BY_CATEGORY,mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
+                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.GROUP_BY_CATEGORY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
                     mGroceryListViewModel.groupByCategory()
 
                     withContext(Main) {
@@ -465,7 +454,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.SORT_ALPHABETICALLY
 
                 mGroceryListViewModel.coroutineScope.launch {
-                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity,GroceryListViewModel.SORT_ALPHABETICALLY,mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
+                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.SORT_ALPHABETICALLY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
                     mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
                     mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
 
@@ -545,10 +534,11 @@ class SingleGroceryListActivity : AppCompatActivity() {
         currentAnimator = AnimatorSet().apply {
             play(
                 ObjectAnimator.ofFloat(
-                expandedImageView,
-                View.X,
-                startBounds.left,
-                finalBounds.left)
+                    expandedImageView,
+                    View.X,
+                    startBounds.left,
+                    finalBounds.left
+                )
             ).apply {
                 with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top, finalBounds.top))
                 with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale, 1f))
@@ -608,7 +598,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         val groceryItemEntity:GroceryItemEntity = it.tag as GroceryItemEntity
         groceryItemEntity.imageName;
-        val imageUri = GroceryUtil.getImageFromPath(it.context,groceryItemEntity.imageName)
+        val imageUri = GroceryUtil.getImageFromPath(it.context, groceryItemEntity.imageName)
 
         zoomImageFromThumb(it, imageUri!!)
 

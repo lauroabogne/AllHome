@@ -5,7 +5,7 @@
         android:id="@+id/view_information_menu"
         android:title="View information" />
     <item
-        android:id="@+id/view_items_menu"
+        android:id="@+id/go_shopping_menu"
         android:title="Go shopping" />
     <item
         android:id="@+id/share_menu"

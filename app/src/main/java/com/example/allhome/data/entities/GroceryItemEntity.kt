@@ -23,7 +23,8 @@ import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
     @ColumnInfo(name="category") var category:String,
     @ColumnInfo(name = "notes") val notes:String,
     @ColumnInfo(name = "image_name") var imageName:String,
-    @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int
+    @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int,
+    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int
 
      ){
     @PrimaryKey(autoGenerate = true) var id:Int  = 0
@@ -38,6 +39,12 @@ data class GroceryItemEntityForAutoSuggest(
     @Embedded val groceryItemEntity: GroceryItemEntity,
     var itemInListCount: Int = 0
 )
+class GroceryItemEntityValues{
+    companion object{
+        val ACTIVE_STATUS = 0
+        val DELETED_STATUS = 1
+    }
+}
 
 @BindingAdapter("android:productImage")
 fun setImageToImageView(view: View, groceryListItemEntity: GroceryItemEntity?){

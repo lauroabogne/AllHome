@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.View
 import androidx.databinding.Bindable
 import androidx.databinding.BindingAdapter
+import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
 import org.joda.time.DateTime
@@ -188,6 +189,16 @@ object GroceryUtil {
         return true
     }
 
+    fun doGroceryListHasAlarm(context:Context,groceryListEntity: GroceryListEntity):Boolean{
+        if(groceryListEntity.shoppingDatetime.trim().length <=0 || groceryListEntity.shoppingDatetime.trim().equals("0000-00-00 00:00:00")){
+            return false
+        }
+        if(groceryListEntity.notifyType == context.resources.getString(R.string.grocery_notification_none)){
+            return false
+        }
+        return true
+    }
+
 
     fun doImageFromPathExists(context: Context, imageName:String): Boolean {
 
@@ -234,6 +245,17 @@ object GroceryUtil {
         }
 
         return null
+    }
+
+    fun notify(groceryListEntity: GroceryListEntity?):String{
+
+        if(groceryListEntity == null){
+            return ""
+        }
+        if(groceryListEntity!!.notify <=0){
+            return ""
+        }
+        return groceryListEntity.notify.toString()
     }
 
 

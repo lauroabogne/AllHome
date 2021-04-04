@@ -11,11 +11,14 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
+import androidx.core.content.res.ResourcesCompat
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.GroceryItemEntityValues
+import com.example.allhome.data.entities.GroceryListEntityValues
 import com.example.allhome.databinding.GroceryListProductBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import kotlinx.coroutines.CoroutineScope
@@ -25,6 +28,7 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.text.SimpleDateFormat
 import java.util.*
 
 class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<GroceryItemRecyclerViewAdapter.ItemViewHolder>() {
@@ -145,6 +149,8 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
             val singleGroceryListActivity: SingleGroceryListActivity = context as SingleGroceryListActivity
             val groceryItemEntity: GroceryItemEntity = singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList[adapterPosition]
 
+
+
             if (isChecked && buttonView!!.isPressed) {
 
                 if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
@@ -154,6 +160,11 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
                 mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
+
+                    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    val currentDatetime: String = simpleDateFormat.format(Date())
+                    mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
+
                     withContext(Main) {
 
                         groceryItemEntity.bought = 1
@@ -176,7 +187,8 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                         val layoutManager: LinearLayoutManager = singleGroceryListActivity.dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager
                         val visible: Int = layoutManager.findFirstVisibleItemPosition()
                         layoutManager.scrollToPosition(visible)
-                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(Color.parseColor("#F2F3F4"))
+
+                        groceryListItemBinding.groceryItemParentLayout.setBackgroundColor( ResourcesCompat.getColor(context.resources,R.color.gray_background,null))
                     }
                 }
 
@@ -189,6 +201,11 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
                 mGroceryListViewModel.coroutineScope.launch {
                     singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
+
+                    val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                    val currentDatetime: String = simpleDateFormat.format(Date())
+                    mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
+
                     withContext(Main) {
                         groceryItemEntity.bought = 0
                         singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.add(groceryItemEntity)
@@ -253,9 +270,15 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
 
                     mGroceryListViewModel.coroutineScope.launch {
-                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.id, groceryItemEntity.groceryListUniqueId)
+                        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        val currentDatetime: String = simpleDateFormat.format(Date())
+                        mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
+
+                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.id, groceryItemEntity.groceryListUniqueId, GroceryItemEntityValues.DELETED_STATUS)
                         singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.remove(groceryItemEntity)
                         singleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, singleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
+
+
 
                         withContext(Dispatchers.Main) {
 

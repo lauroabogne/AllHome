@@ -1,11 +1,17 @@
 package com.example.allhome.data.entities
 
+import android.view.View
+import android.widget.Spinner
+import androidx.cardview.widget.CardView
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.allhome.R
 import kotlinx.android.parcel.Parcelize
 import java.io.Serializable
+
 
 
 @Parcelize
@@ -19,7 +25,13 @@ data class GroceryListEntity(
         @ColumnInfo(name = "location") var location:String,
         @ColumnInfo(name = "longitude") var longitude:Double,
         @ColumnInfo(name = "latitude") var latitude:Double,
-        @ColumnInfo(name = "viewing_type",defaultValue="0") var viewingType:Int
+        @ColumnInfo(name = "viewing_type",defaultValue="0") var viewingType:Int,
+        @ColumnInfo(name = "notify",defaultValue="0") var notify:Int,
+        @ColumnInfo(name = "notify_type",defaultValue="none") var notifyType:String,
+        @ColumnInfo(name = "item_status",defaultValue="0") var itemStatus:Int,//0 active,1=deleted,2=permanently deleted
+        @ColumnInfo(name = "datetime_status_updated") var datetimeStatusUpdated:String,
+        @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int //0=not yet uploaded,1=uploaded
+
 )
 
 @Parcelize
@@ -28,6 +40,28 @@ data class GroceryListWithItemCount(
     val itemCount:Int,
     val itemBought:Int
 )
+
+class GroceryListEntityValues{
+    companion object{
+        val UPLOADED = 1
+        val NOT_YET_UPLOADED = 0
+
+        val ACTIVE_STATUS = 0
+        val DELETED_STATUS = 1
+        val PERMANENTLY_DELETED_STATUS = 2
+    }
+}
+
+@BindingAdapter("android:setSelectedNotificationType")
+fun setSelectedNotificationType(view: Spinner, groceryListEntity:GroceryListEntity?){
+
+    if(groceryListEntity == null){
+        return
+    }
+    val index =  view.context.resources.getStringArray(R.array.grocery_alarm_options).indexOf(groceryListEntity.notifyType)
+    view.setSelection(index)
+
+}
 
 
 

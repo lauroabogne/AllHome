@@ -104,7 +104,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/textInputLayout4"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textInputLayout4"
-            app:srcCompat="@drawable/ic_location"
+            app:srcCompat="@drawable/ic_map_24"
             tools:ignore="VectorDrawableCompat" />
 
         <com.google.android.material.textfield.TextInputLayout
@@ -120,6 +120,7 @@
                 android:id="@+id/notificationTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:text="@{GroceryUtil.INSTANCE.notify(GroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity)}"
                 android:hint="Notify"
                 android:inputType="number" />
         </com.google.android.material.textfield.TextInputLayout>
@@ -129,6 +130,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:entries="@array/grocery_alarm_options"
+
+            android:setSelectedNotificationType="@{GroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity}"
             app:layout_constraintBottom_toBottomOf="@+id/textInputLayout3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textInputLayout3" />
