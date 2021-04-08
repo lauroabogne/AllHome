@@ -122,6 +122,16 @@ object GroceryUtil {
         }
     }
 
+    fun formatCreatedDatetimeString(datetimeString:String):String{
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val date: Date? = simpleDateFormat.parse(datetimeString)
+        return "Created:\r\n"+SimpleDateFormat("MMM d, Y h:mm a").format(date)
+    }
+    fun formatDeletedDatetimeString(datetimeString:String):String{
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val date: Date? = simpleDateFormat.parse(datetimeString)
+        return "Deleted:\r\n"+SimpleDateFormat("MMM d, Y h:mm a").format(date)
+    }
     fun formatGroceryScheduledDateForGroceryListViewing(stringDate: String?):String?{
 
         if(stringDate == null || stringDate.trim().length <=0 || stringDate.trim().equals("0000-00-00 00:00:00") ){

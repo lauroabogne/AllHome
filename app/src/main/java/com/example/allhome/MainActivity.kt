@@ -18,6 +18,7 @@ import androidx.fragment.app.Fragment
 import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
+import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
 
 class MainActivity : AppCompatActivity() {
 
@@ -77,7 +78,22 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        drawerLayout.openDrawer(GravityCompat.START)
+        when(item.itemId){
+            android.R.id.home->{
+                drawerLayout.openDrawer(GravityCompat.START)
+            }
+            R.id.grocery_list_menu->{
+                Toast.makeText(this,"List",Toast.LENGTH_SHORT).show()
+                fragmentProcessor(GroceryListFragment())
+            }
+            R.id.grocery_list_trash_menu->{
+                Toast.makeText(this,"Trash",Toast.LENGTH_SHORT).show()
+                fragmentProcessor(TrashGroceryListFragment())
+
+
+            }
+        }
+
         return super.onOptionsItemSelected(item)
     }
 
@@ -94,11 +110,6 @@ class MainActivity : AppCompatActivity() {
 
 
         Toast.makeText(this,"NEW INTENT",Toast.LENGTH_SHORT).show()
-    }
-    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        menuInflater.inflate(R.menu.main, menu)
-        return true
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

@@ -4,9 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.view.animation.Animation
 import android.view.animation.ScaleAnimation
 import android.widget.Button
@@ -49,6 +47,11 @@ class GroceryListFragment : Fragment(),OnItemAdded {
 
     }
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        requireActivity().title = "Grocery List"
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mGroceryListFragmentViewModel = ViewModelProvider(this).get(GroceryListFragmentViewModel::class.java)
@@ -94,6 +97,11 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         return mDataBindingUtil.root
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        //super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.grocery_list_menu,menu)
+    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
 
         if(requestCode == VIEW_INFORMATION && resultCode == Activity.RESULT_OK){
@@ -104,47 +112,6 @@ class GroceryListFragment : Fragment(),OnItemAdded {
 
                 val groceryListUniqueId = data.getStringExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)
                 updateRecyclerViewList(groceryListUniqueId!!)
-                /*mGroceryListFragmentViewModel.coroutineScope.launch {
-
-                    val index = mGroceryListFragmentViewModel.getItemIndex(groceryListUniqueId!!)
-                    val groceryListWithItemCount = mGroceryListFragmentViewModel.getGroceryListWithItemCount(this@GroceryListFragment.requireContext(), groceryListUniqueId)
-
-                    mGroceryListFragmentViewModel.groceryLists.set(index, groceryListWithItemCount)
-
-                    withContext(Main){
-
-                        val scrollListener = object : RecyclerView.OnScrollListener() {
-                            var found = false
-                            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-
-                                val viewHolder = mDataBindingUtil.groceryListRecyclerview.findViewHolderForAdapterPosition(index)
-
-                                if (viewHolder != null && !found) {
-                                    animateItem(viewHolder)
-                                    mDataBindingUtil.groceryListRecyclerview.removeOnScrollListener(this)
-                                    found = true
-                                }
-
-                            }
-                        }
-
-
-                        val firstVisibleItemPosition = (mDataBindingUtil.groceryListRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                        val lastVisibleItemPosition = (mDataBindingUtil.groceryListRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-
-                        if(index >= firstVisibleItemPosition && index <= lastVisibleItemPosition){
-                            val viewHolder = mDataBindingUtil.groceryListRecyclerview.findViewHolderForAdapterPosition(index)
-                            animateItem(viewHolder!!)
-                        }else{
-                            mDataBindingUtil.groceryListRecyclerview.addOnScrollListener(scrollListener)
-                        }
-
-                        mDataBindingUtil.groceryListRecyclerview.adapter?.notifyItemChanged(index)
-                       *//* mDataBindingUtil.groceryListRecyclerview.scrollToPosition(index)*//*
-
-                    }
-
-                }*/
 
             }
         }else if(requestCode == OPEN_SINGLE_GROCERY_LIST_REQUEST){
@@ -155,8 +122,8 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         }
 
     }
-    fun updateRecyclerViewList(groceryListUniqueId:String){
 
+    fun updateRecyclerViewList(groceryListUniqueId:String){
         mGroceryListFragmentViewModel.coroutineScope.launch {
 
             val index = mGroceryListFragmentViewModel.getItemIndex(groceryListUniqueId!!)

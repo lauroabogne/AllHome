@@ -15,21 +15,22 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
+        android:launchMode="singleTop"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:launchMode="singleTop"
         android:theme="@style/Theme.AllHome">
+        <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity"></activity>
+
         <receiver
             android:name=".GroceryListNotificationReceiver"
             android:enabled="true"
-            android:exported="true"></receiver>
+            android:exported="true" />
 
         <activity android:name=".grocerylist.TestMainActivity" />
         <activity android:name=".grocerylist.GroceryListInformationActivity" />
         <activity
             android:name=".grocerylist.SingleGroceryListActivity"
-            android:launchMode="singleTop"
-            />
+            android:launchMode="singleTop" />
         <activity
             android:name=".grocerylist.CreateGroceryListActivity"
             android:label="@string/title_activity_create_grocery_list"

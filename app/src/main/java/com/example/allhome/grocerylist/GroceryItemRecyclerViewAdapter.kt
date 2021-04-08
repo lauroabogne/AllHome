@@ -98,15 +98,6 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                 }
             }
 
-
-           /* val imageUri = GroceryUtil.getImageFromPath(context,groceryItemEntity.imageName)
-
-            imageUri?.let {
-                holder.groceryListItemBinding.itemImage.setImageURI(it)
-                holder.groceryListItemBinding.itemImage.visibility = View.VISIBLE
-            }?:run {
-                holder.groceryListItemBinding.itemImage.visibility = View.GONE
-            }*/
         }
 
 

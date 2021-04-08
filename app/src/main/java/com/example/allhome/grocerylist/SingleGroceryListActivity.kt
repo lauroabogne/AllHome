@@ -94,7 +94,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
         mGroceryListViewModel.selectedGroceryList.observe(this, Observer {
             supportActionBar?.title = it.name;
 
-            Log.e("CHANGE", "CHNAGED")
             if (it.viewingType == GroceryListViewModel.GROUP_BY_CATEGORY) {
 
                 mGroceryListViewModel.coroutineScope.launch {
