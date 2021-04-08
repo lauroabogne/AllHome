@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/trash_grocery_list_restore_menu"
+        android:title="Restore" />
+    <item
+        android:id="@+id/trash_grocery_list_create_copy_menu"
+        android:title="Create copy to grocery list" />
+    <item
+        android:id="@+id/trash_grocery_list_delete_permanently_menu"
+        android:title="Delete permanently" />
+</menu>

@@ -14,7 +14,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class GroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, groceryItemParams: GroceryItemEntity?) : ViewModel() {
+class TrashGroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, groceryItemParams: GroceryItemEntity?) : ViewModel() {
 
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("SingleGroceryListActivity"))
 

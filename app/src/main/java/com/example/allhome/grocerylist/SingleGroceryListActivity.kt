@@ -1,31 +1,37 @@
 package com.example.allhome.grocerylist
 
+import android.animation.*
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.*
+import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.view.animation.Animation
+import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
+import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.RecyclerView.OnScrollListener
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.databinding.ActivitySingleGroceryListBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
-import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.*
 
 
@@ -36,9 +42,20 @@ class SingleGroceryListActivity : AppCompatActivity() {
     lateinit var mItemTouchHelper: ItemTouchHelper;
     var groceryListUniqueId: String = ""
 
+    // Hold a reference to the current animator,
+    // so that it can be canceled mid-way.
+    private var currentAnimator: Animator? = null
+
+    // The system "short" animation time duration, in milliseconds. This
+    // duration is ideal for subtle animations or animations that occur
+    // very frequently.
+    private var shortAnimationDuration: Int = 0
+
     companion object {
         val ADD_ITEM_REQUEST = 1;
         val UPDATE_ITEM_REQUEST = 2;
+        val REQUEST_IMAGE_CAPTURE = 3
+        val REQUEST_PICK_IMAGE = 4
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,20 +63,23 @@ class SingleGroceryListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_single_grocery_list)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+
         intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
 
+        shortAnimationDuration = resources.getInteger(android.R.integer.config_shortAnimTime)
 
         // create AddGroceryListItemActivityViewModel using AddGroceryListItemActivityViewModelFactory
         val addGroceryListItemActivityViewModelFactory = GroceryListViewModelFactory(null, null)
         mGroceryListViewModel = ViewModelProvider(this, addGroceryListItemActivityViewModelFactory).get(
-                GroceryListViewModel::class.java
+            GroceryListViewModel::class.java
         )
 
 
         //Bind data
-        dataBindingUtil = DataBindingUtil.setContentView<ActivitySingleGroceryListBinding>(this, R.layout.activity_single_grocery_list
+        dataBindingUtil = DataBindingUtil.setContentView<ActivitySingleGroceryListBinding>(
+            this, R.layout.activity_single_grocery_list
         ).apply {
             this.lifecycleOwner = this@SingleGroceryListActivity
             this.groceryListViewModel = mGroceryListViewModel
@@ -67,45 +87,39 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         }
 
-        val groceryItemRecyclerViewAdapter = GroceryItemRecyclerViewAdapter(this)
+        val groceryItemRecyclerViewAdapter = GroceryItemRecyclerViewAdapter(this, productImageClickListener)
 
         dataBindingUtil.groceryItemRecyclerview.adapter = groceryItemRecyclerViewAdapter
-        mGroceryListViewModel.setSelectedGroceryList(this, groceryListUniqueId).observe(this,
-                Observer {
-                    supportActionBar?.title = mGroceryListViewModel.selectedGroceryList.value?.name;
-                })
 
-        mGroceryListViewModel.sortingAndGrouping.observe(this, Observer {
-            when(it){
-                GroceryListViewModel.SORT_ALPHABETICALLY->{
+        mGroceryListViewModel.selectedGroceryList.observe(this, Observer {
+            supportActionBar?.title = it.name;
 
-                    CoroutineScope(IO).launch {
-                        mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
-                        mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems,mGroceryListViewModel.boughtGroceryItems)
-                        withContext(Main){
-                            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
-                        }
+            if (it.viewingType == GroceryListViewModel.GROUP_BY_CATEGORY) {
+
+                mGroceryListViewModel.coroutineScope.launch {
+
+                    mGroceryListViewModel.groupByCategory()
+                    withContext(Main) {
+                        mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.GROUP_BY_CATEGORY
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
                     }
-
-
                 }
-                GroceryListViewModel.GROUP_BY_CATEGORY->{
 
-                    CoroutineScope(IO).launch {
-                        mGroceryListViewModel.groupByCategory()
-                        withContext(Main){
-                            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
-                        }
-                    }
-
-
-                }
             }
+
+
         })
+
+        mGroceryListViewModel.coroutineScope.launch {
+            mGroceryListViewModel.setSelectedGroceryList(this@SingleGroceryListActivity, groceryListUniqueId)
+        }
+
+
+
 
         if (mGroceryListViewModel.selectedGroceryListEntity == null) {
 
-            CoroutineScope(IO).launch {
+            mGroceryListViewModel.coroutineScope.launch {
                 mGroceryListViewModel.setSelectedGroceryList(this@SingleGroceryListActivity, groceryListUniqueId)
                 withContext(Main) {
                     //supportActionBar?.title = mGroceryListViewModel.selectedGroceryList?.name;
@@ -117,12 +131,14 @@ class SingleGroceryListActivity : AppCompatActivity() {
         }
         if (mGroceryListViewModel.selectedGroceryListItemList.isNullOrEmpty()) {
 
-            CoroutineScope(IO).launch {
-                val groceryItemEntities = mGroceryListViewModel.getGroceryItems(this@SingleGroceryListActivity, groceryListUniqueId)
+            mGroceryListViewModel.coroutineScope.launch {
+                val groceryItemEntities = mGroceryListViewModel.getGroceryItems(this@SingleGroceryListActivity, groceryListUniqueId,GroceryItemEntityValues.ACTIVE_STATUS)
+                mGroceryListViewModel.separateBougthItems(groceryItemEntities)
+                mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
+                groceryItemRecyclerViewAdapter.mGroceryItems = mGroceryListViewModel.selectedGroceryListItemList
 
                 withContext(Main) {
 
-                    groceryItemRecyclerViewAdapter.mGroceryItems = groceryItemEntities
                     groceryItemRecyclerViewAdapter.notifyDataSetChanged()
                 }
             }
@@ -141,6 +157,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
         })
 
 
+
         mItemTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
 
             override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
@@ -150,14 +167,14 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                 if (groceryItemEntity!!.bought == 1 || groceryItemEntity.forCategoryDivider) {
                     return ItemTouchHelper.Callback.makeMovementFlags(
-                            0,
-                            0
+                        0,
+                        0
                     )
                 }
                 val dragFlags = if (groceryItemRecyclerViewAdapter.mDraggable) ItemTouchHelper.UP or ItemTouchHelper.DOWN else 0
                 return ItemTouchHelper.Callback.makeMovementFlags(
-                        dragFlags,
-                        0
+                    dragFlags,
+                    0
                 )
             }
 
@@ -170,24 +187,25 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 val sourcePosition = viewHolder.adapterPosition
                 val targetPosition = target.adapterPosition
 
-                if(mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY){
+                if (mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY) {
                     if (mGroceryListViewModel.toBuyGroceryItems.size - 1 >= targetPosition) {
                         Collections.swap(groceryItemRecyclerViewAdapter.mGroceryItems, sourcePosition, targetPosition)
                         groceryItemRecyclerViewAdapter?.notifyItemMoved(sourcePosition, targetPosition)
 
                         return true
                     }
-                }else{
+                } else {
                     val itemViewHolderSource: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
                     val itemViewHolderTarget: GroceryItemRecyclerViewAdapter.ItemViewHolder = target as GroceryItemRecyclerViewAdapter.ItemViewHolder
 
                     val sourceGroceryItemEntity = itemViewHolderSource.groceryListItemBinding.groceryItemEntity
                     var targetGroceryItemEntity = itemViewHolderTarget.groceryListItemBinding.groceryItemEntity
 
-                      if(targetGroceryItemEntity!!.forCategoryDivider ||!sourceGroceryItemEntity!!.category.equals(targetGroceryItemEntity!!.category)
-                              || targetGroceryItemEntity.bought == 1){
+                    if (targetGroceryItemEntity!!.forCategoryDivider || !sourceGroceryItemEntity!!.category.equals(targetGroceryItemEntity!!.category)
+                        || targetGroceryItemEntity.bought == 1
+                    ) {
                         return false
-                        }
+                    }
                     Collections.swap(groceryItemRecyclerViewAdapter.mGroceryItems, sourcePosition, targetPosition)
                     groceryItemRecyclerViewAdapter?.notifyItemMoved(sourcePosition, targetPosition)
                     return true
@@ -206,13 +224,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                 mGroceryListViewModel.selectedGroceryListItemList = groceryItemRecyclerViewAdapter.mGroceryItems as ArrayList<GroceryItemEntity>
 
-                /*val attrs = intArrayOf(R.attr.selectableItemBackground)
-                val typedArray = this@SingleGroceryListActivity.obtainStyledAttributes(attrs)
-                val backgroundResource = typedArray.getResourceId(0, 0)
-
-                val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
-                itemViewHolder.groceryListItemBinding.groceryItemParentLayout.setBackgroundColor(backgroundResource)
-                typedArray.recycle()*/
 
             }
 
@@ -220,11 +231,12 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 super.onSelectedChanged(viewHolder, actionState)
                 if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
 
-                    val itemViewHolder: GroceryListRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryListRecyclerViewAdapter.ItemViewHolder
+                    val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
 
                     //val cardView:CardView = itemViewHolder.groceryListItemBinding.groceryItemParentLayout
 
                 }
+
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
@@ -236,6 +248,13 @@ class SingleGroceryListActivity : AppCompatActivity() {
         groceryItemRecyclerViewAdapter.mTouchHelper = mItemTouchHelper
     }
 
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+
+        finish();
+        startActivity(intent);
+        Toast.makeText(this, "New intent", Toast.LENGTH_SHORT).show()
+    }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -272,9 +291,26 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                         }
                     }
-                    dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
-                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemInserted(indexOfNewItem)
-                    dataBindingUtil.groceryItemRecyclerview.scrollToPosition(indexOfNewItem)
+
+                    val firstVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    val lastVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+                    if(indexOfNewItem >= firstVisibleItemPosition && indexOfNewItem <= lastVisibleItemPosition){
+
+                        val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemInserted(indexOfNewItem)
+                        animateItem(viewHolder!!)
+
+
+                    }else{
+
+                        dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemInserted(indexOfNewItem)
+                        dataBindingUtil.groceryItemRecyclerview.scrollToPosition(indexOfNewItem)
+
+                    }
+
+
 
                 }
 
@@ -296,7 +332,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                     if(groceryItemEntity?.bought == 1){
                        // val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.boughtGroceryItems.find { it.id == updatedGroceryListId }!!
-                        mGroceryListViewModel.boughtGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity),groceryItemEntityUpdated!!)
+                        mGroceryListViewModel.boughtGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity), groceryItemEntityUpdated!!)
                     }else{
 
 
@@ -311,12 +347,12 @@ class SingleGroceryListActivity : AppCompatActivity() {
                     if(mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY){
 
                         itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!,itemNewIndex)
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
                     }else{
 
                         mGroceryListViewModel.groupByCategory()
                         itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!,itemNewIndex)
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
 
 
 
@@ -341,55 +377,231 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                         }
                     }
-                    dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
-                    dataBindingUtil.groceryItemRecyclerview.scrollToPosition(itemNewIndex)
-                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemRangeChanged(0, mGroceryListViewModel.selectedGroceryListItemList.size)
+
+                    val firstVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                    val lastVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+                    if(itemNewIndex >= firstVisibleItemPosition && itemNewIndex <= lastVisibleItemPosition){
+
+                        val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(itemNewIndex)
+                        animateItem(viewHolder!!)
+
+                    }else{
+
+                        dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
+                        dataBindingUtil.groceryItemRecyclerview.scrollToPosition(itemNewIndex)
+                    }
+
+                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemChanged(itemNewIndex)
                 }
             }
 
 
-            /*val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForLayoutPosition(itemIndex!!)
-            viewHolder?.itemView?.setBackgroundColor(Color.RED)
-
-            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemChanged(itemIndex)
-            dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemRangeChanged(itemIndex,mGroceryListViewModel.selectedGroceryListItemList.size)*/
-
-            /*mGroceryListViewModel.selectedGroceryItem.observe(this, Observer {
-                mGroceryListViewModel.selectedGroceryListItemList.set(itemIndex!!, it)
-                val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForLayoutPosition(itemIndex)
-                viewHolder?.itemView?.setBackgroundColor(Color.RED)
-
-
-                dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemChanged(itemIndex)
-                dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemRangeChanged(itemIndex,mGroceryListViewModel.selectedGroceryListItemList.size)
-            })
-
-            updatedGroceryListId?.let {
-                Log.e("data","updated 123 "+it)
-               mGroceryListViewModel.getGroceryListItem(this@SingleGroceryListActivity, it,groceryListUniqueId)
-
-            }*/
-
-        } else {
+        }else {
             Toast.makeText(this, "OTHER", Toast.LENGTH_SHORT).show()
         }
+    }
+
+    fun animateItem(viewHolder: RecyclerView.ViewHolder){
+
+
+            /*val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+            fadeInAnimation.duration = 1000
+            fadeInAnimation.fillAfter = true
+            val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
+            itemViewHolder.groceryListItemBinding.root.startAnimation(fadeInAnimation)*/
+
+
+
+
     }
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
         return true
     }
+
+    override fun onBackPressed() {
+        val returnIntent = Intent()
+        returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+        setResult(RESULT_OK, returnIntent)
+        finish()
+
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
-            android.R.id.home->{
+            android.R.id.home -> {
+
+                val returnIntent = Intent()
+                returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                setResult(RESULT_OK, returnIntent)
                 finish()
+
+
             }
-            R.id.menu_sort_by_category->{
+            R.id.menu_sort_by_category -> {
                 mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.GROUP_BY_CATEGORY
+                mGroceryListViewModel.coroutineScope.launch {
+                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.GROUP_BY_CATEGORY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
+                    mGroceryListViewModel.groupByCategory()
+
+                    withContext(Main) {
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+                    }
+                }
             }
-            R.id.menu_sort_by_item->{
+            R.id.menu_sort_by_item -> {
                 mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.SORT_ALPHABETICALLY
+
+                mGroceryListViewModel.coroutineScope.launch {
+                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.SORT_ALPHABETICALLY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
+                    mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
+                    mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
+
+                    withContext(Main) {
+                        Log.e("TEST", "TEST 123")
+                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
+                    }
+                }
             }
         }
         return true
     }
+
+    private fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
+        // If there's an animation in progress, cancel it
+        // immediately and proceed with this one.
+        currentAnimator?.cancel()
+
+        // Load the high-resolution "zoomed-in" image.
+        val expandedImageView: ImageView = findViewById(R.id.expanded_image)
+        expandedImageView.setImageURI(imageUri)
+
+        // Calculate the starting and ending bounds for the zoomed-in image.
+        // This step involves lots of math. Yay, math.
+        val startBoundsInt = Rect()
+        val finalBoundsInt = Rect()
+        val globalOffset = Point()
+
+        // The start bounds are the global visible rectangle of the thumbnail,
+        // and the final bounds are the global visible rectangle of the container
+        // view. Also set the container view's offset as the origin for the
+        // bounds, since that's the origin for the positioning animation
+        // properties (X, Y).
+        thumbView.getGlobalVisibleRect(startBoundsInt)
+        findViewById<View>(R.id.container).getGlobalVisibleRect(finalBoundsInt, globalOffset)
+        startBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+        finalBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+
+        val startBounds = RectF(startBoundsInt)
+        val finalBounds = RectF(finalBoundsInt)
+
+        // Adjust the start bounds to be the same aspect ratio as the final
+        // bounds using the "center crop" technique. This prevents undesirable
+        // stretching during the animation. Also calculate the start scaling
+        // factor (the end scaling factor is always 1.0).
+        val startScale: Float
+        if ((finalBounds.width() / finalBounds.height() > startBounds.width() / startBounds.height())) {
+            // Extend start bounds horizontally
+            startScale = startBounds.height() / finalBounds.height()
+            val startWidth: Float = startScale * finalBounds.width()
+            val deltaWidth: Float = (startWidth - startBounds.width()) / 2
+            startBounds.left -= deltaWidth.toInt()
+            startBounds.right += deltaWidth.toInt()
+        } else {
+            // Extend start bounds vertically
+            startScale = startBounds.width() / finalBounds.width()
+            val startHeight: Float = startScale * finalBounds.height()
+            val deltaHeight: Float = (startHeight - startBounds.height()) / 2f
+            startBounds.top -= deltaHeight.toInt()
+            startBounds.bottom += deltaHeight.toInt()
+        }
+
+        // Hide the thumbnail and show the zoomed-in view. When the animation
+        // begins, it will position the zoomed-in view in the place of the
+        // thumbnail.
+        thumbView.alpha = 0f
+        expandedImageView.visibility = View.VISIBLE
+
+        // Set the pivot point for SCALE_X and SCALE_Y transformations
+        // to the top-left corner of the zoomed-in view (the default
+        // is the center of the view).
+        expandedImageView.pivotX = 0f
+        expandedImageView.pivotY = 0f
+
+        // Construct and run the parallel animation of the four translation and
+        // scale properties (X, Y, SCALE_X, and SCALE_Y).
+        currentAnimator = AnimatorSet().apply {
+            play(
+                ObjectAnimator.ofFloat(
+                    expandedImageView,
+                    View.X,
+                    startBounds.left,
+                    finalBounds.left
+                )
+            ).apply {
+                with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top, finalBounds.top))
+                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale, 1f))
+                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale, 1f))
+            }
+            duration = shortAnimationDuration.toLong()
+            interpolator = DecelerateInterpolator()
+            addListener(object : AnimatorListenerAdapter() {
+
+                override fun onAnimationEnd(animation: Animator) {
+                    currentAnimator = null
+                }
+
+                override fun onAnimationCancel(animation: Animator) {
+                    currentAnimator = null
+                }
+            })
+            start()
+        }
+
+        // Upon clicking the zoomed-in image, it should zoom back down
+        // to the original bounds and show the thumbnail instead of
+        // the expanded image.
+        expandedImageView.setOnClickListener {
+            currentAnimator?.cancel()
+
+            // Animate the four positioning/sizing properties in parallel,
+            // back to their original values.
+            currentAnimator = AnimatorSet().apply {
+                play(ObjectAnimator.ofFloat(expandedImageView, View.X, startBounds.left)).apply {
+                    with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top))
+                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale))
+                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale))
+                }
+                duration = shortAnimationDuration.toLong()
+                interpolator = DecelerateInterpolator()
+                addListener(object : AnimatorListenerAdapter() {
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        thumbView.alpha = 1f
+                        expandedImageView.visibility = View.GONE
+                        currentAnimator = null
+                    }
+
+                    override fun onAnimationCancel(animation: Animator) {
+                        thumbView.alpha = 1f
+                        expandedImageView.visibility = View.GONE
+                        currentAnimator = null
+                    }
+                })
+                start()
+            }
+        }
+    }
+    val productImageClickListener = View.OnClickListener {
+
+
+        val groceryItemEntity:GroceryItemEntity = it.tag as GroceryItemEntity
+        groceryItemEntity.imageName;
+        val imageUri = GroceryUtil.getImageFromPath(it.context, groceryItemEntity.imageName)
+
+        zoomImageFromThumb(it, imageUri!!)
+
+    }
+
+
 }

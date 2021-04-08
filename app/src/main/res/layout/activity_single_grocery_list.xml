@@ -11,11 +11,17 @@
             type="com.example.allhome.grocerylist.viewmodel.GroceryListViewModel" />
 
     </data>
+    <FrameLayout
+        android:id="@+id/container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        >
     <LinearLayout
         android:id="@+id/coordinator_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:background="@color/gray_background"
         tools:context=".grocerylist.SingleGroceryListActivity">
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/grocery_item_recyclerview"
@@ -24,7 +30,10 @@
             android:layout_weight="1"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             app:layout_constraintTop_toTopOf="parent"
-            tools:listitem="@layout/grocery_list_product" />
+            tools:listitem="@layout/grocery_list_product"
+            android:scrollbars="vertical"
+            android:scrollbarThumbVertical="@color/colorPrimaryVariant"
+            android:scrollbarSize="8dp"/>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -96,4 +105,19 @@
         </LinearLayout>
 
     </LinearLayout>
+        <!-- This initially-hidden ImageView will hold the expanded/zoomed version of
+         the images above. Without transformations applied, it takes up the entire
+         screen. To achieve the "zoom" animation, this view's bounds are animated
+         from the bounds of the thumbnail button above, to its final laid-out
+         bounds.
+         -->
+
+        <ImageView
+            android:id="@+id/expanded_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            android:background="#80000000"
+            android:contentDescription="The zoom" />
+    </FrameLayout>
 </layout>

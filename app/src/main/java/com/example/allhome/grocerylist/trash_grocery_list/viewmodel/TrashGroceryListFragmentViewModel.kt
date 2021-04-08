@@ -13,12 +13,12 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-class GroceryListFragmentViewModel: ViewModel() {
+class TrashGroceryListFragmentViewModel: ViewModel() {
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("GroceryListFragmentViewModel"))
      var groceryLists = ArrayList<GroceryListWithItemCount>()
 
-    suspend fun getGroceryLists(context: Context):List<GroceryListWithItemCount>{
-        groceryLists = AllHomeDatabase.getDatabase(context).groceryListDAO().selectGroceryListsWithItemCount(GroceryListEntityValues.ACTIVE_STATUS) as ArrayList<GroceryListWithItemCount>
+    suspend fun getDeletedGroceryLists(context: Context):List<GroceryListWithItemCount>{
+        groceryLists = AllHomeDatabase.getDatabase(context).groceryListDAO().getDeletedGroceryListsWithItemCount(GroceryListEntityValues.DELETED_STATUS) as ArrayList<GroceryListWithItemCount>
         return groceryLists
     }
 
