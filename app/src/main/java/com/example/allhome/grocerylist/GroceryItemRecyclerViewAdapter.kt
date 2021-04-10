@@ -277,8 +277,10 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                                 singleGroceryListActivity.mGroceryListViewModel.groupByCategory()
                             }
 
+                            //singleGroceryListActivity.dataBindingUtil.groceryItemRecyclerview.recycledViewPool.clear()
                             notifyItemRemoved(adapterPosition)
-                             notifyItemRangeChanged(adapterPosition, singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.size)
+                            notifyDataSetChanged()
+                            //notifyItemRangeChanged(adapterPosition, singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.size)
 
 
                         }

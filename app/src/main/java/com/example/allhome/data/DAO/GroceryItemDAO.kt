@@ -37,8 +37,8 @@ interface GroceryItemDAO {
     @Query("UPDATE grocery_items SET item_status=:itemStatus WHERE id=:id AND grocery_list_unique_id =:groceryListUniqueId ")
     fun updateGroceryItemAsDeleted(id:Int,groceryListUniqueId: String,itemStatus:Int)
 
-    @Query("UPDATE grocery_items SET item_name=:itemName,quantity=:quantity,unit=:unit,price_per_unit=:pricePerUnit,category=:category,notes=:notes,image_name=:imageName WHERE id=:id")
-    fun updateItem(itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,imageName:String,id:Int):Int
+    @Query("UPDATE grocery_items SET item_name=:itemName,quantity=:quantity,unit=:unit,price_per_unit=:pricePerUnit,category=:category,notes=:notes,image_name=:imageName, datetime_modified= :datetimeModified WHERE id=:id")
+    fun updateItem(itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,imageName:String,id:Int,datetimeModified:String):Int
     @Query("UPDATE grocery_items SET bought = :bought WHERE id=:id AND item_name = :itemName")
     fun updateItem(bought:Int,id:Int,itemName: String):Int
     @Query("SELECT item_name from grocery_items WHERE item_name LIKE '%'||:itemName||'%' ORDER BY item_name")
@@ -47,14 +47,14 @@ interface GroceryItemDAO {
     @Query("SELECT * from grocery_items WHERE item_name LIKE '%'||:itemName||'%' GROUP BY item_name ORDER BY item_name")
     fun getGroceryItemEntities(itemName:String):List<GroceryItemEntity>
 
-    @Query("SELECT *,(SELECT COUNT(*)  from grocery_items as gi WHERE gi.item_name = grocery_items.item_name  AND gi.grocery_list_unique_id = :groceryListUniqueId) AS itemInListCount from grocery_items INNER JOIN grocery_lists ON grocery_items.grocery_list_unique_id = grocery_lists.auto_generated_unique_id WHERE item_name LIKE '%'||:itemName||'%' AND grocery_lists.item_status IN (0,1) AND grocery_items.item_status = 0  GROUP BY item_name ORDER BY item_name")
+    @Query("SELECT *,MAX(datetime_modified),(SELECT COUNT(*)  from grocery_items as gi WHERE gi.item_name = grocery_items.item_name  AND gi.grocery_list_unique_id = :groceryListUniqueId AND item_status = 0) AS itemInListCount from grocery_items INNER JOIN grocery_lists ON grocery_items.grocery_list_unique_id = grocery_lists.auto_generated_unique_id WHERE item_name LIKE '%'||:itemName||'%' AND grocery_lists.item_status IN (0,1) AND grocery_items.item_status = 0  GROUP BY item_name ORDER BY datetime_modified ASC")
     fun getGroceryItemEntitiesForAutoSuggest(itemName:String,groceryListUniqueId:String):List<GroceryItemEntityForAutoSuggest>
 
     @Query("SELECT unit from grocery_items WHERE unit LIKE '%'||:searchTerm||'%' GROUP BY unit ORDER BY unit")
     fun getGroceryItemEntityUnits(searchTerm:String):List<String>
     @Query("SELECT category from grocery_items WHERE category LIKE '%'||:searchTerm||'%' GROUP BY category ORDER BY category")
     fun getGroceryItemEntityCategories(searchTerm:String):List<String>
-    @Query("INSERT INTO grocery_items (grocery_list_unique_id,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought) SELECT :newGroceryListUniqueId,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought FROM grocery_items WHERE grocery_list_unique_id= :oldGroceryListUniqueId")
+    @Query("INSERT INTO grocery_items (grocery_list_unique_id,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought) SELECT :newGroceryListUniqueId,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,0 FROM grocery_items WHERE grocery_list_unique_id= :oldGroceryListUniqueId")
     fun copy(oldGroceryListUniqueId:String,newGroceryListUniqueId:String)
 
 }

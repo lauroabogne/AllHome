@@ -24,8 +24,9 @@ import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
     @ColumnInfo(name = "notes") val notes:String,
     @ColumnInfo(name = "image_name") var imageName:String,
     @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int,
-    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int
-
+    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int,
+    @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String,
+    @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String
      ){
     @PrimaryKey(autoGenerate = true) var id:Int  = 0
     @Ignore
