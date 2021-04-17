@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
-        <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity"></activity>
+        <activity android:name=".pantry.PantryStorageActivity"></activity>
+        <activity android:name=".pantry.PantryAddItemActivity" />
+        <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity" />
 
         <receiver
             android:name=".GroceryListNotificationReceiver"

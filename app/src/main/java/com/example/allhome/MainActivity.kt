@@ -19,6 +19,8 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
+import com.example.allhome.pantry.PantryAddItemActivity
+import com.example.allhome.pantry.PantryStorageActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -53,7 +55,12 @@ class MainActivity : AppCompatActivity() {
                     fragmentProcessor(GroceryListFragment())
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
-
+                R.id.nav_pantry->{
+                    /*val addPantryItemActivity = Intent(this, PantryAddItemActivity::class.java)
+                    startActivity(addPantryItemActivity)*/
+                    val pantryStorageActivity = Intent(this, PantryStorageActivity::class.java)
+                    startActivity(pantryStorageActivity)
+                }
             }
             true
         }

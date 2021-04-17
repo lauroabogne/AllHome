@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.example.allhome.pantry.PantryUtil"/>
+        <variable
+            name="pantryItemExpirationEntity"
+            type="com.example.allhome.data.entities.PantryItemExpirationEntity" />
+    </data>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="2dp"
+        android:paddingBottom="2dp"
+        android:text="@{PantryUtil.INSTANCE.formatExpirationDateWithDayRemaining(pantryItemExpirationEntity.expirationDate)}"
+        android:textColor="#000"
+        tools:text="May 10, 2021 (5 days)">
+
+    </TextView>
+
+</layout>
