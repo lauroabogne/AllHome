@@ -3,7 +3,6 @@ package com.example.allhome
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -19,8 +18,7 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
-import com.example.allhome.pantry.PantryAddItemActivity
-import com.example.allhome.pantry.PantryStorageActivity
+import com.example.allhome.storage.PantryStorageActivity
 
 class MainActivity : AppCompatActivity() {
 

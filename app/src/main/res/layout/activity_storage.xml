@@ -6,7 +6,7 @@
     <data>
         <variable
             name="pantryStorageViewModel"
-            type="com.example.allhome.pantry.viewmodel.PantryStorageViewModel" />
+            type="com.example.allhome.storage.viewmodel.StorageViewModel" />
 
     </data>
 
@@ -16,7 +16,7 @@
         android:layout_height="match_parent"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        tools:context=".pantry.PantryStorageActivity">
+        tools:context=".storage.PantryStorageActivity">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pantryStorageRecyclerview"

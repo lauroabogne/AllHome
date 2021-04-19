@@ -3,10 +3,10 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="com.example.allhome.pantry.PantryUtil"/>
+        <import type="com.example.allhome.storage.StorageUtil"/>
         <variable
             name="pantryItemExpirationEntity"
-            type="com.example.allhome.data.entities.PantryItemExpirationEntity" />
+            type="com.example.allhome.data.entities.StorageItemExpirationEntity" />
     </data>
 
     <TextView
@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="2dp"
         android:paddingBottom="2dp"
-        android:text="@{PantryUtil.INSTANCE.formatExpirationDateWithDayRemaining(pantryItemExpirationEntity.expirationDate)}"
+        android:text="@{StorageUtil.INSTANCE.formatExpirationDateWithDayRemaining(pantryItemExpirationEntity.expirationDate)}"
         android:textColor="#000"
         tools:text="May 10, 2021 (5 days)">
 

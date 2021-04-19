@@ -1,56 +1,58 @@
-package com.example.allhome.pantry
+package com.example.allhome.storage
 
 import android.content.Context
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
-import com.example.allhome.data.entities.PantryItemExpirationEntity
-import com.example.allhome.data.entities.PantryItemWithExpirations
-import com.example.allhome.databinding.ActivityPantryStorageBinding
+import com.example.allhome.data.entities.StorageItemExpirationEntity
+import com.example.allhome.data.entities.StorageItemWithExpirations
+import com.example.allhome.databinding.ActivityStorageBinding
 import com.example.allhome.databinding.PantryItemLayoutBinding
 import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
-import com.example.allhome.pantry.viewmodel.PantryStorageViewModel
+import com.example.allhome.storage.viewmodel.StorageViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class PantryStorageActivity : AppCompatActivity() {
 
-    lateinit var mPantryStorageViewModel:PantryStorageViewModel
-    lateinit var mActivityPantryStorageBinding:ActivityPantryStorageBinding
+    lateinit var mStorageViewModel:StorageViewModel
+    lateinit var mActivityPantryStorageBinding:ActivityStorageBinding
 
+    companion object{
+        val UPDATE_REQUEST_CODE = 1986
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        mPantryStorageViewModel = ViewModelProvider(this).get(PantryStorageViewModel::class.java)
-        mActivityPantryStorageBinding = DataBindingUtil.setContentView(this,R.layout.activity_pantry_storage)
+        mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
+        mActivityPantryStorageBinding = DataBindingUtil.setContentView(this,R.layout.activity_storage)
         mActivityPantryStorageBinding.lifecycleOwner = this
-        mActivityPantryStorageBinding.pantryStorageViewModel = mPantryStorageViewModel
+        mActivityPantryStorageBinding.pantryStorageViewModel = mStorageViewModel
 
-        mPantryStorageViewModel.coroutineScope.launch {
-            val pantryItemWithExpirations = mPantryStorageViewModel.getPatryItemWithExpirations(this@PantryStorageActivity,"Pantry")
-            Log.e("data",pantryItemWithExpirations.toString())
+        mStorageViewModel.coroutineScope.launch {
+            val pantryItemWithExpirations = mStorageViewModel.getPatryItemWithExpirations(this@PantryStorageActivity,"Pantry")
+
             withContext(Main){
-                Toast.makeText(this@PantryStorageActivity,"data get",Toast.LENGTH_SHORT).show()
+
                 val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
-                pantryStorageRecyclerviewViewAdapater.mPantryItemWithExpirations = pantryItemWithExpirations
+                pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
                 pantryStorageRecyclerviewViewAdapater.notifyDataSetChanged()
             }
         }
 
         mActivityPantryStorageBinding.fab.setOnClickListener {
             val addPantryItemActivity = Intent(this, PantryAddItemActivity::class.java)
+            addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_NAME_TAG,"Pantry")
             startActivity(addPantryItemActivity)
         }
         val pantryStorageRecyclerviewViewAdapater = PantryStorageRecyclerviewViewAdapater(this)
@@ -60,7 +62,7 @@ class PantryStorageActivity : AppCompatActivity() {
 
     class PantryStorageRecyclerviewViewAdapater(pantryStorageActivity:PantryStorageActivity): RecyclerView.Adapter<PantryStorageRecyclerviewViewAdapater.ItemViewHolder>() {
         val mPantryStorageActivity = pantryStorageActivity
-        var mPantryItemWithExpirations:List<PantryItemWithExpirations> = arrayListOf()
+        var mStorageItemWithExpirations:List<StorageItemWithExpirations> = arrayListOf()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -70,7 +72,7 @@ class PantryStorageActivity : AppCompatActivity() {
         }
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-            val pantryItemWithExpirations = mPantryItemWithExpirations[position]
+            val pantryItemWithExpirations = mStorageItemWithExpirations[position]
             holder.pantryItemLayoutBinding.pantryItemWithExpirations = pantryItemWithExpirations
             holder.pantryItemLayoutBinding.executePendingBindings()
             holder.generateExpirationDates()
@@ -78,7 +80,7 @@ class PantryStorageActivity : AppCompatActivity() {
 
         override fun getItemCount(): Int {
 
-            return mPantryItemWithExpirations.size
+            return mStorageItemWithExpirations.size
         }
 
         inner class  ItemViewHolder(var pantryItemLayoutBinding: PantryItemLayoutBinding): RecyclerView.ViewHolder(pantryItemLayoutBinding.root),View.OnClickListener{
@@ -88,9 +90,9 @@ class PantryStorageActivity : AppCompatActivity() {
             }
             fun generateExpirationDates(){
 
-                var expirations = mPantryItemWithExpirations[adapterPosition].expirations
+                var expirations = mStorageItemWithExpirations[adapterPosition].expirations
                 val pantryItemExpirationViewAdapter = PantryItemExpirationViewAdapter()
-                pantryItemExpirationViewAdapter.pantryItemExpirationEntities = expirations
+                pantryItemExpirationViewAdapter.storageItemExpirationEntities = expirations
                 pantryItemLayoutBinding.pantryItemExpirationRecyclerview.adapter = pantryItemExpirationViewAdapter
                 pantryItemExpirationViewAdapter.notifyDataSetChanged()
             }
@@ -107,10 +109,23 @@ class PantryStorageActivity : AppCompatActivity() {
 }
 
 
- class CustomPopupMenuItemCLickListener(context: Context, adapterPostion:Int,pantryStorageActivity:PantryStorageActivity):PopupMenu.OnMenuItemClickListener{
+ class CustomPopupMenuItemCLickListener(val context: Context, val adapterPostion:Int,val pantryStorageActivity:PantryStorageActivity):PopupMenu.OnMenuItemClickListener{
     override fun onMenuItemClick(item: MenuItem?): Boolean {
         when(item?.itemId){
             R.id.pantry_item_edit_menu->{
+
+                val pantryItemEntity = pantryStorageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion].storageItemEntity
+
+                val addPantryItemActivity = Intent(context, PantryAddItemActivity::class.java)
+                addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_NAME_TAG,"Pantry")
+                addPantryItemActivity.putExtra(PantryAddItemActivity.ACTION_TAG,PantryAddItemActivity.UPDATE_RECORD_ACTION)
+                addPantryItemActivity.putExtra(PantryAddItemActivity.PANTRY_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
+                addPantryItemActivity.putExtra(PantryAddItemActivity.PANTRY_ITEM_NAME_TAG,pantryItemEntity.name)
+
+
+                val pantryStorageActivity = context as PantryStorageActivity
+                pantryStorageActivity.startActivityForResult(addPantryItemActivity,PantryAddItemActivity.UPDATE_RECORD_ACTION)
+
 
             }
             R.id.pantry_item_move_storage_menu->{
@@ -126,7 +141,7 @@ class PantryStorageActivity : AppCompatActivity() {
 }
 
 class PantryItemExpirationViewAdapter(): RecyclerView.Adapter<PantryItemExpirationViewAdapter.ItemViewHolder>() {
-    var pantryItemExpirationEntities:List<PantryItemExpirationEntity> = arrayListOf()
+    var storageItemExpirationEntities:List<StorageItemExpirationEntity> = arrayListOf()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val pantrySimpleExpirationLayoutBinding = PantrySimpleExpirationLayoutBinding.inflate(layoutInflater,parent,false)
@@ -135,13 +150,13 @@ class PantryItemExpirationViewAdapter(): RecyclerView.Adapter<PantryItemExpirati
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val pantryItemExpirationEntity = pantryItemExpirationEntities[position]
+        val pantryItemExpirationEntity = storageItemExpirationEntities[position]
         holder.pantrySimpleExpirationLayoutBinding.pantryItemExpirationEntity = pantryItemExpirationEntity
         holder.pantrySimpleExpirationLayoutBinding.executePendingBindings()
     }
 
     override fun getItemCount(): Int {
-       return pantryItemExpirationEntities.size
+       return storageItemExpirationEntities.size
     }
     inner class  ItemViewHolder(var pantrySimpleExpirationLayoutBinding: PantrySimpleExpirationLayoutBinding): RecyclerView.ViewHolder(pantrySimpleExpirationLayoutBinding.root){
         init {

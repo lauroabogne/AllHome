@@ -5,10 +5,10 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <import type="android.content.Context" />
-        <import type="com.example.allhome.pantry.PantryUtil"/>
+        <import type="com.example.allhome.storage.StorageUtil"/>
         <variable
             name="pantryItemWithExpirations"
-            type="com.example.allhome.data.entities.PantryItemWithExpirations" />
+            type="com.example.allhome.data.entities.StorageItemWithExpirations" />
 
     </data>
 
@@ -49,7 +49,7 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
-                android:text="@{pantryItemWithExpirations.pantryItemEntity.name}"
+                android:text="@{pantryItemWithExpirations.storageItemEntity.name}"
                 android:textColor="#000"
                 android:textSize="18sp"
                 app:layout_constraintEnd_toStartOf="@+id/moreActionImageBtn"
@@ -64,7 +64,7 @@
                 android:paddingLeft="10dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
-                android:text="@{PantryUtil.INSTANCE.stockWeightIntegerToStringValue(pantryItemWithExpirations.pantryItemEntity)}"
+                android:text="@{StorageUtil.INSTANCE.stockWeightIntegerToStringValue(pantryItemWithExpirations.storageItemEntity)}"
                 android:textColor="#000"
                 app:layout_constraintEnd_toStartOf="@+id/imageView4"
                 app:layout_constraintStart_toStartOf="parent"
