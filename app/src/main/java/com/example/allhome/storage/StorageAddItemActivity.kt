@@ -1,11 +1,22 @@
 package com.example.allhome.storage
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.ComponentName
+import android.content.Context
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.ImageDecoder
+import android.net.Uri
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Parcelable
+import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -18,9 +29,14 @@ import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.databinding.ActivityStorageAddItemBinding
 import com.example.allhome.databinding.StorageExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -31,14 +47,17 @@ class PantryAddItemActivity : AppCompatActivity() {
     var mStorage:String? = null
     var mStorageItemUniqueId:String? = null
     var mStorageItemName:String? = null
+    var mTempPhotoFileForAddingImage: File? = null
 
     companion object {
-        val PANTRY_ITEM_UNIQUE_ID_TAG = "PANTRY_ITEM_UNIQUE_ID_TAG"
-        val PANTRY_ITEM_NAME_TAG = "PANTRY_ITEM_NAME_TAG"
+        val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
+        val STORAGE_ITEM_NAME_TAG = "PANTRY_ITEM_NAME_TAG"
         val STORAGE_NAME_TAG = "STORAGE_NAME_TAG"
         val ACTION_TAG = "ACTION_TAG"
         val ADD_NEW_RECORD_ACTION = 1
         val UPDATE_RECORD_ACTION = 2
+        val REQUEST_PICK_IMAGE = 4
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,12 +77,18 @@ class PantryAddItemActivity : AppCompatActivity() {
             mAction = it
             if(mAction == UPDATE_RECORD_ACTION){
 
-                mStorageItemUniqueId = intent.getStringExtra(PANTRY_ITEM_UNIQUE_ID_TAG)
-                mStorageItemName = intent.getStringExtra(PANTRY_ITEM_NAME_TAG)
+                mStorageItemUniqueId = intent.getStringExtra(STORAGE_ITEM_UNIQUE_ID_TAG)
+                mStorageItemName = intent.getStringExtra(STORAGE_ITEM_NAME_TAG)
 
 
                 mStorageAddItemViewModel.coroutineScope.launch {
                     mStorageAddItemViewModel.setStorageItemAndExpirations(this@PantryAddItemActivity, mStorageItemUniqueId!!, mStorageItemName!!)
+
+                    val imageName = mStorageAddItemViewModel.storageItemEntity?.imageName
+                    val imageURI = StorageUtil.getImageUriFromPath(this@PantryAddItemActivity,imageName!!)
+                    mStorageAddItemViewModel.previousImageUri = imageURI
+
+
                 }
             }
         }
@@ -81,6 +106,9 @@ class PantryAddItemActivity : AppCompatActivity() {
 
         mActivityPantryAddItemBinding.pantryAddExpirationBtn.setOnClickListener {
             showCalendar()
+        }
+        mActivityPantryAddItemBinding.pantryItemAddImageBtn.setOnClickListener {
+            showIntentChooser()
         }
 
 
@@ -116,36 +144,72 @@ class PantryAddItemActivity : AppCompatActivity() {
         return true
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(requestCode == REQUEST_PICK_IMAGE){
+            data?.data?.let{
+                lauchImageCropper(it)
+            }
+
+            mTempPhotoFileForAddingImage?.let{
+                val fileUri = Uri.fromFile(mTempPhotoFileForAddingImage) as Uri
+                lauchImageCropper(fileUri)
+            }
+        }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
+
+            val result = CropImage.getActivityResult(data)
+            mStorageAddItemViewModel.newImageUri = result.uri
+            mActivityPantryAddItemBinding.itemImageView.setImageURI(result.uri)
+            //itemImageView
+            //mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
+            //dataBindingUtil.itemImageview.setImageURI(result.uri)
+
+
+        }
+    }
+    private fun lauchImageCropper(uri: Uri){
+
+        CropImage.activity(uri)
+            .setGuidelines(CropImageView.Guidelines.ON)
+            .setAspectRatio(500, 500)
+            .setCropShape(CropImageView.CropShape.RECTANGLE)
+            .start(this)
+    }
     fun saveNewRecord(){
-        val pantryItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
-        val pantryItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
-        val pantryItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
-        val pantryItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
-        val pantryItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
+        val storageItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
+        val storageItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
+        val storageItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
+        val storageItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
+        val storageItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
+        val storageCategory = mActivityPantryAddItemBinding.categoryItemTextinput.text.toString().trim()
 
+        val pantryItemStockWeightIntValue = StorageUtil.stockWeightIntegerIdToIntegerValue(storageItemStockWeightCheckedId)
+        val quantityIntValue = if (storageItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else storageItemQuantity.toDouble()
 
-        val pantryItemStockWeightIntValue = StorageUtil.stockWeightIntegerIdToIntegerValue(pantryItemStockWeightCheckedId)
-        val quantityIntValue = if (pantryItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else pantryItemQuantity.toDouble()
-
-        if(pantryItem.length <=0){
+        if(storageItem.length <=0){
             Toast.makeText(this,"Please provide pantry item name",Toast.LENGTH_SHORT).show()
             return
         }
-        var pantryItemUniqueID = UUID.randomUUID().toString()
+
+
+        var itemUniqueID = UUID.randomUUID().toString()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
+        val imageName =itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+
+        saveImage(mStorageAddItemViewModel.newImageUri!!,imageName)
 
         val pantryItemEntity = StorageItemEntity(
-            uniqueId = pantryItemUniqueID,
-            name=pantryItem,
+            uniqueId = itemUniqueID,
+            name=storageItem,
             quantity =quantityIntValue,
-            unit = pantryItemUnit,
+            unit = storageItemUnit,
             stockWeight = pantryItemStockWeightIntValue,
-            category = "",
+            category = storageCategory,
             storage = mStorage!!,
-            notes = pantryItemNotes,
-            imageName = "",
+            notes = storageItemNotes,
+            imageName = imageName,
             created = currentDatetime,
             modified = currentDatetime
         )
@@ -157,22 +221,23 @@ class PantryAddItemActivity : AppCompatActivity() {
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@PantryAddItemActivity);
             try{
                 allHomeDatabase.withTransaction {
-                    val pantryItemId = mStorageAddItemViewModel.saveStorageItemEntity(this@PantryAddItemActivity,pantryItemEntity)
+                    val storageItemId = mStorageAddItemViewModel.saveStorageItemEntity(this@PantryAddItemActivity,pantryItemEntity)
 
-                    if(pantryItemId <= 0){
+                    if(storageItemId <= 0){
                         throw Exception("Failed to save")
                     }
-                    for(pantryItemExpirationEntity in mStorageAddItemViewModel.storageItemExpirationsEntity){
-                        val pantryItemExpirationUniqueID = UUID.randomUUID().toString()
+                    for(storageItemExpirationEntity in mStorageAddItemViewModel.storageItemExpirationsEntity){
+                        val storageItemExpirationUniqueID = UUID.randomUUID().toString()
 
-                        pantryItemExpirationEntity.uniqueId = pantryItemExpirationUniqueID
-                        pantryItemExpirationEntity.created = currentDatetime
-                        pantryItemExpirationEntity.storage = mStorage!!
-                        pantryItemExpirationEntity.pantryItemName = pantryItemEntity.name
+                        storageItemExpirationEntity.uniqueId = storageItemExpirationUniqueID
+                        storageItemExpirationEntity.storageItemUniqueId = itemUniqueID
+                        storageItemExpirationEntity.created = currentDatetime
+                        storageItemExpirationEntity.storage = mStorage!!
+                        storageItemExpirationEntity.storageItemName = pantryItemEntity.name
 
-                        val pantryItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@PantryAddItemActivity,pantryItemExpirationEntity)
+                        val storageItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@PantryAddItemActivity,storageItemExpirationEntity)
 
-                        if(pantryItemExpirationId <= 0){
+                        if(storageItemExpirationId <= 0){
                             throw Exception("Failed to save")
                         }
                     }
@@ -191,19 +256,18 @@ class PantryAddItemActivity : AppCompatActivity() {
             }
         }
     }
-
     fun updateRecord(){
-        val pantryItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
-        val pantryItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
-        val pantryItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
-        val pantryItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
-        val pantryItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
+        val storageItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
+        val storageItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
+        val storageItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
+        val storageItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
+        val storageItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
+        val storageItemCategory = mActivityPantryAddItemBinding.categoryItemTextinput.text.toString().trim()
 
+        val storageItemStockWeightIntValue = StorageUtil.stockWeightIntegerIdToIntegerValue(storageItemStockWeightCheckedId)
+        val quantityIntValue = if (storageItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else storageItemQuantity.toDouble()
 
-        val pantryItemStockWeightIntValue = StorageUtil.stockWeightIntegerIdToIntegerValue(pantryItemStockWeightCheckedId)
-        val quantityIntValue = if (pantryItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else pantryItemQuantity.toDouble()
-
-        if(pantryItem.length <=0){
+        if(storageItem.length <=0){
             Toast.makeText(this,"Please provide pantry item name",Toast.LENGTH_SHORT).show()
             return
         }
@@ -213,45 +277,31 @@ class PantryAddItemActivity : AppCompatActivity() {
         val imageName = ""
 
 
-       /* val pantryItemEntity = StorageItemEntity(
-            uniqueId = mStorageItemUniqueId,
-            name=pantryItem,
-            quantity =quantityIntValue,
-            unit = pantryItemUnit,
-            stockWeight = pantryItemStockWeightIntValue,
-            category = "",
-            storage = mStorage!!,
-            notes = pantryItemNotes,
-            imageName = "",
-            created = currentDatetime,
-            modified = currentDatetime
-        )
-*/
-
 
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@PantryAddItemActivity);
             try{
                 allHomeDatabase.withTransaction {
-                    val affectedRowCount = mStorageAddItemViewModel.updateStorageItemEntity(this@PantryAddItemActivity,pantryItem,quantityIntValue,pantryItemUnit,pantryItemStockWeightIntValue,
-                    mStorage!!,pantryItemNotes,imageName,currentDatetime,mStorageItemUniqueId!!)
+                    val affectedRowCount = mStorageAddItemViewModel.updateStorageItemEntity(this@PantryAddItemActivity,storageItem,quantityIntValue,storageItemUnit,storageItemCategory,storageItemStockWeightIntValue,
+                    mStorage!!,storageItemNotes,imageName,currentDatetime,mStorageItemUniqueId!!)
 
                     if(affectedRowCount <=0){
                         throw Exception("Failed to update record")
                     }
 
-                    for(pantryItemExpirationEntity in mStorageAddItemViewModel.storageItemExpirationsEntity){
-                        val pantryItemExpirationUniqueID = UUID.randomUUID().toString()
+                    for(storageItemExpirationEntity in mStorageAddItemViewModel.storageItemExpirationsEntity){
+                        val storageItemExpirationUniqueID = UUID.randomUUID().toString()
 
-                        pantryItemExpirationEntity.uniqueId = pantryItemExpirationUniqueID
-                        pantryItemExpirationEntity.created = currentDatetime
-                        pantryItemExpirationEntity.storage = mStorage!!
-                        pantryItemExpirationEntity.pantryItemName = pantryItem
+                        storageItemExpirationEntity.uniqueId = storageItemExpirationUniqueID
+                        storageItemExpirationEntity.storageItemUniqueId = mStorageItemUniqueId!!
+                        storageItemExpirationEntity.created = currentDatetime
+                        storageItemExpirationEntity.storage = mStorage!!
+                        storageItemExpirationEntity.storageItemName = storageItem
 
-                        val pantryItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@PantryAddItemActivity,pantryItemExpirationEntity)
+                        val storageItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@PantryAddItemActivity,storageItemExpirationEntity)
 
-                        if(pantryItemExpirationId <= 0){
+                        if(storageItemExpirationId <= 0){
                             throw Exception("Failed to update expiration")
                         }
                     }
@@ -271,7 +321,104 @@ class PantryAddItemActivity : AppCompatActivity() {
             }
         }
     }
-    fun showCalendar(){
+    fun showIntentChooser(){
+        // Determine Uri of camera image to save.
+
+        // create temporary file
+        mTempPhotoFileForAddingImage = createImageFile()
+        var photoURI = FileProvider.getUriForFile(this, "com.example.allhome.fileprovider", mTempPhotoFileForAddingImage!!)
+
+        // Camera.
+        val imageIntents: MutableList<Intent> = java.util.ArrayList()
+        val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val packageManager = packageManager
+        val listCam = packageManager.queryIntentActivities(captureIntent, 0)
+        for (res in listCam) {
+            val packageName = res.activityInfo.packageName
+            val intent = Intent(captureIntent)
+            intent.component = ComponentName(packageName, res.activityInfo.name)
+            intent.setPackage(packageName)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+            imageIntents.add(intent)
+        }
+
+        // all intent for picking image. eg Gallery app
+        val pickImageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        pickImageIntent.type = "image/*"
+        val pickImageResolver = packageManager.queryIntentActivities(pickImageIntent, 0)
+        for (res in pickImageResolver) {
+            val intent = Intent(pickImageIntent)
+            intent.component = ComponentName(res.activityInfo.packageName, res.activityInfo.name)
+            intent.setPackage(res.activityInfo.packageName)
+            imageIntents.add(intent)
+        }
+
+        val finalIntent = Intent()
+        finalIntent.type = "image/*"
+        finalIntent.action = Intent.ACTION_GET_CONTENT
+
+        // Chooser of filesystem options.
+        val chooserIntent = Intent.createChooser(finalIntent, "Select Source")
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, imageIntents.toTypedArray<Parcelable>())
+        startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE)
+
+
+
+    }
+    private fun saveImage(imageUri: Uri, imageName: String):Boolean{
+        val imageBitmap = uriToBitmap(imageUri!!, this)
+        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
+        val storageDir: File = getExternalFilesDir(StorageUtil.FINAL_IMAGES_LOCATION)!!
+        if(!storageDir.exists()){
+            storageDir.mkdir()
+        }
+
+        val file  = File(storageDir, imageName)
+        var fos: FileOutputStream? = null
+        try {
+            fos = FileOutputStream(file)
+            resizedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            fos.flush()
+            fos.close()
+            return true
+        } catch (e: IOException) {
+            e.printStackTrace()
+
+            return false
+        }
+    }
+
+    private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
+
+        if(Build.VERSION.SDK_INT < 28) {
+            return  MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
+
+        } else {
+            val source = ImageDecoder.createSource(this.contentResolver, uri)
+            return ImageDecoder.decodeBitmap(source)
+
+        }
+    }
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val storageDir: File = getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+
+        if(!storageDir.exists()){
+            storageDir.mkdir()
+        }
+
+        return File.createTempFile(
+            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            storageDir /* directory */
+        )
+    }
+    /**
+     * expirationDateIndex is equal to -1 for adding new expiration
+     */
+    fun showCalendar(expirationDateIndex: Int =-1){
+
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)
@@ -286,8 +433,15 @@ class PantryAddItemActivity : AppCompatActivity() {
             var uniqueID = UUID.randomUUID().toString()
 
             mStorageAddItemViewModel.coroutineScope.launch {
-                val pantryItemExpirationEntity = StorageItemExpirationEntity(uniqueId = uniqueID,pantryItemName="",expirationDate = stringDate,created = "",storage = mStorage!!)
-                mStorageAddItemViewModel.addExpiration(pantryItemExpirationEntity)
+                val pantryItemExpirationEntity = StorageItemExpirationEntity(uniqueId = uniqueID,storageItemName="",storageItemUniqueId = "",expirationDate = stringDate,created = "",storage = mStorage!!)
+
+                if(expirationDateIndex <= -1){
+                    mStorageAddItemViewModel.storageItemExpirationsEntity.add(pantryItemExpirationEntity)
+                }else{
+                    mStorageAddItemViewModel.storageItemExpirationsEntity.set(expirationDateIndex,pantryItemExpirationEntity)
+                }
+
+
 
                 withContext(Main){
                     val pantryItemRecyclerViewAdapter = mActivityPantryAddItemBinding.pantryItemExpirationRecyclerview.adapter as PantryItemRecyclerViewAdapter
@@ -347,6 +501,8 @@ class PantryItemRecyclerViewAdapter(val pantryAddItemActivity:PantryAddItemActiv
                     notifyItemRemoved(adapterPosition)
                 }
                 R.id.editExpirationDateBtn->{
+
+                    pantryAddItemActivity.showCalendar(adapterPosition)
 
                 }
             }

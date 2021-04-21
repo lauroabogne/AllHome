@@ -12,16 +12,17 @@
 
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="5dp"
-        android:paddingRight="5dp"
         tools:context=".storage.PantryStorageActivity">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/pantryStorageRecyclerview"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:paddingLeft="5dp"
+            android:paddingRight="5dp"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/pantry_item_layout"/>
 
@@ -32,7 +33,13 @@
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin"
             app:srcCompat="@android:drawable/ic_input_add" />
-
+        <ImageView
+            android:id="@+id/expanded_image"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="invisible"
+            android:background="#80000000"
+            android:contentDescription="The zoom" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

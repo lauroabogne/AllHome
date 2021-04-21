@@ -17,6 +17,6 @@ interface StorageItemDAO {
 
     @Query("SELECT * FROM storage_items WHERE unique_id=:uniqueId AND name=:storageItemName")
     suspend fun getItem(uniqueId:String, storageItemName:String):StorageItemEntity
-    @Query("UPDATE storage_items SET name=:name,quantity=:quantity,unit=:unit,stock_weight=:stockWeight,storage=:storage,notes=:notes,image_name=:imageName,modified=:modified WHERE unique_id=:uniqueId")
-    suspend fun updateItem(name:String,quantity:Double,unit:String,stockWeight:Int,storage:String,notes:String,imageName:String,modified:String,uniqueId: String):Int
+    @Query("UPDATE storage_items SET name=:name,quantity=:quantity,unit=:unit,category=:category,stock_weight=:stockWeight,storage=:storage,notes=:notes,image_name=:imageName,modified=:modified WHERE unique_id=:uniqueId")
+    suspend fun updateItem(name:String,quantity:Double,unit:String,category:String,stockWeight:Int,storage:String,notes:String,imageName:String,modified:String,uniqueId: String):Int
 }

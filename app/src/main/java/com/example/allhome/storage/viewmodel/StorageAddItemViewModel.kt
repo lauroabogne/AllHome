@@ -1,6 +1,7 @@
 package com.example.allhome.storage.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.StorageItemEntity
@@ -13,13 +14,19 @@ class StorageAddItemViewModel: ViewModel() {
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("PantryAddItemViewModel"))
     var storageItemEntity:StorageItemEntity? = null
     var storageItemExpirationsEntity:ArrayList<StorageItemExpirationEntity> = arrayListOf()
+    var previousImageUri:Uri? = null
+    var newImageUri: Uri? = null
 
     suspend fun setPantryItemEntity(storageItemEntity:StorageItemEntity){
         this.storageItemEntity = storageItemEntity
     }
-    suspend fun addExpiration(storageItemExpirationEntity:StorageItemExpirationEntity){
+    /*suspend fun addTemporaryExpiration(storageItemExpirationEntity:StorageItemExpirationEntity){
         storageItemExpirationsEntity.add(storageItemExpirationEntity)
     }
+
+    suspend fun replaceTemporaryExpiration(storageItemExpirationEntity:StorageItemExpirationEntity){
+
+    }*/
 
     suspend fun setStorageItemAndExpirations(context:Context, uniqueId:String, name:String){
         storageItemEntity = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItem(uniqueId,name)
@@ -41,8 +48,8 @@ class StorageAddItemViewModel: ViewModel() {
     suspend fun saveStorageItemExpirationEntity(context: Context, storageItemExpirationEntity: StorageItemExpirationEntity):Long{
         return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().addItem(storageItemExpirationEntity)
     }
-    suspend fun updateStorageItemEntity(context:Context,name:String,quantity:Double,unit:String,stockWeight:Int,storage:String,notes:String,imageName:String,modifiedDatetime:String,uniqueId: String):Int{
-        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItem(name,quantity,unit,stockWeight,storage,notes,imageName,modifiedDatetime,uniqueId)
+    suspend fun updateStorageItemEntity(context:Context,name:String,quantity:Double,unit:String,category:String,stockWeight:Int,storage:String,notes:String,imageName:String,modifiedDatetime:String,uniqueId: String):Int{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItem(name,quantity,unit,category,stockWeight,storage,notes,imageName,modifiedDatetime,uniqueId)
     }
 
 }
