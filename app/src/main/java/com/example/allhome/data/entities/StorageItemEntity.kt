@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.RadioButton
 import com.example.allhome.R
 import android.widget.RadioGroup
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.grocerylist.GroceryUtil
@@ -24,8 +25,10 @@ data class StorageItemEntity(
     @ColumnInfo(name="storage") var storage:String,
     @ColumnInfo(name = "notes") var notes:String,
     @ColumnInfo(name = "image_name") var imageName:String,
+    @ColumnInfo(name = "deleted",defaultValue = "0") var deleted:Int,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
+
 
 
 )
@@ -37,16 +40,20 @@ data class StorageItemWithExpirations(
 
 class StorageItemEntityValues{
     companion object{
-        val NO_QUANTITY_INPUT = -1
+        const val NO_QUANTITY_INPUT = -1
         const val NO_STOCK_WEIGHT_INPUT = -1
-        val NO_STOCK = 0
-        val LOW_STOCK = 1
-        val HIGH_STOCK = 2
+        const val NO_STOCK = 0
+        const val LOW_STOCK = 1
+        const val HIGH_STOCK = 2
 
-        val NO_STOCK_WEIGHT_INPUT_STRING = ""
-        val NO_STOCK_STRING = "No stock"
-        val LOW_STOCK_STRING = "Low"
-        val HIGH_STOCK_STRING = "High"
+        const val NO_STOCK_WEIGHT_INPUT_STRING = ""
+        const val NO_STOCK_STRING = "No stock"
+        const val LOW_STOCK_STRING = "Low"
+        const val HIGH_STOCK_STRING = "High"
+        const val DELETED_STATUS = 1
+        const val NOT_DELETED_STATUS = 0
+
+
     }
 }
 
@@ -77,12 +84,10 @@ fun setImageToImageViewForAddingStorageItem(view:View, previousImageUri: Uri?, c
 }
 @BindingAdapter(value=["android:setImageForViewingStorageItem"],requireAll = false)
 fun setImageForViewingStorageItem(view:View,imageName:String){
-
     if(imageName.isEmpty()){
         view.visibility = View.GONE
         return
     }
-
     val uri = StorageUtil.getImageUriFromPath(view.context,imageName)
     uri?.apply {
         (view as ImageView).setImageURI(uri)
@@ -90,6 +95,39 @@ fun setImageForViewingStorageItem(view:View,imageName:String){
     }?:run {
         view.visibility = View.GONE
     }
+}
+@BindingAdapter(value=["android:setStockWeight"])
+fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
+    if(storageItemEntity.stockWeight <= StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT && storageItemEntity.quantity < 0 ){
+        view.visibility = View.GONE
+        return
+    }
 
+    view.visibility = View.VISIBLE
+
+    if(storageItemEntity.stockWeight == StorageItemEntityValues.NO_STOCK ){
+
+        view.setText("Stock Weight : "+StorageItemEntityValues.NO_STOCK_STRING)
+
+    }else if(storageItemEntity.stockWeight == StorageItemEntityValues.LOW_STOCK){
+
+        if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT){
+            view.setText("Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING)
+        }else{
+
+            view.setText("Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")")
+        }
+
+
+    }else if(storageItemEntity.stockWeight == StorageItemEntityValues.HIGH_STOCK){
+
+
+        if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT){
+            view.setText("Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING)
+        }else{
+            view.setText("Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")")
+        }
+    }
 
 }
+

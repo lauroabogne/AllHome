@@ -100,7 +100,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Category"
-                android:text="@{pantryAddItemViewModel.storageItemEntity.name}" />
+                android:text="@{pantryAddItemViewModel.storageItemEntity.category}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <TextView

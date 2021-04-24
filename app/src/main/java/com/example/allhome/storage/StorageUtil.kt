@@ -5,11 +5,14 @@ import android.net.Uri
 import com.example.allhome.R
 import com.example.allhome.data.entities.StorageItemEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
+import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.grocerylist.GroceryUtil
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.io.File
 import java.text.DecimalFormat
+import java.text.SimpleDateFormat
+import java.util.*
 
 object StorageUtil {
     val FINAL_IMAGES_LOCATION = "storage_item_images"
@@ -44,26 +47,6 @@ object StorageUtil {
         }
     }
 
-    fun stockWeightIntegerToStringValue(storageItemEntity:StorageItemEntity):String{
-        return when(storageItemEntity.stockWeight){
-            StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT->{
-                return ""
-            }
-            StorageItemEntityValues.NO_STOCK->{
-                return "Stock Weight : "+StorageItemEntityValues.NO_STOCK_STRING
-            }
-            StorageItemEntityValues.LOW_STOCK->{
-                return "Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING
-            }
-            StorageItemEntityValues.HIGH_STOCK->{
-                return "Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING
-            }
-            else->{
-                return ""
-            }
-        }
-
-    }
 
     fun displayQuantity(anyNumber: Double):String{
         if(anyNumber <=0){
@@ -85,6 +68,26 @@ object StorageUtil {
         }
 
         return null
+    }
+
+    fun datetimeModified(datetimeModified:String):String{
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd h:mm:ss")
+        val date: Date? = simpleDateFormat.parse(datetimeModified)
+        return "Last update: "+SimpleDateFormat("MMMM d, Y h:mm a").format(date)
+    }
+    fun hasExpirationDate(expirations:List<StorageItemExpirationEntity>):Boolean{
+        return expirations.size > 0
+    }
+    fun deleteImageFile(context: Context, imageName:String) {
+        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val imageFile  = File(storageDir, imageName)
+        imageFile.delete()
+
+    }
+    fun deleteImageFile( uri:Uri) {
+        val imageFile: File = File(uri.path)
+        imageFile.delete()
+
     }
 
 

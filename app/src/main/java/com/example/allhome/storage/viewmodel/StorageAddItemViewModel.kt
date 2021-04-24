@@ -39,9 +39,7 @@ class StorageAddItemViewModel: ViewModel() {
 
 
     }
-    suspend fun getExpirations(){
 
-    }
     suspend fun saveStorageItemEntity(context: Context, storageItemEntity: StorageItemEntity):Long{
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().addItem(storageItemEntity)
     }

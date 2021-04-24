@@ -10,7 +10,7 @@
     <string name="new_grocery_item">New Item</string>
 
     <string name="menu_grocery_list">Grocery List</string>
-    <string name="menu_pantry">Pantry</string>
+    <string name="menu_storage">Storage</string>
     <string name="menu_recipes">Recipes</string>
     <string name="menu_meal_planner">Meal Planner</string>
     <string name="menu_bills">Bills</string>

@@ -72,7 +72,7 @@ class PantryAddItemActivity : AppCompatActivity() {
             finish()
         }
 
-        intent.getIntExtra(ACTION_TAG,ADD_NEW_RECORD_ACTION)?.let {
+        intent.getIntExtra(ACTION_TAG, ADD_NEW_RECORD_ACTION).let {
 
             mAction = it
             if(mAction == UPDATE_RECORD_ACTION){
@@ -198,7 +198,8 @@ class PantryAddItemActivity : AppCompatActivity() {
 
         val imageName =itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
 
-        saveImage(mStorageAddItemViewModel.newImageUri!!,imageName)
+
+
 
         val pantryItemEntity = StorageItemEntity(
             uniqueId = itemUniqueID,
@@ -210,6 +211,7 @@ class PantryAddItemActivity : AppCompatActivity() {
             storage = mStorage!!,
             notes = storageItemNotes,
             imageName = imageName,
+            deleted = StorageItemEntityValues.NOT_DELETED_STATUS,
             created = currentDatetime,
             modified = currentDatetime
         )
@@ -219,7 +221,12 @@ class PantryAddItemActivity : AppCompatActivity() {
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@PantryAddItemActivity);
+
             try{
+                mStorageAddItemViewModel.newImageUri?.let {
+                    saveImage(it,imageName)
+                }
+
                 allHomeDatabase.withTransaction {
                     val storageItemId = mStorageAddItemViewModel.saveStorageItemEntity(this@PantryAddItemActivity,pantryItemEntity)
 
@@ -234,6 +241,8 @@ class PantryAddItemActivity : AppCompatActivity() {
                         storageItemExpirationEntity.created = currentDatetime
                         storageItemExpirationEntity.storage = mStorage!!
                         storageItemExpirationEntity.storageItemName = pantryItemEntity.name
+                        storageItemExpirationEntity.created = currentDatetime
+                        storageItemExpirationEntity.modified = currentDatetime
 
                         val storageItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@PantryAddItemActivity,storageItemExpirationEntity)
 
@@ -274,13 +283,25 @@ class PantryAddItemActivity : AppCompatActivity() {
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
-        val imageName = ""
-
-
+        var  imageName:String = ""
 
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@PantryAddItemActivity);
+
+            mStorageAddItemViewModel.newImageUri?.let {
+                mStorageAddItemViewModel.previousImageUri?.let {
+                    StorageUtil.deleteImageFile(it)
+                }
+                var itemUniqueID = UUID.randomUUID().toString()
+                imageName = itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+                saveImage(mStorageAddItemViewModel.newImageUri!!,imageName)
+
+            }?:run{
+
+                imageName = mStorageAddItemViewModel.storageItemEntity!!.imageName
+            }
+
             try{
                 allHomeDatabase.withTransaction {
                     val affectedRowCount = mStorageAddItemViewModel.updateStorageItemEntity(this@PantryAddItemActivity,storageItem,quantityIntValue,storageItemUnit,storageItemCategory,storageItemStockWeightIntValue,
@@ -320,6 +341,12 @@ class PantryAddItemActivity : AppCompatActivity() {
                 }
             }
         }
+    }
+    fun imageName(storageItemName:String):String?{
+
+        var itemUniqueID = UUID.randomUUID().toString()
+        return itemUniqueID+"_"+storageItemName+"."+StorageUtil.IMAGE_NAME_SUFFIX
+
     }
     fun showIntentChooser(){
         // Determine Uri of camera image to save.
@@ -433,7 +460,15 @@ class PantryAddItemActivity : AppCompatActivity() {
             var uniqueID = UUID.randomUUID().toString()
 
             mStorageAddItemViewModel.coroutineScope.launch {
-                val pantryItemExpirationEntity = StorageItemExpirationEntity(uniqueId = uniqueID,storageItemName="",storageItemUniqueId = "",expirationDate = stringDate,created = "",storage = mStorage!!)
+                val pantryItemExpirationEntity = StorageItemExpirationEntity(
+                    uniqueId = uniqueID,
+                    storageItemName="",
+                    storageItemUniqueId = "",
+                    expirationDate = stringDate,
+                    deleted = StorageItemEntityValues.NOT_DELETED_STATUS,
+                    created = "",
+                    modified = "",
+                    storage = mStorage!!)
 
                 if(expirationDateIndex <= -1){
                     mStorageAddItemViewModel.storageItemExpirationsEntity.add(pantryItemExpirationEntity)

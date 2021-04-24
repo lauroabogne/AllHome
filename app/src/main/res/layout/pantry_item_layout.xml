@@ -6,6 +6,7 @@
     <data>
         <import type="android.content.Context" />
         <import type="com.example.allhome.storage.StorageUtil"/>
+        <import type="android.view.View" />
         <variable
             name="pantryItemWithExpirations"
             type="com.example.allhome.data.entities.StorageItemWithExpirations" />
@@ -40,17 +41,19 @@
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"
                 android:background="@null"
-                app:layout_constraintBottom_toBottomOf="@+id/textView18"
+                android:foreground="?attr/selectableItemBackground"
+                app:layout_constraintBottom_toBottomOf="@+id/storageItemNameTextView"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="@+id/textView18"
+                app:layout_constraintTop_toTopOf="@+id/storageItemNameTextView"
                 app:srcCompat="@drawable/ic_baseline_more_vert_24" />
 
             <TextView
-                android:id="@+id/textView18"
+                android:id="@+id/storageItemNameTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
+                android:foreground="?attr/selectableItemBackground"
                 android:text="@{pantryItemWithExpirations.storageItemEntity.name}"
                 android:textColor="#000"
                 android:textSize="18sp"
@@ -66,11 +69,11 @@
                 android:paddingLeft="10dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
-                android:text="@{StorageUtil.INSTANCE.stockWeightIntegerToStringValue(pantryItemWithExpirations.storageItemEntity)}"
+                android:setStockWeight="@{pantryItemWithExpirations.storageItemEntity}"
                 android:textColor="#000"
                 app:layout_constraintEnd_toStartOf="@+id/storageImageView"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView18"
+                app:layout_constraintTop_toBottomOf="@+id/storageItemNameTextView"
                 tools:text="Stock weight: Low (10 pcs)" />
 
             <TextView
@@ -80,12 +83,12 @@
                 android:paddingLeft="10dp"
                 android:paddingTop="5dp"
                 android:paddingBottom="5dp"
-                android:text="Bought : May 5, 2021"
+                android:text="@{StorageUtil.INSTANCE.datetimeModified(pantryItemWithExpirations.storageItemEntity.modified)}"
                 android:textColor="#000"
                 app:layout_constraintEnd_toStartOf="@+id/storageImageView"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/stockWeightTextView"
-                tools:text="Bought: May 5, 2021" />
+                tools:text="Last update: May 5, 2021" />
 
             <LinearLayout
                 android:id="@+id/linearLayout"
@@ -94,7 +97,9 @@
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toStartOf="@+id/storageImageView"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView19">
+                app:layout_constraintTop_toBottomOf="@+id/textView19"
+                android:visibility="@{StorageUtil.INSTANCE.hasExpirationDate(pantryItemWithExpirations.expirations) ? View.VISIBLE: View.GONE}"
+                >
 
                 <TextView
                     android:id="@+id/textView21"
