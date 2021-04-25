@@ -32,7 +32,6 @@ import com.example.allhome.data.entities.StorageItemWithExpirations
 import com.example.allhome.databinding.ActivityStorageBinding
 import com.example.allhome.databinding.PantryItemLayoutBinding
 import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
-import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -222,7 +221,7 @@ class StorageActivity : AppCompatActivity() {
     }
     val productImageClickListener = View.OnClickListener {
         val storageItemWithExpirations: StorageItemWithExpirations = it.tag as StorageItemWithExpirations
-        val imageUri = StorageUtil.getImageUriFromPath(it.context,storageItemWithExpirations.storageItemEntity.imageName)
+        val imageUri = StorageUtil.getStorageItemImageUriFromPath(it.context,storageItemWithExpirations.storageItemEntity.imageName)
         zoomImageFromThumb(it, imageUri!!)
 
     }

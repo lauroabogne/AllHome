@@ -7,6 +7,8 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -36,12 +38,9 @@ class StorageFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
-        mStorageViewModel.coroutineScope.launch {
-            mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
-        }
-
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_storage, container, false)
         mDataBindingUtil.lifecycleOwner = this
+
 
         mDataBindingUtil.fab.setOnClickListener{
             val createStorageActivity = Intent(this.context, CreateStorageActivity::class.java)
@@ -50,9 +49,15 @@ class StorageFragment : Fragment() {
 
 
         val storageViewAdapter = StorageViewAdapter(this)
-        storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
-
         mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+
+        mStorageViewModel.coroutineScope.launch {
+            mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
+            storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
+            withContext(Main){
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+            }
+        }
 
         return mDataBindingUtil.root
     }
@@ -85,16 +90,56 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
     inner class  ItemViewHolder(var storageItemBinding: StorageItemBinding): RecyclerView.ViewHolder(storageItemBinding.root),View.OnClickListener{
         init {
 
+            storageItemBinding.storageItemParentLayout.setOnClickListener(this)
             storageItemBinding.moreActionImageView.setOnClickListener(this)
+
         }
 
         override fun onClick(view: View?) {
 
-            val storageEntity = storageEntities[adapterPosition].storageEntity
+            when(view?.id){
+                R.id.storageItemParentLayout->{
 
-            val storageActivity = Intent(view!!.context, StorageActivity::class.java)
-            storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
-            storageFragment.requireActivity().startActivity(storageActivity)
+                    val storageEntity = storageEntities[adapterPosition].storageEntity
+                    val storageActivity = Intent(view!!.context, StorageActivity::class.java)
+                    storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+                    storageFragment.requireActivity().startActivity(storageActivity)
+                }
+
+                R.id.moreActionImageView->{
+
+                    val popupMenu = PopupMenu(view.context, view)
+                    popupMenu.menuInflater.inflate(R.menu.storage_item_menu, popupMenu.menu)
+                    popupMenu.show()
+
+                    popupMenu.setOnMenuItemClickListener{
+                        val storageEntity = storageEntities[adapterPosition].storageEntity
+
+
+                        when (it.itemId) {
+                            R.id.viewInformationMenu->{
+                                val createStorageActivity = Intent(view!!.context, CreateStorageActivity::class.java)
+                                createStorageActivity.putExtra(CreateStorageActivity.ACTION_TAG,CreateStorageActivity.UPDATE_RECORD_ACTION)
+                                createStorageActivity.putExtra(CreateStorageActivity.STORAGE_UNIQUE_ID_TAG,storageEntity.uniqueId)
+                                storageFragment.requireActivity().startActivity(createStorageActivity)
+
+                            }
+                            R.id.viewItemsMenu->{
+
+                                val storageActivity = Intent(view!!.context, StorageActivity::class.java)
+                                storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+                                storageFragment.requireActivity().startActivity(storageActivity)
+                            }
+                            R.id.deleteStorageMenu->{
+
+                            }
+                        }
+                        Toast.makeText(view.context,"Clicked",Toast.LENGTH_SHORT).show()
+                        true
+                    }
+                }
+            }
+
             //startActivity(pantryStorageActivity
         }
 

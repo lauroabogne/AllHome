@@ -1,6 +1,7 @@
 package com.example.allhome.storage.viewmodel
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
@@ -14,9 +15,11 @@ class StorageViewModel: ViewModel() {
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("PantryStorageViewModel"))
     lateinit var storageItemWithExpirations:ArrayList<StorageItemWithExpirations>
     var storageEntitiesWithExtraInformation:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
-
-
     var storageItemEntity:StorageItemEntity? = null
+    var storageEntity:StorageEntity? = null
+
+    var storagePreviousImageUri: Uri? = null
+    var storageNewImageUri: Uri? = null
 
     suspend fun getPatryItemWithExpirations(context: Context,storage:String):ArrayList<StorageItemWithExpirations>{
 
@@ -68,6 +71,15 @@ class StorageViewModel: ViewModel() {
 
         Log.e("COUNT",storageEntitiesWithExtraInformation.size.toString())
         return storageEntitiesWithExtraInformation
+
+    }
+    suspend fun getStorage(context:Context,storageUniqueId:String):StorageEntity{
+        storageEntity =  AllHomeDatabase.getDatabase(context).getStorageDAO().getStorage(storageUniqueId)
+        return storageEntity as StorageEntity
+    }
+
+    suspend fun updateStorage(context:Context,storageUniquedId:String,name:String,description:String,imageName:String,modified:String):Int{
+       return AllHomeDatabase.getDatabase(context).getStorageDAO().updateStorage(storageUniquedId,name,description,imageName,modified)
 
     }
 }

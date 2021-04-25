@@ -33,7 +33,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Storage name"
-                android:text="@{storageViewModel.storageItemEntity.name}"/>
+                android:text="@{storageViewModel.storageEntity.name}"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -51,6 +51,7 @@
                 android:gravity="top"
                 android:hint="Description"
                 android:inputType="textMultiLine"
+                android:text="@{storageViewModel.storageEntity.description}"/>
                 android:minLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -61,13 +62,13 @@
             android:layout_height="wrap_content"
             android:padding="10dp"
             android:text="Image"
-            app:layout_constraintEnd_toStartOf="@+id/pantryItemAddImageBtn"
+            app:layout_constraintEnd_toStartOf="@+id/storageItemAddImageBtn"
             app:layout_constraintHorizontal_bias="0.909"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textInputLayout6" />
 
         <ImageButton
-            android:id="@+id/pantryItemAddImageBtn"
+            android:id="@+id/storageItemAddImageBtn"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:background="@null"
@@ -81,9 +82,10 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:adjustViewBounds="true"
+            app:previousImageUri="@{storageViewModel.storagePreviousImageUri}"
+            app:currentImageUri="@{storageViewModel.storageNewImageUri}"
             android:contentDescription="Storage image"
             app:layout_constraintTop_toBottomOf="@+id/textView17" />
-
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

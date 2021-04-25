@@ -1,7 +1,6 @@
 package com.example.allhome.data.entities
 
 import android.net.Uri
-import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.RadioButton
@@ -10,7 +9,6 @@ import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.*
-import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.StorageUtil
 
 @Entity(tableName = "storage_items")
@@ -88,7 +86,7 @@ fun setImageForViewingStorageItem(view:View,imageName:String){
         view.visibility = View.GONE
         return
     }
-    val uri = StorageUtil.getImageUriFromPath(view.context,imageName)
+    val uri = StorageUtil.getStorageItemImageUriFromPath(view.context,imageName)
     uri?.apply {
         (view as ImageView).setImageURI(uri)
         view.visibility = View.VISIBLE

@@ -10,10 +10,12 @@
             type="com.example.allhome.data.entities.StorageEntityWithExtraInformation" />
     </data>
     <androidx.cardview.widget.CardView
-        android:id="@+id/pantryItemParentLayout"
+        android:id="@+id/storageItemParentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="2dp"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"
         app:cardCornerRadius="0dp"
         app:cardElevation="2dp">
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -35,7 +37,7 @@
 
         <ImageView
             android:id="@+id/moreActionImageView"
-            android:layout_width="wrap_content"
+            android:layout_width="50dp"
             android:layout_height="0dp"
             android:layout_weight="0"
             android:background="?selectableItemBackgroundBorderless"
@@ -43,7 +45,8 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView16"
             app:srcCompat="@drawable/ic_baseline_more_vert_24"
-            tools:ignore="VectorDrawableCompat" />
+            tools:ignore="VectorDrawableCompat"
+            android:scaleType="center"/>
 
         <TextView
             android:id="@+id/textView18"

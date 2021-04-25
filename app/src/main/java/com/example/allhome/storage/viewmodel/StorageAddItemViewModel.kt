@@ -14,6 +14,7 @@ class StorageAddItemViewModel: ViewModel() {
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("PantryAddItemViewModel"))
     var storageItemEntity:StorageItemEntity? = null
     var storageItemExpirationsEntity:ArrayList<StorageItemExpirationEntity> = arrayListOf()
+    var storageName:String? = null
     var previousImageUri:Uri? = null
     var newImageUri: Uri? = null
 

@@ -1,5 +1,9 @@
 package com.example.allhome.data.entities
 
+import android.net.Uri
+import android.view.View
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -25,3 +29,13 @@ data class StorageEntityWithExtraInformation(
     val expiredItemCount:Int,
     val itemToExpireDayCount:Int
 )
+
+@BindingAdapter(value=["bind:previousImageUri","bind:currentImageUri"],requireAll = false)
+fun setImageToImageViewForCreatingStorage(view: View, previousImageUri: Uri?, currentImageUri: Uri?){
+
+    if(currentImageUri !=null){
+        (view as ImageView).setImageURI(currentImageUri)
+    }else if(currentImageUri ==null && previousImageUri !=null){
+        (view as ImageView).setImageURI(previousImageUri)
+    }
+}
