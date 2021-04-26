@@ -53,8 +53,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
             android:text="@{`Total item: `+storageEntityWithExtraInformation.itemCount}"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView16" />
 
@@ -63,8 +65,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
-            android:text="No stock : 5"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="@{`No stock items : `+storageEntityWithExtraInformation.noStockItemCount}"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView18" />
 
@@ -73,8 +77,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
-            android:text="Low stock : 10"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="@{`Low stock items : `+storageEntityWithExtraInformation.lowStockItemCount}"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView20" />
 
@@ -83,8 +89,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
-            android:text="Hight stock : 20"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="@{`High stock items : `+storageEntityWithExtraInformation.highStockItemCount}"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView22" />
 
@@ -93,8 +101,10 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="10dp"
-            android:text="Expired stock : 4"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:text="@{`Expired items : `+storageEntityWithExtraInformation.expiredItemCount}"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView23" />
 
@@ -102,17 +112,21 @@
             android:id="@+id/textView25"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingLeft="5dp"
             android:drawableLeft="@drawable/ic_warning_12"
-            android:text="Some item will expire within 5 days"
-            app:layout_constraintEnd_toStartOf="@+id/imageView3"
+            android:paddingLeft="5dp"
+            android:paddingTop="2dp"
+            android:paddingBottom="2dp"
+            android:setSoonToExpireItemText="@{storageEntityWithExtraInformation.itemToExpireDayCount}"
+            app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView24" />
+            app:layout_constraintTop_toBottomOf="@+id/textView24"
+            tools:text="Some item will expire within x days" />
 
         <ImageView
-            android:id="@+id/imageView3"
-            android:layout_width="50dp"
-            android:layout_height="50dp"
+            android:id="@+id/storageImageView"
+            android:layout_width="80dp"
+            android:layout_height="80dp"
+            android:setImageStorageImage="@{storageEntityWithExtraInformation.storageEntity.imageName}"
             app:layout_constraintBottom_toBottomOf="@+id/textView25"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/textView18"

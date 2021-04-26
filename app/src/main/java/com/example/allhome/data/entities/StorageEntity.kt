@@ -3,11 +3,15 @@ package com.example.allhome.data.entities
 import android.net.Uri
 import android.view.View
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.allhome.grocerylist.GroceryUtil
+import com.example.allhome.storage.StorageUtil
+
 @Entity(tableName = "storage")
 data class StorageEntity(
     @PrimaryKey(autoGenerate = false)
@@ -38,4 +42,29 @@ fun setImageToImageViewForCreatingStorage(view: View, previousImageUri: Uri?, cu
     }else if(currentImageUri ==null && previousImageUri !=null){
         (view as ImageView).setImageURI(previousImageUri)
     }
+}
+
+@BindingAdapter("android:setImageStorageImage")
+fun setImageStorageImage(view: View,imageName:String){
+
+    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
+
+    uri?.apply {
+        (view as ImageView).setImageURI(uri)
+        view.visibility = View.VISIBLE
+    }?:run {
+        view.visibility = View.GONE
+    }
+
+}
+
+@BindingAdapter("android:setSoonToExpireItemText")
+fun setSoonToExpireItemText(view: TextView, itemToExpireInDays:Int){
+    if(itemToExpireInDays <=0 || itemToExpireInDays >31){
+        view.visibility = View.GONE
+        return
+    }
+    view.setText("Some item will expire within $itemToExpireInDays days")
+
+
 }

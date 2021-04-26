@@ -1,8 +1,16 @@
 package com.example.allhome.data.entities
 
+import android.graphics.Color
+import android.view.View
+import android.widget.TextView
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import org.joda.time.DateTime
+import org.joda.time.Days
+import org.joda.time.format.DateTimeFormat
+import kotlin.math.absoluteValue
 
 
 @Entity(tableName = "storage_item_expirations")
@@ -26,4 +34,21 @@ class StorageItemExpirationEntityValues{
 
 
     }
+}
+
+@BindingAdapter("android:setExpirationTextWithNumberOfDays")
+fun setExpirationTextWithNumberOfDays(textView: TextView, expirationDateString:String){
+
+    val currentDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now()), DateTimeFormat.forPattern("yyyy-MM-dd"))
+    val expirationDate = DateTime.parse(expirationDateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
+
+    val days = Days.daysBetween(currentDate, expirationDate).days
+    val expirationDateFormated = DateTimeFormat.forPattern("MMMM d, Y").print(expirationDate)
+    if(days <=0){
+        textView.setText("${expirationDateFormated} (${days.absoluteValue} day)")
+        textView.setTextColor(Color.RED)
+    }else{
+        textView.setText("${expirationDateFormated} (${days.absoluteValue} day)")
+    }
+
 }

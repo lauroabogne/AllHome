@@ -9,6 +9,8 @@ import com.example.allhome.data.entities.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import org.joda.time.DateTime
+import org.joda.time.format.DateTimeFormat
 
 class StorageViewModel: ViewModel() {
 
@@ -48,22 +50,32 @@ class StorageViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).getStorageDAO().addItem(storageEntity)
     }
     suspend fun getAllStorage(context:Context):ArrayList<StorageEntityWithExtraInformation>{
-        val storageItemDAO = AllHomeDatabase.getDatabase(context).getStorageItemDAO()
 
+        val currentDate = DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now())
+
+
+        val storageItemDAO = AllHomeDatabase.getDatabase(context).getStorageItemDAO()
         val storageEntities = AllHomeDatabase.getDatabase(context).getStorageDAO().getStorages() as ArrayList<StorageEntity>
+
         storageEntities.forEach {
 
             val storageItemCount = storageItemDAO.getStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
-            Log.e("DATA",it.name+" "+storageItemCount)
+            val noStockItemCount = storageItemDAO.getNoStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val lowStockItemCount = storageItemDAO.getLowStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val highStockItemCount = storageItemDAO.getHighStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val soonToExpireInDayString = storageItemDAO.getItemThatExpireSoon(it.name,currentDate)
+            val itemSoonToExpireInDays = if(soonToExpireInDayString == null) 0 else soonToExpireInDayString.toInt()
+
+            val expiredItemCount = storageItemDAO.getItemCountThatExpired(it.name,currentDate)
 
             val storageEntityWithExtraInformation = StorageEntityWithExtraInformation(
                 storageEntity = it,
                 itemCount = storageItemCount,
-                noStockItemCount = 0,
-                lowStockItemCount = 0,
-                highStockItemCount = 0,
-                expiredItemCount = 0,
-                itemToExpireDayCount = 0
+                noStockItemCount = noStockItemCount,
+                lowStockItemCount = lowStockItemCount,
+                highStockItemCount = highStockItemCount,
+                expiredItemCount = expiredItemCount,
+                itemToExpireDayCount = if(itemSoonToExpireInDays != null) itemSoonToExpireInDays else 0
             )
 
             storageEntitiesWithExtraInformation.add(storageEntityWithExtraInformation)

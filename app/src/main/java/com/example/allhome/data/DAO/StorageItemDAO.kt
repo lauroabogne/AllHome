@@ -24,4 +24,30 @@ interface StorageItemDAO {
 
     @Query("SELECT COUNT(*) FROM storage_items WHERE deleted =:deletedStatus AND storage =:storage")
     suspend fun getStorageItemCount(deletedStatus:Int,storage:String):Int
+    @Query("SELECT COUNT(*) FROM storage_items WHERE deleted =:deletedStatus AND storage =:storage AND stock_weight=0")
+    suspend fun getNoStockStorageItemCount(deletedStatus:Int,storage:String):Int
+    @Query("SELECT COUNT(*) FROM storage_items WHERE deleted =:deletedStatus AND storage =:storage AND stock_weight=1")
+    suspend fun getLowStockStorageItemCount(deletedStatus:Int,storage:String):Int
+    @Query("SELECT COUNT(*) FROM storage_items WHERE deleted =:deletedStatus AND storage =:storage AND stock_weight=2")
+    suspend fun getHighStockStorageItemCount(deletedStatus:Int,storage:String):Int
+    @Query("SELECT julianday(DATE(storage_item_expirations.expiration_date)) - julianday(:currentDate)  FROM storage_items " +
+            " LEFT JOIN storage_item_expirations" +
+            " ON storage_items.unique_id = storage_item_expirations.storage_item_unique_id AND storage_items.modified = storage_item_expirations.created\n" +
+            " WHERE storage_items.storage = :storageName" +
+            " AND storage_items.deleted = 0 " +
+            " AND DATE(storage_item_expirations.expiration_date) >DATE('now') "+
+            " AND julianday(DATE(storage_item_expirations.expiration_date)) - julianday(:currentDate) <=31 " +
+            " ORDER BY storage_item_expirations.expiration_date ASC")
+    suspend fun getItemThatExpireSoon(storageName:String,currentDate:String):String
+
+    @Query("SELECT COUNT(DISTINCT(storage_item_unique_id))  FROM storage_items " +
+            " LEFT JOIN storage_item_expirations" +
+            " ON storage_items.unique_id = storage_item_expirations.storage_item_unique_id " +
+            " AND storage_items.modified = storage_item_expirations.created" +
+            " AND  storage_items.storage = storage_item_expirations.storage" +
+            " WHERE storage_items.storage = :storageName" +
+            " AND storage_items.deleted = 0 " +
+            " AND DATE(storage_item_expirations.expiration_date) <=DATE(:currentDate) "+
+            " ORDER BY storage_item_expirations.expiration_date ASC")
+    suspend fun getItemCountThatExpired(storageName:String,currentDate:String):Int
 }

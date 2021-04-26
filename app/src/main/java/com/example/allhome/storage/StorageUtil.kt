@@ -2,11 +2,13 @@ package com.example.allhome.storage
 
 import android.content.Context
 import android.net.Uri
+import android.util.Log
 import com.example.allhome.R
 import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.grocerylist.GroceryUtil
 import org.joda.time.DateTime
+import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import java.io.File
 import java.text.DecimalFormat
@@ -26,8 +28,13 @@ object StorageUtil {
         return  DateTimeFormat.forPattern("MMMM d, Y").print(expirationDate)
     }
     fun formatExpirationDateWithDayRemaining(expirationDateString:String):String{
+
+        val currentDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now()), DateTimeFormat.forPattern("yyyy-MM-dd"))
         val expirationDate = DateTime.parse(expirationDateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
-        return  DateTimeFormat.forPattern("MMMM d, Y").print(expirationDate)
+
+        val days = Days.daysBetween(currentDate, expirationDate).days
+
+        return  DateTimeFormat.forPattern("MMMM d, Y").print(expirationDate)+" (${days} day)"
     }
     fun stockWeightIntegerIdToIntegerValue(checkedRadioBtnId:Int):Int{
 
@@ -61,6 +68,8 @@ object StorageUtil {
         if(!storageDir.exists()){
             return null
         }
+
+
         val imageFile  = File(storageDir, imageName)
 
         if(imageFile.exists() && imageFile.isFile){

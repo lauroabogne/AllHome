@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:paddingTop="2dp"
         android:paddingBottom="2dp"
-        android:text="@{StorageUtil.INSTANCE.formatExpirationDateWithDayRemaining(pantryItemExpirationEntity.expirationDate)}"
+        android:setExpirationTextWithNumberOfDays="@{pantryItemExpirationEntity.expirationDate}"
         android:textColor="#000"
         tools:text="May 10, 2021 (5 days)">
 
