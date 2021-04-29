@@ -17,7 +17,6 @@
         android:id="@+id/pantryItemParentLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:foreground="?attr/selectableItemBackground"
         android:layout_marginBottom="2dp"
         app:cardCornerRadius="0dp"
         app:cardElevation="2dp">
@@ -38,9 +37,10 @@
 
             <ImageButton
                 android:id="@+id/moreActionImageBtn"
-                android:layout_width="40dp"
+                android:layout_width="wrap_content"
                 android:layout_height="0dp"
-                android:background="?selectableItemBackgroundBorderless"
+                android:background="@null"
+                android:foreground="?attr/selectableItemBackground"
                 app:layout_constraintBottom_toBottomOf="@+id/storageItemNameTextView"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="@+id/storageItemNameTextView"
@@ -50,6 +50,7 @@
                 android:id="@+id/storageItemNameTextView"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:foreground="?attr/selectableItemBackground"
                 android:paddingTop="8dp"
                 android:paddingBottom="8dp"
                 android:text="@{pantryItemWithExpirations.storageItemEntity.name}"

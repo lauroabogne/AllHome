@@ -1,12 +1,15 @@
 package com.example.allhome.data.entities
 
 import android.graphics.Color
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
@@ -36,6 +39,17 @@ class StorageItemExpirationEntityValues{
     }
 }
 
+@BindingAdapter("android:appendExpirationDates")
+fun appendExpirationDates(linearLayout: LinearLayout, expirations:List<StorageItemExpirationEntity>){
+
+    val layoutInflater = LayoutInflater.from(linearLayout.context)
+    expirations.forEach {
+        val pantrySimpleExpirationLayoutBinding = PantrySimpleExpirationLayoutBinding.inflate(layoutInflater,linearLayout,true)
+        pantrySimpleExpirationLayoutBinding.pantryItemExpirationEntity = it
+        pantrySimpleExpirationLayoutBinding.executePendingBindings()
+    }
+
+}
 @BindingAdapter("android:setExpirationTextWithNumberOfDays")
 fun setExpirationTextWithNumberOfDays(textView: TextView, expirationDateString:String){
 
@@ -50,5 +64,6 @@ fun setExpirationTextWithNumberOfDays(textView: TextView, expirationDateString:S
     }else{
         textView.setText("${expirationDateFormated} (${days.absoluteValue} day)")
     }
-
 }
+
+

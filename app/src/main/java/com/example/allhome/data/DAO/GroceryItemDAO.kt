@@ -11,7 +11,7 @@ import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 @Dao
 interface GroceryItemDAO {
     @Insert
-    suspend fun addItem(groceryItemEntity: GroceryItemEntity)
+    suspend fun addItem(groceryItemEntity: GroceryItemEntity):Long
 
     @Query("SELECT * FROM grocery_items ORDER BY id ASC")
     fun readAllGroceryItem(): LiveData<List<GroceryItemEntity>>
@@ -56,5 +56,7 @@ interface GroceryItemDAO {
     fun getGroceryItemEntityCategories(searchTerm:String):List<String>
     @Query("INSERT INTO grocery_items (grocery_list_unique_id,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,bought) SELECT :newGroceryListUniqueId,sequence,item_name,quantity,unit,price_per_unit,category,notes,image_name,0 FROM grocery_items WHERE grocery_list_unique_id= :oldGroceryListUniqueId")
     fun copy(oldGroceryListUniqueId:String,newGroceryListUniqueId:String)
+    @Query("SELECT * from grocery_items WHERE item_name =:itemName AND unit =:unit AND grocery_list_unique_id =:groceryListUniqueId AND  item_status = 0 LIMIT 1")
+    fun getItemByNameAndUnit(groceryListUniqueId:String,itemName:String,unit:String):GroceryItemEntity
 
 }

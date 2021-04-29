@@ -8,6 +8,9 @@
         android:id="@+id/viewItemsMenu"
         android:title="View items" />
     <item
+        android:id="@+id/addToGroceryListMenu"
+        android:title="Add to grocery list" />
+    <item
         android:id="@+id/deleteStorageMenu"
         android:title="Delete" />
 </menu>

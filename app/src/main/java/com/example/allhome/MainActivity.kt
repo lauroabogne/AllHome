@@ -59,8 +59,13 @@ class MainActivity : AppCompatActivity() {
                     /*val pantryStorageActivity = Intent(this, PantryStorageActivity::class.java)
                     startActivity(pantryStorageActivity)*/
 
+                    val bundle = Bundle()
+                    bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
 
-                    fragmentProcessor(StorageFragment())
+                    val storageFragment = StorageFragment()
+                    storageFragment.arguments = bundle
+
+                    fragmentProcessor(storageFragment)
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
             }

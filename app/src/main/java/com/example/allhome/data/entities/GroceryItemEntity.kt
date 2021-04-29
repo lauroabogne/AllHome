@@ -11,22 +11,23 @@ import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
+import java.util.*
 
 @Entity(tableName = "grocery_items")
- data class GroceryItemEntity (
-    @ColumnInfo(name = "grocery_list_unique_id") val groceryListUniqueId:String,
+ data class GroceryItemEntity constructor (
+    @ColumnInfo(name = "grocery_list_unique_id") var groceryListUniqueId:String,
     @ColumnInfo(name = "sequence") val sequence:Int = 0,
-    @ColumnInfo(name = "item_name") var itemName:String,
-    @ColumnInfo(name = "quantity") var quantity:Double,
-    @ColumnInfo(name = "unit") val unit:String,
-    @ColumnInfo(name = "price_per_unit") val pricePerUnit:Double,
-    @ColumnInfo(name="category") var category:String,
-    @ColumnInfo(name = "notes") val notes:String,
-    @ColumnInfo(name = "image_name") var imageName:String,
-    @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int,
-    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int,
-    @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String,
-    @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String
+    @ColumnInfo(name = "item_name") var itemName:String = "",
+    @ColumnInfo(name = "quantity") var quantity:Double = 0.0,
+    @ColumnInfo(name = "unit") val unit:String = "",
+    @ColumnInfo(name = "price_per_unit") val pricePerUnit:Double= 0.0,
+    @ColumnInfo(name="category") var category:String = "",
+    @ColumnInfo(name = "notes") val notes:String = "",
+    @ColumnInfo(name = "image_name") var imageName:String = "",
+    @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int = 0,
+    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int = 0,
+    @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String = "",
+    @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String = ""
      ){
     @PrimaryKey(autoGenerate = true) var id:Int  = 0
     @Ignore

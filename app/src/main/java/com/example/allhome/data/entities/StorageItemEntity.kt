@@ -1,6 +1,7 @@
 package com.example.allhome.data.entities
 
 import android.net.Uri
+import android.os.Parcelable
 import android.view.View
 import android.widget.ImageView
 import android.widget.RadioButton
@@ -10,7 +11,9 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.storage.StorageUtil
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity(tableName = "storage_items")
 data class StorageItemEntity(
     @PrimaryKey(autoGenerate = false)
@@ -26,11 +29,7 @@ data class StorageItemEntity(
     @ColumnInfo(name = "deleted",defaultValue = "0") var deleted:Int,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
-
-
-
-)
-
+):Parcelable
 data class StorageItemWithExpirations(
     var storageItemEntity: StorageItemEntity,
     var expirations:List<StorageItemExpirationEntity> = arrayListOf()
@@ -43,6 +42,7 @@ class StorageItemEntityValues{
         const val NO_STOCK = 0
         const val LOW_STOCK = 1
         const val HIGH_STOCK = 2
+        const val EXPIRED = 3
 
         const val NO_STOCK_WEIGHT_INPUT_STRING = ""
         const val NO_STOCK_STRING = "No stock"

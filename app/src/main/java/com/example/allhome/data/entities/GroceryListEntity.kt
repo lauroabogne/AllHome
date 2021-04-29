@@ -1,5 +1,6 @@
 package com.example.allhome.data.entities
 
+import android.os.Parcelable
 import android.view.View
 import android.widget.Spinner
 import androidx.cardview.widget.CardView
@@ -32,14 +33,14 @@ data class GroceryListEntity(
         @ColumnInfo(name = "datetime_status_updated",defaultValue = "CURRENT_TIMESTAMP") var datetimeStatusUpdated:String,
         @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int //0=not yet uploaded,1=uploaded
 
-)
+):Parcelable
 
 @Parcelize
 data class GroceryListWithItemCount(
     @Embedded val groceryListEntity: GroceryListEntity,
     val itemCount:Int,
     val itemBought:Int
-)
+):Parcelable
 
 class GroceryListEntityValues{
     companion object{

@@ -4,6 +4,8 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.AlertDialog
+import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.Rect
@@ -19,22 +21,21 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
+import androidx.core.util.forEach
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
-import com.example.allhome.data.entities.StorageEntity
-import com.example.allhome.data.entities.StorageEntityWithExtraInformation
-import com.example.allhome.data.entities.StorageItemExpirationEntity
-import com.example.allhome.data.entities.StorageItemWithExpirations
-import com.example.allhome.databinding.FragmentGroceryListBinding
-import com.example.allhome.databinding.FragmentStorageBinding
-import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
-import com.example.allhome.databinding.StorageItemBinding
+import com.example.allhome.data.entities.*
+import com.example.allhome.databinding.*
 import com.example.allhome.storage.viewmodel.StorageViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class StorageFragment : Fragment() {
@@ -44,15 +45,33 @@ class StorageFragment : Fragment() {
     // Hold a reference to the current animator,
     // so that it can be canceled mid-way.
     private var currentAnimator: Animator? = null
+    private var mAction = STORAGE_VIEWING_ACTION
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        requireActivity().title = "Storage"
+    companion object{
+        const val ACTION_TAG = "ACTION_TAG"
+        const val STORAGE_ITEM_ENTITY_TAG = "STORAGE_ITEM_ENTITY_TAG"
+        const val STORAGE_VIEWING_ACTION = 1
+        const val STORAGE_TRASFERING_ITEM_ACTION = 2
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
+
+        requireArguments().getInt(ACTION_TAG, STORAGE_VIEWING_ACTION).let {
+            mAction = it
+            when (mAction) {
+                STORAGE_VIEWING_ACTION -> {
+                    requireActivity().title = "Storage"
+                }
+                STORAGE_TRASFERING_ITEM_ACTION -> {
+                    requireActivity().title = "Select Storage"
+                    mStorageViewModel.storageItemEntity = requireArguments().getParcelable<StorageItemEntity>(STORAGE_ITEM_ENTITY_TAG)
+                }
+            }
+        }
+
+
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_storage, container, false)
         mDataBindingUtil.lifecycleOwner = this
 
@@ -63,14 +82,36 @@ class StorageFragment : Fragment() {
         }
 
 
-        val storageViewAdapter = StorageViewAdapter(this)
-        mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+        var storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
+
+        //RecyclerView.ViewHolder
+        if(mAction == STORAGE_VIEWING_ACTION){
+            storageViewAdapter = StorageViewAdapter(this) as RecyclerView.Adapter<RecyclerView.ViewHolder>
+            mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+
+        }else{
+            storageViewAdapter = StorageViewForTransferingItemsAdapter(this)  as RecyclerView.Adapter<RecyclerView.ViewHolder>
+            mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+        }
+
 
         mStorageViewModel.coroutineScope.launch {
             mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
-            storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
+
+            if(mAction == STORAGE_VIEWING_ACTION){
+                (storageViewAdapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+            }else{
+                (storageViewAdapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+            }
+            //storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
             withContext(Main){
-                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+
+                if(mAction == STORAGE_VIEWING_ACTION){
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+                }else{
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyDataSetChanged()
+                }
+
 
             }
         }
@@ -78,7 +119,7 @@ class StorageFragment : Fragment() {
         return mDataBindingUtil.root
     }
 
-     fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
+    fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
 
         // The system "short" animation time duration, in milliseconds. This
         // duration is ideal for subtle animations or animations that occur
@@ -210,9 +251,16 @@ class StorageFragment : Fragment() {
         }
     }
 
+    fun transferStorageItem( storageEntity: StorageEntity){
+        Toast.makeText(this.requireContext(),"Toast test",Toast.LENGTH_SHORT).show()
+        Log.e("DATA",storageEntity.toString())
+    }
 
 }
 
+/**
+ * storage recyclierview adapater for viewing storage items
+ */
 class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adapter<StorageViewAdapter.ItemViewHolder>() {
 
     var storageEntities:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
@@ -224,7 +272,6 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
         val itemViewHolder = ItemViewHolder(storageItemBinding)
         return itemViewHolder
     }
-
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val pantryItemExpirationEntity = storageEntities[position]
         holder.storageItemBinding.storageEntityWithExtraInformation = pantryItemExpirationEntity
@@ -232,7 +279,7 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
     }
 
     override fun getItemCount(): Int {
-        Log.e("THE_COUNT",storageEntities.size.toString())
+
         return storageEntities.size
     }
     inner class  ItemViewHolder(var storageItemBinding: StorageItemBinding): RecyclerView.ViewHolder(storageItemBinding.root),View.OnClickListener{
@@ -246,45 +293,101 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
         }
 
         override fun onClick(view: View?) {
+            val storageEntity = storageEntities[adapterPosition].storageEntity
 
             when(view?.id){
                 R.id.storageItemParentLayout->{
 
-                    val storageEntity = storageEntities[adapterPosition].storageEntity
+
                     val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
                     storageFragment.requireActivity().startActivity(storageActivity)
                 }
 
-                R.id.moreActionImageView->{
+                R.id.moreActionImageView -> {
 
                     val popupMenu = PopupMenu(view.context, view)
                     popupMenu.menuInflater.inflate(R.menu.storage_item_menu, popupMenu.menu)
                     popupMenu.show()
 
-                    popupMenu.setOnMenuItemClickListener{
+                    popupMenu.setOnMenuItemClickListener {
                         val storageEntity = storageEntities[adapterPosition].storageEntity
 
-
                         when (it.itemId) {
-                            R.id.viewInformationMenu->{
+                            R.id.viewInformationMenu -> {
                                 val createStorageActivity = Intent(view!!.context, CreateStorageActivity::class.java)
-                                createStorageActivity.putExtra(CreateStorageActivity.ACTION_TAG,CreateStorageActivity.UPDATE_RECORD_ACTION)
-                                createStorageActivity.putExtra(CreateStorageActivity.STORAGE_UNIQUE_ID_TAG,storageEntity.uniqueId)
+                                createStorageActivity.putExtra(CreateStorageActivity.ACTION_TAG, CreateStorageActivity.UPDATE_RECORD_ACTION)
+                                createStorageActivity.putExtra(CreateStorageActivity.STORAGE_UNIQUE_ID_TAG, storageEntity.uniqueId)
                                 storageFragment.requireActivity().startActivity(createStorageActivity)
 
                             }
-                            R.id.viewItemsMenu->{
+                            R.id.viewItemsMenu -> {
 
                                 val storageActivity = Intent(view!!.context, StorageActivity::class.java)
-                                storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+                                storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG, storageEntity.name)
                                 storageFragment.requireActivity().startActivity(storageActivity)
                             }
-                            R.id.deleteStorageMenu->{
+                            R.id.deleteStorageMenu -> {
 
                             }
+                            R.id.addToGroceryListMenu -> {
+                                
+                                val choices = arrayOf(
+                                        storageFragment.requireActivity().getString(R.string.expired_stock)+" items",
+                                        storageFragment.requireActivity().getString(R.string.no_stock)+" items",
+                                        storageFragment.requireActivity().getString(R.string.low_stock)+" items",
+                                        storageFragment.requireActivity().getString(R.string.high_stock)+" items"
+                                )
+                                val choicesInitial = booleanArrayOf(false,false, false, false)
+                                val alertDialog =  MaterialAlertDialogBuilder(storageFragment.requireActivity())
+                                    .setTitle("Select options")
+                                    .setMultiChoiceItems(choices, choicesInitial, null)
+                                    .setPositiveButton("Ok", null)
+                                    .setNegativeButton("Close", null)
+                                    .setCancelable(false)
+                                    .create()
+                                alertDialog.setOnShowListener {
+
+
+
+                                    val positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+                                    val negativeBtn = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+
+                                    positiveBtn.setOnClickListener {
+
+                                        alertDialog.dismiss()
+
+                                        val filterOptions = arrayListOf<Int>()
+
+                                        alertDialog.listView.checkedItemPositions.forEach { key, isChecked ->
+                                            if(key == 0 && isChecked){
+                                                filterOptions.add(StorageItemEntityValues.EXPIRED)
+                                            }else if(key == 1 && isChecked){
+                                                filterOptions.add(StorageItemEntityValues.NO_STOCK)
+                                            }else if(key == 2 && isChecked){
+                                                filterOptions.add(StorageItemEntityValues.LOW_STOCK)
+                                            }else if(key == 3 && isChecked){
+                                                filterOptions.add(StorageItemEntityValues.HIGH_STOCK)
+                                            }
+                                        }
+
+                                        val storageGroceryListActivity = Intent(storageFragment.requireContext(), StorageGroceryListActivity::class.java)
+                                        storageGroceryListActivity.putExtra(StorageGroceryListActivity.ACTION_TAG,StorageGroceryListActivity.ADD_MULTIPLE_PRODUCT_ACTION)
+                                        storageGroceryListActivity.putExtra(StorageGroceryListActivity.ADD_MULTIPLE_PRODUCT_CONDITION_TAG,filterOptions)
+                                        storageGroceryListActivity.putExtra(StorageGroceryListActivity.STORAGE_NAME_TAG,storageEntity.name)
+
+                                        storageFragment.startActivity(storageGroceryListActivity)
+
+
+                                    }
+                                    negativeBtn.setOnClickListener {
+                                        alertDialog.dismiss()
+                                    }
+                                }
+                                alertDialog.show()
+                            }
                         }
-                        Toast.makeText(view.context,"Clicked",Toast.LENGTH_SHORT).show()
                         true
                     }
                 }
@@ -296,12 +399,76 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
                     imageUri?.let{
                         storageFragment.zoomImageFromThumb(view,it)
                     }
-
                 }
             }
-
             //startActivity(pantryStorageActivity
         }
+
+
+
+
+    }
+
+}
+
+/**
+ * storage recyclierview adapter for transferring storage items
+ */
+class StorageViewForTransferingItemsAdapter(val storageFragment:StorageFragment): RecyclerView.Adapter<StorageViewForTransferingItemsAdapter.ItemViewHolder>() {
+
+    var storageEntities:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+        val layoutInflater = LayoutInflater.from(parent.context)
+
+        val storageItemForTransferingBinding = StorageItemForTransferingBinding.inflate(layoutInflater,parent,false)
+        val itemViewHolder = ItemViewHolder(storageItemForTransferingBinding)
+        return itemViewHolder
+    }
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        val pantryItemExpirationEntity = storageEntities[position]
+        holder.storageItemForTransferingBinding.storageEntityWithExtraInformation = pantryItemExpirationEntity
+        holder.storageItemForTransferingBinding.executePendingBindings()
+    }
+
+    override fun getItemCount(): Int {
+
+        return storageEntities.size
+    }
+    inner class  ItemViewHolder(var storageItemForTransferingBinding: StorageItemForTransferingBinding): RecyclerView.ViewHolder(storageItemForTransferingBinding.root),View.OnClickListener{
+        init {
+
+            storageItemForTransferingBinding.storageItemParentLayout.setOnClickListener(this)
+            storageItemForTransferingBinding.storageImageView.setOnClickListener(this)
+
+        }
+
+        override fun onClick(view: View?) {
+            val storageEntity = storageEntities[adapterPosition].storageEntity
+
+            when(view?.id){
+                R.id.storageItemParentLayout->{
+
+                    storageFragment.transferStorageItem(storageEntity)
+                    //Toast.makeText(view.context,"test",Toast.LENGTH_SHORT).show()
+                    /*val storageActivity = Intent(view!!.context, StorageActivity::class.java)
+                    storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+                    storageFragment.requireActivity().startActivity(storageActivity)*/
+                }
+
+                R.id.storageImageView->{
+
+                    val storageEntity = storageEntities[adapterPosition].storageEntity
+                    val imageUri = StorageUtil.getImageUriFromPath(view.context,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,storageEntity.imageName)
+                    imageUri?.let{
+                        storageFragment.zoomImageFromThumb(view,it)
+                    }
+                }
+            }
+            //startActivity(pantryStorageActivity
+        }
+
+
 
 
     }

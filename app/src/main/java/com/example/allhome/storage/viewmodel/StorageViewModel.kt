@@ -5,6 +5,7 @@ import android.net.Uri
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.DAO.StorageItemDAO
 import com.example.allhome.data.entities.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +23,11 @@ class StorageViewModel: ViewModel() {
 
     var storagePreviousImageUri: Uri? = null
     var storageNewImageUri: Uri? = null
+    var groceryLists = ArrayList<GroceryListWithItemCount>()
+
+    var newGroceryItemEntity:GroceryItemEntity? = null
+
+    var addMultipleGroceryItemEntityCondition:List<Int> = arrayListOf()
 
     suspend fun getPatryItemWithExpirations(context: Context,storage:String):ArrayList<StorageItemWithExpirations>{
 
@@ -94,4 +100,36 @@ class StorageViewModel: ViewModel() {
        return AllHomeDatabase.getDatabase(context).getStorageDAO().updateStorage(storageUniquedId,name,description,imageName,modified)
 
     }
+
+    suspend fun getGroceryLists(context: Context):List<GroceryListWithItemCount>{
+        groceryLists = AllHomeDatabase.getDatabase(context).groceryListDAO().selectGroceryListsWithItemCount(GroceryListEntityValues.ACTIVE_STATUS) as ArrayList<GroceryListWithItemCount>
+        return groceryLists
+    }
+    suspend fun getGroceryList(context: Context,groceryListUniqueId:String):GroceryListWithItemCount{
+
+
+        return AllHomeDatabase.getDatabase(context).groceryListDAO().getGroceryListWithItemCount(groceryListUniqueId)
+
+    }
+    suspend fun createNewGroceryList(context: Context,groceryListEntity: GroceryListEntity):Long{
+        return AllHomeDatabase.getDatabase(context).groceryListDAO().addItem(groceryListEntity)
+    }
+    suspend fun getSingleGroceryItemEntity(context:Context, groceryListUniqueId:String, itemName:String, unit:String):GroceryItemEntity{
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().getItemByNameAndUnit(groceryListUniqueId,itemName,unit)
+
+    }
+    suspend fun addGroceryListItem(context:Context,groceryItemEntity:GroceryItemEntity):Long{
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().addItem(groceryItemEntity)
+    }
+    suspend fun getExpiredItemByStorage(context:Context,storage:String,currentDate:String): List<StorageItemDAO.SimpleGroceryLisItem> {
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItems(storage,currentDate)
+    }
+    suspend fun getExpiredItemsWithStockWeight(context:Context,storage:String,currentDate:String,stockWeight:List<Int>): List<StorageItemDAO.SimpleGroceryLisItem> {
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItemsWithStockWeight(stockWeight,storage,currentDate)
+
+        //return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItemsWithStockWeightTest(storage,currentDate)
+
+    }
+
 }

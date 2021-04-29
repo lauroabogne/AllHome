@@ -41,4 +41,5 @@
     <string name="no_stock">No stock</string>
     <string name="low_stock">Low</string>
     <string name="high_stock">High</string>
+    <string name="expired_stock">Expired</string>
 </resources>

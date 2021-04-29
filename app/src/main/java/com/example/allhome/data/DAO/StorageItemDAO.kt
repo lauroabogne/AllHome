@@ -1,9 +1,11 @@
 package com.example.allhome.data.DAO
 
+import android.database.Cursor
 import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.StorageItemEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
 
@@ -50,4 +52,47 @@ interface StorageItemDAO {
             " AND DATE(storage_item_expirations.expiration_date) <=DATE(:currentDate) "+
             " ORDER BY storage_item_expirations.expiration_date ASC")
     suspend fun getItemCountThatExpired(storageName:String,currentDate:String):Int
+    @Query("SELECT name as itemName,unit FROM storage_items " +
+            " WHERE storage_items.storage = :storage" +
+            " AND deleted = 0 "+
+            " AND storage_items.unique_id " +
+            " IN (" +
+            "    SELECT storage_item_unique_id FROM storage_item_expirations" +
+            "    WHERE  storage = storage_items.storage " +
+            "    AND created = storage_items.modified" +
+            "    AND DATE(expiration_date) <= DATE(:currentDate)" +
+            ")")
+    suspend fun getExpiredItems(storage:String,currentDate:String):List<SimpleGroceryLisItem>
+    @Query("SELECT name as itemName,unit FROM storage_items " +
+            " WHERE " +
+            "(stock_weight IN (:stockWeight) AND storage_items.storage = :storage AND deleted= 0)"+
+            " OR " +
+            " (storage_items.storage = :storage" +
+            " AND deleted = 0 "+
+
+            " AND storage_items.unique_id " +
+            " IN (" +
+            "    SELECT storage_item_unique_id FROM storage_item_expirations" +
+            "    WHERE  storage = storage_items.storage " +
+            "    AND created = storage_items.modified" +
+            "    AND DATE(expiration_date) <= DATE(:currentDate)" +
+            "))")
+    suspend fun getExpiredItemsWithStockWeight(stockWeight:List<Int>,storage:String,currentDate:String):List<SimpleGroceryLisItem>
+
+    @Query("SELECT name as itemName,unit FROM storage_items " +
+            " WHERE storage_items.storage = :storage" +
+            " AND deleted = 0 "+
+            " AND stock_weight IN (:stockWeight) "+
+            " AND storage_items.unique_id " +
+            " IN (" +
+            "    SELECT storage_item_unique_id FROM storage_item_expirations" +
+            "    WHERE  storage = storage_items.storage " +
+            "    AND created = storage_items.modified" +
+            "    AND DATE(expiration_date) <= DATE(:currentDate)" +
+            ")")
+    suspend fun getExpiredItemsWithStockWeightTest(stockWeight:List<Int>,storage:String,currentDate:String):List<SimpleGroceryLisItem>
+
+    data class SimpleGroceryLisItem(val itemName:String,val unit:String)
+
+
 }

@@ -82,11 +82,6 @@ class CreateStorageActivity : AppCompatActivity() {
 
             showIntentChooser()
         }
-
-
-
-
-
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
