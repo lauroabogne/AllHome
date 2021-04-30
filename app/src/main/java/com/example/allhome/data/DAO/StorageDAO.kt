@@ -15,6 +15,8 @@ interface StorageDAO {
 
     @Query("SELECT * FROM storage")
     suspend fun getStorages():List<StorageEntity>
+    @Query("SELECT * FROM storage WHERE unique_id NOT IN (:storageUniqueId)")
+    suspend fun getAllStorageExceptSome(storageUniqueId: List<String>):List<StorageEntity>
     @Query("SELECT * FROM storage WHERE unique_id =:storageUniqueId LIMIT 1")
     suspend fun getStorage(storageUniqueId:String):StorageEntity
     @Query("UPDATE storage SET name=:name,description=:description,image_name=:imageName,modified=:modified WHERE unique_id=:storageUniqueId")

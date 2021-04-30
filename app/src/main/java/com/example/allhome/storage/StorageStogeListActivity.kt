@@ -6,7 +6,9 @@ import android.util.Log
 import android.view.MenuItem
 import androidx.fragment.app.Fragment
 import com.example.allhome.R
+import com.example.allhome.data.entities.StorageEntity
 import com.example.allhome.data.entities.StorageItemEntity
+import com.example.allhome.data.entities.StorageItemWithExpirations
 
 class StorageStogeListActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -14,10 +16,15 @@ class StorageStogeListActivity : AppCompatActivity() {
         setContentView(R.layout.activity_storage_stoge_list)
         title = "Select storage"
 
-        val storageItemEntity = intent.getParcelableExtra<StorageItemEntity>(StorageFragment.STORAGE_ITEM_ENTITY_TAG)
+        val storageEntity = intent.getParcelableExtra<StorageEntity>(StorageFragment.STORAGE_ENTITY_TAG)
+        val storageItemWithExpiration =  intent.getParcelableExtra<StorageItemWithExpirations>(StorageFragment.STORAGE_ITEM_ENTITY_TAG)
+
+
+
         val bundle = Bundle()
         bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_TRASFERING_ITEM_ACTION)
-        bundle.putParcelable(StorageFragment.STORAGE_ITEM_ENTITY_TAG,storageItemEntity)
+        bundle.putParcelable(StorageFragment.STORAGE_ITEM_ENTITY_TAG,storageItemWithExpiration)
+        bundle.putParcelable(StorageFragment.STORAGE_ENTITY_TAG,storageEntity)
 
         val storageFragment = StorageFragment()
         storageFragment.arguments = bundle

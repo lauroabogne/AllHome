@@ -1,10 +1,7 @@
 package com.example.allhome.data.DAO
 
 import android.database.Cursor
-import androidx.room.ColumnInfo
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
+import androidx.room.*
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.StorageItemEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
@@ -14,11 +11,16 @@ interface StorageItemDAO {
 
     @Insert
     suspend fun addItem(storageItemEntity: StorageItemEntity):Long
+    @Update
+    suspend fun update(storageItemEntity: StorageItemEntity):Int
     @Query("SELECT * FROM storage_items WHERE storage =:storage AND deleted =:deletedStatus")
     suspend fun getPantryItemsByStorage(storage:String,deletedStatus: Int):List<StorageItemEntity>
 
-    @Query("SELECT * FROM storage_items WHERE unique_id=:uniqueId AND name=:storageItemName")
+    @Query("SELECT * FROM storage_items WHERE unique_id=:uniqueId AND name=:storageItemName AND deleted =0 LIMIT 1")
     suspend fun getItem(uniqueId:String, storageItemName:String):StorageItemEntity
+    @Query("SELECT * FROM storage_items WHERE name=:name AND unit=:unit AND storage =:storage  AND deleted =0 LIMIT 1")
+    suspend fun getItemByNameAndUnitAndStorage(name:String,unit:String,storage:String):StorageItemEntity?
+
     @Query("UPDATE storage_items SET name=:name,quantity=:quantity,unit=:unit,category=:category,stock_weight=:stockWeight,storage=:storage,notes=:notes,image_name=:imageName,modified=:modified WHERE unique_id=:uniqueId")
     suspend fun updateItem(name:String,quantity:Double,unit:String,category:String,stockWeight:Int,storage:String,notes:String,imageName:String,modified:String,uniqueId: String):Int
     @Query("UPDATE storage_items SET deleted=:deletedStatus,modified=:dateTimeModified WHERE unique_id=:uniqueId")

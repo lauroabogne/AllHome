@@ -45,8 +45,13 @@ class StorageViewModel: ViewModel() {
         return storageItemWithExpirations
     }
 
-    suspend fun updateItemAsDeleted(context:Context,currentDatetime:String, storageItemEntity:StorageItemEntity):Int{
+    suspend fun updateItemAsDeleted(context: Context, currentDatetime:String, storageItemEntity:StorageItemEntity):Int{
       return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemAsDeleted(StorageItemEntityValues.DELETED_STATUS,currentDatetime,storageItemEntity.uniqueId)
+    }
+    suspend fun updateItemAsDeleted(context: Context, currentDatetime:String, storageItemUniqueId:String):Int{
+
+        Log.e("DATA",currentDatetime+" "+storageItemUniqueId)
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemAsDeleted(StorageItemEntityValues.DELETED_STATUS,currentDatetime,storageItemUniqueId)
     }
     suspend fun updateStorageExpirationDateAsDeleted(context:Context,currentDatetime:String, storageItemEntity:StorageItemEntity):Int{
         return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().updateItemAsDeleted(StorageItemEntityValues.DELETED_STATUS,currentDatetime,storageItemEntity.uniqueId,storageItemEntity.storage)
@@ -62,6 +67,42 @@ class StorageViewModel: ViewModel() {
 
         val storageItemDAO = AllHomeDatabase.getDatabase(context).getStorageItemDAO()
         val storageEntities = AllHomeDatabase.getDatabase(context).getStorageDAO().getStorages() as ArrayList<StorageEntity>
+
+        storageEntities.forEach {
+
+            val storageItemCount = storageItemDAO.getStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val noStockItemCount = storageItemDAO.getNoStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val lowStockItemCount = storageItemDAO.getLowStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val highStockItemCount = storageItemDAO.getHighStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
+            val soonToExpireInDayString = storageItemDAO.getItemThatExpireSoon(it.name,currentDate)
+            val itemSoonToExpireInDays = if(soonToExpireInDayString == null) 0 else soonToExpireInDayString.toInt()
+
+            val expiredItemCount = storageItemDAO.getItemCountThatExpired(it.name,currentDate)
+
+            val storageEntityWithExtraInformation = StorageEntityWithExtraInformation(
+                storageEntity = it,
+                itemCount = storageItemCount,
+                noStockItemCount = noStockItemCount,
+                lowStockItemCount = lowStockItemCount,
+                highStockItemCount = highStockItemCount,
+                expiredItemCount = expiredItemCount,
+                itemToExpireDayCount = if(itemSoonToExpireInDays != null) itemSoonToExpireInDays else 0
+            )
+
+            storageEntitiesWithExtraInformation.add(storageEntityWithExtraInformation)
+        }
+
+        Log.e("COUNT",storageEntitiesWithExtraInformation.size.toString())
+        return storageEntitiesWithExtraInformation
+
+    }
+    suspend fun getAllStorageExceptSome(context:Context,storageName:List<String>):ArrayList<StorageEntityWithExtraInformation>{
+
+        val currentDate = DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now())
+
+
+        val storageItemDAO = AllHomeDatabase.getDatabase(context).getStorageItemDAO()
+        val storageEntities = AllHomeDatabase.getDatabase(context).getStorageDAO().getAllStorageExceptSome(storageName) as ArrayList<StorageEntity>
 
         storageEntities.forEach {
 
@@ -128,8 +169,26 @@ class StorageViewModel: ViewModel() {
 
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItemsWithStockWeight(stockWeight,storage,currentDate)
 
-        //return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItemsWithStockWeightTest(storage,currentDate)
+    }
 
+    suspend fun getItemByNameAndUnitAndStorage(context:Context, name:String, unit:String, storage:String):StorageItemEntity?{
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorage(name,unit,storage)
+
+    }
+
+    suspend fun saveStorageItemEntity(context: Context, storageItemEntity: StorageItemEntity):Long{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().addItem(storageItemEntity)
+    }
+    suspend fun updateStorageItemEntity(context: Context, storageItemEntity: StorageItemEntity):Int{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().update(storageItemEntity)
+    }
+
+    suspend fun saveStorageItemExpirationEntity(context: Context, storageItemExpirationEntity: StorageItemExpirationEntity):Long{
+        return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().addItem(storageItemExpirationEntity)
+    }
+    suspend fun getStorageItemsExpiratinsByStorageUniquedIdItemNameAndCreated(context:Context, storageUniqueId:String, itemName:String, dateModified:String):List<StorageItemExpirationEntity>{
+       return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpiratinsByStorageUniquedIdItemNameAndCreated(storageUniqueId,itemName,dateModified)
     }
 
 }

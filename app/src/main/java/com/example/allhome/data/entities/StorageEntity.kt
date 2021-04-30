@@ -1,6 +1,7 @@
 package com.example.allhome.data.entities
 
 import android.net.Uri
+import android.os.Parcelable
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -11,7 +12,9 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.StorageUtil
+import kotlinx.android.parcel.Parcelize
 
+@Parcelize
 @Entity(tableName = "storage")
 data class StorageEntity(
     @PrimaryKey(autoGenerate = false)
@@ -22,7 +25,7 @@ data class StorageEntity(
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
 
-)
+):Parcelable
 
 data class StorageEntityWithExtraInformation(
     @Embedded val storageEntity: StorageEntity,

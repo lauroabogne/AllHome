@@ -5,7 +5,6 @@ import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.AlertDialog
-import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.Rect
@@ -25,7 +24,9 @@ import androidx.core.util.forEach
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.withTransaction
 import com.example.allhome.R
+import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.*
 import com.example.allhome.storage.viewmodel.StorageViewModel
@@ -47,8 +48,12 @@ class StorageFragment : Fragment() {
     private var currentAnimator: Animator? = null
     private var mAction = STORAGE_VIEWING_ACTION
 
+    private lateinit var mStorageItemWithExpirationsToTransfer:StorageItemWithExpirations
+    lateinit var mStorageEntityOrigin:StorageEntity
+
     companion object{
         const val ACTION_TAG = "ACTION_TAG"
+        const val STORAGE_ENTITY_TAG = "STORAGE_ENTITY_TAG"
         const val STORAGE_ITEM_ENTITY_TAG = "STORAGE_ITEM_ENTITY_TAG"
         const val STORAGE_VIEWING_ACTION = 1
         const val STORAGE_TRASFERING_ITEM_ACTION = 2
@@ -66,7 +71,12 @@ class StorageFragment : Fragment() {
                 }
                 STORAGE_TRASFERING_ITEM_ACTION -> {
                     requireActivity().title = "Select Storage"
-                    mStorageViewModel.storageItemEntity = requireArguments().getParcelable<StorageItemEntity>(STORAGE_ITEM_ENTITY_TAG)
+
+
+                    mStorageItemWithExpirationsToTransfer = requireArguments().getParcelable(STORAGE_ITEM_ENTITY_TAG)!!
+                    mStorageEntityOrigin = requireArguments().getParcelable(STORAGE_ENTITY_TAG)!!
+
+
                 }
             }
         }
@@ -96,11 +106,15 @@ class StorageFragment : Fragment() {
 
 
         mStorageViewModel.coroutineScope.launch {
-            mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
+
+
+
 
             if(mAction == STORAGE_VIEWING_ACTION){
+                mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
                 (storageViewAdapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
             }else{
+                mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
                 (storageViewAdapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
             }
             //storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
@@ -251,11 +265,229 @@ class StorageFragment : Fragment() {
         }
     }
 
-    fun transferStorageItem( storageEntity: StorageEntity){
-        Toast.makeText(this.requireContext(),"Toast test",Toast.LENGTH_SHORT).show()
-        Log.e("DATA",storageEntity.toString())
+    fun showTransferStorageItemAlertDialog(storageEntity: StorageEntity){
+
+        val choices = arrayOf(
+            "Merge items",
+            "Replace existing items"
+        )
+
+        val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())
+            .setTitle("Select options")
+            .setSingleChoiceItems(choices, 0, null)
+            .setPositiveButton("Ok", null)
+            .setNegativeButton("Close", null)
+            .setCancelable(false)
+            .create()
+        alertDialog.setOnShowListener {
+
+            val positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeBtn = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            positiveBtn.setOnClickListener {
+                val checkedItemPosition = alertDialog.listView.checkedItemPosition
+                if(checkedItemPosition == 0){
+                    mergeStorageItem(storageEntity)
+                }else if(checkedItemPosition == 1){
+                    replaceStorageItem(storageEntity)
+                }
+                alertDialog.dismiss()
+            }
+            negativeBtn.setOnClickListener {
+                alertDialog.dismiss()
+            }
+        }
+        alertDialog.show()
+
     }
 
+
+    @Throws(Exception::class)
+    fun replaceStorageItem(distinationStorageEntity: StorageEntity){
+
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        mStorageViewModel.coroutineScope.launch {
+
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext());
+            val storageItemEntity = mStorageViewModel.getItemByNameAndUnitAndStorage(this@StorageFragment.requireContext(),mStorageItemWithExpirationsToTransfer.storageItemEntity.name,mStorageItemWithExpirationsToTransfer.storageItemEntity.unit,distinationStorageEntity.name)
+            var movedSuccessfully = true
+            try{
+                allHomeDatabase.withTransaction {
+
+                    storageItemEntity?.let{
+
+                        mStorageViewModel.updateItemAsDeleted(this@StorageFragment.requireContext(),currentDatetime,it)
+                    }
+
+                    insertStorageItemThanInSelectedStorage(distinationStorageEntity)
+
+                }
+            }catch (ex:java.lang.Exception){
+                movedSuccessfully = false
+            }
+
+            withContext(Main){
+                if(movedSuccessfully){
+                    Toast.makeText(this@StorageFragment.requireContext(),"Moved successfully",Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this@StorageFragment.requireContext(),"Failed to move item",Toast.LENGTH_SHORT).show()
+                }
+            }
+
+
+        }
+    }
+
+    fun  mergeStorageItem(distinationStorageEntity: StorageEntity){
+        val name = mStorageItemWithExpirationsToTransfer.storageItemEntity.name
+        val unit =   mStorageItemWithExpirationsToTransfer.storageItemEntity.unit
+
+        mStorageViewModel.coroutineScope.launch {
+
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext());
+            val storageItemEntity = mStorageViewModel.getItemByNameAndUnitAndStorage(this@StorageFragment.requireContext(),name,unit,distinationStorageEntity.name)
+            var movedSuccessfully = true
+            try{
+                allHomeDatabase.withTransaction {
+                    storageItemEntity?.let {
+                        insertStorageItemThatExistsInSelectedStorage(it)
+                    }?:run {
+                        // item not exists just insert
+                        insertStorageItemThanInSelectedStorage(distinationStorageEntity)
+                    }
+                    /**
+                     * @toDo Delete storage item from source storage
+                     */
+                }
+            }catch (ex:java.lang.Exception){
+                movedSuccessfully = false
+            }
+
+            withContext(Main){
+                if(movedSuccessfully){
+                    Toast.makeText(this@StorageFragment.requireContext(),"Moved successfully",Toast.LENGTH_SHORT).show()
+                }else{
+                    Toast.makeText(this@StorageFragment.requireContext(),"Failed to move item",Toast.LENGTH_SHORT).show()
+                }
+            }
+
+
+        }
+    }
+
+
+    @Throws(Exception::class)
+    private suspend fun insertStorageItemThanInSelectedStorage(distinationStorageEntity: StorageEntity) {
+
+        // update storage item as deleted in origin storage
+        val updateAsDeletedAffectedRowCount = mStorageViewModel.updateItemAsDeleted(this.requireContext(),mStorageItemWithExpirationsToTransfer.storageItemEntity.modified,mStorageItemWithExpirationsToTransfer.storageItemEntity.uniqueId)
+
+        if(updateAsDeletedAffectedRowCount <=0){
+
+            throw Exception("Failed to move item")
+        }
+
+
+        var itemUniqueID = UUID.randomUUID().toString()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        val newStorageEntity = mStorageItemWithExpirationsToTransfer.storageItemEntity
+        newStorageEntity.uniqueId = itemUniqueID
+        newStorageEntity.storage = distinationStorageEntity.name
+        newStorageEntity.created = currentDatetime
+        newStorageEntity.modified = currentDatetime
+
+
+        val storageItemId = mStorageViewModel.saveStorageItemEntity(this@StorageFragment.requireContext(),newStorageEntity)
+
+        if(storageItemId <=0){
+            throw Exception("Failed to move item")
+        }
+
+        mStorageItemWithExpirationsToTransfer.expirations.forEach {
+            val newExpiration = it
+            newExpiration.uniqueId = UUID.randomUUID().toString()
+            newExpiration.storageItemUniqueId = distinationStorageEntity.uniqueId
+            newExpiration.storage = distinationStorageEntity.name
+            newExpiration.created = currentDatetime
+            val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), newExpiration)
+
+            if(storageExpirationEntityId <=0){
+                throw Exception("Failed to move item")
+            }
+        }
+
+
+    }
+    @Throws(Exception::class)
+    private suspend fun insertStorageItemThatExistsInSelectedStorage(distinationStorageItemEntity:StorageItemEntity){
+
+
+        // update storage item as deleted in origin storage
+        val updateAsDeletedAffectedRowCount = mStorageViewModel.updateItemAsDeleted(this.requireContext(),mStorageItemWithExpirationsToTransfer.storageItemEntity.modified,mStorageItemWithExpirationsToTransfer.storageItemEntity.uniqueId)
+
+        if(updateAsDeletedAffectedRowCount <=0){
+            throw Exception("Failed to move item")
+        }
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        // get expiration of storage items
+        val expirations = mStorageViewModel.getStorageItemsExpiratinsByStorageUniquedIdItemNameAndCreated(this.requireContext(),distinationStorageItemEntity.uniqueId,distinationStorageItemEntity.name,distinationStorageItemEntity.modified)
+        // merge expirations date
+        val mergeExpirationDates = mergeExpirationDates(mStorageItemWithExpirationsToTransfer.expirations , expirations)
+
+        val assembledDistinationStorageItemEntity = assembleNewStorageItemEntity(distinationStorageItemEntity,currentDatetime)
+        val affectedRowCount = mStorageViewModel.updateStorageItemEntity(this@StorageFragment.requireContext(),assembledDistinationStorageItemEntity)
+
+        if(affectedRowCount <=0){
+            throw Exception("Failed to move item")
+        }
+        mergeExpirationDates.forEach {
+            val newExpiration = it
+
+            newExpiration.uniqueId = UUID.randomUUID().toString()
+            newExpiration.storageItemUniqueId = distinationStorageItemEntity.uniqueId
+            newExpiration.storage = distinationStorageItemEntity.storage
+            newExpiration.created = currentDatetime
+            val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), newExpiration)
+            if(storageExpirationEntityId <=0){
+                throw Exception("Failed to move item")
+            }
+        }
+
+
+
+
+    }
+
+    private fun assembleNewStorageItemEntity(distinationStorageItemEntity:StorageItemEntity,currentDate:String):StorageItemEntity{
+        val stockWeight = mergeStockWeight(mStorageItemWithExpirationsToTransfer.storageItemEntity,distinationStorageItemEntity)
+        val quantity = mStorageItemWithExpirationsToTransfer.storageItemEntity.quantity + distinationStorageItemEntity.quantity
+
+        distinationStorageItemEntity.stockWeight = stockWeight
+        distinationStorageItemEntity.quantity = quantity
+        distinationStorageItemEntity.modified = currentDate
+        return distinationStorageItemEntity
+    }
+
+    private fun mergeStockWeight(storageItemEntity1:StorageItemEntity,storageItemEntity2:StorageItemEntity):Int{
+        if(storageItemEntity1.stockWeight > storageItemEntity2.stockWeight){
+            return storageItemEntity1.stockWeight
+        }else{
+            return storageItemEntity2.stockWeight
+        }
+    }
+    private fun mergeExpirationDates(expirations1:List<StorageItemExpirationEntity>,expirations2:List<StorageItemExpirationEntity>):List<StorageItemExpirationEntity>{
+        return (expirations1 + expirations2).distinctBy {
+            it.expirationDate
+        }
+    }
 }
 
 /**
@@ -301,6 +533,7 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
 
                     val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+                    storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG,storageEntity)
                     storageFragment.requireActivity().startActivity(storageActivity)
                 }
 
@@ -325,6 +558,7 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
 
                                 val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                                 storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG, storageEntity.name)
+                                storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG,storageEntity)
                                 storageFragment.requireActivity().startActivity(storageActivity)
                             }
                             R.id.deleteStorageMenu -> {
@@ -449,7 +683,7 @@ class StorageViewForTransferingItemsAdapter(val storageFragment:StorageFragment)
             when(view?.id){
                 R.id.storageItemParentLayout->{
 
-                    storageFragment.transferStorageItem(storageEntity)
+                    storageFragment.showTransferStorageItemAlertDialog(storageEntity)
                     //Toast.makeText(view.context,"test",Toast.LENGTH_SHORT).show()
                     /*val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)

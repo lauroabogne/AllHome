@@ -1,6 +1,7 @@
 package com.example.allhome.data.entities
 
 import android.graphics.Color
+import android.os.Parcelable
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.LinearLayout
@@ -10,12 +11,14 @@ import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
+import kotlinx.android.parcel.Parcelize
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
 import kotlin.math.absoluteValue
 
 
+@Parcelize
 @Entity(tableName = "storage_item_expirations")
 data class StorageItemExpirationEntity(
     @PrimaryKey(autoGenerate = false)
@@ -27,7 +30,7 @@ data class StorageItemExpirationEntity(
     @ColumnInfo(name = "expiration_date") var expirationDate:String,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
-)
+):Parcelable
 
 class StorageItemExpirationEntityValues{
     companion object{

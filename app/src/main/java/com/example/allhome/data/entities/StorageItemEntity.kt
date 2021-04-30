@@ -30,10 +30,11 @@ data class StorageItemEntity(
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
 ):Parcelable
+@Parcelize
 data class StorageItemWithExpirations(
     var storageItemEntity: StorageItemEntity,
     var expirations:List<StorageItemExpirationEntity> = arrayListOf()
-)
+):Parcelable
 
 class StorageItemEntityValues{
     companion object{
