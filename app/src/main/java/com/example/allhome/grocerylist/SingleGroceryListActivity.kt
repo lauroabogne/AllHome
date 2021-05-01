@@ -268,8 +268,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 withContext(Main) {
                     val groceryItemRecyclerviewAdapter:GroceryItemRecyclerViewAdapter = dataBindingUtil.groceryItemRecyclerview.adapter as GroceryItemRecyclerViewAdapter
 
-                    Log.e("THE_SIZE 1", groceryItemRecyclerviewAdapter.mGroceryItems.size.toString())
-
                     //store to temporary variable
                     val oldGroceryItems = groceryItemRecyclerviewAdapter.mGroceryItems.toList()
                      mGroceryListViewModel.addGroceryListItemToBuy(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems, groceryItemEntity)
@@ -279,13 +277,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
                         mGroceryListViewModel.groupByCategory()
 
-
-                        /*for(groceryListItem in groceryItemRecyclerviewAdapter.mGroceryItems){
-                            if(!oldGroceryItems.contains(groceryListItem)){
-                                newItemsAdded.add(groceryListItem)
-                            }
-                        }*/
-                        //indexOfNewItem = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntity)
                     }
 
                     newItemsAdded = newAddedItems(oldGroceryItems, groceryItemRecyclerviewAdapter.mGroceryItems)
@@ -300,12 +291,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
                             fadeInAnimation.duration = 500
                             fadeInAnimation.fillAfter = true
 
-                           /* newItemsAdded.forEachIndexed{ index,element->
-
-                                if(index + 1 >= newItemsAddedCount){
-
-                                }
-                            }*/
                             for(item in newItemsAdded){
                                 val index = dataBindingUtil.groceryListViewModel!!.selectedGroceryListItemList.indexOf(item)
                                 val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(index)

@@ -12,7 +12,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -100,7 +99,7 @@ class CreateStorageActivity : AppCompatActivity() {
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        if(requestCode == PantryAddItemActivity.REQUEST_PICK_IMAGE){
+        if(requestCode == StorageAddItemActivity.REQUEST_PICK_IMAGE){
             data?.data?.let{
                 lauchImageCropper(it)
             }
@@ -263,7 +262,7 @@ class CreateStorageActivity : AppCompatActivity() {
         val chooserIntent = Intent.createChooser(finalIntent, "Select Source")
         // Add the camera options.
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, imageIntents.toTypedArray<Parcelable>())
-        startActivityForResult(chooserIntent, PantryAddItemActivity.REQUEST_PICK_IMAGE)
+        startActivityForResult(chooserIntent, StorageAddItemActivity.REQUEST_PICK_IMAGE)
 
 
 

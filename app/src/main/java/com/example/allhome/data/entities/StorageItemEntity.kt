@@ -126,6 +126,10 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
         }else{
             view.setText("Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")")
         }
+    }else if(storageItemEntity.stockWeight == StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT){
+
+        view.setText("Stock : "+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit)
+
     }
 
 }

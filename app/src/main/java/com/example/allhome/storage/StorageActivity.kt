@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -12,27 +13,27 @@ import android.graphics.RectF
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.MenuItem
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.StorageEntity
-import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.data.entities.StorageItemWithExpirations
 import com.example.allhome.databinding.ActivityStorageBinding
 import com.example.allhome.databinding.PantryItemLayoutBinding
-import com.example.allhome.databinding.PantrySimpleExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -40,6 +41,7 @@ import kotlinx.coroutines.withContext
 import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.concurrent.schedule
 
 class StorageActivity : AppCompatActivity() {
 
@@ -55,9 +57,17 @@ class StorageActivity : AppCompatActivity() {
 
 
     companion object{
-        val UPDATE_REQUEST_CODE = 1986
+        val ADD_ITEM_REQUEST_CODE = 1986;
+        val UPDATE_ITEM_REQUEST_CODE = 1987
+
         val STORAGE_EXTRA_DATA_TAG = "STORAGE_EXTRA_DATA_TAG";
         val STORAGE_EXTRA_TAG = "STORAGE_EXTRA_TAG"
+        val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
+
+        val ADDED_NEW_ELEMENT = 0
+        val UPDATED_NEW_ELEMENT = 1
+
+
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,9 +94,9 @@ class StorageActivity : AppCompatActivity() {
         }
 
         mActivityPantryStorageBinding.fab.setOnClickListener {
-            val addPantryItemActivity = Intent(this, PantryAddItemActivity::class.java)
-            addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_NAME_TAG,mStorageEntity.name)
-            startActivity(addPantryItemActivity)
+            val addPantryItemActivity = Intent(this, StorageAddItemActivity::class.java)
+            addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG,mStorageEntity.name)
+            startActivityForResult(addPantryItemActivity, ADD_ITEM_REQUEST_CODE)
         }
         val pantryStorageRecyclerviewViewAdapater = PantryStorageRecyclerviewViewAdapater(this)
         mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
@@ -101,6 +111,127 @@ class StorageActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+
+        Handler(Looper.getMainLooper()).postDelayed({
+            if(resultCode == Activity.RESULT_OK && requestCode == ADD_ITEM_REQUEST_CODE){
+
+                val storageItemUniqueId = data!!.getStringExtra(STORAGE_ITEM_UNIQUE_ID_TAG)!!
+                displayItem(storageItemUniqueId, ADDED_NEW_ELEMENT)
+
+            }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_ITEM_REQUEST_CODE){
+
+                val storageItemUniqueId = data!!.getStringExtra(STORAGE_ITEM_UNIQUE_ID_TAG)!!
+                displayItem(storageItemUniqueId, UPDATED_NEW_ELEMENT)
+            }
+
+        }, 200)
+
+
+
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.storage_item_activity_menu, menu)
+
+        /*menu?.findItem(R.id.appBarSearch)?.setOnActionExpandListener(object:MenuItem.OnActionExpandListener{
+            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
+                Log.e("MENU_ITEM","EXPANDED")
+                Toast.makeText(this@StorageActivity,"MENU ITEM EXPANDED",Toast.LENGTH_SHORT).show()
+                return true
+            }
+
+            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
+
+                Toast.makeText(this@StorageActivity,"MENU ITEM NOT EXPANDED",Toast.LENGTH_SHORT).show()
+                return true
+            }
+
+        })*/
+
+        /*val searchView:SearchView = menu?.findItem(R.id.appBarSearch)?.actionView as SearchView
+        searchView.queryHint = "Search item"*/
+        return true
+    }
+    private fun displayItem(storageItemUniqueId:String, itemChangeType:Int){
+
+        mStorageViewModel.coroutineScope.launch {
+            val storageItemWithExpirations:List<StorageItemWithExpirations> = mStorageViewModel.getPatryItemWithExpirations(this@StorageActivity,mStorageEntity.name)
+            val newItemIndex = storageItemWithExpirations.indexOfFirst { it.storageItemEntity.uniqueId == storageItemUniqueId }
+
+            withContext(Main){
+
+                val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
+                animateElement(newItemIndex,itemChangeType)
+
+
+            }
+        }
+
+
+    }
+    private fun animateElement(indexOfNewItem:Int,itemChangeType:Int){
+
+        val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        fadeInAnimation.duration = 500
+        fadeInAnimation.fillAfter = true
+
+        fadeInAnimation.setAnimationListener(object:Animation.AnimationListener{
+            override fun onAnimationStart(animation: Animation?) {
+
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+                if(itemChangeType == UPDATED_NEW_ELEMENT){
+                    mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter?.notifyItemChanged(indexOfNewItem)
+                }
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+
+            }
+
+        })
+
+        val firstVisibleItemPosition = ( mActivityPantryStorageBinding.pantryStorageRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        val lastVisibleItemPosition = ( mActivityPantryStorageBinding.pantryStorageRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+        if(indexOfNewItem >= firstVisibleItemPosition && indexOfNewItem <= lastVisibleItemPosition){
+
+            val viewHolder = mActivityPantryStorageBinding.pantryStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
+            val itemViewHolder = viewHolder as PantryStorageRecyclerviewViewAdapater.ItemViewHolder
+            itemViewHolder.pantryItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
+
+
+        }else{
+
+
+            mActivityPantryStorageBinding.pantryStorageRecyclerview.addOnScrollListener(object:RecyclerView.OnScrollListener(){
+                var found = false
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val viewHolder = mActivityPantryStorageBinding.pantryStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
+                    if (viewHolder != null) {
+
+                        val itemViewHolder = viewHolder as PantryStorageRecyclerviewViewAdapater.ItemViewHolder
+                        itemViewHolder.pantryItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
+
+                        found = true
+                        mActivityPantryStorageBinding.pantryStorageRecyclerview.removeOnScrollListener(this)
+
+                    }
+                }
+
+            })
+            mActivityPantryStorageBinding.pantryStorageRecyclerview.scrollToPosition(indexOfNewItem)
+
+        }
+    }
+
+
     private fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
 
         // The system "short" animation time duration, in milliseconds. This
@@ -300,12 +431,12 @@ class StorageActivity : AppCompatActivity() {
                     R.id.pantryItemParentLayout->{
                         val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPosition].storageItemEntity
 
-                        val addPantryItemActivity = Intent(storageActivity, PantryAddItemActivity::class.java)
-                        addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_NAME_TAG,storageActivity.mStorageEntity.name)
-                        addPantryItemActivity.putExtra(PantryAddItemActivity.ACTION_TAG,PantryAddItemActivity.UPDATE_RECORD_ACTION)
-                        addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
-                        addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_ITEM_NAME_TAG,pantryItemEntity.name)
-                        storageActivity.startActivityForResult(addPantryItemActivity,PantryAddItemActivity.UPDATE_RECORD_ACTION)
+                        val addPantryItemActivity = Intent(storageActivity, StorageAddItemActivity::class.java)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG,storageActivity.mStorageEntity.name)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG,StorageAddItemActivity.UPDATE_RECORD_ACTION)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG,pantryItemEntity.name)
+                        storageActivity.startActivityForResult(addPantryItemActivity,StorageAddItemActivity.UPDATE_RECORD_ACTION)
                     }
                 }
 
@@ -334,15 +465,15 @@ interface OnItemRemovedListener{
 
                 val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion].storageItemEntity
 
-                val addPantryItemActivity = Intent(context, PantryAddItemActivity::class.java)
-                addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_NAME_TAG,storageActivity.mStorageEntity.name)
-                addPantryItemActivity.putExtra(PantryAddItemActivity.ACTION_TAG,PantryAddItemActivity.UPDATE_RECORD_ACTION)
-                addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
-                addPantryItemActivity.putExtra(PantryAddItemActivity.STORAGE_ITEM_NAME_TAG,pantryItemEntity.name)
+                val addPantryItemActivity = Intent(context, StorageAddItemActivity::class.java)
+                addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG,storageActivity.mStorageEntity.name)
+                addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG,StorageAddItemActivity.UPDATE_RECORD_ACTION)
+                addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
+                addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG,pantryItemEntity.name)
 
 
                 val pantryStorageActivity = context as StorageActivity
-                pantryStorageActivity.startActivityForResult(addPantryItemActivity,PantryAddItemActivity.UPDATE_RECORD_ACTION)
+                pantryStorageActivity.startActivityForResult(addPantryItemActivity, StorageActivity.UPDATE_ITEM_REQUEST_CODE)
 
 
             }
@@ -378,7 +509,7 @@ interface OnItemRemovedListener{
                             val updatedStorageItemRecordCount = storageActivity.mStorageViewModel.updateItemAsDeleted(storageActivity,currentDatetime,storageItemEntity)
                             val updatedStorageDeliverItemCount =  storageActivity.mStorageViewModel.updateStorageExpirationDateAsDeleted(storageActivity,currentDatetime, storageItemEntity)
 
-                            if(updatedStorageItemRecordCount <=0 || updatedStorageDeliverItemCount<=0){
+                            if(updatedStorageItemRecordCount <=0){
                                 throw Exception("Failed to update record")
                             }
                         }
