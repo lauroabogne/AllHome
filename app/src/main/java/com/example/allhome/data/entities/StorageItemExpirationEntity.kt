@@ -45,6 +45,7 @@ class StorageItemExpirationEntityValues{
 @BindingAdapter("android:appendExpirationDates")
 fun appendExpirationDates(linearLayout: LinearLayout, expirations:List<StorageItemExpirationEntity>){
 
+    linearLayout.removeAllViews()
     val layoutInflater = LayoutInflater.from(linearLayout.context)
     expirations.forEach {
         val pantrySimpleExpirationLayoutBinding = PantrySimpleExpirationLayoutBinding.inflate(layoutInflater,linearLayout,true)

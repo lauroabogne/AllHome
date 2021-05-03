@@ -15,6 +15,15 @@ interface StorageItemDAO {
     suspend fun update(storageItemEntity: StorageItemEntity):Int
     @Query("SELECT * FROM storage_items WHERE storage =:storage AND deleted =:deletedStatus")
     suspend fun getPantryItemsByStorage(storage:String,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE storage =:storage AND stock_weight IN(:stockWeight) AND deleted =:deletedStatus")
+    suspend fun getStorageItemsByStorageFilterByStockWeight(stockWeight:List<Int>,storage:String,deletedStatus: Int):List<StorageItemEntity>
+
+    @Query("SELECT * FROM storage_items WHERE quantity < :quantity AND storage =:storage AND deleted =:deletedStatus")
+    suspend fun getStorageItemsByStorageLessThan(storage:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE quantity > :quantity AND storage =:storage AND deleted =:deletedStatus")
+    suspend fun getStorageItemsByStorageGreaterThan(storage:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE quantity BETWEEN :fromQuantity AND :toQuantity AND storage =:storage AND deleted =:deletedStatus")
+    suspend fun getStorageItemsByStorageQuantityBetween(storage:String,fromQuantity:Int,toQuantity:Int,deletedStatus: Int):List<StorageItemEntity>
 
     @Query("SELECT * FROM storage_items WHERE unique_id=:uniqueId AND name=:storageItemName AND deleted =0 LIMIT 1")
     suspend fun getItem(uniqueId:String, storageItemName:String):StorageItemEntity
@@ -43,7 +52,6 @@ interface StorageItemDAO {
             " AND julianday(DATE(storage_item_expirations.expiration_date)) - julianday(:currentDate) <=31 " +
             " ORDER BY storage_item_expirations.expiration_date ASC")
     suspend fun getItemThatExpireSoon(storageName:String,currentDate:String):String
-
     @Query("SELECT COUNT(DISTINCT(storage_item_unique_id))  FROM storage_items " +
             " LEFT JOIN storage_item_expirations" +
             " ON storage_items.unique_id = storage_item_expirations.storage_item_unique_id " +
@@ -65,7 +73,20 @@ interface StorageItemDAO {
             "    AND DATE(expiration_date) <= DATE(:currentDate)" +
             ")")
     suspend fun getExpiredItems(storage:String,currentDate:String):List<SimpleGroceryLisItem>
-    @Query("SELECT name as itemName,unit FROM storage_items " +
+
+    @Query("SELECT * FROM storage_items " +
+            " WHERE storage_items.storage = :storage" +
+            " AND deleted = 0 "+
+            " AND storage_items.unique_id " +
+            " IN (" +
+            "    SELECT storage_item_unique_id FROM storage_item_expirations" +
+            "    WHERE  storage = storage_items.storage " +
+            "    AND created = storage_items.modified" +
+            "    AND DATE(expiration_date) <= DATE(:currentDate)" +
+            ")")
+    suspend fun getStorageItemFilterByExpiredItems(storage:String,currentDate:String):List<StorageItemEntity>
+
+    @Query("SELECT name as itemName,unit FROM storage_items" +
             " WHERE " +
             "(stock_weight IN (:stockWeight) AND storage_items.storage = :storage AND deleted= 0)"+
             " OR " +

@@ -28,24 +28,24 @@
                     android:checkable="false"
                     />
                 <item
-                    android:id="@+id/darkblue"
+                    android:id="@+id/noFilterMenu"
                     android:title="No filter"
                     android:checked="true"
                     />
                 <item
-                    android:id="@+id/red"
+                    android:id="@+id/stockWeightMenu"
                     android:title="Stock weight"
                     />
                 <item
-                    android:id="@+id/green"
+                    android:id="@+id/quantityMenu"
                     android:title="Quantity"
                     />
                 <item
-                    android:id="@+id/blue"
+                    android:id="@+id/lastUpdateMenu"
                     android:title="Last update"
                     />
                 <item
-                    android:id="@+id/yellow"
+                    android:id="@+id/expiredMenu"
                     android:title="Expired"
                     />
             </group>
