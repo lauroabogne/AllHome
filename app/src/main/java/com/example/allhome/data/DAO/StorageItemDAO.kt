@@ -18,6 +18,14 @@ interface StorageItemDAO {
     @Query("SELECT * FROM storage_items WHERE storage =:storage AND stock_weight IN(:stockWeight) AND deleted =:deletedStatus")
     suspend fun getStorageItemsByStorageFilterByStockWeight(stockWeight:List<Int>,storage:String,deletedStatus: Int):List<StorageItemEntity>
 
+    @Query("SELECT unique_id,name,unit,stock_weight,category,storage,notes,image_name,deleted,created,modified," +
+            "    SUM(CASE " +
+            "    WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "    END) AS quantity " +
+            "    FROM storage_items WHERE deleted = :deletedStatus " +
+            "    GROUP BY name,unit")
+    suspend fun getStorageItemsWithTotalQuantity(deletedStatus: Int):List<StorageItemEntity>
+
     @Query("SELECT * FROM storage_items WHERE quantity < :quantity AND storage =:storage AND deleted =:deletedStatus")
     suspend fun getStorageItemsByStorageLessThan(storage:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
     @Query("SELECT * FROM storage_items WHERE quantity > :quantity AND storage =:storage AND deleted =:deletedStatus")

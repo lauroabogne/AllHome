@@ -18,6 +18,10 @@ class StorageViewModel: ViewModel() {
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("PantryStorageViewModel"))
     lateinit var storageItemWithExpirations:ArrayList<StorageItemWithExpirations>
     var storageEntitiesWithExtraInformation:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
+    var storageEntitiesWithExpirationsAndStorages:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+
+
+
     var storageItemEntity:StorageItemEntity? = null
     var storageEntity:StorageEntity? = null
 
@@ -43,6 +47,30 @@ class StorageViewModel: ViewModel() {
 
         }
         return storageItemWithExpirations
+    }
+
+    suspend fun getStorageItemWithExpirationsWithTotalQuantity(context: Context):ArrayList<StorageItemWithExpirationsAndStorages>{
+
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsWithTotalQuantity(StorageItemEntityValues.NOT_DELETED_STATUS)
+        pantryItemEntities.forEach {
+
+
+
+            val itemName = it.name
+            val dateModified = it.modified
+
+            val pantryItemExpirationEntities =AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
+
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, arrayListOf()
+            )
+
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
     }
 
     suspend fun getStorageItemWithExpirationsFilterByStockWeight(context: Context, storage:String,stockWeight:List<Int>):ArrayList<StorageItemWithExpirations>{
@@ -149,8 +177,9 @@ class StorageViewModel: ViewModel() {
     }
     suspend fun getAllStorage(context:Context):ArrayList<StorageEntityWithExtraInformation>{
 
-        val currentDate = DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now())
+        val storageEntitiesWithExtraInformationInnerScope:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
 
+        val currentDate = DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now())
 
         val storageItemDAO = AllHomeDatabase.getDatabase(context).getStorageItemDAO()
         val storageEntities = AllHomeDatabase.getDatabase(context).getStorageDAO().getStorages() as ArrayList<StorageEntity>
@@ -176,15 +205,15 @@ class StorageViewModel: ViewModel() {
                 itemToExpireDayCount = if(itemSoonToExpireInDays != null) itemSoonToExpireInDays else 0
             )
 
-            storageEntitiesWithExtraInformation.add(storageEntityWithExtraInformation)
+            storageEntitiesWithExtraInformationInnerScope.add(storageEntityWithExtraInformation)
         }
 
-        Log.e("COUNT",storageEntitiesWithExtraInformation.size.toString())
-        return storageEntitiesWithExtraInformation
+        return storageEntitiesWithExtraInformationInnerScope
 
     }
     suspend fun getAllStorageExceptSome(context:Context,storageName:List<String>):ArrayList<StorageEntityWithExtraInformation>{
 
+        val storageEntitiesWithExtraInformationInnerScope:ArrayList<StorageEntityWithExtraInformation> = arrayListOf()
         val currentDate = DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now())
 
 
@@ -212,11 +241,10 @@ class StorageViewModel: ViewModel() {
                 itemToExpireDayCount = if(itemSoonToExpireInDays != null) itemSoonToExpireInDays else 0
             )
 
-            storageEntitiesWithExtraInformation.add(storageEntityWithExtraInformation)
+            storageEntitiesWithExtraInformationInnerScope.add(storageEntityWithExtraInformation)
         }
 
-        Log.e("COUNT",storageEntitiesWithExtraInformation.size.toString())
-        return storageEntitiesWithExtraInformation
+        return storageEntitiesWithExtraInformationInnerScope
 
     }
     suspend fun getStorage(context:Context,storageUniqueId:String):StorageEntity{

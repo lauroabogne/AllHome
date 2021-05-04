@@ -2,6 +2,7 @@ package com.example.allhome.data.entities
 
 import android.net.Uri
 import android.os.Parcelable
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.RadioButton
@@ -11,6 +12,8 @@ import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.storage.StorageUtil
+import com.google.android.flexbox.FlexboxLayout
+import com.google.android.material.chip.Chip
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -34,6 +37,12 @@ data class StorageItemEntity(
 data class StorageItemWithExpirations(
     var storageItemEntity: StorageItemEntity,
     var expirations:List<StorageItemExpirationEntity> = arrayListOf()
+):Parcelable
+@Parcelize
+data class StorageItemWithExpirationsAndStorages(
+    var storageItemEntity: StorageItemEntity,
+    var expirations:List<StorageItemExpirationEntity> = arrayListOf(),
+    var storages:List<StorageEntity> = arrayListOf(),
 ):Parcelable
 
 class StorageItemEntityValues{
@@ -131,6 +140,19 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
         view.setText("Stock : "+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit)
 
     }
+
+}
+
+@BindingAdapter(value=["android:addStorages"])
+fun addStorages(flexboxLayout: FlexboxLayout,storages:List<StorageEntity>){
+
+    storages.forEach {
+        val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
+        chip.setText(it.name)
+        chip.setTag(it)
+        flexboxLayout.addView(chip)
+    }
+
 
 }
 

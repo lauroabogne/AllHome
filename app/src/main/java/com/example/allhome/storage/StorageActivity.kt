@@ -37,7 +37,7 @@ import com.example.allhome.data.entities.StorageEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemWithExpirations
 import com.example.allhome.databinding.ActivityStorageBinding
-import com.example.allhome.databinding.PantryItemLayoutBinding
+import com.example.allhome.databinding.StorageItemLayoutBinding
 import com.example.allhome.databinding.StorageQuantityFilterBinding
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -91,7 +91,7 @@ class StorageActivity : AppCompatActivity() {
 
             withContext(Main){
 
-                val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
                 pantryStorageRecyclerviewViewAdapater.notifyDataSetChanged()
             }
@@ -102,7 +102,7 @@ class StorageActivity : AppCompatActivity() {
             addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG, mStorageEntity.name)
             startActivityForResult(addPantryItemActivity, ADD_ITEM_REQUEST_CODE)
         }
-        val pantryStorageRecyclerviewViewAdapater = PantryStorageRecyclerviewViewAdapater(this)
+        val pantryStorageRecyclerviewViewAdapater = StorageRecyclerviewViewAdapater(this)
         mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -174,7 +174,7 @@ class StorageActivity : AppCompatActivity() {
 
                         alertDialog.dismiss()
 
-                        val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                        val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                         pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
                         pantryStorageRecyclerviewViewAdapater.notifyDataSetChanged()
                     }
@@ -199,7 +199,7 @@ class StorageActivity : AppCompatActivity() {
 
             val pantryItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByExpiredItem(this@StorageActivity, mStorageEntity.name, currentDatetime)
             withContext(Main){
-                 val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                 val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
                 pantryStorageRecyclerviewViewAdapater.notifyDataSetChanged()
             }
@@ -280,7 +280,7 @@ class StorageActivity : AppCompatActivity() {
                         }
                         alertDialog.dismiss()
 
-                        val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                        val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                         pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations!!
                         pantryStorageRecyclerviewViewAdapater.notifyDataSetChanged()
 
@@ -429,7 +429,7 @@ class StorageActivity : AppCompatActivity() {
 
             withContext(Main){
 
-                val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as PantryStorageRecyclerviewViewAdapater
+                val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
 
 
@@ -478,8 +478,8 @@ class StorageActivity : AppCompatActivity() {
         if(indexOfNewItem >= firstVisibleItemPosition && indexOfNewItem <= lastVisibleItemPosition){
 
             val viewHolder = mActivityPantryStorageBinding.pantryStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
-            val itemViewHolder = viewHolder as PantryStorageRecyclerviewViewAdapater.ItemViewHolder
-            itemViewHolder.pantryItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
+            val itemViewHolder = viewHolder as StorageRecyclerviewViewAdapater.ItemViewHolder
+            itemViewHolder.storageItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
 
 
         }else{
@@ -492,8 +492,8 @@ class StorageActivity : AppCompatActivity() {
                     val viewHolder = mActivityPantryStorageBinding.pantryStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
                     if (viewHolder != null) {
 
-                        val itemViewHolder = viewHolder as PantryStorageRecyclerviewViewAdapater.ItemViewHolder
-                        itemViewHolder.pantryItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
+                        val itemViewHolder = viewHolder as StorageRecyclerviewViewAdapater.ItemViewHolder
+                        itemViewHolder.storageItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
 
                         found = true
                         mActivityPantryStorageBinding.pantryStorageRecyclerview.removeOnScrollListener(this)
@@ -647,7 +647,7 @@ class StorageActivity : AppCompatActivity() {
 
 
 
-    class PantryStorageRecyclerviewViewAdapater(val storageActivity: StorageActivity): RecyclerView.Adapter<PantryStorageRecyclerviewViewAdapater.ItemViewHolder>(),OnItemRemovedListener {
+    class StorageRecyclerviewViewAdapater(val storageActivity: StorageActivity): RecyclerView.Adapter<StorageRecyclerviewViewAdapater.ItemViewHolder>(),OnItemRemovedListener {
         val mPantryStorageActivity = storageActivity
         var mStorageItemWithExpirations:List<StorageItemWithExpirations> = arrayListOf()
 
@@ -658,17 +658,17 @@ class StorageActivity : AppCompatActivity() {
         }*/
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
-            val pantryItemLayoutBinding = PantryItemLayoutBinding.inflate(layoutInflater, parent, false)
+            val pantryItemLayoutBinding = StorageItemLayoutBinding.inflate(layoutInflater, parent, false)
             val itemViewHolder = ItemViewHolder(pantryItemLayoutBinding, this)
 
             return itemViewHolder
         }
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-            val pantryItemWithExpirations = mStorageItemWithExpirations[position]
-            holder.pantryItemLayoutBinding.pantryItemWithExpirations = pantryItemWithExpirations
-            holder.pantryItemLayoutBinding.storageImageView.setTag(pantryItemWithExpirations)
-            holder.pantryItemLayoutBinding.executePendingBindings()
+            val storageItemWithExpirations = mStorageItemWithExpirations[position]
+            holder.storageItemLayoutBinding.pantryItemWithExpirations = storageItemWithExpirations
+            holder.storageItemLayoutBinding.storageImageView.setTag(storageItemWithExpirations)
+            holder.storageItemLayoutBinding.executePendingBindings()
 
         }
 
@@ -683,11 +683,11 @@ class StorageActivity : AppCompatActivity() {
         }
 
 
-        inner class  ItemViewHolder(var pantryItemLayoutBinding: PantryItemLayoutBinding, val pantryStorageRecyclerviewViewAdapater: PantryStorageRecyclerviewViewAdapater): RecyclerView.ViewHolder(pantryItemLayoutBinding.root),View.OnClickListener{
+        inner class  ItemViewHolder(var storageItemLayoutBinding: StorageItemLayoutBinding, val storageRecyclerviewViewAdapater: StorageRecyclerviewViewAdapater): RecyclerView.ViewHolder(storageItemLayoutBinding.root),View.OnClickListener{
             init {
-                pantryItemLayoutBinding.moreActionImageBtn.setOnClickListener(this)
-                pantryItemLayoutBinding.storageImageView.setOnClickListener(mPantryStorageActivity.productImageClickListener)
-                pantryItemLayoutBinding.pantryItemParentLayout.setOnClickListener(this)
+                storageItemLayoutBinding.moreActionImageBtn.setOnClickListener(this)
+                storageItemLayoutBinding.storageImageView.setOnClickListener(mPantryStorageActivity.productImageClickListener)
+                storageItemLayoutBinding.pantryItemParentLayout.setOnClickListener(this)
 
 
 
@@ -698,7 +698,7 @@ class StorageActivity : AppCompatActivity() {
 
                 when(view?.id){
                     R.id.moreActionImageBtn -> {
-                        val popupMenu = PopupMenu(view!!.context, pantryItemLayoutBinding.moreActionImageBtn)
+                        val popupMenu = PopupMenu(view!!.context, storageItemLayoutBinding.moreActionImageBtn)
                         popupMenu.menuInflater.inflate(R.menu.pantry_item_menu, popupMenu.menu)
                         popupMenu.setOnMenuItemClickListener(CustomPopupMenuItemCLickListener(view.context, this, adapterPosition, mPantryStorageActivity))
                         popupMenu.show()
@@ -713,17 +713,6 @@ class StorageActivity : AppCompatActivity() {
                         addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG, pantryItemEntity.name)
                         storageActivity.startActivityForResult(addPantryItemActivity, UPDATE_ITEM_REQUEST_CODE)
 
-                        /* val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion].storageItemEntity
-
-                        val addPantryItemActivity = Intent(context, StorageAddItemActivity::class.java)
-                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG,storageActivity.mStorageEntity.name)
-                        addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG,StorageAddItemActivity.UPDATE_RECORD_ACTION)
-                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG,pantryItemEntity.uniqueId)
-                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG,pantryItemEntity.name)
-
-
-                        val pantryStorageActivity = context as StorageActivity
-                        pantryStorageActivity.startActivityForResult(addPantryItemActivity, StorageActivity.UPDATE_ITEM_REQUEST_CODE)*/
                     }
                 }
 
@@ -734,13 +723,12 @@ class StorageActivity : AppCompatActivity() {
 
     }
 
-
 }
 
 interface OnItemRemovedListener{
     fun doneRemoving(index: Int)
 }
- class CustomPopupMenuItemCLickListener(val context: Context, val itemViewHolder: StorageActivity.PantryStorageRecyclerviewViewAdapater.ItemViewHolder, val adapterPostion: Int, val storageActivity: StorageActivity):PopupMenu.OnMenuItemClickListener{
+ class CustomPopupMenuItemCLickListener(val context: Context, val itemViewHolder: StorageActivity.StorageRecyclerviewViewAdapater.ItemViewHolder, val adapterPostion: Int, val storageActivity: StorageActivity):PopupMenu.OnMenuItemClickListener{
     override fun onMenuItemClick(item: MenuItem?): Boolean {
 
         val storageItemWithExpirations = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion]
@@ -809,7 +797,7 @@ interface OnItemRemovedListener{
                         }
 
 
-                        itemViewHolder.pantryStorageRecyclerviewViewAdapater.doneRemoving(adapterPostion)
+                        itemViewHolder.storageRecyclerviewViewAdapater.doneRemoving(adapterPostion)
 
 
                     }

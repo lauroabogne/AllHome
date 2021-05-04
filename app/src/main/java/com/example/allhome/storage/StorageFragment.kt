@@ -31,6 +31,7 @@ import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.*
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +51,7 @@ class StorageFragment : Fragment() {
 
     private lateinit var mStorageItemWithExpirationsToTransfer:StorageItemWithExpirations
     lateinit var mStorageEntityOrigin:StorageEntity
+    var mViewing = VIEW_BY_STORAGE
 
     companion object{
         const val ACTION_TAG = "ACTION_TAG"
@@ -57,6 +59,9 @@ class StorageFragment : Fragment() {
         const val STORAGE_ITEM_ENTITY_TAG = "STORAGE_ITEM_ENTITY_TAG"
         const val STORAGE_VIEWING_ACTION = 1
         const val STORAGE_TRASFERING_ITEM_ACTION = 2
+
+        const val VIEW_BY_STORAGE = 1
+        const val  VIEW_PER_PRODUCT = 2
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,10 +77,8 @@ class StorageFragment : Fragment() {
                 STORAGE_TRASFERING_ITEM_ACTION -> {
                     requireActivity().title = "Select Storage"
 
-
                     mStorageItemWithExpirationsToTransfer = requireArguments().getParcelable(STORAGE_ITEM_ENTITY_TAG)!!
                     mStorageEntityOrigin = requireArguments().getParcelable(STORAGE_ENTITY_TAG)!!
-
 
                 }
             }
@@ -91,33 +94,75 @@ class StorageFragment : Fragment() {
             startActivity(createStorageActivity)
         }
 
+        mDataBindingUtil.storageTabLayout.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+
+                if(tab?.position == 0){
+                    Toast.makeText(this@StorageFragment.requireContext(),"VIEW BY STORAGE",Toast.LENGTH_SHORT).show()
+
+                    mDataBindingUtil.storageStorageRecyclerview.adapter = StorageViewAdapter(this@StorageFragment) as RecyclerView.Adapter<RecyclerView.ViewHolder>
+                    getItemViewByStorage()
+                }else if(tab?.position == 1){
+
+                    mDataBindingUtil.storageStorageRecyclerview.adapter =  StoragePerItemRecyclerviewViewAdapater() as RecyclerView.Adapter<RecyclerView.ViewHolder>
+
+                    getItemViewByItem()
+                }
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+            }
+
+        })
 
         var storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
 
         //RecyclerView.ViewHolder
-        if(mAction == STORAGE_VIEWING_ACTION){
+        if(mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_BY_STORAGE){
             storageViewAdapter = StorageViewAdapter(this) as RecyclerView.Adapter<RecyclerView.ViewHolder>
             mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
 
-        }else{
+            getItemViewByStorage()
+
+
+        }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION && mViewing == VIEW_BY_STORAGE){
             storageViewAdapter = StorageViewForTransferingItemsAdapter(this)  as RecyclerView.Adapter<RecyclerView.ViewHolder>
             mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+            getItemViewByStorage()
+
+        }else if(mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_PER_PRODUCT){
+
+            storageViewAdapter = StoragePerItemRecyclerviewViewAdapater() as RecyclerView.Adapter<RecyclerView.ViewHolder>
+            mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
+
+            getItemViewByItem()
         }
 
 
+        //StoragePerItemRecyclerviewViewAdapater
+
+
+
+        return mDataBindingUtil.root
+    }
+
+    fun getItemViewByStorage(){
         mStorageViewModel.coroutineScope.launch {
 
-
-
-
             if(mAction == STORAGE_VIEWING_ACTION){
-                mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
-                (storageViewAdapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+                mStorageViewModel.storageEntitiesWithExtraInformation =  mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
             }else{
-                mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
-                (storageViewAdapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+                mStorageViewModel.storageEntitiesWithExtraInformation = mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
             }
-            //storageViewAdapter.storageEntities = mStorageViewModel.storageEntitiesWithExtraInformation
+
             withContext(Main){
 
                 if(mAction == STORAGE_VIEWING_ACTION){
@@ -129,8 +174,28 @@ class StorageFragment : Fragment() {
 
             }
         }
+    }
+    fun getItemViewByItem(){
+        mStorageViewModel.coroutineScope.launch {
 
-        return mDataBindingUtil.root
+            val storageEntitiesWithExpirationsAndStoragesInnerScope = mStorageViewModel.getStorageItemWithExpirationsWithTotalQuantity(this@StorageFragment.requireContext())
+            mStorageViewModel.storageEntitiesWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStoragesInnerScope
+
+            withContext(Main){
+
+                Log.e("DATA_COUNT",mStorageViewModel.storageEntitiesWithExpirationsAndStorages.size.toString())
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStoragesInnerScope
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
+
+                /*if(mAction == STORAGE_VIEWING_ACTION){
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+                }else{
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyDataSetChanged()
+                }*/
+
+
+            }
+        }
     }
 
     fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
@@ -264,7 +329,6 @@ class StorageFragment : Fragment() {
             }
         }
     }
-
     fun showTransferStorageItemAlertDialog(storageEntity: StorageEntity){
 
         val choices = arrayOf(
@@ -300,8 +364,6 @@ class StorageFragment : Fragment() {
         alertDialog.show()
 
     }
-
-
     @Throws(Exception::class)
     fun replaceStorageItem(distinationStorageEntity: StorageEntity){
 
@@ -340,7 +402,6 @@ class StorageFragment : Fragment() {
 
         }
     }
-
     fun  mergeStorageItem(distinationStorageEntity: StorageEntity){
         val name = mStorageItemWithExpirationsToTransfer.storageItemEntity.name
         val unit =   mStorageItemWithExpirationsToTransfer.storageItemEntity.unit
@@ -377,8 +438,6 @@ class StorageFragment : Fragment() {
 
         }
     }
-
-
     @Throws(Exception::class)
     private suspend fun insertStorageItemThanInSelectedStorage(distinationStorageEntity: StorageEntity) {
 
@@ -708,3 +767,50 @@ class StorageViewForTransferingItemsAdapter(val storageFragment:StorageFragment)
     }
 
 }
+
+class StoragePerItemRecyclerviewViewAdapater(): RecyclerView.Adapter<StoragePerItemRecyclerviewViewAdapater.ItemViewHolder>() {
+
+    //var mStorageItemWithExpirations:List<StorageItemWithExpirations> = arrayListOf()
+    var mStorageEntitiesWithExpirationsAndStorages:ArrayList<StorageItemWithExpirationsAndStorages>  = arrayListOf()
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+
+        val layoutInflater = LayoutInflater.from(parent.context)
+        val pantryItemLayoutBinding = StoragePerItemLayoutBinding.inflate(layoutInflater, parent, false)
+        val itemViewHolder = ItemViewHolder(pantryItemLayoutBinding, this)
+
+        return itemViewHolder
+    }
+
+    override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+        val storageEntitiesWithExpirationsAndStorages = mStorageEntitiesWithExpirationsAndStorages[position]
+        holder.storageItemLayoutBinding.storageItemWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStorages
+        holder.storageItemLayoutBinding.executePendingBindings()
+
+    }
+
+    override fun getItemCount(): Int {
+
+        return mStorageEntitiesWithExpirationsAndStorages.size
+    }
+
+
+
+
+    inner class  ItemViewHolder(var storageItemLayoutBinding: StoragePerItemLayoutBinding, val storageRecyclerviewViewAdapater: StoragePerItemRecyclerviewViewAdapater): RecyclerView.ViewHolder(storageItemLayoutBinding.root),View.OnClickListener{
+        init {
+
+
+        }
+
+
+        override fun onClick(view: View?) {
+
+
+        }
+
+    }
+
+
+}
+
