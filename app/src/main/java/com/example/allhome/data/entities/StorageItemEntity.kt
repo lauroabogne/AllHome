@@ -9,6 +9,7 @@ import android.widget.RadioButton
 import com.example.allhome.R
 import android.widget.RadioGroup
 import android.widget.TextView
+import androidx.annotation.Nullable
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.storage.StorageUtil
@@ -21,15 +22,16 @@ import kotlinx.android.parcel.Parcelize
 data class StorageItemEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "unique_id") var uniqueId:String,
+    @ColumnInfo(name = "storage_unique_id") var storageUniqueId:String,
     @ColumnInfo(name = "name") var name:String,
     @ColumnInfo(name = "quantity") var quantity:Double,
     @ColumnInfo(name = "unit") var unit:String,
-    @ColumnInfo(name="stock_weight",defaultValue = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT.toString()) var stockWeight:Int = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT ,
+    @ColumnInfo(name="stock_weight",defaultValue = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT.toString()) var stockWeight:Int = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT,
     @ColumnInfo(name="category") var category:String,
     @ColumnInfo(name="storage") var storage:String,
     @ColumnInfo(name = "notes") var notes:String,
     @ColumnInfo(name = "image_name") var imageName:String,
-    @ColumnInfo(name = "deleted",defaultValue = "0") var deleted:Int,
+    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
 ):Parcelable

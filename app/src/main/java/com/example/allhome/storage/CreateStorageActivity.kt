@@ -20,6 +20,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
 import com.example.allhome.data.entities.StorageEntity
+import com.example.allhome.data.entities.StorageEntityValues
 import com.example.allhome.databinding.ActivityCreateStorageBinding
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.viewmodel.StorageViewModel
@@ -153,6 +154,7 @@ class CreateStorageActivity : AppCompatActivity() {
             name = storageName,
             description = storageDescription,
             imageName = imageName,
+            itemStatus = StorageEntityValues.NOT_DELETED_STATUS,
             created = currentDatetime,
             modified = currentDatetime
         )
@@ -170,6 +172,12 @@ class CreateStorageActivity : AppCompatActivity() {
 
                 if(id >= 1){
                     Toast.makeText(this@CreateStorageActivity,"Storage save successfully",Toast.LENGTH_SHORT).show()
+
+                    val resultIntent = Intent()
+                    resultIntent.putExtra(StorageFragment.STORAGE_ENTITY_TAG,storageEntity)
+                    setResult(RESULT_OK,resultIntent)
+                    finish()
+
                 }else{
                     Toast.makeText(this@CreateStorageActivity,"Failed to save storage",Toast.LENGTH_SHORT).show()
                 }
@@ -211,8 +219,14 @@ class CreateStorageActivity : AppCompatActivity() {
 
             withContext(Main){
 
-                if(affectedRowCount <= 0){
+                if(affectedRowCount >  0){
                     Toast.makeText(this@CreateStorageActivity,"Storage updated successfully",Toast.LENGTH_SHORT).show()
+
+                    val resultIntent = Intent()
+                    resultIntent.putExtra(StorageFragment.STORAGE_ENTITY_TAG,mStorageViewModel.storageEntity)
+                    setResult(RESULT_OK,resultIntent)
+                    finish()
+
                     return@withContext
                 }
 

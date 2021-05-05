@@ -23,6 +23,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.entities.StorageEntity
 import com.example.allhome.data.entities.StorageItemEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemExpirationEntity
@@ -46,6 +47,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     var mAction = ADD_NEW_RECORD_ACTION
     var mStorageName:String? = null
     var mStorageItemUniqueId:String? = null
+    var mStorageEntity:StorageEntity? = null
     var mStorageItemName:String? = null
     var mTempPhotoFileForAddingImage: File? = null
 
@@ -53,6 +55,7 @@ class StorageAddItemActivity : AppCompatActivity() {
         val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
         val STORAGE_ITEM_NAME_TAG = "PANTRY_ITEM_NAME_TAG"
         val STORAGE_NAME_TAG = "STORAGE_NAME_TAG"
+        val STORAGE_TAG = "STORAGE_TAG"
         val ACTION_TAG = "ACTION_TAG"
         val ADD_NEW_RECORD_ACTION = 1
         val UPDATE_RECORD_ACTION = 2
@@ -68,6 +71,12 @@ class StorageAddItemActivity : AppCompatActivity() {
 
 
         mStorageAddItemViewModel = ViewModelProvider(this).get(StorageAddItemViewModel::class.java)
+        intent.getParcelableExtra<StorageEntity>(STORAGE_TAG)?.let{
+            mStorageEntity = it
+        }?:run {
+            Toast.makeText(this@StorageAddItemActivity, "Storage require", Toast.LENGTH_SHORT).show()
+            finish()
+        }
         intent.getStringExtra(STORAGE_NAME_TAG)?.let {
             mStorageName = it
             mStorageAddItemViewModel.storageName = mStorageName
@@ -208,6 +217,7 @@ class StorageAddItemActivity : AppCompatActivity() {
 
         val pantryItemEntity = StorageItemEntity(
             uniqueId = itemUniqueID,
+            storageUniqueId = mStorageEntity!!.uniqueId,
             name = storageItem,
             quantity = quantityIntValue,
             unit = storageItemUnit,
@@ -216,7 +226,7 @@ class StorageAddItemActivity : AppCompatActivity() {
             storage = mStorageName!!,
             notes = storageItemNotes,
             imageName = imageName,
-            deleted = StorageItemEntityValues.NOT_DELETED_STATUS,
+            itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
             created = currentDatetime,
             modified = currentDatetime
         )

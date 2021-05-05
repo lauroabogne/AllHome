@@ -4,6 +4,7 @@ import android.animation.Animator
 import android.animation.AnimatorListenerAdapter
 import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
+import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.graphics.Point
@@ -11,18 +12,24 @@ import android.graphics.Rect
 import android.graphics.RectF
 import android.net.Uri
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
+import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
 import com.example.allhome.R
@@ -54,6 +61,8 @@ class StorageFragment : Fragment() {
     var mViewing = VIEW_BY_STORAGE
 
     companion object{
+        const val ADD_STORAGE_REQUEST_CODE = 1986
+        const val UPDATE_STORAGE_REQUEST_CODE = 1987
         const val ACTION_TAG = "ACTION_TAG"
         const val STORAGE_ENTITY_TAG = "STORAGE_ENTITY_TAG"
         const val STORAGE_ITEM_ENTITY_TAG = "STORAGE_ITEM_ENTITY_TAG"
@@ -91,7 +100,8 @@ class StorageFragment : Fragment() {
 
         mDataBindingUtil.fab.setOnClickListener{
             val createStorageActivity = Intent(this.context, CreateStorageActivity::class.java)
-            startActivity(createStorageActivity)
+            startActivityForResult(createStorageActivity, ADD_STORAGE_REQUEST_CODE)
+
         }
 
         mDataBindingUtil.storageTabLayout.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
@@ -151,6 +161,124 @@ class StorageFragment : Fragment() {
         return mDataBindingUtil.root
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if(resultCode == Activity.RESULT_OK && requestCode == ADD_STORAGE_REQUEST_CODE){
+
+           data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
+               displayItem(it)
+           }
+        }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_STORAGE_REQUEST_CODE){
+            data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
+                displayItem(it)
+            }
+        }
+
+    }
+    private fun displayItem(storageEntity: StorageEntity){
+
+        mStorageViewModel.coroutineScope.launch {
+
+
+            if(mAction == STORAGE_VIEWING_ACTION){
+                mStorageViewModel.storageEntitiesWithExtraInformation =  mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
+            }else{
+                mStorageViewModel.storageEntitiesWithExtraInformation = mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
+                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+            }
+
+            val newItemIndex =   mStorageViewModel.storageEntitiesWithExtraInformation.indexOfFirst { it.storageEntity.uniqueId == storageEntity.uniqueId }
+
+            withContext(Main){
+
+                if(mAction == STORAGE_VIEWING_ACTION){
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyItemInserted(newItemIndex)
+                    //(mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+                }else{
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyItemInserted(newItemIndex)
+                    //(mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyDataSetChanged()
+
+                }
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    animateElement(newItemIndex,-1)
+
+                }, 200)
+
+
+            }
+        }
+    }
+    private fun animateElement(indexOfNewItem: Int, itemChangeType: Int){
+
+
+        val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+        fadeInAnimation.duration = 250
+        fadeInAnimation.fillAfter = true
+
+        fadeInAnimation.setAnimationListener(object : Animation.AnimationListener {
+            override fun onAnimationStart(animation: Animation?) {
+                if (itemChangeType == StorageActivity.UPDATED_NEW_ELEMENT) {
+                    mDataBindingUtil.storageStorageRecyclerview.adapter?.notifyItemChanged(indexOfNewItem)
+                }
+            }
+
+            override fun onAnimationEnd(animation: Animation?) {
+
+            }
+
+            override fun onAnimationRepeat(animation: Animation?) {
+
+            }
+
+        })
+
+        val firstVisibleItemPosition = ( mDataBindingUtil.storageStorageRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+        val lastVisibleItemPosition = ( mDataBindingUtil.storageStorageRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+        if(indexOfNewItem >= firstVisibleItemPosition && indexOfNewItem <= lastVisibleItemPosition){
+
+            Log.e("ANIMATION","ANIMATION 1")
+            val viewHolder = mDataBindingUtil.storageStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
+            //val itemViewHolder = viewHolder as StorageActivity.StorageRecyclerviewViewAdapater.ItemViewHolder
+            if(viewHolder is StorageViewAdapter.ItemViewHolder ){
+
+                viewHolder.storageItemBinding.storageItemParentLayout.startAnimation(fadeInAnimation)
+            }else if(viewHolder is StorageViewForTransferingItemsAdapter.ItemViewHolder ){
+
+                viewHolder.storageItemForTransferingBinding.storageItemParentLayout.startAnimation(fadeInAnimation)
+
+            }
+
+
+
+        }else{
+            Log.e("ANIMATION","ANIMATION 2")
+
+            mDataBindingUtil.storageStorageRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                var found = false
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    val viewHolder = mDataBindingUtil.storageStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
+                    if (viewHolder != null) {
+
+                        Log.e("ANIMATION","viewholder found")
+                        val itemViewHolder = viewHolder as StorageActivity.StorageRecyclerviewViewAdapater.ItemViewHolder
+                        itemViewHolder.storageItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
+
+                        found = true
+                        mDataBindingUtil.storageStorageRecyclerview.removeOnScrollListener(this)
+
+                    }
+                }
+
+            })
+            mDataBindingUtil.storageStorageRecyclerview.scrollToPosition(indexOfNewItem)
+
+        }
+    }
     fun getItemViewByStorage(){
         mStorageViewModel.coroutineScope.launch {
 
@@ -175,6 +303,8 @@ class StorageFragment : Fragment() {
             }
         }
     }
+
+
     fun getItemViewByItem(){
         mStorageViewModel.coroutineScope.launch {
 
@@ -524,7 +654,6 @@ class StorageFragment : Fragment() {
 
 
     }
-
     private fun assembleNewStorageItemEntity(distinationStorageItemEntity:StorageItemEntity,currentDate:String):StorageItemEntity{
         val stockWeight = mergeStockWeight(mStorageItemWithExpirationsToTransfer.storageItemEntity,distinationStorageItemEntity)
         val quantity = mStorageItemWithExpirationsToTransfer.storageItemEntity.quantity + distinationStorageItemEntity.quantity
@@ -534,7 +663,6 @@ class StorageFragment : Fragment() {
         distinationStorageItemEntity.modified = currentDate
         return distinationStorageItemEntity
     }
-
     private fun mergeStockWeight(storageItemEntity1:StorageItemEntity,storageItemEntity2:StorageItemEntity):Int{
         if(storageItemEntity1.stockWeight > storageItemEntity2.stockWeight){
             return storageItemEntity1.stockWeight
@@ -545,6 +673,25 @@ class StorageFragment : Fragment() {
     private fun mergeExpirationDates(expirations1:List<StorageItemExpirationEntity>,expirations2:List<StorageItemExpirationEntity>):List<StorageItemExpirationEntity>{
         return (expirations1 + expirations2).distinctBy {
             it.expirationDate
+        }
+    }
+
+    fun deleteStorage(storageEntityWithExtraInformation:StorageEntityWithExtraInformation){
+        val storageEntity = storageEntityWithExtraInformation.storageEntity
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        mStorageViewModel.coroutineScope.launch {
+
+            val index = mStorageViewModel.storageEntitiesWithExtraInformation.indexOf(storageEntityWithExtraInformation)
+            mStorageViewModel.updateStorageAsDeleted(requireContext(),storageEntity.uniqueId,currentDatetime)
+            mStorageViewModel.storageEntitiesWithExtraInformation.removeAt(index)
+
+            withContext(Main){
+                mDataBindingUtil.storageStorageRecyclerview.adapter?.notifyItemRemoved(index)
+
+            }
+
         }
     }
 }
@@ -603,14 +750,15 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
                     popupMenu.show()
 
                     popupMenu.setOnMenuItemClickListener {
-                        val storageEntity = storageEntities[adapterPosition].storageEntity
+                        val storageEntityWithExpirations  = storageEntities[adapterPosition]
+                        val storageEntity = storageEntityWithExpirations.storageEntity
 
                         when (it.itemId) {
                             R.id.viewInformationMenu -> {
                                 val createStorageActivity = Intent(view!!.context, CreateStorageActivity::class.java)
                                 createStorageActivity.putExtra(CreateStorageActivity.ACTION_TAG, CreateStorageActivity.UPDATE_RECORD_ACTION)
                                 createStorageActivity.putExtra(CreateStorageActivity.STORAGE_UNIQUE_ID_TAG, storageEntity.uniqueId)
-                                storageFragment.requireActivity().startActivity(createStorageActivity)
+                                storageFragment.requireActivity().startActivityForResult(createStorageActivity,StorageFragment.UPDATE_STORAGE_REQUEST_CODE)
 
                             }
                             R.id.viewItemsMenu -> {
@@ -621,6 +769,9 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
                                 storageFragment.requireActivity().startActivity(storageActivity)
                             }
                             R.id.deleteStorageMenu -> {
+
+                                storageFragment.deleteStorage(storageEntityWithExpirations)
+
 
                             }
                             R.id.addToGroceryListMenu -> {
@@ -669,6 +820,8 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
                                         storageGroceryListActivity.putExtra(StorageGroceryListActivity.ACTION_TAG,StorageGroceryListActivity.ADD_MULTIPLE_PRODUCT_ACTION)
                                         storageGroceryListActivity.putExtra(StorageGroceryListActivity.ADD_MULTIPLE_PRODUCT_CONDITION_TAG,filterOptions)
                                         storageGroceryListActivity.putExtra(StorageGroceryListActivity.STORAGE_NAME_TAG,storageEntity.name)
+                                        storageGroceryListActivity.putExtra(StorageGroceryListActivity.STORAGE_TAG,storageEntity)
+
 
                                         storageFragment.startActivity(storageGroceryListActivity)
 

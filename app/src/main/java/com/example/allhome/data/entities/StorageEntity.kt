@@ -22,11 +22,20 @@ data class StorageEntity(
     @ColumnInfo(name = "name") var name:String,
     @ColumnInfo(name = "description") var description:String,
     @ColumnInfo(name = "image_name") var imageName:String,
+    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
 
 ):Parcelable
+class StorageEntityValues{
+    companion object{
 
+        const val DELETED_STATUS = 1
+        const val NOT_DELETED_STATUS = 0
+
+
+    }
+}
 data class StorageEntityWithExtraInformation(
     @Embedded val storageEntity: StorageEntity,
     val itemCount:Int,
