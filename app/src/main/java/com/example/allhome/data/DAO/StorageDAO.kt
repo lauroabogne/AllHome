@@ -24,4 +24,11 @@ interface StorageDAO {
     suspend fun updateStorage(storageUniqueId:String,name:String,description:String,imageName:String,modified:String):Int
     @Query("UPDATE storage SET item_status =:deleteStatus,modified=:currentDateTime WHERE unique_id=:storageUniqueId")
     suspend fun updateStorageAsDeleted(storageUniqueId:String,currentDateTime:String,deleteStatus:Int):Int
+    @Query("SELECT * from storage " +
+            "WHERE unique_id IN ( " +
+            " SELECT storage_unique_id FROM storage_items " +
+            " WHERE name = :itemName AND unit=:unit AND item_status = 0" +
+            " )" +
+            " AND item_status = 0")
+    suspend fun getStorages(itemName:String,unit:String):List<StorageEntity>
 }

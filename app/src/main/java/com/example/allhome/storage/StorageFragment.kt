@@ -24,7 +24,6 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
 import androidx.databinding.DataBindingUtil
@@ -37,6 +36,7 @@ import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.*
 import com.example.allhome.storage.viewmodel.StorageViewModel
+import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
@@ -109,14 +109,18 @@ class StorageFragment : Fragment() {
 
                 if(tab?.position == 0){
                     Toast.makeText(this@StorageFragment.requireContext(),"VIEW BY STORAGE",Toast.LENGTH_SHORT).show()
-
+                    mDataBindingUtil.fab.show()
                     mDataBindingUtil.storageStorageRecyclerview.adapter = StorageViewAdapter(this@StorageFragment) as RecyclerView.Adapter<RecyclerView.ViewHolder>
                     getItemViewByStorage()
+                    mDataBindingUtil.fab.show()
+
                 }else if(tab?.position == 1){
 
-                    mDataBindingUtil.storageStorageRecyclerview.adapter =  StoragePerItemRecyclerviewViewAdapater() as RecyclerView.Adapter<RecyclerView.ViewHolder>
+                    mDataBindingUtil.storageStorageRecyclerview.adapter =  StoragePerItemRecyclerviewViewAdapater(this@StorageFragment) as RecyclerView.Adapter<RecyclerView.ViewHolder>
 
                     getItemViewByItem()
+                    mDataBindingUtil.fab.hide()
+
                 }
             }
 
@@ -147,7 +151,7 @@ class StorageFragment : Fragment() {
 
         }else if(mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_PER_PRODUCT){
 
-            storageViewAdapter = StoragePerItemRecyclerviewViewAdapater() as RecyclerView.Adapter<RecyclerView.ViewHolder>
+            storageViewAdapter = StoragePerItemRecyclerviewViewAdapater(this) as RecyclerView.Adapter<RecyclerView.ViewHolder>
             mDataBindingUtil.storageStorageRecyclerview.adapter = storageViewAdapter
 
             getItemViewByItem()
@@ -166,27 +170,27 @@ class StorageFragment : Fragment() {
         if(resultCode == Activity.RESULT_OK && requestCode == ADD_STORAGE_REQUEST_CODE){
 
            data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
-               displayItem(it)
+               displayItemForInserting(it)
            }
         }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_STORAGE_REQUEST_CODE){
             data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
-                displayItem(it)
+                displayItemForUpdating(it)
             }
         }
 
     }
-    private fun displayItem(storageEntity: StorageEntity){
+    private fun displayItemForInserting(storageEntity: StorageEntity){
 
         mStorageViewModel.coroutineScope.launch {
 
 
             if(mAction == STORAGE_VIEWING_ACTION){
                 mStorageViewModel.storageEntitiesWithExtraInformation =  mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
-                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
 
             }else{
                 mStorageViewModel.storageEntitiesWithExtraInformation = mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
-                (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
             }
 
             val newItemIndex =   mStorageViewModel.storageEntitiesWithExtraInformation.indexOfFirst { it.storageEntity.uniqueId == storageEntity.uniqueId }
@@ -194,13 +198,52 @@ class StorageFragment : Fragment() {
             withContext(Main){
 
                 if(mAction == STORAGE_VIEWING_ACTION){
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
                     (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyItemInserted(newItemIndex)
-                    //(mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).notifyDataSetChanged()
+
                 }else{
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
                     (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyItemInserted(newItemIndex)
-                    //(mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyDataSetChanged()
+
 
                 }
+
+                Handler(Looper.getMainLooper()).postDelayed({
+                    animateElement(newItemIndex,-1)
+
+                }, 200)
+
+
+            }
+        }
+    }
+
+    private fun displayItemForUpdating(storageEntity: StorageEntity){
+
+        mStorageViewModel.coroutineScope.launch {
+
+
+            if(mAction == STORAGE_VIEWING_ACTION){
+                mStorageViewModel.storageEntitiesWithExtraInformation =  mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
+
+
+            }else{
+                mStorageViewModel.storageEntitiesWithExtraInformation = mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(),arrayListOf(mStorageEntityOrigin!!.uniqueId))
+
+            }
+
+            val newItemIndex =   mStorageViewModel.storageEntitiesWithExtraInformation.indexOfFirst { it.storageEntity.uniqueId == storageEntity.uniqueId }
+
+            withContext(Main){
+
+                if(mAction == STORAGE_VIEWING_ACTION){
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
+                }else{
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
+
+                }
+                mDataBindingUtil.storageStorageRecyclerview.adapter?.notifyItemChanged(newItemIndex)
 
                 Handler(Looper.getMainLooper()).postDelayed({
                     animateElement(newItemIndex,-1)
@@ -220,9 +263,9 @@ class StorageFragment : Fragment() {
 
         fadeInAnimation.setAnimationListener(object : Animation.AnimationListener {
             override fun onAnimationStart(animation: Animation?) {
-                if (itemChangeType == StorageActivity.UPDATED_NEW_ELEMENT) {
+               /* if (itemChangeType == StorageActivity.UPDATED_NEW_ELEMENT) {
                     mDataBindingUtil.storageStorageRecyclerview.adapter?.notifyItemChanged(indexOfNewItem)
-                }
+                }*/
             }
 
             override fun onAnimationEnd(animation: Animation?) {
@@ -313,7 +356,6 @@ class StorageFragment : Fragment() {
 
             withContext(Main){
 
-                Log.e("DATA_COUNT",mStorageViewModel.storageEntitiesWithExpirationsAndStorages.size.toString())
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStoragesInnerScope
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
 
@@ -694,6 +736,13 @@ class StorageFragment : Fragment() {
 
         }
     }
+    fun openStorageActivity(storageEntity: StorageEntity){
+
+        val storageActivity = Intent(requireContext(), StorageActivity::class.java)
+        storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
+        storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG,storageEntity)
+        requireActivity().startActivity(storageActivity)
+    }
 }
 
 /**
@@ -758,7 +807,7 @@ class StorageViewAdapter(val storageFragment:StorageFragment): RecyclerView.Adap
                                 val createStorageActivity = Intent(view!!.context, CreateStorageActivity::class.java)
                                 createStorageActivity.putExtra(CreateStorageActivity.ACTION_TAG, CreateStorageActivity.UPDATE_RECORD_ACTION)
                                 createStorageActivity.putExtra(CreateStorageActivity.STORAGE_UNIQUE_ID_TAG, storageEntity.uniqueId)
-                                storageFragment.requireActivity().startActivityForResult(createStorageActivity,StorageFragment.UPDATE_STORAGE_REQUEST_CODE)
+                                storageFragment.startActivityForResult(createStorageActivity,StorageFragment.UPDATE_STORAGE_REQUEST_CODE)
 
                             }
                             R.id.viewItemsMenu -> {
@@ -921,7 +970,7 @@ class StorageViewForTransferingItemsAdapter(val storageFragment:StorageFragment)
 
 }
 
-class StoragePerItemRecyclerviewViewAdapater(): RecyclerView.Adapter<StoragePerItemRecyclerviewViewAdapater.ItemViewHolder>() {
+class StoragePerItemRecyclerviewViewAdapater(val storageFragment:StorageFragment): RecyclerView.Adapter<StoragePerItemRecyclerviewViewAdapater.ItemViewHolder>() {
 
     //var mStorageItemWithExpirations:List<StorageItemWithExpirations> = arrayListOf()
     var mStorageEntitiesWithExpirationsAndStorages:ArrayList<StorageItemWithExpirationsAndStorages>  = arrayListOf()
@@ -939,6 +988,7 @@ class StoragePerItemRecyclerviewViewAdapater(): RecyclerView.Adapter<StoragePerI
         val storageEntitiesWithExpirationsAndStorages = mStorageEntitiesWithExpirationsAndStorages[position]
         holder.storageItemLayoutBinding.storageItemWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStorages
         holder.storageItemLayoutBinding.executePendingBindings()
+        holder.setChipClickListener()
 
     }
 
@@ -947,18 +997,26 @@ class StoragePerItemRecyclerviewViewAdapater(): RecyclerView.Adapter<StoragePerI
         return mStorageEntitiesWithExpirationsAndStorages.size
     }
 
-
-
-
     inner class  ItemViewHolder(var storageItemLayoutBinding: StoragePerItemLayoutBinding, val storageRecyclerviewViewAdapater: StoragePerItemRecyclerviewViewAdapater): RecyclerView.ViewHolder(storageItemLayoutBinding.root),View.OnClickListener{
         init {
 
 
+
         }
 
+        fun setChipClickListener(){
+            val flexboxChildCount = storageItemLayoutBinding.storageFlexboxLayout.childCount
+            repeat(flexboxChildCount){index->
+                Log.e("child","child")
+                val child = storageItemLayoutBinding.storageFlexboxLayout.getChildAt(index)
+                if(child is Chip){
+                    child.setOnClickListener(this)
+                }
+            }
+        }
 
         override fun onClick(view: View?) {
-
+            storageFragment.openStorageActivity(view!!.tag as StorageEntity)
 
         }
 

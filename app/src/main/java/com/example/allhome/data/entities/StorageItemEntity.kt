@@ -10,6 +10,7 @@ import com.example.allhome.R
 import android.widget.RadioGroup
 import android.widget.TextView
 import androidx.annotation.Nullable
+import androidx.core.view.marginLeft
 import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.storage.StorageUtil
@@ -147,12 +148,17 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
 
 @BindingAdapter(value=["android:addStorages"])
 fun addStorages(flexboxLayout: FlexboxLayout,storages:List<StorageEntity>){
+    flexboxLayout.removeAllViews()
 
     storages.forEach {
         val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
         chip.setText(it.name)
         chip.setTag(it)
         flexboxLayout.addView(chip)
+        val divider = TextView(flexboxLayout.context)
+        divider.isEnabled = false
+        divider.width = 20
+        flexboxLayout.addView(divider)
     }
 
 

@@ -59,12 +59,14 @@ class StorageViewModel: ViewModel() {
 
 
             val itemName = it.name
+            val unit = it.unit
             val dateModified = it.modified
 
-            val pantryItemExpirationEntities =AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStorages(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
 
             val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
-                it,pantryItemExpirationEntities, arrayListOf()
+                it,pantryItemExpirationEntities, storages
             )
 
             storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
