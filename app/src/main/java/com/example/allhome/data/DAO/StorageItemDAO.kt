@@ -15,8 +15,14 @@ interface StorageItemDAO {
     suspend fun update(storageItemEntity: StorageItemEntity):Int
     @Query("SELECT * FROM storage_items WHERE storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
     suspend fun getPantryItemsByStorage(storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
-    @Query("SELECT * FROM storage_items WHERE storage =:storage AND stock_weight IN(:stockWeight) AND item_status =:deletedStatus")
-    suspend fun getStorageItemsByStorageFilterByStockWeight(stockWeight:List<Int>,storage:String,deletedStatus: Int):List<StorageItemEntity>
+
+    @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemName||'%' AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
+    suspend fun getPantryItemsByStorageFilterByName(itemName:String,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
+
+    @Query("SELECT * FROM storage_items WHERE storage_unique_id =:storageUniqueId AND stock_weight IN(:stockWeight) AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageFilterByStockWeight(stockWeight:List<Int>,storageUniqueId: String,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE  name  LIKE '%'||:itemName||'%' AND storage_unique_id =:storageUniqueId AND stock_weight IN(:stockWeight) AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageFilterByStockWeightFilterByName(itemName: String,stockWeight:List<Int>,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
 
     @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
             "    SUM(CASE " +

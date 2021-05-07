@@ -2,7 +2,6 @@ package com.example.allhome.storage.viewmodel
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.DAO.StorageItemDAO
@@ -33,11 +32,17 @@ class StorageViewModel: ViewModel() {
 
     var addMultipleGroceryItemEntityCondition:List<Int> = arrayListOf()
 
-    suspend fun getStorageItemWithExpirations(context: Context, storageUniqueId:String):ArrayList<StorageItemWithExpirations>{
+    suspend fun getStorageItemWithExpirations(context: Context, itemNameSearchTerm: String? = null, storageUniqueId:String):ArrayList<StorageItemWithExpirations>{
 
         storageItemWithExpirations = arrayListOf()
 
-        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getPantryItemsByStorage(storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        val pantryItemEntities:List<StorageItemEntity> =  itemNameSearchTerm?.let {
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getPantryItemsByStorageFilterByName(it,storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }?: kotlin.run {
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getPantryItemsByStorage(storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }
+
+
         pantryItemEntities.forEach {
             val itemName = it.name
             val dateModified = it.modified
@@ -75,11 +80,21 @@ class StorageViewModel: ViewModel() {
         return storageEntitiesWithExpirationsAndStoragesInnerScope
     }
 
-    suspend fun getStorageItemWithExpirationsFilterByStockWeight(context: Context, storage:String,stockWeight:List<Int>):ArrayList<StorageItemWithExpirations>{
+    suspend fun getStorageItemWithExpirationsFilterByStockWeight(context: Context, itemNameSearchTerm: String? = null,storageUniqueId:String,stockWeight:List<Int>):ArrayList<StorageItemWithExpirations>{
 
         storageItemWithExpirations = arrayListOf()
 
-        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsByStorageFilterByStockWeight(stockWeight,storage,StorageItemEntityValues.NOT_DELETED_STATUS)
+        val pantryItemEntities = itemNameSearchTerm?.let{
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsByStorageFilterByStockWeightFilterByName(itemNameSearchTerm,stockWeight,storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }?:run{
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsByStorageFilterByStockWeight(stockWeight,storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }
+
+        /*val pantryItemEntities:List<StorageItemEntity> =  itemNameSearchTerm?.let {
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getPantryItemsByStorageFilterByName(it,storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }?: kotlin.run {
+            AllHomeDatabase.getDatabase(context).getStorageItemDAO().getPantryItemsByStorage(storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+        }*/
 
         pantryItemEntities.forEach {
             val itemName = it.name

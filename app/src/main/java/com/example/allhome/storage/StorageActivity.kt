@@ -21,8 +21,7 @@ import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
@@ -41,11 +40,12 @@ import com.example.allhome.databinding.StorageItemLayoutBinding
 import com.example.allhome.databinding.StorageQuantityFilterBinding
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class StorageActivity : AppCompatActivity() {
 
@@ -60,17 +60,36 @@ class StorageActivity : AppCompatActivity() {
     lateinit var mStorageEntity:StorageEntity
 
 
+    var mSearchView: SearchView? = null
+    var mSelectedMenuItem:MenuItem? = null
+    var mFilter = NO_FILTER
+    var mStockWeightFilterOptions = arrayListOf<Int>()
+    var mQuantityFilterFirstValue = 0
+    var mQuantityFilterSecondValue = 0
+    var mIsSearching = false
+    var mSearchTerm = ""
+    var mSearchJob = Job()
+
     companion object{
-        val ADD_ITEM_REQUEST_CODE = 1986;
-        val UPDATE_ITEM_REQUEST_CODE = 1987
+        const val ADD_ITEM_REQUEST_CODE = 1986;
+        const val UPDATE_ITEM_REQUEST_CODE = 1987
 
-        val STORAGE_EXTRA_DATA_TAG = "STORAGE_EXTRA_DATA_TAG";
-        val STORAGE_EXTRA_TAG = "STORAGE_EXTRA_TAG"
-        val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
+        const val STORAGE_EXTRA_DATA_TAG = "STORAGE_EXTRA_DATA_TAG";
+        const val STORAGE_EXTRA_TAG = "STORAGE_EXTRA_TAG"
+        const val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
 
-        val ADDED_NEW_ELEMENT = 0
-        val UPDATED_NEW_ELEMENT = 1
+        const val ADDED_NEW_ELEMENT = 0
+        const val UPDATED_NEW_ELEMENT = 1
 
+        const val NO_FILTER = 0
+        const val FILTER_BY_STOCK_WEIGHT = 1
+        const val FILTER_BY_QUANTITY = 2
+        const val FILTER_BY_LAST_UPDATE = 3
+        const val FILTER_BY_EXPIRED = 4
+
+        const val GREATER_THAN_QUANTITY = 0
+        const val LESS_THAN_QUANTITY = 1
+        const val BETWEEN_QUANTITY = 2
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -85,8 +104,9 @@ class StorageActivity : AppCompatActivity() {
         mActivityPantryStorageBinding.lifecycleOwner = this
         mActivityPantryStorageBinding.pantryStorageViewModel = mStorageViewModel
 
+        showAllItem()
 
-        mStorageViewModel.coroutineScope.launch {
+        /*mStorageViewModel.coroutineScope.launch {
             val pantryItemWithExpirations = mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, mStorageEntity.uniqueId)
 
             withContext(Main){
@@ -96,8 +116,9 @@ class StorageActivity : AppCompatActivity() {
                 storageRecyclerviewViewAdapater.notifyDataSetChanged()
             }
         }
-
+*/
         mActivityPantryStorageBinding.fab.setOnClickListener {
+
             val addStorageItemActivity = Intent(this, StorageAddItemActivity::class.java)
             addStorageItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG, mStorageEntity.name)
             addStorageItemActivity.putExtra(StorageAddItemActivity.STORAGE_TAG,mStorageEntity)
@@ -105,8 +126,11 @@ class StorageActivity : AppCompatActivity() {
         }
         val pantryStorageRecyclerviewViewAdapater = StorageRecyclerviewViewAdapater(this)
         mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
+
     }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        mSelectedMenuItem = item
 
         when (item.itemId) {
             android.R.id.home -> {
@@ -114,18 +138,22 @@ class StorageActivity : AppCompatActivity() {
             }
             R.id.noFilterMenu -> {
 
-                Toast.makeText(this, "NO FILTER MENU", Toast.LENGTH_SHORT).show()
+                showAllItem()
             }
             R.id.stockWeightMenu -> {
+
                 showStockWeightPopupForFilter()
             }
             R.id.quantityMenu -> {
+
                 showFilterByQuantityPopup()
             }
             R.id.lastUpdateMenu -> {
                 Toast.makeText(this, "lastUpdateMenu", Toast.LENGTH_SHORT).show()
             }
             R.id.expiredMenu -> {
+
+
                 filterByExpiredItem()
             }
         }
@@ -133,7 +161,23 @@ class StorageActivity : AppCompatActivity() {
 
         return super.onOptionsItemSelected(item)
     }
-    fun showStockWeightPopupForFilter(){
+    fun showAllItem(itemName:String? = null){
+
+        mSelectedMenuItem?.isChecked = true
+        mFilter = NO_FILTER
+
+        mStorageViewModel.coroutineScope.launch {
+            val pantryItemWithExpirations = mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, itemName,mStorageEntity.uniqueId)
+
+            withContext(Main){
+
+                val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                storageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
+                storageRecyclerviewViewAdapater.notifyDataSetChanged()
+            }
+        }
+    }
+    private fun showStockWeightPopupForFilter(){
         val choices = arrayOf(
             getString(R.string.no_stock) + " items",
             getString(R.string.low_stock) + " stock items",
@@ -155,21 +199,24 @@ class StorageActivity : AppCompatActivity() {
 
             positiveBtn.setOnClickListener {
 
-                val filterOptions = arrayListOf<Int>()
+                mSelectedMenuItem?.isChecked = true
+                mFilter = FILTER_BY_STOCK_WEIGHT
+
+                mStockWeightFilterOptions = arrayListOf<Int>()
 
                 alertDialog.listView.checkedItemPositions.forEach { key, isChecked ->
                      if(key == 0 && isChecked){
-                        filterOptions.add(StorageItemEntityValues.NO_STOCK)
+                         mStockWeightFilterOptions.add(StorageItemEntityValues.NO_STOCK)
                     }else if(key == 1 && isChecked){
-                        filterOptions.add(StorageItemEntityValues.LOW_STOCK)
+                         mStockWeightFilterOptions.add(StorageItemEntityValues.LOW_STOCK)
                     }else if(key == 2 && isChecked){
-                        filterOptions.add(StorageItemEntityValues.HIGH_STOCK)
+                         mStockWeightFilterOptions.add(StorageItemEntityValues.HIGH_STOCK)
                     }
                 }
 
                 mStorageViewModel.coroutineScope.launch {
 
-                    val storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, mStorageEntity.name, filterOptions)
+                    val storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity,mSearchTerm, mStorageEntity.uniqueId, mStockWeightFilterOptions)
 
                     withContext(Main){
 
@@ -191,7 +238,9 @@ class StorageActivity : AppCompatActivity() {
 
 
     }
-    fun filterByExpiredItem(){
+    private fun filterByExpiredItem(){
+        mFilter = FILTER_BY_EXPIRED
+        mSelectedMenuItem?.isChecked = true
 
         mStorageViewModel.coroutineScope.launch {
 
@@ -206,7 +255,7 @@ class StorageActivity : AppCompatActivity() {
             }
         }
     }
-    fun showFilterByQuantityPopup(){
+    private fun showFilterByQuantityPopup(){
 
         val storageQuanityFilterBinding = DataBindingUtil.inflate<StorageQuantityFilterBinding>(LayoutInflater.from(this), R.layout.storage_quantity_filter, null, false)
         val alertDialog =  MaterialAlertDialogBuilder(this)
@@ -224,6 +273,8 @@ class StorageActivity : AppCompatActivity() {
 
             positiveBtn.setOnClickListener {
 
+                mSelectedMenuItem?.isChecked = true
+                mFilter = FILTER_BY_QUANTITY
 
                 var hasError = false
                 var errorMessage = ""
@@ -234,12 +285,13 @@ class StorageActivity : AppCompatActivity() {
 
                     if(storageQuanityFilterBinding.greaterThanRadioButton.isChecked){
                         val quantityString = storageQuanityFilterBinding.greaterThanEditText.text.toString()
+
                         if(quantityString.trim().isEmpty()){
                             hasError = true
                             errorMessage ="Please input quantity in greater than input"
 
                         }else{
-
+                            withContext(Main){mQuantityFilterFirstValue = quantityString.toInt()}
                             storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterGreaterThan(this@StorageActivity, mStorageEntity.name, quantityString.toInt())
 
                         }
@@ -251,6 +303,7 @@ class StorageActivity : AppCompatActivity() {
                             errorMessage ="Please input quantity in greater than input"
 
                         }else{
+                            withContext(Main){mQuantityFilterFirstValue = quantityString.toInt()}
                             storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterLessThan(this@StorageActivity, mStorageEntity.name, quantityString.toInt())
 
                         }
@@ -264,6 +317,10 @@ class StorageActivity : AppCompatActivity() {
                             errorMessage ="Please input between quantity"
 
                         }else{
+                            withContext(Main){
+                                mQuantityFilterFirstValue = quantityFromString.toInt()
+                                mQuantityFilterSecondValue = quantityToString.toInt()
+                            }
 
                             storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterBetween(this@StorageActivity, mStorageEntity.name, quantityFromString.toInt(), quantityToString.toInt())
                         }
@@ -299,7 +356,7 @@ class StorageActivity : AppCompatActivity() {
         quantityFilterCheckListener(storageQuanityFilterBinding)
 
     }
-    fun quantityFilterCheckListener(storageQuanityFilterBinding: StorageQuantityFilterBinding){
+    private fun quantityFilterCheckListener(storageQuanityFilterBinding: StorageQuantityFilterBinding){
         storageQuanityFilterBinding.greaterThanRadioButton.setOnCheckedChangeListener{ buttonView, isChecked->
             if(isChecked){
 
@@ -370,15 +427,12 @@ class StorageActivity : AppCompatActivity() {
             view.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0
         )
     }
-
     fun hideKeyboard() {
 
-        this.getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
 
 
     }
-
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -391,62 +445,167 @@ class StorageActivity : AppCompatActivity() {
 
             }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_ITEM_REQUEST_CODE){
 
+                if(mIsSearching){
+                    Log.e("SEARCHING","TRUE")
+                }else{
+                    Log.e("SEARCHING","NOT TRUE")
+                }
+
+
                 val storageItemUniqueId = data!!.getStringExtra(STORAGE_ITEM_UNIQUE_ID_TAG)!!
                 displayItem(storageItemUniqueId, UPDATED_NEW_ELEMENT)
+
+
             }
+
 
         //}, 200)
 
 
 
     }
-
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.storage_item_activity_menu, menu)
 
-        /*menu?.findItem(R.id.appBarSearch)?.setOnActionExpandListener(object:MenuItem.OnActionExpandListener{
-            override fun onMenuItemActionExpand(item: MenuItem?): Boolean {
-                Log.e("MENU_ITEM","EXPANDED")
-                Toast.makeText(this@StorageActivity,"MENU ITEM EXPANDED",Toast.LENGTH_SHORT).show()
-                return true
-            }
+        when(mFilter){
+            NO_FILTER->{menu?.findItem(R.id.noFilterMenu)?.setChecked(true)}
+            FILTER_BY_STOCK_WEIGHT->{menu?.findItem(R.id.stockWeightMenu)?.setChecked(true)}
+            FILTER_BY_QUANTITY->{menu?.findItem(R.id.quantityMenu)?.setChecked(true)}
+            FILTER_BY_LAST_UPDATE->{menu?.findItem(R.id.lastUpdateMenu)?.setChecked(true)}
+            FILTER_BY_EXPIRED->{menu?.findItem(R.id.expiredMenu)?.setChecked(true)}
+        }
 
-            override fun onMenuItemActionCollapse(item: MenuItem?): Boolean {
 
-                Toast.makeText(this@StorageActivity,"MENU ITEM NOT EXPANDED",Toast.LENGTH_SHORT).show()
-                return true
-            }
+        mSearchView = menu?.findItem(R.id.appBarSearch)?.actionView as SearchView
+        mSearchView?.let {
+            it.queryHint = "Enter item name"
+            it.setOnSearchClickListener { mIsSearching = true }
+            it.setOnCloseListener(object:SearchView.OnCloseListener{
+                override fun onClose(): Boolean {
+                    mIsSearching = false
+                    return false
+                }
+            })
 
-        })*/
 
-        /*val searchView:SearchView = menu?.findItem(R.id.appBarSearch)?.actionView as SearchView
-        searchView.queryHint = "Search item"*/
+
+            it.setOnQueryTextListener(object:SearchView.OnQueryTextListener{
+                override fun onQueryTextSubmit(query: String?): Boolean {
+                    it.clearFocus()
+                    query?.let {
+                        /*val storageStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                        storageStorageRecyclerviewViewAdapater.filter.filter(it)*/
+                        mSearchTerm = it
+                        if(mSearchJob == null){
+                            mSearchJob = Job()
+                        }else{
+                            mSearchJob.cancel()
+                            mSearchJob = Job()
+                        }
+
+                        CoroutineScope(IO+mSearchJob).launch{
+                            val storageItemWithExpirations = getItems(it,mStorageEntity.uniqueId)
+                            withContext(Main){
+                                val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                                storageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
+                                storageRecyclerviewViewAdapater.notifyDataSetChanged()
+                            }
+                        }
+
+                    }
+                    return true
+                }
+                override fun onQueryTextChange(newText: String?): Boolean {
+                    newText?.let {
+                       /* val storageStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                        storageStorageRecyclerviewViewAdapater.filter.filter(it)*/
+
+                        mSearchTerm = it
+                        if(mSearchJob == null){
+                            mSearchJob = Job()
+                        }else{
+                            mSearchJob.cancel()
+                            mSearchJob = Job()
+                        }
+
+                        CoroutineScope(IO+mSearchJob).launch{
+
+                            val storageItemWithExpirations = getItems(it,mStorageEntity.uniqueId)
+
+                            withContext(Main){
+                                val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                                storageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
+                                storageRecyclerviewViewAdapater.notifyDataSetChanged()
+                            }
+                        }
+                    }
+
+                    return true
+                }
+            })
+        }
+
         return true
     }
+
     private fun displayItem(storageItemUniqueId: String, itemChangeType: Int){
 
         mStorageViewModel.coroutineScope.launch {
-            val storageItemWithExpirations:List<StorageItemWithExpirations> = mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, mStorageEntity.uniqueId)
-            val newItemIndex = storageItemWithExpirations.indexOfFirst {
 
-                it.storageItemEntity.uniqueId == storageItemUniqueId
+            var storageItemWithExpirations: ArrayList<StorageItemWithExpirations> = ArrayList()
+
+            if(mFilter == NO_FILTER){
+                if(mIsSearching){
+                    storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, mSearchTerm,mStorageEntity.uniqueId)
+                }else{
+                    storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, null,mStorageEntity.uniqueId)
+                }
+            }else if(mFilter == FILTER_BY_STOCK_WEIGHT){
+
+                if(mIsSearching){
+
+                    storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, mSearchTerm,mStorageEntity.uniqueId, mStockWeightFilterOptions)
+                }else{
+                    storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, null,mStorageEntity.uniqueId, mStockWeightFilterOptions)
+                }
+
             }
+
+
+
 
             withContext(Main){
 
                 val pantryStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                val currentIndexOfItem = pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations.indexOfFirst { it.storageItemEntity.uniqueId == storageItemUniqueId }
+
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
 
 
-                if(itemChangeType == UPDATED_NEW_ELEMENT){
-                    pantryStorageRecyclerviewViewAdapater.notifyItemChanged(newItemIndex)
+                val newIndexOfItem = pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations.indexOfFirst {
+                    it.storageItemEntity.uniqueId == storageItemUniqueId
                 }
-                Handler(Looper.getMainLooper()).postDelayed({
-                    animateElement(newItemIndex, itemChangeType)
 
-                }, 200)
 
-                //animateElement(newItemIndex,itemChangeType)
+                if(itemChangeType == UPDATED_NEW_ELEMENT){
+                    if(newIndexOfItem >=0){
+                        pantryStorageRecyclerviewViewAdapater.notifyItemChanged(newIndexOfItem)
+                    }else{
+                        pantryStorageRecyclerviewViewAdapater.notifyItemRemoved(currentIndexOfItem)
+                        return@withContext
+                    }
+                }else if(itemChangeType == ADDED_NEW_ELEMENT && newIndexOfItem < 0){
+                    return@withContext
+                }
+
+                Handler(Looper.getMainLooper()).postDelayed(
+                    {
+
+                        animateElement(newIndexOfItem, itemChangeType)
+
+                    }, 200)
+
+
 
 
             }
@@ -511,7 +670,6 @@ class StorageActivity : AppCompatActivity() {
 
         }
     }
-
     private fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
 
         // The system "short" animation time duration, in milliseconds. This
@@ -643,6 +801,19 @@ class StorageActivity : AppCompatActivity() {
             }
         }
     }
+
+    suspend fun  getItems(searchTerm:String,storageUniqueId:String):ArrayList<StorageItemWithExpirations>{
+
+        if(mFilter == NO_FILTER){
+            return mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, searchTerm,storageUniqueId)
+        }else if(mFilter == FILTER_BY_STOCK_WEIGHT){
+           return mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, searchTerm,storageUniqueId, mStockWeightFilterOptions)
+        }else{
+            return  ArrayList()
+        }
+
+    }
+
     val productImageClickListener = View.OnClickListener {
         val storageItemWithExpirations: StorageItemWithExpirations = it.tag as StorageItemWithExpirations
         val imageUri = StorageUtil.getStorageItemImageUriFromPath(it.context, storageItemWithExpirations.storageItemEntity.imageName)
@@ -651,8 +822,7 @@ class StorageActivity : AppCompatActivity() {
     }
 
 
-
-    class StorageRecyclerviewViewAdapater(val storageActivity: StorageActivity): RecyclerView.Adapter<StorageRecyclerviewViewAdapater.ItemViewHolder>(),OnItemRemovedListener {
+    class StorageRecyclerviewViewAdapater(val storageActivity: StorageActivity): RecyclerView.Adapter<StorageRecyclerviewViewAdapater.ItemViewHolder>(),OnItemRemovedListener/*,Filterable*/ {
         val mPantryStorageActivity = storageActivity
         var mStorageItemWithExpirations:List<StorageItemWithExpirations> = arrayListOf()
 
@@ -683,6 +853,7 @@ class StorageActivity : AppCompatActivity() {
         }
 
         override fun doneRemoving(index: Int) {
+
             mPantryStorageActivity.mStorageViewModel.storageItemWithExpirations.removeAt(index)
             notifyItemRemoved(index)
         }
@@ -709,6 +880,8 @@ class StorageActivity : AppCompatActivity() {
                         popupMenu.show()
                     }
                     R.id.pantryItemParentLayout -> {
+
+
                         val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPosition].storageItemEntity
 
                         val addPantryItemActivity = Intent(storageActivity, StorageAddItemActivity::class.java)
@@ -760,6 +933,7 @@ interface OnItemRemovedListener{
 
             }
             R.id.pantryItemMoveStorageMenu -> {
+
 
                 val storageItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion]
                 val storageStorageListActiviy = Intent(context, StorageStogeListActivity::class.java)

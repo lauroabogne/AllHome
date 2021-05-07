@@ -524,8 +524,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     /**
      * Item name auto suggest adapter
      */
-    inner class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntityForAutoSuggest>):
-        ArrayAdapter<GroceryItemEntityForAutoSuggest>(context, 0, groceryItemEntitiesParams) {
+    inner class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntityForAutoSuggest>): ArrayAdapter<GroceryItemEntityForAutoSuggest>(context, 0, groceryItemEntitiesParams) {
         private var groceryItemEntities: List<GroceryItemEntityForAutoSuggest>? = null
         init{
             groceryItemEntities = ArrayList(groceryItemEntitiesParams)
