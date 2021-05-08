@@ -6,6 +6,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.Intent
 import android.graphics.Point
@@ -64,6 +65,10 @@ class StorageActivity : AppCompatActivity() {
     var mSelectedMenuItem:MenuItem? = null
     var mFilter = NO_FILTER
     var mStockWeightFilterOptions = arrayListOf<Int>()
+
+
+    var mFilterByDateModifiedDate: String =SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
+    var mFilterByQuantityOptionSelected = -1
     var mQuantityFilterFirstValue = 0
     var mQuantityFilterSecondValue = 0
     var mIsSearching = false
@@ -86,6 +91,7 @@ class StorageActivity : AppCompatActivity() {
         const val FILTER_BY_QUANTITY = 2
         const val FILTER_BY_LAST_UPDATE = 3
         const val FILTER_BY_EXPIRED = 4
+
 
         const val GREATER_THAN_QUANTITY = 0
         const val LESS_THAN_QUANTITY = 1
@@ -149,7 +155,7 @@ class StorageActivity : AppCompatActivity() {
                 showFilterByQuantityPopup()
             }
             R.id.lastUpdateMenu -> {
-                Toast.makeText(this, "lastUpdateMenu", Toast.LENGTH_SHORT).show()
+                showCalendarForLastUpdateFilter()
             }
             R.id.expiredMenu -> {
 
@@ -184,6 +190,13 @@ class StorageActivity : AppCompatActivity() {
             getString(R.string.high_stock) + " stock  items"
         )
         val choicesInitial = booleanArrayOf(false, false, false)
+
+        if(mFilter == FILTER_BY_STOCK_WEIGHT){
+            mStockWeightFilterOptions.forEachIndexed{index,value->
+                choicesInitial[value] = true
+            }
+        }
+
         val alertDialog =  MaterialAlertDialogBuilder(this)
             .setTitle("Select options")
             .setMultiChoiceItems(choices, choicesInitial, null)
@@ -245,9 +258,9 @@ class StorageActivity : AppCompatActivity() {
         mStorageViewModel.coroutineScope.launch {
 
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val currentDatetime: String = simpleDateFormat.format(Date())
+            mFilterByDateModifiedDate = simpleDateFormat.format(Date())
 
-            val storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByExpiredItem(this@StorageActivity, mStorageEntity.uniqueId, currentDatetime)
+            val storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByExpiredItem(this@StorageActivity,"", mStorageEntity.uniqueId, mFilterByDateModifiedDate)
             withContext(Main){
                  val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                 storageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
@@ -258,6 +271,31 @@ class StorageActivity : AppCompatActivity() {
     private fun showFilterByQuantityPopup(){
 
         val storageQuanityFilterBinding = DataBindingUtil.inflate<StorageQuantityFilterBinding>(LayoutInflater.from(this), R.layout.storage_quantity_filter, null, false)
+
+        if(mFilter == FILTER_BY_QUANTITY){
+
+            if(mFilterByQuantityOptionSelected == GREATER_THAN_QUANTITY){
+                storageQuanityFilterBinding.greaterThanRadioButton.isChecked = true
+                storageQuanityFilterBinding.greaterThanEditText.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.greaterThanEditText.isEnabled = true
+                storageQuanityFilterBinding.greaterThanEditText.requestFocus()
+
+            }else if(mFilterByQuantityOptionSelected == LESS_THAN_QUANTITY){
+                storageQuanityFilterBinding.lessThanRadioButton.isChecked = true
+                storageQuanityFilterBinding.lessThanEditText.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.lessThanEditText.isEnabled = true
+                storageQuanityFilterBinding.lessThanEditText.requestFocus()
+
+            }else if(mFilterByQuantityOptionSelected == BETWEEN_QUANTITY){
+                storageQuanityFilterBinding.betweenRadioButton.isChecked = true
+                storageQuanityFilterBinding.betweenFromInput.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.betweenFromInput.isEnabled = true
+                storageQuanityFilterBinding.betweenFromInput.requestFocus()
+
+                storageQuanityFilterBinding.betweenToInput.setText(mQuantityFilterSecondValue.toString())
+                storageQuanityFilterBinding.betweenToInput.isEnabled = true
+            }
+        }
         val alertDialog =  MaterialAlertDialogBuilder(this)
             .setTitle("Filter by quantity")
             .setView(storageQuanityFilterBinding.root)
@@ -291,8 +329,11 @@ class StorageActivity : AppCompatActivity() {
                             errorMessage ="Please input quantity in greater than input"
 
                         }else{
-                            withContext(Main){mQuantityFilterFirstValue = quantityString.toInt()}
-                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterGreaterThan(this@StorageActivity, mStorageEntity.name, quantityString.toInt())
+                            withContext(Main){
+                                mQuantityFilterFirstValue = quantityString.toInt()
+                                mFilterByQuantityOptionSelected = GREATER_THAN_QUANTITY
+                            }
+                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterGreaterThan(this@StorageActivity,"", mStorageEntity.uniqueId, quantityString.toInt())
 
                         }
 
@@ -303,8 +344,12 @@ class StorageActivity : AppCompatActivity() {
                             errorMessage ="Please input quantity in greater than input"
 
                         }else{
-                            withContext(Main){mQuantityFilterFirstValue = quantityString.toInt()}
-                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterLessThan(this@StorageActivity, mStorageEntity.name, quantityString.toInt())
+                            withContext(Main){
+                                mQuantityFilterFirstValue = quantityString.toInt()
+                                mFilterByQuantityOptionSelected = LESS_THAN_QUANTITY
+                            }
+
+                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterLessThan(this@StorageActivity,"", mStorageEntity.uniqueId, quantityString.toInt())
 
                         }
 
@@ -318,11 +363,12 @@ class StorageActivity : AppCompatActivity() {
 
                         }else{
                             withContext(Main){
+                                mFilterByQuantityOptionSelected = BETWEEN_QUANTITY
                                 mQuantityFilterFirstValue = quantityFromString.toInt()
                                 mQuantityFilterSecondValue = quantityToString.toInt()
                             }
 
-                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterBetween(this@StorageActivity, mStorageEntity.name, quantityFromString.toInt(), quantityToString.toInt())
+                            storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterBetween(this@StorageActivity, "",mStorageEntity.uniqueId, quantityFromString.toInt(), quantityToString.toInt())
                         }
 
                     }else{
@@ -464,6 +510,7 @@ class StorageActivity : AppCompatActivity() {
 
 
     }
+
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.storage_item_activity_menu, menu)
 
@@ -548,6 +595,41 @@ class StorageActivity : AppCompatActivity() {
         return true
     }
 
+
+    fun showCalendarForLastUpdateFilter(){
+
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            mFilter = FILTER_BY_LAST_UPDATE
+            mSelectedMenuItem?.isChecked = true
+
+            val pattern = "yyyy-M-d"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val date: Date? = simpleDateFormat.parse(year.toString() + "-" + (monthOfYear + 1) + "-" + dayOfMonth)
+            mFilterByDateModifiedDate =  SimpleDateFormat("yyyy-MM-dd").format(date)
+
+            mStorageViewModel.coroutineScope.launch {
+
+                val storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByDateModified(this@StorageActivity, "",mFilterByDateModifiedDate, mStorageEntity.uniqueId)
+
+                withContext(Main){
+                    val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
+                    storageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
+                    storageRecyclerviewViewAdapater.notifyDataSetChanged()
+                }
+            }
+
+        }
+
+        val datePickerDialog = DatePickerDialog(this, dateSetListener, year, month, day)
+        datePickerDialog.show()
+
+    }
+
     private fun displayItem(storageItemUniqueId: String, itemChangeType: Int){
 
         mStorageViewModel.coroutineScope.launch {
@@ -569,6 +651,28 @@ class StorageActivity : AppCompatActivity() {
                     storageItemWithExpirations = mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, null,mStorageEntity.uniqueId, mStockWeightFilterOptions)
                 }
 
+            }else if(mFilter == FILTER_BY_QUANTITY){
+
+                if(mFilterByQuantityOptionSelected == GREATER_THAN_QUANTITY){
+
+                    storageItemWithExpirations =  mStorageViewModel.getStorageItemWithExpirationsFilterGreaterThan(this@StorageActivity,mSearchTerm, mStorageEntity.uniqueId, mQuantityFilterFirstValue)
+
+                }else if(mFilterByQuantityOptionSelected == LESS_THAN_QUANTITY){
+
+                    storageItemWithExpirations =  mStorageViewModel.getStorageItemWithExpirationsFilterLessThan(this@StorageActivity,mSearchTerm, mStorageEntity.uniqueId, mQuantityFilterFirstValue)
+
+                }else if(mFilterByQuantityOptionSelected == BETWEEN_QUANTITY){
+
+                    storageItemWithExpirations =  mStorageViewModel.getStorageItemWithExpirationsFilterBetween(this@StorageActivity, mSearchTerm,mStorageEntity.uniqueId, mQuantityFilterFirstValue, mQuantityFilterSecondValue)
+                }
+
+            }else if(mFilter == FILTER_BY_EXPIRED){
+
+                storageItemWithExpirations =   mStorageViewModel.getStorageItemWithExpirationsFilterByExpiredItem(this@StorageActivity,mSearchTerm, mStorageEntity.uniqueId, mFilterByDateModifiedDate)
+
+
+            }else if(mFilter == FILTER_BY_LAST_UPDATE){
+                storageItemWithExpirations =   mStorageViewModel.getStorageItemWithExpirationsFilterByDateModified(this@StorageActivity, mSearchTerm,mFilterByDateModifiedDate, mStorageEntity.uniqueId)
             }
 
 
@@ -808,9 +912,33 @@ class StorageActivity : AppCompatActivity() {
             return mStorageViewModel.getStorageItemWithExpirations(this@StorageActivity, searchTerm,storageUniqueId)
         }else if(mFilter == FILTER_BY_STOCK_WEIGHT){
            return mStorageViewModel.getStorageItemWithExpirationsFilterByStockWeight(this@StorageActivity, searchTerm,storageUniqueId, mStockWeightFilterOptions)
+        }else if(mFilter == FILTER_BY_QUANTITY){
+
+            if(mFilterByQuantityOptionSelected == GREATER_THAN_QUANTITY){
+                return mStorageViewModel.getStorageItemWithExpirationsFilterGreaterThan(this@StorageActivity,searchTerm, mStorageEntity.uniqueId, mQuantityFilterFirstValue)
+            }else if(mFilterByQuantityOptionSelected == LESS_THAN_QUANTITY){
+
+                return mStorageViewModel.getStorageItemWithExpirationsFilterLessThan(this@StorageActivity,searchTerm, mStorageEntity.uniqueId, mQuantityFilterFirstValue)
+
+            }else if(mFilterByQuantityOptionSelected == BETWEEN_QUANTITY){
+
+                return mStorageViewModel.getStorageItemWithExpirationsFilterBetween(this@StorageActivity, searchTerm,mStorageEntity.uniqueId, mQuantityFilterFirstValue, mQuantityFilterSecondValue)
+            }
+            return ArrayList()
+
+        }else if(mFilter == FILTER_BY_EXPIRED){
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime: String = simpleDateFormat.format(Date())
+
+            return mStorageViewModel.getStorageItemWithExpirationsFilterByExpiredItem(this@StorageActivity,searchTerm, mStorageEntity.uniqueId, currentDatetime)
+        }else if(mFilter == FILTER_BY_LAST_UPDATE){
+
+            return mStorageViewModel.getStorageItemWithExpirationsFilterByDateModified(this@StorageActivity, searchTerm,mFilterByDateModifiedDate, mStorageEntity.uniqueId)
         }else{
             return  ArrayList()
         }
+
+
 
     }
 

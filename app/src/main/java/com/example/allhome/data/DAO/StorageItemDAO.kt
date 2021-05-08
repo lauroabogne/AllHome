@@ -32,12 +32,19 @@ interface StorageItemDAO {
             "    GROUP BY name,unit")
     suspend fun getStorageItemsWithTotalQuantity(deletedStatus: Int):List<StorageItemEntity>
 
-    @Query("SELECT * FROM storage_items WHERE quantity < :quantity AND storage =:storage AND item_status =:deletedStatus")
-    suspend fun getStorageItemsByStorageLessThan(storage:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
-    @Query("SELECT * FROM storage_items WHERE quantity > :quantity AND storage =:storage AND item_status =:deletedStatus")
-    suspend fun getStorageItemsByStorageGreaterThan(storage:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
-    @Query("SELECT * FROM storage_items WHERE quantity BETWEEN :fromQuantity AND :toQuantity AND storage =:storage AND item_status =:deletedStatus")
-    suspend fun getStorageItemsByStorageQuantityBetween(storage:String,fromQuantity:Int,toQuantity:Int,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity < :quantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageLessThan(itemNameSearchTerm:String,storageUniqueId:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity > :quantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageGreaterThan(itemNameSearchTerm:String,storageUniqueId:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+
+
+    @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND DATE(modified) = DATE(:dateModified) AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageFilterByModified(dateModified: String,itemNameSearchTerm:String,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
+
+
+
+    @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity BETWEEN :fromQuantity AND :toQuantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus")
+    suspend fun getStorageItemsByStorageQuantityBetween(itemNameSearchTerm:String,storageUniqueId:String,fromQuantity:Int,toQuantity:Int,deletedStatus: Int):List<StorageItemEntity>
 
     @Query("SELECT * FROM storage_items WHERE unique_id=:uniqueId AND name=:storageItemName AND item_status =0 LIMIT 1")
     suspend fun getItem(uniqueId:String, storageItemName:String):StorageItemEntity
@@ -89,7 +96,9 @@ interface StorageItemDAO {
     suspend fun getExpiredItems(storageUniqueId:String,currentDate:String):List<SimpleGroceryLisItem>
 
     @Query("SELECT * FROM storage_items " +
-            " WHERE storage_items.storage_unique_id = :storageUniqueId" +
+            " WHERE " +
+            " name  LIKE '%'||:itemNameSearchTerm||'%' "+
+            " AND storage_items.storage_unique_id = :storageUniqueId" +
             " AND item_status = 0 "+
             " AND storage_items.unique_id " +
             " IN (" +
@@ -98,7 +107,7 @@ interface StorageItemDAO {
             "    AND created = storage_items.modified" +
             "    AND DATE(expiration_date) <= DATE(:currentDate)" +
             ")")
-    suspend fun getStorageItemFilterByExpiredItems(storageUniqueId:String,currentDate:String):List<StorageItemEntity>
+    suspend fun getStorageItemFilterByExpiredItems(itemNameSearchTerm:String,storageUniqueId:String,currentDate:String):List<StorageItemEntity>
 
     @Query("SELECT name as itemName,unit FROM storage_items" +
             " WHERE " +
