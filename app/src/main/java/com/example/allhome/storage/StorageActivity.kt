@@ -150,7 +150,7 @@ class StorageActivity : AppCompatActivity() {
 
                 showStockWeightPopupForFilter()
             }
-            R.id.quantityMenu -> {
+            R.id.stockMenu -> {
 
                 showFilterByQuantityPopup()
             }
@@ -297,7 +297,7 @@ class StorageActivity : AppCompatActivity() {
             }
         }
         val alertDialog =  MaterialAlertDialogBuilder(this)
-            .setTitle("Filter by quantity")
+            .setTitle("Filter by stock")
             .setView(storageQuanityFilterBinding.root)
             .setPositiveButton("Ok", null)
             .setNegativeButton("Close", null)
@@ -517,7 +517,7 @@ class StorageActivity : AppCompatActivity() {
         when(mFilter){
             NO_FILTER->{menu?.findItem(R.id.noFilterMenu)?.setChecked(true)}
             FILTER_BY_STOCK_WEIGHT->{menu?.findItem(R.id.stockWeightMenu)?.setChecked(true)}
-            FILTER_BY_QUANTITY->{menu?.findItem(R.id.quantityMenu)?.setChecked(true)}
+            FILTER_BY_QUANTITY->{menu?.findItem(R.id.stockMenu)?.setChecked(true)}
             FILTER_BY_LAST_UPDATE->{menu?.findItem(R.id.lastUpdateMenu)?.setChecked(true)}
             FILTER_BY_EXPIRED->{menu?.findItem(R.id.expiredMenu)?.setChecked(true)}
         }

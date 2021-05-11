@@ -108,7 +108,7 @@ class StorageFragment : Fragment() {
             override fun onTabSelected(tab: TabLayout.Tab?) {
 
                 if(tab?.position == 0){
-                    Toast.makeText(this@StorageFragment.requireContext(),"VIEW BY STORAGE",Toast.LENGTH_SHORT).show()
+
                     mDataBindingUtil.fab.show()
                     mDataBindingUtil.storageStorageRecyclerview.adapter = StorageViewAdapter(this@StorageFragment) as RecyclerView.Adapter<RecyclerView.ViewHolder>
                     getItemViewByStorage()
@@ -120,6 +120,8 @@ class StorageFragment : Fragment() {
 
                     getItemViewByItem()
                     mDataBindingUtil.fab.hide()
+
+
 
                 }
             }

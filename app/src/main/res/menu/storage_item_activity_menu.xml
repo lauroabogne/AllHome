@@ -37,8 +37,8 @@
                     android:title="Stock weight"
                     />
                 <item
-                    android:id="@+id/quantityMenu"
-                    android:title="Quantity"
+                    android:id="@+id/stockMenu"
+                    android:title="Stock"
                     />
                 <item
                     android:id="@+id/lastUpdateMenu"

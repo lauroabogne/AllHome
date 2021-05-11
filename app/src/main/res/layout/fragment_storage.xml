@@ -32,7 +32,7 @@
                     android:id="@+id/viewPerProduct"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="View per product" />
+                    android:text="View all product" />
 
             </com.google.android.material.tabs.TabLayout>
 

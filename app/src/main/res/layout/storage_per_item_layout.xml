@@ -67,7 +67,7 @@
                 android:paddingLeft="10dp"
                 android:paddingTop="2dp"
                 android:paddingBottom="2dp"
-                android:setStockWeight="@{storageItemWithExpirationsAndStorages.storageItemEntity}"
+                android:setStocks="@{storageItemWithExpirationsAndStorages.storageItemEntity}"
                 android:textColor="#000"
                 app:layout_constraintEnd_toStartOf="@+id/storageImageView"
                 app:layout_constraintStart_toStartOf="parent"
@@ -120,27 +120,16 @@
                     android:orientation="vertical" />
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/textView28"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingTop="2dp"
-                android:paddingRight="2dp"
-                android:text="Storages :"
-                android:textColor="#000"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout1" />
-
             <com.google.android.flexbox.FlexboxLayout
                 android:id="@+id/storageFlexboxLayout"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:addStorages="@{storageItemWithExpirationsAndStorages.storages}"
+                android:addStorages="@{storageItemWithExpirationsAndStorages}"
+                android:padding="5dp"
+                app:flexWrap="wrap"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView28"
-                app:layout_constraintTop_toBottomOf="@+id/linearLayout1"
-                >
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout1">
 
 
             </com.google.android.flexbox.FlexboxLayout>

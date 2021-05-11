@@ -29,6 +29,7 @@
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
             android:text="@{storageEntityWithExtraInformation.storageEntity.name}"
+            android:textColor="#000"
             android:textSize="24sp"
             app:layout_constraintEnd_toStartOf="@+id/moreActionImageView"
             app:layout_constraintStart_toStartOf="parent"
@@ -56,6 +57,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="@{`Total item: `+storageEntityWithExtraInformation.itemCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView16" />
@@ -68,6 +70,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="@{`No stock items : `+storageEntityWithExtraInformation.noStockItemCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView18" />
@@ -80,6 +83,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="@{`Low stock items : `+storageEntityWithExtraInformation.lowStockItemCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView20" />
@@ -92,6 +96,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="@{`High stock items : `+storageEntityWithExtraInformation.highStockItemCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView22" />
@@ -100,10 +105,12 @@
             android:id="@+id/textView24"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:paddingLeft="10dp"
+            android:drawableLeft="@drawable/ic_warning_12"
+            android:paddingLeft="5dp"
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:text="@{`Expired items : `+storageEntityWithExtraInformation.expiredItemCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView23" />
@@ -117,6 +124,7 @@
             android:paddingTop="2dp"
             android:paddingBottom="2dp"
             android:setSoonToExpireItemText="@{storageEntityWithExtraInformation.itemToExpireDayCount}"
+            android:textColor="#000"
             app:layout_constraintEnd_toStartOf="@+id/storageImageView"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView24"

@@ -17,25 +17,44 @@ import com.example.allhome.storage.StorageUtil
 import com.google.android.flexbox.FlexboxLayout
 import com.google.android.material.chip.Chip
 import kotlinx.android.parcel.Parcelize
+import java.text.DecimalFormat
 
 @Parcelize
-@Entity(tableName = "storage_items")
+@Entity(tableName = StorageItemEntity.TABLE_NAME)
 data class StorageItemEntity(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "unique_id") var uniqueId:String,
-    @ColumnInfo(name = "storage_unique_id") var storageUniqueId:String,
-    @ColumnInfo(name = "name") var name:String,
-    @ColumnInfo(name = "quantity") var quantity:Double,
-    @ColumnInfo(name = "unit") var unit:String,
-    @ColumnInfo(name="stock_weight",defaultValue = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT.toString()) var stockWeight:Int = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT,
-    @ColumnInfo(name="category") var category:String,
-    @ColumnInfo(name="storage") var storage:String,
-    @ColumnInfo(name = "notes") var notes:String,
-    @ColumnInfo(name = "image_name") var imageName:String,
-    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int,
-    @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
-    @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
-):Parcelable
+    @ColumnInfo(name = COLUMN_UNIQUE_ID) var uniqueId:String,
+    @ColumnInfo(name = COLUMN_STORAGE_UNIQUE_ID) var storageUniqueId:String,
+    @ColumnInfo(name = COLUMN_NAME) var name:String,
+    @ColumnInfo(name = COLUMN_QUANTITY) var quantity:Double,
+    @ColumnInfo(name = COLUMN_UNIT) var unit:String,
+    @ColumnInfo(name=COLUMN_STOCK_WEIGHT,defaultValue = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT.toString()) var stockWeight:Int = StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT,
+    @ColumnInfo(name=COLUMN_CATEGORY) var category:String,
+    @ColumnInfo(name=COLUMN_STORAGE) var storage:String,
+    @ColumnInfo(name = COLUMN_NOTES) var notes:String,
+    @ColumnInfo(name = COLUMN_IMAGE_NAME) var imageName:String,
+    @ColumnInfo(name = COLUMN_ITEM_STATUS,defaultValue = "0") var itemStatus:Int,
+    @ColumnInfo(name = COLUMN_CREATED,defaultValue = "CURRENT_TIMESTAMP") var created:String,
+    @ColumnInfo(name = COLUMN_MODIFIED,defaultValue = "CURRENT_TIMESTAMP") var modified:String
+):Parcelable{
+    companion object{
+        const val TABLE_NAME = "storage_items"
+        const val COLUMN_UNIQUE_ID ="unique_id"
+        const val COLUMN_STORAGE_UNIQUE_ID ="storage_unique_id"
+        const val COLUMN_NAME ="name"
+        const val COLUMN_QUANTITY ="quantity"
+        const val COLUMN_UNIT ="unit"
+        const val COLUMN_STOCK_WEIGHT ="stock_weight"
+        const val COLUMN_CATEGORY ="category"
+        const val COLUMN_STORAGE ="storage"
+        const val COLUMN_NOTES ="notes"
+        const val COLUMN_IMAGE_NAME ="image_name"
+        const val COLUMN_ITEM_STATUS ="item_status"
+        const val COLUMN_CREATED ="created"
+        const val COLUMN_MODIFIED ="modified"
+
+    }
+}
 @Parcelize
 data class StorageItemWithExpirations(
     var storageItemEntity: StorageItemEntity,
@@ -45,7 +64,7 @@ data class StorageItemWithExpirations(
 data class StorageItemWithExpirationsAndStorages(
     var storageItemEntity: StorageItemEntity,
     var expirations:List<StorageItemExpirationEntity> = arrayListOf(),
-    var storages:List<StorageEntity> = arrayListOf(),
+    var storages:List<StorageEntityWithStorageItemInformation> = arrayListOf(),
 ):Parcelable
 
 class StorageItemEntityValues{
@@ -146,14 +165,31 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
 
 }
 
+@BindingAdapter(value=["android:setStocks"])
+fun setStocks(view: TextView, storageItemEntity: StorageItemEntity){
+
+    if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT ){
+        view.setText("Stock: ")
+    }else if(storageItemEntity.quantity == 0.0){
+        view.setText("Stock: 0 "+storageItemEntity.unit)
+    }else{
+        view.setText("Stock: "+ DecimalFormat("#,###").format(storageItemEntity.quantity)+" "+storageItemEntity.unit)
+    }
+
+
+}
+
 @BindingAdapter(value=["android:addStorages"])
-fun addStorages(flexboxLayout: FlexboxLayout,storages:List<StorageEntity>){
+fun addStorages(flexboxLayout: FlexboxLayout,storageItemWithExpirationsAndStorages:StorageItemWithExpirationsAndStorages){
     flexboxLayout.removeAllViews()
 
-    storages.forEach {
+    storageItemWithExpirationsAndStorages.storages.forEach {
+
+        //val chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.custom_chip_layout,null,false) as TextView
         val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
-        chip.setText(it.name)
-        chip.setTag(it)
+
+        chip.setText(it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")")
+        chip.setTag(it.storageEntity)
         flexboxLayout.addView(chip)
         val divider = TextView(flexboxLayout.context)
         divider.isEnabled = false
