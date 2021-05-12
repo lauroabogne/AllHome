@@ -540,8 +540,6 @@ class StorageActivity : AppCompatActivity() {
                 override fun onQueryTextSubmit(query: String?): Boolean {
                     it.clearFocus()
                     query?.let {
-                        /*val storageStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
-                        storageStorageRecyclerviewViewAdapater.filter.filter(it)*/
                         mSearchTerm = it
                         if(mSearchJob == null){
                             mSearchJob = Job()
@@ -564,9 +562,6 @@ class StorageActivity : AppCompatActivity() {
                 }
                 override fun onQueryTextChange(newText: String?): Boolean {
                     newText?.let {
-                       /* val storageStorageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
-                        storageStorageRecyclerviewViewAdapater.filter.filter(it)*/
-
                         mSearchTerm = it
                         if(mSearchJob == null){
                             mSearchJob = Job()

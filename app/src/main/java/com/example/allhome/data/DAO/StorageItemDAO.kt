@@ -28,9 +28,11 @@ interface StorageItemDAO {
             "    SUM(CASE " +
             "    WHEN quantity < 0 THEN 0 ELSE quantity " +
             "    END) AS quantity " +
-            "    FROM storage_items WHERE item_status = :deletedStatus " +
-            "    GROUP BY name,unit  ORDER BY name")
-    suspend fun getStorageItemsWithTotalQuantity(deletedStatus: Int):List<StorageItemEntity>
+            "    FROM storage_items" +
+            "   WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            "   AND  item_status = :deletedStatus " +
+            "   GROUP BY name,unit  ORDER BY name")
+    suspend fun getStorageItemsWithTotalQuantity(itemNameSearchTerm:String,deletedStatus: Int):List<StorageItemEntity>
 
     @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity < :quantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name")
     suspend fun getStorageItemsByStorageLessThan(itemNameSearchTerm:String,storageUniqueId:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
@@ -127,20 +129,24 @@ interface StorageItemDAO {
             "))" +
             "  ORDER BY name")
     suspend fun getExpiredItemsWithStockWeight(stockWeight:List<Int>,storageUniqueId:String,currentDate:String):List<SimpleGroceryLisItem>
-
-    @Query("SELECT name as itemName,unit FROM storage_items " +
-            " WHERE storage_items.storage = :storage" +
-            " AND item_status = 0 "+
-            " AND stock_weight IN (:stockWeight) "+
+    @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
+            "  SUM(CASE" +
+            "       WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "     END) AS quantity " +
+            " FROM storage_items " +
+            " WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            " AND item_status = 0 " +
             " AND storage_items.unique_id " +
-            " IN (" +
-            "    SELECT storage_item_unique_id FROM storage_item_expirations" +
-            "    WHERE  storage = storage_items.storage " +
-            "    AND created = storage_items.modified" +
-            "    AND DATE(expiration_date) <= DATE(:currentDate)" +
-            ")" +
-            "  ORDER BY name")
-    suspend fun getExpiredItemsWithStockWeightTest(stockWeight:List<Int>,storage:String,currentDate:String):List<SimpleGroceryLisItem>
+            " IN ( " +
+            " SELECT storage_item_unique_id FROM storage_item_expirations " +
+            " WHERE  storage = storage_items.storage " +
+            " AND created = storage_items.modified " +
+            " AND DATE(expiration_date) <= DATE(:currentDate) " +
+            " ) " +
+            " GROUP BY name,unit " +
+            " ORDER BY name")
+    suspend fun getAllItemFilterByExpiredItems(itemNameSearchTerm:String,currentDate:String):List<StorageItemEntity>
+
 
     data class SimpleGroceryLisItem(val itemName:String,val unit:String)
 

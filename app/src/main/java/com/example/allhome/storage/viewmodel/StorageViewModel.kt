@@ -53,26 +53,42 @@ class StorageViewModel: ViewModel() {
         }
         return storageItemWithExpirations
     }
-    suspend fun getStorageItemWithExpirationsWithTotalQuantity(context: Context):ArrayList<StorageItemWithExpirationsAndStorages>{
+    suspend fun getStorageItemWithExpirationsWithTotalQuantity(context: Context,searchTerm:String):ArrayList<StorageItemWithExpirationsAndStorages>{
 
         val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
 
-        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsWithTotalQuantity(StorageItemEntityValues.NOT_DELETED_STATUS)
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageItemsWithTotalQuantity(searchTerm,StorageItemEntityValues.NOT_DELETED_STATUS)
         pantryItemEntities.forEach {
-
-
 
             val itemName = it.name
             val unit = it.unit
             val dateModified = it.modified
 
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, storages
+            )
 
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
+    }
+
+    suspend fun getStorageItemWithExpirationsWithTotalQuantityFilterByExpired(context: Context, itemNameSearchTerm: String,currentDate:String ):ArrayList<StorageItemWithExpirationsAndStorages>{
+
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemFilterByExpiredItems(itemNameSearchTerm,currentDate)
+        pantryItemEntities.forEach {
+
+            val itemName = it.name
+            val unit = it.unit
+            val dateModified = it.modified
 
             val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
-            //val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
-
             val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
-
             val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
                 it,pantryItemExpirationEntities, storages
             )

@@ -33,6 +33,10 @@
                     android:checked="true"
                     />
                 <item
+                    android:id="@+id/stockWeightMenu"
+                    android:title="Stock weight"
+                    />
+                <item
                     android:id="@+id/stockMenu"
                     android:title="Stock"
                     />
