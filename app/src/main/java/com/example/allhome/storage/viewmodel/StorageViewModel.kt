@@ -53,6 +53,23 @@ class StorageViewModel: ViewModel() {
         }
         return storageItemWithExpirations
     }
+    suspend fun getSingleStorageItemWithExpirations(context: Context, itemName: String,itemUnit:String, storageUniqueId:String):ArrayList<StorageItemWithExpirations>{
+
+        storageItemWithExpirations = arrayListOf()
+
+        val pantryItemEntities:List<StorageItemEntity> =  AllHomeDatabase.getDatabase(context).getStorageItemDAO().getSingleStorageItemsByStorageFilterByName(itemName,itemUnit,storageUniqueId,StorageItemEntityValues.NOT_DELETED_STATUS)
+
+        pantryItemEntities.forEach {
+            val itemName = it.name
+            val dateModified = it.modified
+
+            val pantryItemExpirationEntities =AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
+            storageItemWithExpirations.add(StorageItemWithExpirations(it,pantryItemExpirationEntities))
+
+        }
+        return storageItemWithExpirations
+    }
+
     suspend fun getStorageItemWithExpirationsWithTotalQuantity(context: Context,searchTerm:String):ArrayList<StorageItemWithExpirationsAndStorages>{
 
         val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
@@ -158,6 +175,27 @@ class StorageViewModel: ViewModel() {
         }
         return storageItemWithExpirations
     }
+    suspend fun getAllItemWithExpirationsFilterByDateModified(context: Context, itemNameSearchTerm: String,dateModified: String):ArrayList<StorageItemWithExpirationsAndStorages>{
+
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+        val pantryItemEntities =AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemsByStorageFilterByModified(dateModified,itemNameSearchTerm,StorageItemEntityValues.NOT_DELETED_STATUS)
+        pantryItemEntities.forEach {
+
+            val itemName = it.name
+            val unit = it.unit
+            val dateModified = it.modified
+
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, storages
+            )
+
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
+    }
     suspend fun getStorageItemWithExpirationsFilterGreaterThan(context: Context, itemNameSearchTerm: String,storageUniqueId:String,quantity:Int):ArrayList<StorageItemWithExpirations>{
 
 
@@ -176,8 +214,89 @@ class StorageViewModel: ViewModel() {
         }
         return storageItemWithExpirations
     }
-    suspend fun getStorageItemWithExpirationsFilterLessThan(context: Context, itemNameSearchTerm: String, storageUniqueId:String,quantity:Int):ArrayList<StorageItemWithExpirations>{
 
+    /*suspend fun getAllItemWithExpirationsFilterGreaterThan(context: Context, itemNameSearchTerm: String,quantity:Int):ArrayList<StorageItemWithExpirationsAndStorages>{
+
+
+        storageItemWithExpirations = arrayListOf()
+
+         val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemsByStorageGreaterThan(itemNameSearchTerm,quantity,StorageItemEntityValues.NOT_DELETED_STATUS)
+
+        pantryItemEntities.forEach {
+            val itemName = it.name
+            val dateModified = it.modified
+
+            val pantryItemExpirationEntities =AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(itemName,dateModified)
+            storageItemWithExpirations.add(StorageItemWithExpirations(it,pantryItemExpirationEntities))
+
+        }
+        return storageItemWithExpirations
+    }*/
+
+    suspend fun getAllItemWithExpirationsFilterGreaterThan(context: Context, itemNameSearchTerm: String,quantity:Int):ArrayList<StorageItemWithExpirationsAndStorages>{
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemsByStorageGreaterThan(itemNameSearchTerm,quantity,StorageItemEntityValues.NOT_DELETED_STATUS)
+        pantryItemEntities.forEach {
+
+            val itemName = it.name
+            val unit = it.unit
+            val dateModified = it.modified
+
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, storages
+            )
+
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
+    }
+    suspend fun getAllItemWithExpirationsFilterLessThan(context: Context, itemNameSearchTerm: String,quantity:Int):ArrayList<StorageItemWithExpirationsAndStorages>{
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemsByStorageLessThan(itemNameSearchTerm,quantity,StorageItemEntityValues.NOT_DELETED_STATUS)
+        pantryItemEntities.forEach {
+
+            val itemName = it.name
+            val unit = it.unit
+            val dateModified = it.modified
+
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, storages
+            )
+
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
+    }
+
+    suspend fun getAllItemWithExpirationsFilterQuantityBetween(context: Context, itemNameSearchTerm: String,quantityFrom:Int,quantityTo:Int):ArrayList<StorageItemWithExpirationsAndStorages>{
+        val storageEntitiesWithExpirationsAndStoragesInnerScope:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+
+        val pantryItemEntities = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getAllItemsByStorageStockBetween(itemNameSearchTerm,quantityFrom,quantityTo,StorageItemEntityValues.NOT_DELETED_STATUS)
+        pantryItemEntities.forEach {
+
+            val itemName = it.name
+            val unit = it.unit
+            val dateModified = it.modified
+
+            val storages = AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
+            val pantryItemExpirationEntities = AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpirationByStorage(itemName,unit)
+            val storageItemWithExpirationsAndStorages = StorageItemWithExpirationsAndStorages(
+                it,pantryItemExpirationEntities, storages
+            )
+
+            storageEntitiesWithExpirationsAndStoragesInnerScope.add(storageItemWithExpirationsAndStorages)
+
+        }
+        return storageEntitiesWithExpirationsAndStoragesInnerScope
+    }
+
+    suspend fun getStorageItemWithExpirationsFilterLessThan(context: Context, itemNameSearchTerm: String, storageUniqueId:String,quantity:Int):ArrayList<StorageItemWithExpirations>{
 
         storageItemWithExpirations = arrayListOf()
 

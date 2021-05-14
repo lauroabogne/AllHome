@@ -19,6 +19,9 @@ interface StorageItemDAO {
     @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemName||'%' AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name")
     suspend fun getPantryItemsByStorageFilterByName(itemName:String,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
 
+    @Query("SELECT * FROM storage_items WHERE name =:itemName AND unit = :itemUnit AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name LIMIT 1")
+    suspend fun getSingleStorageItemsByStorageFilterByName(itemName:String,itemUnit:String,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
+
     @Query("SELECT * FROM storage_items WHERE storage_unique_id =:storageUniqueId AND stock_weight IN(:stockWeight) AND item_status =:deletedStatus  ORDER BY name")
     suspend fun getStorageItemsByStorageFilterByStockWeight(stockWeight:List<Int>,storageUniqueId: String,deletedStatus: Int):List<StorageItemEntity>
     @Query("SELECT * FROM storage_items WHERE  name  LIKE '%'||:itemName||'%' AND storage_unique_id =:storageUniqueId AND stock_weight IN(:stockWeight) AND item_status =:deletedStatus  ORDER BY name")
@@ -39,10 +42,65 @@ interface StorageItemDAO {
     @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity > :quantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name")
     suspend fun getStorageItemsByStorageGreaterThan(itemNameSearchTerm:String,storageUniqueId:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
 
+    @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
+            "              SUM(CASE " +
+            "                WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "               END) AS quantity," +
+            "               SUM(CASE " +
+            "                 WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "                END) AS quantityForCondition " +
+            "                FROM storage_items" +
+            "               WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            "               AND  item_status = :deletedStatus" +
+            "               GROUP BY name,unit " +
+            "               HAVING quantityForCondition > :quantity" +
+            "               ORDER BY name")
+    suspend fun getAllItemsByStorageGreaterThan(itemNameSearchTerm:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+    @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
+            "              SUM(CASE " +
+            "                WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "               END) AS quantity," +
+            "               SUM(CASE " +
+            "                 WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "                END) AS quantityForCondition " +
+            "                FROM storage_items" +
+            "               WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            "               AND  item_status = :deletedStatus" +
+            "               GROUP BY name,unit " +
+            "               HAVING quantityForCondition < :quantity" +
+            "               ORDER BY name")
+    suspend fun getAllItemsByStorageLessThan(itemNameSearchTerm:String,quantity:Int,deletedStatus: Int):List<StorageItemEntity>
+
+    @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
+            "              SUM(CASE " +
+            "                WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "               END) AS quantity," +
+            "               SUM(CASE " +
+            "                 WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "                END) AS quantityForCondition " +
+            "                FROM storage_items" +
+            "               WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            "               AND  item_status = :deletedStatus" +
+            "               GROUP BY name,unit " +
+            "               HAVING quantityForCondition BETWEEN :quantityFrom AND :quantityTo" +
+            "               ORDER BY name")
+    suspend fun getAllItemsByStorageStockBetween(itemNameSearchTerm:String,quantityFrom:Int,quantityTo:Int,deletedStatus: Int):List<StorageItemEntity>
+
 
     @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND DATE(modified) = DATE(:dateModified) AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name")
     suspend fun getStorageItemsByStorageFilterByModified(dateModified: String,itemNameSearchTerm:String,storageUniqueId:String,deletedStatus: Int):List<StorageItemEntity>
 
+    @Query("SELECT  storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
+            "      SUM(CASE " +
+            "       WHEN quantity < 0 THEN 0 ELSE quantity " +
+            "       END) AS quantity" +
+            " FROM storage_items " +
+            " WHERE name  LIKE '%'||:itemNameSearchTerm||'%' " +
+            " AND DATE(modified) = DATE(:dateModified) " +
+            " AND item_status =:deletedStatus" +
+            " GROUP BY name,unit " +
+            " ORDER BY name")
+    suspend fun getAllItemsByStorageFilterByModified(dateModified: String,itemNameSearchTerm:String,deletedStatus: Int):List<StorageItemEntity>
 
 
     @Query("SELECT * FROM storage_items WHERE name  LIKE '%'||:itemNameSearchTerm||'%' AND quantity BETWEEN :fromQuantity AND :toQuantity AND storage_unique_id =:storageUniqueId AND item_status =:deletedStatus  ORDER BY name")

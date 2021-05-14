@@ -189,7 +189,7 @@ fun addStorages(flexboxLayout: FlexboxLayout,storageItemWithExpirationsAndStorag
         val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
 
         chip.setText(it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")")
-        chip.setTag(it.storageEntity)
+        chip.setTag(it)
         flexboxLayout.addView(chip)
         val divider = TextView(flexboxLayout.context)
         divider.isEnabled = false

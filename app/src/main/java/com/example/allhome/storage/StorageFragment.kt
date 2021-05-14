@@ -6,6 +6,7 @@ import android.animation.AnimatorSet
 import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.graphics.Point
 import android.graphics.Rect
@@ -19,10 +20,11 @@ import android.view.*
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
+import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
-import android.widget.Toolbar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
 import androidx.databinding.DataBindingUtil
@@ -61,7 +63,15 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
     var mSearchJob = Job()
     var mSearchView: SearchView? = null
+    var mSelectedMenuItem:MenuItem? = null
+
+    var mFilterByDateModifiedDate: String =SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date())
     var mFilter = NO_FILTER
+    var mFilterByQuantityOptionSelected = -1
+    var mQuantityFilterFirstValue = 0
+    var mQuantityFilterSecondValue = 0
+
+
 
     companion object{
         const val ADD_STORAGE_REQUEST_CODE = 1986
@@ -76,7 +86,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         const val  VIEW_PER_PRODUCT = 2
 
         const val NO_FILTER = 0
-        const val FILTER_BY_QUANTITY = 1
+        const val FILTER_BY_STOCK = 1
         const val FILTER_BY_LAST_UPDATE = 2
         const val FILTER_BY_EXPIRED = 3
 
@@ -86,7 +96,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         const val BETWEEN_QUANTITY = 2
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
 
@@ -152,7 +162,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         })
 
-        var storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
+        val storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
 
         //RecyclerView.ViewHolder
         if(mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_BY_STORAGE){
@@ -176,13 +186,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         }
 
 
-        //StoragePerItemRecyclerviewViewAdapater
-
-
-
         return mDataBindingUtil.root
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(resultCode == Activity.RESULT_OK && requestCode == ADD_STORAGE_REQUEST_CODE){
@@ -197,9 +202,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         }
 
     }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.storage_item_activity_menu, menu)
+        inflater.inflate(R.menu.view_all_item_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
         mSearchView = menu?.findItem(R.id.appBarSearch)?.actionView as SearchView
@@ -231,7 +235,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         return true
     }
-
     override fun onQueryTextChange(query: String?): Boolean {
 
         query?.let {
@@ -258,17 +261,37 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     suspend fun getSearchItems(searchTerm:String):ArrayList<StorageItemWithExpirationsAndStorages>{
         if(mFilter == NO_FILTER){
             return mStorageViewModel.getStorageItemWithExpirationsWithTotalQuantity(this@StorageFragment.requireContext(),searchTerm)
+
+        }else if(mFilter == FILTER_BY_STOCK){
+            if(mFilterByQuantityOptionSelected == GREATER_THAN_QUANTITY){
+
+                return mStorageViewModel.getAllItemWithExpirationsFilterGreaterThan(requireContext(), searchTerm,mQuantityFilterFirstValue)
+
+            }else if(mFilterByQuantityOptionSelected == LESS_THAN_QUANTITY){
+
+                return mStorageViewModel.getAllItemWithExpirationsFilterLessThan(requireContext(), searchTerm,mQuantityFilterFirstValue)
+
+            }else if(mFilterByQuantityOptionSelected == BETWEEN_QUANTITY){
+                return  mStorageViewModel.getAllItemWithExpirationsFilterQuantityBetween(requireContext(), searchTerm,mQuantityFilterFirstValue,mQuantityFilterSecondValue)
+            }
+
+        }else if(mFilter == FILTER_BY_LAST_UPDATE){
+
+            return mStorageViewModel.getAllItemWithExpirationsFilterByDateModified(requireContext(),searchTerm,mFilterByDateModifiedDate)
+
         }else if(mFilter == FILTER_BY_EXPIRED){
 
             val currentDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
            return mStorageViewModel.getStorageItemWithExpirationsWithTotalQuantityFilterByExpired(requireContext(), searchTerm,currentDate)
 
-        }else{
-            return ArrayList()
         }
-    }
 
+        return ArrayList()
+
+    }
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        mSelectedMenuItem = item
         when (item.itemId) {
 
             R.id.noFilterMenu -> {
@@ -277,10 +300,11 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
             }
             R.id.stockMenu -> {
-                mFilter = FILTER_BY_QUANTITY
+                showFilterByQuantityPopup()
             }
             R.id.lastUpdateMenu -> {
-                mFilter = FILTER_BY_LAST_UPDATE
+
+                showCalendarForLastUpdateFilter()
             }
             R.id.expiredMenu -> {
                 mFilter = FILTER_BY_EXPIRED
@@ -291,7 +315,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         return super.onOptionsItemSelected(item)
     }
-
     private fun displayItemForInserting(storageEntity: StorageEntity){
 
         mStorageViewModel.coroutineScope.launch {
@@ -468,7 +491,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }
         }
     }
-    fun getItemViewByItemFilterByExpired(itemNameSearchTerm:String){
+    private fun getItemViewByItemFilterByExpired(itemNameSearchTerm:String){
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDate = simpleDateFormat.format(Date())
@@ -482,11 +505,255 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }
         }
     }
+    private fun showFilterByQuantityPopup(){
+
+        val storageQuanityFilterBinding = DataBindingUtil.inflate<StorageQuantityFilterBinding>(LayoutInflater.from(requireContext()), R.layout.storage_quantity_filter, null, false)
+
+        if(mFilter == FILTER_BY_STOCK){
+
+            if(mFilterByQuantityOptionSelected == GREATER_THAN_QUANTITY){
+                storageQuanityFilterBinding.greaterThanRadioButton.isChecked = true
+                storageQuanityFilterBinding.greaterThanEditText.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.greaterThanEditText.isEnabled = true
+                storageQuanityFilterBinding.greaterThanEditText.requestFocus()
+
+            }else if(mFilterByQuantityOptionSelected == LESS_THAN_QUANTITY){
+                storageQuanityFilterBinding.lessThanRadioButton.isChecked = true
+                storageQuanityFilterBinding.lessThanEditText.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.lessThanEditText.isEnabled = true
+                storageQuanityFilterBinding.lessThanEditText.requestFocus()
+
+            }else if(mFilterByQuantityOptionSelected == BETWEEN_QUANTITY){
+                storageQuanityFilterBinding.betweenRadioButton.isChecked = true
+                storageQuanityFilterBinding.betweenFromInput.setText(mQuantityFilterFirstValue.toString())
+                storageQuanityFilterBinding.betweenFromInput.isEnabled = true
+                storageQuanityFilterBinding.betweenFromInput.requestFocus()
+
+                storageQuanityFilterBinding.betweenToInput.setText(mQuantityFilterSecondValue.toString())
+                storageQuanityFilterBinding.betweenToInput.isEnabled = true
+            }
+        }
+        val alertDialog =  MaterialAlertDialogBuilder(requireContext())
+            .setTitle("Filter by stock")
+            .setView(storageQuanityFilterBinding.root)
+            .setPositiveButton("Ok", null)
+            .setNegativeButton("Close", null)
+            .setCancelable(false)
+            .create()
+
+        alertDialog.setOnShowListener {
+
+            val positiveBtn = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            val negativeBtn = alertDialog.getButton(AlertDialog.BUTTON_NEGATIVE)
+
+            positiveBtn.setOnClickListener {
+
+                Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
+                mSelectedMenuItem?.isChecked = true
+                mFilter = FILTER_BY_STOCK
+
+                var hasError = false
+                var errorMessage = ""
+
+                mStorageViewModel.coroutineScope.launch {
+
+                    var storageItemWithExpirations:ArrayList<StorageItemWithExpirationsAndStorages> = arrayListOf()
+
+                    if(storageQuanityFilterBinding.greaterThanRadioButton.isChecked){
+                        val quantityString = storageQuanityFilterBinding.greaterThanEditText.text.toString()
+
+                        if(quantityString.trim().isEmpty()){
+                            hasError = true
+                            errorMessage ="Please input quantity in greater than input"
+
+                        }else{
+                            withContext(Main){
+                                mQuantityFilterFirstValue = quantityString.toInt()
+                                mFilterByQuantityOptionSelected = GREATER_THAN_QUANTITY
+                            }
+
+                            storageItemWithExpirations = mStorageViewModel.getAllItemWithExpirationsFilterGreaterThan(requireContext(), "",mQuantityFilterFirstValue)
+                        }
+
+                    }else if(storageQuanityFilterBinding.lessThanRadioButton.isChecked){
+                        val quantityString = storageQuanityFilterBinding.lessThanEditText.text.toString()
+                        if(quantityString.trim().isEmpty()){
+                            hasError = true
+                            errorMessage ="Please input quantity in greater than input"
+
+                        }else{
+                            withContext(Main){
+                                mQuantityFilterFirstValue = quantityString.toInt()
+                                mFilterByQuantityOptionSelected = LESS_THAN_QUANTITY
+                            }
+
+                            storageItemWithExpirations = mStorageViewModel.getAllItemWithExpirationsFilterLessThan(requireContext(), "",mQuantityFilterFirstValue)
+
+                        }
+
+                    }else if(storageQuanityFilterBinding.betweenRadioButton.isChecked){
+                        val quantityFromString = storageQuanityFilterBinding.betweenFromInput.text.toString()
+                        val quantityToString = storageQuanityFilterBinding.betweenToInput.text.toString()
+
+                        if(quantityFromString.trim().isEmpty() || quantityToString.trim().isEmpty() ){
+                            hasError = true
+                            errorMessage ="Please input between quantity"
+
+                        }else{
+                            withContext(Main){
+                                mFilterByQuantityOptionSelected = BETWEEN_QUANTITY
+                                mQuantityFilterFirstValue = quantityFromString.toInt()
+                                mQuantityFilterSecondValue = quantityToString.toInt()
+                            }
+
+                            storageItemWithExpirations = mStorageViewModel.getAllItemWithExpirationsFilterQuantityBetween(requireContext(), "",mQuantityFilterFirstValue,mQuantityFilterSecondValue)
+
+                        }
+
+                    }else{
+                        hasError = true
+                        errorMessage = "Please select option"
+                    }
+
+
+                    withContext(Main){
+
+                        if(hasError){
+                            Toast.makeText(requireContext(), errorMessage, Toast.LENGTH_SHORT).show()
+                            return@withContext
+                        }
+                        alertDialog.dismiss()
+                        (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageItemWithExpirations
+                        (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
 
 
 
 
+                        hideKeyboard()
+                    }
 
+
+                }
+
+            }
+            negativeBtn.setOnClickListener {
+                alertDialog.dismiss()
+            }
+        }
+
+        alertDialog.show()
+        quantityFilterCheckListener(storageQuanityFilterBinding)
+
+    }
+    private fun showCalendarForLastUpdateFilter(){
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            mFilter = FILTER_BY_LAST_UPDATE
+            mSelectedMenuItem?.isChecked = true
+
+            val simpleDateFormat = SimpleDateFormat("yyyy-M-d")
+            val date: Date? = simpleDateFormat.parse(year.toString() + "-" + (monthOfYear + 1) + "-" + dayOfMonth)
+            mFilterByDateModifiedDate =  SimpleDateFormat("yyyy-MM-dd").format(date)
+
+            mStorageViewModel.coroutineScope.launch {
+
+                val storageItemWithExpirations = mStorageViewModel.getAllItemWithExpirationsFilterByDateModified(requireContext(),"",mFilterByDateModifiedDate)
+
+                withContext(Main){
+
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageItemWithExpirations
+                    (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
+
+                }
+            }
+
+        }
+
+        val datePickerDialog = DatePickerDialog(requireContext(), dateSetListener, year, month, day)
+        datePickerDialog.show()
+
+    }
+    private fun quantityFilterCheckListener(storageQuanityFilterBinding: StorageQuantityFilterBinding){
+        storageQuanityFilterBinding.greaterThanRadioButton.setOnCheckedChangeListener{ buttonView, isChecked->
+            if(isChecked){
+
+                activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+
+                storageQuanityFilterBinding.lessThanRadioButton.isChecked = false
+                storageQuanityFilterBinding.lessThanEditText.setText("")
+                storageQuanityFilterBinding.lessThanEditText.isEnabled = false
+
+                storageQuanityFilterBinding.betweenRadioButton.isChecked = false
+                storageQuanityFilterBinding.betweenFromInput.setText("")
+                storageQuanityFilterBinding.betweenFromInput.isEnabled = false
+
+                storageQuanityFilterBinding.greaterThanEditText.isEnabled  = true
+                storageQuanityFilterBinding.greaterThanEditText.requestFocus()
+
+
+                showSoftKeyboard(storageQuanityFilterBinding.greaterThanEditText)
+
+
+
+            }
+        }
+
+        storageQuanityFilterBinding.lessThanRadioButton.setOnCheckedChangeListener{ buttonView, isChecked->
+            if(isChecked){
+
+                storageQuanityFilterBinding.greaterThanRadioButton.isChecked = false
+                storageQuanityFilterBinding.greaterThanEditText.setText("")
+                storageQuanityFilterBinding.greaterThanEditText.isEnabled = false
+
+                storageQuanityFilterBinding.betweenRadioButton.isChecked = false
+                storageQuanityFilterBinding.betweenFromInput.setText("")
+                storageQuanityFilterBinding.betweenFromInput.isEnabled = false
+                storageQuanityFilterBinding.betweenToInput.setText("")
+                storageQuanityFilterBinding.betweenToInput.isEnabled = false
+
+                storageQuanityFilterBinding.lessThanEditText.isEnabled = true
+                storageQuanityFilterBinding.lessThanEditText.requestFocus()
+                showSoftKeyboard(storageQuanityFilterBinding.lessThanEditText)
+            }
+        }
+
+        storageQuanityFilterBinding.betweenRadioButton.setOnCheckedChangeListener{ buttonView, isChecked->
+            if(isChecked){
+                storageQuanityFilterBinding.greaterThanRadioButton.isChecked = false
+                storageQuanityFilterBinding.greaterThanEditText.setText("")
+                storageQuanityFilterBinding.greaterThanEditText.isEnabled = false
+
+                storageQuanityFilterBinding.lessThanRadioButton.isChecked = false
+                storageQuanityFilterBinding.lessThanEditText.setText("")
+                storageQuanityFilterBinding.lessThanEditText.isEnabled = false
+
+
+                storageQuanityFilterBinding.betweenFromInput.isEnabled = true
+                storageQuanityFilterBinding.betweenToInput.isEnabled = true
+                storageQuanityFilterBinding.betweenFromInput.requestFocus()
+
+                showSoftKeyboard(storageQuanityFilterBinding.betweenFromInput)
+
+
+            }
+        }
+    }
+    private fun showSoftKeyboard(view: View){
+        val inputMethodManager = activity?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
+        inputMethodManager.toggleSoftInputFromWindow(
+            view.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0
+        )
+    }
+    private fun hideKeyboard() {
+
+        activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+
+
+    }
     fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
 
         // The system "short" animation time duration, in milliseconds. This
@@ -852,11 +1119,17 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         }
     }
-    fun openStorageActivity(storageEntity: StorageEntity){
+    fun openStorageActivity(storageEntityWithStorageItemInformation: StorageEntityWithStorageItemInformation){
+
+        val storageEntity = storageEntityWithStorageItemInformation.storageEntity
+        val storageItemName = storageEntityWithStorageItemInformation.storageItemName
+        val storageItemUnit = storageEntityWithStorageItemInformation.storageItemUnit
 
         val storageActivity = Intent(requireContext(), StorageActivity::class.java)
         storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG, storageEntity.name)
         storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG, storageEntity)
+        storageActivity.putExtra(StorageActivity.STORAGE_ITEM_NAME_TAG, storageItemName)
+        storageActivity.putExtra(StorageActivity.STORAGE_ITEM_UNIT_TAG, storageItemUnit)
         requireActivity().startActivity(storageActivity)
     }
 
@@ -1106,6 +1379,7 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
         holder.storageItemLayoutBinding.storageItemWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStorages
         holder.storageItemLayoutBinding.executePendingBindings()
         holder.setChipClickListener()
+        holder.setImageViewClickListener()
 
     }
 
@@ -1119,21 +1393,33 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
 
 
 
+
         }
 
         fun setChipClickListener(){
             val flexboxChildCount = storageItemLayoutBinding.storageFlexboxLayout.childCount
             repeat(flexboxChildCount){ index->
-                Log.e("child", "child")
                 val child = storageItemLayoutBinding.storageFlexboxLayout.getChildAt(index)
                 if(child is Chip){
                     child.setOnClickListener(this)
                 }
             }
         }
+        fun setImageViewClickListener(){
+            storageItemLayoutBinding.storageImageView.setOnClickListener {
+                val storageItemEntity = mStorageEntitiesWithExpirationsAndStorages[adapterPosition].storageItemEntity
+
+                val imageUri = StorageUtil.getStorageItemImageUriFromPath(it.context, storageItemEntity.imageName)
+                storageFragment.zoomImageFromThumb(it, imageUri!!)
+
+            }
+        }
 
         override fun onClick(view: View?) {
-            storageFragment.openStorageActivity(view!!.tag as StorageEntity)
+
+            val storageEntityWithStorageItemInformation = view!!.tag as StorageEntityWithStorageItemInformation
+
+            storageFragment.openStorageActivity(storageEntityWithStorageItemInformation)
 
         }
 

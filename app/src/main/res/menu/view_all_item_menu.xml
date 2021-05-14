@@ -32,13 +32,10 @@
                     android:title="No filter"
                     android:checked="true"
                     />
-                <item
-                    android:id="@+id/stockWeightMenu"
-                    android:title="Stock weight"
-                    />
+
                 <item
                     android:id="@+id/stockMenu"
-                    android:title="Stock"
+                    android:title="Stock quantity"
                     />
                 <item
                     android:id="@+id/lastUpdateMenu"
