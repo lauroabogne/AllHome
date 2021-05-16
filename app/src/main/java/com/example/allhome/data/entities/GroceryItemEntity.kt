@@ -2,6 +2,8 @@ package com.example.allhome.data.entities
 
 import android.graphics.Color
 import android.net.Uri
+import android.os.Parcel
+import android.os.Parcelable
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -11,8 +13,10 @@ import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
+import kotlinx.android.parcel.Parcelize
 import java.util.*
 
+@Parcelize
 @Entity(tableName = "grocery_items")
  data class GroceryItemEntity constructor (
     @ColumnInfo(name = "grocery_list_unique_id") var groceryListUniqueId:String,
@@ -28,7 +32,7 @@ import java.util.*
     @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int = 0,
     @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String = "",
     @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String = ""
-     ){
+     ):Parcelable{
     @PrimaryKey(autoGenerate = true) var id:Int  = 0
     @Ignore
     var index:Int = 0

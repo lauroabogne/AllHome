@@ -3,12 +3,9 @@ package com.example.allhome.grocerylist
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
-import android.util.Log
 import android.view.*
 import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
@@ -21,13 +18,12 @@ import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.data.entities.GroceryListEntityValues
 import com.example.allhome.databinding.GroceryListProductBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
-import kotlinx.coroutines.CoroutineScope
+import com.example.allhome.storage.StorageFragment
+import com.example.allhome.storage.StorageStorageListActivity
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -125,12 +121,33 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
             if(id == R.id.grocery_item_name_textview || id == R.id.other_information_textview){
                 if (groceryItemEntity.bought == 1) {
                     // do nothing
+                    val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
+                    popupMenu.menuInflater.inflate(R.menu.add_to_storage_menu, popupMenu.menu)
+                    popupMenu.setOnMenuItemClickListener(object: PopupMenu.OnMenuItemClickListener{
+                        override fun onMenuItemClick(item: MenuItem?): Boolean {
+                            popupMenu.dismiss()
+
+                            when (item!!.itemId) {
+                                R.id.addToStorageMenu->{
+                                    val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
+                                    storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION)
+                                    storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ITEM_ENTITY_TAG, groceryItemEntity)
+                                    context.startActivity(storageStorageListActiviy)
+                                }
+                            }
+                           return true
+                        }
+
+                    })
+                    popupMenu.show()
                     return;
+                }else{
+                    val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
+                    popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
+                    popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition))
+                    popupMenu.show()
                 }
-                val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
-                popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
-                popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition))
-                popupMenu.show()
+
 
             }
 

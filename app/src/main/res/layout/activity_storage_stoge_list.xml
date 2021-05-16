@@ -6,6 +6,6 @@
     android:id="@+id/homeFragmentContainer"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".storage.StorageStogeListActivity">
+    tools:context=".storage.StorageStorageListActivity">
 
 </FrameLayout>

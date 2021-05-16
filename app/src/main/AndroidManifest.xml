@@ -20,7 +20,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome"
         >
-        <activity android:name=".storage.StorageStogeListActivity"></activity>
+        <activity android:name=".storage.StorageStorageListActivity"></activity>
         <activity android:name=".storage.StorageGroceryListActivity" />
         <activity android:name=".storage.CreateStorageActivity" />
         <activity android:name=".storage.StorageActivity" />

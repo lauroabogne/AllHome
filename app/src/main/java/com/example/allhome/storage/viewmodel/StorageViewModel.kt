@@ -389,14 +389,14 @@ class StorageViewModel: ViewModel() {
 
         storageEntities.forEach {
 
-            val storageItemCount = storageItemDAO.getStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
-            val noStockItemCount = storageItemDAO.getNoStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
-            val lowStockItemCount = storageItemDAO.getLowStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
-            val highStockItemCount = storageItemDAO.getHighStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.name)
-            val soonToExpireInDayString = storageItemDAO.getItemThatExpireSoon(it.name,currentDate)
+            val storageItemCount = storageItemDAO.getStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.uniqueId)
+            val noStockItemCount = storageItemDAO.getNoStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.uniqueId)
+            val lowStockItemCount = storageItemDAO.getLowStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.uniqueId)
+            val highStockItemCount = storageItemDAO.getHighStockStorageItemCount(StorageItemEntityValues.NOT_DELETED_STATUS,it.uniqueId)
+            val soonToExpireInDayString = storageItemDAO.getItemThatExpireSoon(it.uniqueId,currentDate)
             val itemSoonToExpireInDays = if(soonToExpireInDayString == null) 0 else soonToExpireInDayString.toInt()
 
-            val expiredItemCount = storageItemDAO.getItemCountThatExpired(it.name,currentDate)
+            val expiredItemCount = storageItemDAO.getItemCountThatExpired(it.uniqueId,currentDate)
 
             val storageEntityWithExtraInformation = StorageEntityWithExtraInformation(
                 storageEntity = it,
@@ -455,17 +455,26 @@ class StorageViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorage(name,unit,storage)
 
     }
+    suspend fun getSingleItemByNameAndUnitAndStorageUniqueId(context:Context, name:String, unit:String, storageUniqueId:String):StorageItemEntity?{
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorageUniqueId(name,unit,storageUniqueId)
+
+    }
     suspend fun saveStorageItemEntity(context: Context, storageItemEntity: StorageItemEntity):Long{
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().addItem(storageItemEntity)
     }
     suspend fun updateStorageItemEntity(context: Context, storageItemEntity: StorageItemEntity):Int{
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().update(storageItemEntity)
     }
+
     suspend fun saveStorageItemExpirationEntity(context: Context, storageItemExpirationEntity: StorageItemExpirationEntity):Long{
         return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().addItem(storageItemExpirationEntity)
     }
     suspend fun getStorageItemsExpiratinsByStorageUniquedIdItemNameAndCreated(context:Context, storageUniqueId:String, itemName:String, dateModified:String):List<StorageItemExpirationEntity>{
        return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpiratinsByStorageUniquedIdItemNameAndCreated(storageUniqueId,itemName,dateModified)
+    }
+    suspend fun getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(context:Context, storageUniqueId:String, itemUniqueId:String, dateModified:String):List<StorageItemExpirationEntity>{
+       return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(storageUniqueId,itemUniqueId,dateModified)
     }
     suspend fun updateStorageAsDeleted(context:Context,storageUniqueId:String,currentDateTime:String):Int{
        return AllHomeDatabase.getDatabase(context).getStorageDAO().updateStorageAsDeleted(storageUniqueId,currentDateTime,StorageEntityValues.DELETED_STATUS)

@@ -1074,8 +1074,9 @@ interface OnItemRemovedListener{
 
 
                 val storageItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion]
-                val storageStorageListActiviy = Intent(context, StorageStogeListActivity::class.java)
+                val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
 
+                storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_TRASFERING_ITEM_ACTION)
                 storageStorageListActiviy.putExtra(StorageFragment.STORAGE_ITEM_ENTITY_TAG, storageItemEntity)
                 storageStorageListActiviy.putExtra(StorageFragment.STORAGE_ENTITY_TAG, storageActivity.mStorageEntity)
 
