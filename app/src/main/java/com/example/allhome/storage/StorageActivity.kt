@@ -103,16 +103,23 @@ class StorageActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
         mStorageEntity  = intent.getParcelableExtra(STORAGE_EXTRA_TAG)!!
-        title = mStorageEntity.name
+
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
         mActivityPantryStorageBinding = DataBindingUtil.setContentView(this, R.layout.activity_storage)
         mActivityPantryStorageBinding.lifecycleOwner = this
         mActivityPantryStorageBinding.pantryStorageViewModel = mStorageViewModel
+        mActivityPantryStorageBinding.storageEntity = mStorageEntity
 
+
+        mActivityPantryStorageBinding.customToolbar.setTitle( mStorageEntity.name)
+        // customCollapsingToolbarLayout.title = "Collapsing Toolbar"
+        setSupportActionBar(mActivityPantryStorageBinding.customToolbar).apply {
+            getSupportActionBar()?.setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar()?.setDisplayShowHomeEnabled(true);
+        }
 
         val itemName = intent.getStringExtra(STORAGE_ITEM_NAME_TAG)
         val itemUnit = intent.getStringExtra(STORAGE_ITEM_UNIT_TAG)

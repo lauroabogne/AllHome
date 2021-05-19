@@ -23,7 +23,8 @@
         <activity android:name=".storage.StorageStorageListActivity"></activity>
         <activity android:name=".storage.StorageGroceryListActivity" />
         <activity android:name=".storage.CreateStorageActivity" />
-        <activity android:name=".storage.StorageActivity" />
+        <activity android:name=".storage.StorageActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar"/>
         <activity android:name=".storage.StorageAddItemActivity" />
         <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity" />
 

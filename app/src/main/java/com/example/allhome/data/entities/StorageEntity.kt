@@ -85,6 +85,20 @@ fun setImageStorageImage(view: View,imageName:String){
 
 }
 
+@BindingAdapter("android:setCollapseImageStorageImage")
+fun setCollapseImageStorageImage(view: View,imageName:String){
+
+    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
+
+    uri?.apply {
+        (view as ImageView).setImageURI(uri)
+        view.visibility = View.VISIBLE
+    }?:run {
+        view.visibility = View.GONE
+    }
+
+}
+
 @BindingAdapter("android:setSoonToExpireItemText")
 fun setSoonToExpireItemText(view: TextView, itemToExpireInDays:Int){
     if(itemToExpireInDays <=0 || itemToExpireInDays >31){
