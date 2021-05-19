@@ -15,7 +15,7 @@ interface StorageItemExpirationDAO {
 
     @Query("SELECT * FROM storage_item_expirations " +
             " WHERE created IN( " +
-            " SELECT modified FROM storage_items WHERE name =:storageItemname AND unit=:unit)" +
+            " SELECT modified FROM storage_items WHERE name =:storageItemname AND unit=:unit AND item_status = 0)" +
             "  ORDER BY expiration_date ASC")
     suspend fun getStorageItemsExpirationByStorage(storageItemname:String,unit:String):List<StorageItemExpirationEntity>
 

@@ -806,6 +806,9 @@ class StorageActivity : AppCompatActivity() {
         // Load the high-resolution "zoomed-in" image.
         val expandedImageView: ImageView = findViewById(R.id.expanded_image)
         expandedImageView.setImageURI(imageUri)
+        expandedImageView.visibility = View.VISIBLE
+
+
 
         // Calculate the starting and ending bounds for the zoomed-in image.
         // This step involves lots of math. Yay, math.
@@ -825,6 +828,9 @@ class StorageActivity : AppCompatActivity() {
 
         val startBounds = RectF(startBoundsInt)
         val finalBounds = RectF(finalBoundsInt)
+
+        Log.e("DATA 1",startBounds.toString())
+        Log.e("DATA 2",finalBounds.toString())
 
         // Adjust the start bounds to be the same aspect ratio as the final
         // bounds using the "center crop" technique. This prevents undesirable
@@ -846,6 +852,8 @@ class StorageActivity : AppCompatActivity() {
             startBounds.top -= deltaHeight.toInt()
             startBounds.bottom += deltaHeight.toInt()
         }
+
+
 
         // Hide the thumbnail and show the zoomed-in view. When the animation
         // begins, it will position the zoomed-in view in the place of the
@@ -909,13 +917,13 @@ class StorageActivity : AppCompatActivity() {
 
                     override fun onAnimationEnd(animation: Animator) {
                         thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
+                        expandedImageView.visibility = View.INVISIBLE
                         currentAnimator = null
                     }
 
                     override fun onAnimationCancel(animation: Animator) {
                         thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
+                        expandedImageView.visibility = View.INVISIBLE
                         currentAnimator = null
                     }
                 })
