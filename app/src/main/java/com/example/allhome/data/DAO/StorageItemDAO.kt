@@ -3,6 +3,7 @@ package com.example.allhome.data.DAO
 import android.database.Cursor
 import androidx.room.*
 import com.example.allhome.data.entities.GroceryItemEntity
+import com.example.allhome.data.entities.StorageItemAutoSuggest
 import com.example.allhome.data.entities.StorageItemEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
 
@@ -207,6 +208,15 @@ interface StorageItemDAO {
             " GROUP BY name,unit " +
             " ORDER BY name")
     suspend fun getAllItemFilterByExpiredItems(itemNameSearchTerm:String,currentDate:String):List<StorageItemEntity>
+
+    @Query("SELECT *" +
+            "FROM (" +
+            " SELECT item_name as itemName,unit,category,image_name as imageName ,'0' as existInStorage FROM grocery_items GROUP BY item_name,unit " +
+            " UNION ALL" +
+            " SELECT name as itemName ,unit,category,image_name as imageName,'1' as existInStorage FROM storage_items WHERE item_status = 0 GROUP BY name,unit" +
+            " )" +
+            " WHERE itemName LIKE '%'||:itemNameSearchTerm||'%' GROUP BY itemName,unit ORDER BY itemName")
+    suspend fun getStorageAndGroceryItemForAutosuggest(itemNameSearchTerm:String):List<StorageItemAutoSuggest>
 
 
     data class SimpleGroceryLisItem(val itemName:String,val unit:String)

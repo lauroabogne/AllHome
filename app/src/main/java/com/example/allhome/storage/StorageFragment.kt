@@ -219,6 +219,19 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
                 displayItemForUpdating(it)
             }
+        }else{
+
+             if((mAction == STORAGE_TRASFERING_ITEM_ACTION && mViewing == VIEW_BY_STORAGE)
+                 || (mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION && mViewing == VIEW_BY_STORAGE)
+                 || (mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_BY_STORAGE)){
+
+
+                getItemViewByStorage()
+
+            }else if(mAction == STORAGE_VIEWING_ACTION && mViewing == VIEW_PER_PRODUCT){
+
+                getItemViewByItem("")
+            }
         }
 
     }
@@ -1321,7 +1334,7 @@ class StorageViewAdapter(val storageFragment: StorageFragment): RecyclerView.Ada
                     val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG, storageEntity.name)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG, storageEntity)
-                    storageFragment.requireActivity().startActivity(storageActivity)
+                    storageFragment.startActivityForResult(storageActivity,1989)
                 }
 
                 R.id.moreActionImageView -> {

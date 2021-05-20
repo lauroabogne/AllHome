@@ -66,6 +66,19 @@ data class StorageItemWithExpirationsAndStorages(
     var expirations:List<StorageItemExpirationEntity> = arrayListOf(),
     var storages:List<StorageEntityWithStorageItemInformation> = arrayListOf(),
 ):Parcelable
+@Parcelize
+data class StorageItemAutoSuggest(
+    var itemName:String,
+    var unit:String,
+    var category:String,
+    var imageName:String,
+    var existInStorage:Int = NOT_EXISTS_IN_STORAGE
+):Parcelable{
+    companion object {
+        const val NOT_EXISTS_IN_STORAGE = 0
+        const val EXISTS_IN_STORAGE = 1
+    }
+}
 
 class StorageItemEntityValues{
     companion object{
@@ -82,6 +95,8 @@ class StorageItemEntityValues{
         const val HIGH_STOCK_STRING = "High"
         const val DELETED_STATUS = 1
         const val NOT_DELETED_STATUS = 0
+
+
 
 
     }
@@ -188,7 +203,12 @@ fun addStorages(flexboxLayout: FlexboxLayout,storageItemWithExpirationsAndStorag
         //val chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.custom_chip_layout,null,false) as TextView
         val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
 
-        chip.setText(it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")")
+        if(it.storageItemQuantity > StorageItemEntityValues.NO_QUANTITY_INPUT){
+            chip.setText(it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")")
+        }else{
+            chip.setText(it.storageEntity.name)
+        }
+
         chip.setTag(it)
         flexboxLayout.addView(chip)
         val divider = TextView(flexboxLayout.context)

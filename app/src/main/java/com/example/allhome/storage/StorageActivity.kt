@@ -704,6 +704,7 @@ class StorageActivity : AppCompatActivity() {
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
 
 
+
                 val newIndexOfItem = pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations.indexOfFirst {
                     it.storageItemEntity.uniqueId == storageItemUniqueId
                 }
@@ -716,10 +717,12 @@ class StorageActivity : AppCompatActivity() {
                         pantryStorageRecyclerviewViewAdapater.notifyItemRemoved(currentIndexOfItem)
                         return@withContext
                     }
-                }else if(itemChangeType == ADDED_NEW_ELEMENT && newIndexOfItem < 0){
+                }else if(itemChangeType == ADDED_NEW_ELEMENT && newIndexOfItem >= 0){
+                    pantryStorageRecyclerviewViewAdapater.notifyItemInserted(newIndexOfItem)
+                }
+                else if(itemChangeType == ADDED_NEW_ELEMENT && newIndexOfItem < 0){
                     return@withContext
                 }
-
                 Handler(Looper.getMainLooper()).postDelayed(
                     {
 
@@ -750,6 +753,7 @@ class StorageActivity : AppCompatActivity() {
                 if (itemChangeType == UPDATED_NEW_ELEMENT) {
                     mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter?.notifyItemChanged(indexOfNewItem)
                 }
+
             }
 
             override fun onAnimationRepeat(animation: Animation?) {

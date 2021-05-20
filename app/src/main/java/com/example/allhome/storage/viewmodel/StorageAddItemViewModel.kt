@@ -4,7 +4,9 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.entities.StorageItemAutoSuggest
 import com.example.allhome.data.entities.StorageItemEntity
+import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemExpirationEntity
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
@@ -51,4 +53,36 @@ class StorageAddItemViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItem(name,quantity,unit,category,stockWeight,storage,notes,imageName,modifiedDatetime,uniqueId)
     }
 
+    suspend fun getStorageAndGroceryItemForAutosuggest(context:Context,itemNameSearchTerm:String,storageUniqueId:String):List<StorageItemAutoSuggest>{
+        val storageItemAutoSuggests = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageAndGroceryItemForAutosuggest(itemNameSearchTerm)
+
+        storageItemAutoSuggests.forEach {storageItemAutoSuggest->
+
+            val storageItemEntity = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorageUniqueId(storageItemAutoSuggest.itemName,storageItemAutoSuggest.unit,storageUniqueId)
+            storageItemEntity?.let{
+                storageItemAutoSuggest.existInStorage = StorageItemAutoSuggest.EXISTS_IN_STORAGE
+            }?:run{
+                storageItemAutoSuggest.existInStorage = StorageItemAutoSuggest.NOT_EXISTS_IN_STORAGE
+            }
+        }
+        return storageItemAutoSuggests
+    }
+
+
+    suspend fun doStoragetItemExistsInStorage(context:Context,storagetItemName:String,unit:String,storageUniqueId:String):Boolean{
+        val storageItemEntity = AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorageUniqueId(storagetItemName,unit,storageUniqueId)
+
+        return storageItemEntity != null
+    }
+
+    suspend fun getItemByNameAndUnitAndStorageUniqueId(context:Context,storagetItemName:String,unit:String,storageUniqueId:String):StorageItemEntity?{
+       return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorageUniqueId(storagetItemName,unit,storageUniqueId)
+    }
+    suspend fun getStorageItemExpirations(context:Context,storageItemName:String,dateModified:String):List<StorageItemExpirationEntity>{
+        return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(storageItemName,dateModified)
+    }
+
+    suspend fun updateItemAsDeleted(context: Context, currentDatetime:String, storageItemEntity:StorageItemEntity):Int{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemAsDeleted(StorageItemEntityValues.DELETED_STATUS,currentDatetime,storageItemEntity.uniqueId)
+    }
 }

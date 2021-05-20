@@ -1,45 +1,51 @@
 package com.example.allhome.storage
 
 import android.app.Activity
+import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
+import android.graphics.Color
 import android.graphics.ImageDecoder
+import android.graphics.Paint
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.*
-import android.widget.Toast
+import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
+import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
-import com.example.allhome.data.entities.StorageEntity
-import com.example.allhome.data.entities.StorageItemEntity
-import com.example.allhome.data.entities.StorageItemEntityValues
-import com.example.allhome.data.entities.StorageItemExpirationEntity
+import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityStorageAddItemBinding
 import com.example.allhome.databinding.StorageExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 class StorageAddItemActivity : AppCompatActivity() {
     internal lateinit var mStorageAddItemViewModel: StorageAddItemViewModel
@@ -57,9 +63,12 @@ class StorageAddItemActivity : AppCompatActivity() {
         val STORAGE_NAME_TAG = "STORAGE_NAME_TAG"
         val STORAGE_TAG = "STORAGE_TAG"
         val ACTION_TAG = "ACTION_TAG"
+        val COMMAND_TAG = "COMMAND_TAG"
         val ADD_NEW_RECORD_ACTION = 1
         val UPDATE_RECORD_ACTION = 2
         val REQUEST_PICK_IMAGE = 4
+
+        val REPLACE_ITEM_COMMAND = 1
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,6 +134,30 @@ class StorageAddItemActivity : AppCompatActivity() {
             showIntentChooser()
         }
 
+        val storageItemAutoSuggestCustomAdapter = StorageItemAutoSuggestCustomAdapter(this, arrayListOf())
+        mActivityPantryAddItemBinding.storageItemTextinput.threshold = 0
+        mActivityPantryAddItemBinding.storageItemTextinput.setAdapter(storageItemAutoSuggestCustomAdapter)
+
+
+        mActivityPantryAddItemBinding.storageItemTextinput.onItemClickListener =  AdapterView.OnItemClickListener{ parent, view, position, id ->
+            val storageItemAutoSuggest = parent.getItemAtPosition(position) as StorageItemAutoSuggest
+
+            if(storageItemAutoSuggest.existInStorage == StorageItemAutoSuggest.EXISTS_IN_STORAGE){
+                mActivityPantryAddItemBinding.storageItemTextinput.setText("")
+
+                val alertDialog =  MaterialAlertDialogBuilder(this)
+                    .setMessage(storageItemAutoSuggest.itemName+" already exists in this storage. Please just update the item.")
+                    .setNegativeButton("Close", null)
+                    .setCancelable(false)
+                    .create()
+                alertDialog.show()
+
+            }else{
+                mActivityPantryAddItemBinding.storageItemUnitTextinput.setText(storageItemAutoSuggest.unit)
+                mActivityPantryAddItemBinding.categoryItemTextinput.setText(storageItemAutoSuggest.category)
+            }
+
+        }
 
     }
 
@@ -149,7 +182,7 @@ class StorageAddItemActivity : AppCompatActivity() {
                 finish()
             }
             R.id.save_pantry_item_menu -> {
-                saveNewRecord()
+                checkData()
             }
             R.id.update_pantry_item_menu -> {
                 updateRecord()
@@ -189,10 +222,10 @@ class StorageAddItemActivity : AppCompatActivity() {
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(this)
     }
-    fun saveNewRecord(){
-        val storageItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
+    private fun checkData(){
+        val storageItem = mActivityPantryAddItemBinding.storageItemTextinput.text.toString().trim()
         val storageItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
-        val storageItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
+        val storageItemUnit = mActivityPantryAddItemBinding.storageItemUnitTextinput.text.toString().trim()
         val storageItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
         val storageItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
         val storageCategory = mActivityPantryAddItemBinding.categoryItemTextinput.text.toString().trim()
@@ -201,21 +234,19 @@ class StorageAddItemActivity : AppCompatActivity() {
         val quantityIntValue = if (storageItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else storageItemQuantity.toDouble()
 
         if(storageItem.length <=0){
-            Toast.makeText(this, "Please provide pantry item name", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Please provide item name", Toast.LENGTH_SHORT).show()
             return
         }
+
+
 
 
         var itemUniqueID = UUID.randomUUID().toString()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
-
         val imageName =itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
 
-
-
-
-        val pantryItemEntity = StorageItemEntity(
+        val storageItemEntity = StorageItemEntity(
             uniqueId = itemUniqueID,
             storageUniqueId = mStorageEntity!!.uniqueId,
             name = storageItem,
@@ -230,20 +261,37 @@ class StorageAddItemActivity : AppCompatActivity() {
             created = currentDatetime,
             modified = currentDatetime
         )
+        val doRecordExists = doRecordExists(storageItem,storageItemUnit)
+        if(doRecordExists){
+            val alertDialog =  MaterialAlertDialogBuilder(this)
+                .setMessage(storageItem+" already exists in this storage. Please just update the item.")
+                .setNegativeButton("Close", null)
+                .setCancelable(false)
+                .create()
+            alertDialog.show()
+
+            return
+        }
+
+        saveNewData(storageItemEntity)
 
 
 
+
+    }
+
+    private fun saveNewData(storageItemEntity:StorageItemEntity){
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity);
 
             try{
                 mStorageAddItemViewModel.newImageUri?.let {
-                    saveImage(it, imageName)
+                    saveImage(it, storageItemEntity.imageName)
                 }
 
                 allHomeDatabase.withTransaction {
-                    val storageItemId = mStorageAddItemViewModel.saveStorageItemEntity(this@StorageAddItemActivity, pantryItemEntity)
+                    val storageItemId = mStorageAddItemViewModel.saveStorageItemEntity(this@StorageAddItemActivity, storageItemEntity)
 
                     if(storageItemId <= 0){
                         throw Exception("Failed to save")
@@ -252,12 +300,12 @@ class StorageAddItemActivity : AppCompatActivity() {
                         val storageItemExpirationUniqueID = UUID.randomUUID().toString()
 
                         storageItemExpirationEntity.uniqueId = storageItemExpirationUniqueID
-                        storageItemExpirationEntity.storageItemUniqueId = itemUniqueID
-                        storageItemExpirationEntity.created = currentDatetime
+                        storageItemExpirationEntity.storageItemUniqueId = storageItemEntity.uniqueId
+                        storageItemExpirationEntity.created = storageItemEntity.created
                         storageItemExpirationEntity.storage = mStorageName!!
-                        storageItemExpirationEntity.storageItemName = pantryItemEntity.name
-                        storageItemExpirationEntity.created = currentDatetime
-                        storageItemExpirationEntity.modified = currentDatetime
+                        storageItemExpirationEntity.storageItemName = storageItemEntity.name
+                        storageItemExpirationEntity.created = storageItemEntity.created
+                        storageItemExpirationEntity.modified = storageItemEntity.created
 
                         val storageItemExpirationId = mStorageAddItemViewModel.saveStorageItemExpirationEntity(this@StorageAddItemActivity, storageItemExpirationEntity)
 
@@ -275,7 +323,7 @@ class StorageAddItemActivity : AppCompatActivity() {
                 if(savedSuccessfully){
 
                     val resultIntent = Intent()
-                    resultIntent.putExtra(StorageActivity.STORAGE_ITEM_UNIQUE_ID_TAG,itemUniqueID)
+                    resultIntent.putExtra(StorageActivity.STORAGE_ITEM_UNIQUE_ID_TAG,storageItemEntity.uniqueId)
                     setResult(RESULT_OK,resultIntent)
                     finish()
 
@@ -285,10 +333,11 @@ class StorageAddItemActivity : AppCompatActivity() {
             }
         }
     }
-    fun updateRecord(){
-        val storageItem = mActivityPantryAddItemBinding.pantryItemTextinput.text.toString().trim()
+
+    private fun updateRecord(){
+        val storageItem = mActivityPantryAddItemBinding.storageItemTextinput.text.toString().trim()
         val storageItemQuantity = mActivityPantryAddItemBinding.pantryItemQuantityTextinput.text.toString().trim()
-        val storageItemUnit = mActivityPantryAddItemBinding.pantryItemUnitTextinput.text.toString().trim()
+        val storageItemUnit = mActivityPantryAddItemBinding.storageItemUnitTextinput.text.toString().trim()
         val storageItemStockWeightCheckedId = mActivityPantryAddItemBinding.pantryItemStockWeightRadiogroup.checkedRadioButtonId
         val storageItemNotes = mActivityPantryAddItemBinding.pantryItemNotesTextinput.text.toString().trim()
         val storageItemCategory = mActivityPantryAddItemBinding.categoryItemTextinput.text.toString().trim()
@@ -369,13 +418,18 @@ class StorageAddItemActivity : AppCompatActivity() {
             }
         }
     }
-    fun imageName(storageItemName: String):String?{
+    private fun doRecordExists(storageItemName:String,unit:String):Boolean{
+       return runBlocking {
+                mStorageAddItemViewModel.doStoragetItemExistsInStorage(this@StorageAddItemActivity,storageItemName,unit,mStorageEntity!!.uniqueId)
+        }
+    }
+    private fun imageName(storageItemName: String):String?{
 
         var itemUniqueID = UUID.randomUUID().toString()
         return itemUniqueID+"_"+storageItemName+"."+StorageUtil.IMAGE_NAME_SUFFIX
 
     }
-    fun showIntentChooser(){
+    private fun showIntentChooser(){
         // Determine Uri of camera image to save.
 
         // create temporary file
@@ -521,6 +575,86 @@ class StorageAddItemActivity : AppCompatActivity() {
         val datePickerDialog = DatePickerDialog(this, dateSetListener, year, month, day)
         datePickerDialog.show()
 
+    }
+}
+
+/**
+ * Item  auto suggest adapter
+ */
+class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUnitsParams: List<StorageItemAutoSuggest>): ArrayAdapter<StorageItemAutoSuggest>(context, 0, storageItemEntityUnitsParams) {
+    private var storageItemAutoSuggests: List<StorageItemAutoSuggest>? = null
+    private var storageAddItemActivity = context as StorageAddItemActivity
+    init{
+        storageItemAutoSuggests = ArrayList(storageItemEntityUnitsParams)
+    }
+
+    private var filter  = object: Filter(){
+        private var searchJob: Job? = null
+
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            searchJob?.cancel()
+            val suggestion =  runBlocking {
+                val results = FilterResults()
+                searchJob = launch(IO) {
+                    val searchTerm = if(constraint == null) "" else constraint.toString()
+                    val storageUniqueId = storageAddItemActivity.mStorageEntity?.uniqueId
+                    val arrayList =  storageAddItemActivity.mStorageAddItemViewModel.getStorageAndGroceryItemForAutosuggest(storageAddItemActivity,searchTerm,storageUniqueId!!)
+                    results.apply {
+                        results.values = arrayList
+                        results.count = arrayList.size
+                    }
+                }
+
+                results
+
+
+            }
+            return suggestion
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            if(results?.values == null){
+                return
+            }
+            clear()
+            val res:List<StorageItemAutoSuggest> = results?.values as ArrayList<StorageItemAutoSuggest>
+            addAll(res)
+        }
+        override fun convertResultToString(resultValue: Any?): CharSequence {
+            return (resultValue as StorageItemAutoSuggest).itemName
+        }
+    }
+    override fun getFilter(): Filter {
+        return filter
+    }
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        var textView: TextView? = null
+        if(convertView == null){
+            textView = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false) as TextView?
+        }else{
+            textView = convertView as TextView?
+        }
+        val storageItemAutoSuggest = getItem(position)
+
+        textView?.let{
+            if(storageItemAutoSuggest!!.existInStorage  == StorageItemAutoSuggest.EXISTS_IN_STORAGE){
+                it.setPaintFlags(it.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+                it.setTextColor(Color.GRAY)
+
+            }else{
+                it.setPaintFlags(0)
+                it.setTextColor(Color.parseColor("#000000"))
+            }
+
+            if(storageItemAutoSuggest.unit.trim().isNotEmpty()){
+                it.setText(storageItemAutoSuggest.itemName+" (${storageItemAutoSuggest.unit})")
+            }else{
+                it.setText(storageItemAutoSuggest.itemName)
+            }
+
+        }
+
+        return textView!!
     }
 }
 
