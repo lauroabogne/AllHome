@@ -484,5 +484,9 @@ class StorageViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
 
     }
+    suspend fun getBoughtGroceryListItems(context:Context,groceryListUniqueId:String): List<GroceryItemEntity>{
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().getBoughtGroceryListItems(groceryListUniqueId)
+
+    }
 
 }

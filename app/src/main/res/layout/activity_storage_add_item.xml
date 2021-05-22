@@ -93,7 +93,7 @@
                 android:layout_weight="3">
 
                 <AutoCompleteTextView
-                    android:id="@+id/storage_item_unit_textinput"
+                    android:id="@+id/storageItemUnitTextinput"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:dropDownHeight="wrap_content"
@@ -116,11 +116,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/linearLayout2">
 
-            <com.google.android.material.textfield.TextInputEditText
+
+            <AutoCompleteTextView
                 android:id="@+id/categoryItemTextinput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:dropDownHeight="wrap_content"
                 android:hint="Category"
+                android:paddingLeft="10dp"
+                android:paddingTop="14dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="14dp"
+                android:singleLine="true"
                 android:text="@{pantryAddItemViewModel.storageItemEntity.category}" />
         </com.google.android.material.textfield.TextInputLayout>
 

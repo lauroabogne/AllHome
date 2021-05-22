@@ -24,6 +24,8 @@ import com.example.allhome.data.entities.GroceryListWithItemCount
 import com.example.allhome.databinding.FragmentGroceryListBinding
 import com.example.allhome.databinding.GroceryListItemBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListFragmentViewModel
+import com.example.allhome.storage.StorageFragment
+import com.example.allhome.storage.StorageStorageListActivity
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -61,17 +63,17 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         }
 
         val groceryListRecyclerViewAdapter = GroceryListRecyclerViewAdapter(this, mGroceryListFragmentViewModel)
-
         mDataBindingUtil.groceryListRecyclerview.adapter = groceryListRecyclerViewAdapter
 
-        mGroceryListFragmentViewModel.coroutineScope.launch {
+        loadItem()
+       /* mGroceryListFragmentViewModel.coroutineScope.launch {
                 mGroceryListFragmentViewModel.getGroceryLists(requireContext())
                 withContext(Main) {
                     groceryListRecyclerViewAdapter.mGroceryListWithItemCount = mGroceryListFragmentViewModel.groceryLists
                     groceryListRecyclerViewAdapter.notifyDataSetChanged()
                 }
 
-        }
+        }*/
 
         mDataBindingUtil.groceryListRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
@@ -94,9 +96,24 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         mDataBindingUtil.fab.setOnClickListener{
             showGroceryListNameInput()
         }
+        mDataBindingUtil.swipeRefresh.setOnRefreshListener {
+            loadItem()
+            mDataBindingUtil.swipeRefresh.isRefreshing = false
+        }
         return mDataBindingUtil.root
     }
+    private fun loadItem(){
+        mGroceryListFragmentViewModel.coroutineScope.launch {
+            mGroceryListFragmentViewModel.getGroceryLists(requireContext())
+            withContext(Main) {
 
+                val adapter = mDataBindingUtil.groceryListRecyclerview.adapter as GroceryListRecyclerViewAdapter
+                adapter.mGroceryListWithItemCount = mGroceryListFragmentViewModel.groceryLists
+                adapter.notifyDataSetChanged()
+            }
+
+        }
+    }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         //super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.grocery_list_menu,menu)
@@ -432,7 +449,13 @@ class GroceryListRecyclerViewAdapter(val groceryListFragment: GroceryListFragmen
                                 }
 
                             }
+                        }
+                        R.id.add_to_storage_menu->{
 
+                            val storageStorageListActiviy = Intent(groceryListFragment.requireContext(), StorageStorageListActivity::class.java)
+                            storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG, StorageFragment.STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION)
+                            storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ENTITY_TAG, groceryListWithCount?.groceryListEntity)
+                            groceryListFragment.startActivity(storageStorageListActiviy)
                         }
                     }
                     true

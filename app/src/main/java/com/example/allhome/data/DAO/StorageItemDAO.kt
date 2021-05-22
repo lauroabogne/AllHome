@@ -217,7 +217,26 @@ interface StorageItemDAO {
             " )" +
             " WHERE itemName LIKE '%'||:itemNameSearchTerm||'%' GROUP BY itemName,unit ORDER BY itemName")
     suspend fun getStorageAndGroceryItemForAutosuggest(itemNameSearchTerm:String):List<StorageItemAutoSuggest>
+    @Query(" SELECT unit " +
+            " FROM ( " +
+            " SELECT unit FROM storage_items WHERE item_status = 0 " +
+            " UNION ALL " +
+            " SELECT unit FROM grocery_items WHERE item_status = 0 " +
+            " ) " +
+            " WHERE TRIM(unit) <> ''  AND unit LIKE '%'||:unitSearchTerm||'%'" +
+            " GROUP BY unit ORDER BY unit ")
+    suspend fun getStorageAndGroceryItemUnitForAutousuggest(unitSearchTerm:String):List<String>
 
+
+    @Query(" SELECT category " +
+            " FROM ( " +
+            " SELECT category FROM storage_items WHERE item_status = 0 " +
+            " UNION ALL " +
+            " SELECT category FROM grocery_items WHERE item_status = 0 " +
+            " ) " +
+            " WHERE TRIM(category) <> ''  AND category LIKE '%'||:categorySearchTerm||'%'" +
+            " GROUP BY category ORDER BY category ")
+    suspend fun getStorageAndGroceryItemCategoryForAutousuggest(categorySearchTerm:String):List<String>
 
     data class SimpleGroceryLisItem(val itemName:String,val unit:String)
 

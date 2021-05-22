@@ -123,15 +123,23 @@ class StorageActivity : AppCompatActivity() {
 
         val itemName = intent.getStringExtra(STORAGE_ITEM_NAME_TAG)
         val itemUnit = intent.getStringExtra(STORAGE_ITEM_UNIT_TAG)
-
+        mActivityPantryStorageBinding.swipeRefresh.isRefreshing = true
         if(itemName != null && itemUnit!=null){
             showSingleItem(itemName,itemUnit)
         }else{
             showAllItem()
         }
+        mActivityPantryStorageBinding.swipeRefresh.isRefreshing = false
 
 
-
+        mActivityPantryStorageBinding.swipeRefresh.setOnRefreshListener {
+            if(itemName != null && itemUnit!=null){
+                showSingleItem(itemName,itemUnit)
+            }else{
+                showAllItem()
+            }
+            mActivityPantryStorageBinding.swipeRefresh.isRefreshing = false
+        }
 
         mActivityPantryStorageBinding.fab.setOnClickListener {
 
@@ -774,6 +782,7 @@ class StorageActivity : AppCompatActivity() {
 
         }else{
 
+            mActivityPantryStorageBinding.appBar.setExpanded(false);
 
             mActivityPantryStorageBinding.pantryStorageRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 var found = false

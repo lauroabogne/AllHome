@@ -58,5 +58,6 @@ interface GroceryItemDAO {
     fun copy(oldGroceryListUniqueId:String,newGroceryListUniqueId:String)
     @Query("SELECT * from grocery_items WHERE item_name =:itemName AND unit =:unit AND grocery_list_unique_id =:groceryListUniqueId AND  item_status = 0 LIMIT 1")
     fun getItemByNameAndUnit(groceryListUniqueId:String,itemName:String,unit:String):GroceryItemEntity
-
+    @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status= 0 AND bought = 1")
+    fun getBoughtGroceryListItems(groceryListUniqueId:String): List<GroceryItemEntity>
 }

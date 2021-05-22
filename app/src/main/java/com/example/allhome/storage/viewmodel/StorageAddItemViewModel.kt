@@ -4,10 +4,7 @@ import android.content.Context
 import android.net.Uri
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
-import com.example.allhome.data.entities.StorageItemAutoSuggest
-import com.example.allhome.data.entities.StorageItemEntity
-import com.example.allhome.data.entities.StorageItemEntityValues
-import com.example.allhome.data.entities.StorageItemExpirationEntity
+import com.example.allhome.data.entities.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -75,14 +72,11 @@ class StorageAddItemViewModel: ViewModel() {
         return storageItemEntity != null
     }
 
-    suspend fun getItemByNameAndUnitAndStorageUniqueId(context:Context,storagetItemName:String,unit:String,storageUniqueId:String):StorageItemEntity?{
-       return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemByNameAndUnitAndStorageUniqueId(storagetItemName,unit,storageUniqueId)
+    suspend fun getStrorageAndGroceryItemUnitForAutousuggest(context:Context,unitSearchTerm:String):List<String>{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageAndGroceryItemUnitForAutousuggest(unitSearchTerm)
     }
-    suspend fun getStorageItemExpirations(context:Context,storageItemName:String,dateModified:String):List<StorageItemExpirationEntity>{
-        return AllHomeDatabase.getDatabase(context).getStorageItemExpirationDAO().getPantryItemsByStorage(storageItemName,dateModified)
+    suspend fun getStrorageAndGroceryItemCategoryForAutousuggest(context:Context,categorySearchTerm:String):List<String>{
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getStorageAndGroceryItemCategoryForAutousuggest(categorySearchTerm)
     }
 
-    suspend fun updateItemAsDeleted(context: Context, currentDatetime:String, storageItemEntity:StorageItemEntity):Int{
-        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemAsDeleted(StorageItemEntityValues.DELETED_STATUS,currentDatetime,storageItemEntity.uniqueId)
-    }
 }

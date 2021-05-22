@@ -62,6 +62,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     private lateinit var mStorageItemWithExpirationsToTransfer:StorageItemWithExpirations
     var mStorageEntityOrigin:StorageEntity? = null
     var mGroceryItemEntity:GroceryItemEntity? = null
+    var mGroceryListEntity:GroceryListEntity? = null
 
 
 
@@ -87,9 +88,11 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         const val STORAGE_ENTITY_TAG = "STORAGE_ENTITY_TAG"
         const val STORAGE_ITEM_ENTITY_TAG = "STORAGE_ITEM_ENTITY_TAG"
         const val GROCERY_ITEM_ENTITY_TAG = "GROCERY_ITEM_ENTITY_TAG"
+        const val GROCERY_ENTITY_TAG = "GROCERY_ENTITY_TAG"
         const val STORAGE_VIEWING_ACTION = 1
         const val STORAGE_TRASFERING_ITEM_ACTION = 2
         const val STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION = 3
+        const val STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION = 4
 
         const val VIEW_BY_STORAGE = 1
         const val  VIEW_PER_PRODUCT = 2
@@ -106,6 +109,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
 
@@ -128,6 +132,10 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
 
                 }
+                STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION->{
+                    requireActivity().title = "Select Storage"
+                    mGroceryListEntity = requireArguments().getParcelable(GROCERY_ENTITY_TAG)
+                }
             }
         }
 
@@ -146,6 +154,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
 
                 if (tab?.position == 0) {
+
+                    mViewing = VIEW_BY_STORAGE
+
                     // hide option menu
                     setHasOptionsMenu(false)
 
@@ -155,6 +166,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                     mDataBindingUtil.fab.show()
 
                 } else if (tab?.position == 1) {
+
+
+                    mViewing = VIEW_PER_PRODUCT
 
                     // show option menu
                     setHasOptionsMenu(true)
@@ -177,6 +191,21 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         })
 
+
+
+
+
+        mDataBindingUtil.swipeRefresh.setOnRefreshListener {
+            loadItems()
+            mDataBindingUtil.swipeRefresh.isRefreshing = false
+        }
+
+        mDataBindingUtil.swipeRefresh.isRefreshing = true
+        loadItems()
+        mDataBindingUtil.swipeRefresh.isRefreshing = false
+        return mDataBindingUtil.root
+    }
+    private fun loadItems(){
         val storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
 
         //RecyclerView.ViewHolder
@@ -187,7 +216,10 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             getItemViewByStorage()
 
 
-        }else if((mAction == STORAGE_TRASFERING_ITEM_ACTION && mViewing == VIEW_BY_STORAGE) || (mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION && mViewing == VIEW_BY_STORAGE) ){
+        }else if((mAction == STORAGE_TRASFERING_ITEM_ACTION && mViewing == VIEW_BY_STORAGE)
+            || (mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION && mViewing == VIEW_BY_STORAGE)
+            || (mAction == STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION && mViewing == VIEW_BY_STORAGE)){
+
 
             mDataBindingUtil.storageTabLayout.visibility = View.GONE
             storageViewAdapter = StorageViewForTransferingItemsAdapter(this)  as RecyclerView.Adapter<RecyclerView.ViewHolder>
@@ -201,12 +233,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
             getItemViewByItem("")
         }
-
-
-
-
-
-        return mDataBindingUtil.root
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
@@ -451,7 +477,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         if(indexOfNewItem >= firstVisibleItemPosition && indexOfNewItem <= lastVisibleItemPosition){
 
-            Log.e("ANIMATION", "ANIMATION 1")
+
             val viewHolder = mDataBindingUtil.storageStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
             //val itemViewHolder = viewHolder as StorageActivity.StorageRecyclerviewViewAdapater.ItemViewHolder
             if(viewHolder is StorageViewAdapter.ItemViewHolder ){
@@ -466,7 +492,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
 
         }else{
-            Log.e("ANIMATION", "ANIMATION 2")
+
 
             mDataBindingUtil.storageStorageRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 var found = false
@@ -475,7 +501,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                     val viewHolder = mDataBindingUtil.storageStorageRecyclerview.findViewHolderForAdapterPosition(indexOfNewItem)
                     if (viewHolder != null) {
 
-                        Log.e("ANIMATION", "viewholder found")
+
                         val itemViewHolder = viewHolder as StorageActivity.StorageRecyclerviewViewAdapater.ItemViewHolder
                         itemViewHolder.storageItemLayoutBinding.pantryItemParentLayout.startAnimation(fadeInAnimation)
 
@@ -497,7 +523,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 mStorageViewModel.storageEntitiesWithExtraInformation =  mStorageViewModel.getAllStorage(this@StorageFragment.requireContext())
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewAdapter).storageEntities =  mStorageViewModel.storageEntitiesWithExtraInformation
 
-            }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION || mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION ){
+            }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION || mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION || mAction == STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION ){
                 mStorageEntityOrigin?.let{
                     mStorageViewModel.storageEntitiesWithExtraInformation = mStorageViewModel.getAllStorageExceptSome(this@StorageFragment.requireContext(), arrayListOf(mStorageEntityOrigin!!.uniqueId))
                 }?:run{
@@ -587,7 +613,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
             positiveBtn.setOnClickListener {
 
-                Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
                 mSelectedMenuItem?.isChecked = true
                 mFilter = FILTER_BY_STOCK
 
@@ -927,8 +952,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     fun showTransferStorageItemAlertDialog(storageEntity: StorageEntity){
 
         val choices = arrayOf(
-            "Merge items",
-            "Replace existing items"
+            "Merge items quantity ",
+            "Replace existing items quantity"
         )
 
         val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())
@@ -948,14 +973,18 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 if(checkedItemPosition == 0){
                     if(mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION){
                         mergeStrorageItemFromGroceryList(storageEntity)
-                    }else{
+                    }else if(mAction == STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION){
+                        mergeStrorageItemFromAllGroceryListItems(storageEntity)
+                    }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION){
                         mergeStorageItem(storageEntity)
                     }
 
                 }else if(checkedItemPosition == 1){
                     if(mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION){
                         replaceStorageItemFromGroceryList(storageEntity)
-                    }else{
+                    }else if(mAction == STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION){
+                        replaceStorageItemFromFromAllGroceryListItems(storageEntity)
+                    }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION){
                         replaceStorageItem(storageEntity)
                     }
 
@@ -970,58 +999,220 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
     }
     private fun mergeStrorageItemFromGroceryList(storageEntity: StorageEntity){
-
         mStorageViewModel.coroutineScope.launch {
+
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext());
             val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(this@StorageFragment.requireContext(), mGroceryItemEntity!!.itemName,mGroceryItemEntity!!.unit,storageEntity.uniqueId)
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
 
-            if(storageItemEntity == null){
-                // insert
-                var itemUniqueID = UUID.randomUUID().toString()
+            var movedSuccessfully = true
+            try {
+                allHomeDatabase.withTransaction {
 
-                    val storageItemEntity = StorageItemEntity(
-                        uniqueId = itemUniqueID,
-                        storageUniqueId = storageEntity.uniqueId,
-                        name = mGroceryItemEntity!!.itemName,
-                        quantity = mGroceryItemEntity!!.quantity,
-                        unit = mGroceryItemEntity!!.unit,
-                        category = "",
-                        storage = storageEntity.name,
-                        notes = "",
-                        imageName = "",
-                        itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
-                        created = currentDatetime,
-                        modified = currentDatetime
-                    )
-                    mStorageViewModel.saveStorageItemEntity(requireContext(),storageItemEntity)
+                    if(storageItemEntity == null){
+                        // insert
+                        var itemUniqueID = UUID.randomUUID().toString()
 
-            }else{
-                //update
+                        val storageItemEntity = StorageItemEntity(
+                            uniqueId = itemUniqueID,
+                            storageUniqueId = storageEntity.uniqueId,
+                            name = mGroceryItemEntity!!.itemName,
+                            quantity = mGroceryItemEntity!!.quantity,
+                            unit = mGroceryItemEntity!!.unit,
+                            category = "",
+                            storage = storageEntity.name,
+                            notes = "",
+                            imageName = "",
+                            itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
+                            created = currentDatetime,
+                            modified = currentDatetime
+                        )
+                        mStorageViewModel.saveStorageItemEntity(requireContext(),storageItemEntity)
 
-                storageItemEntity.quantity += mGroceryItemEntity!!.quantity
+                    }else{
+                        //update
 
-                val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
+                        storageItemEntity.quantity =  if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT) mGroceryItemEntity!!.quantity else storageItemEntity.quantity + mGroceryItemEntity!!.quantity
 
-                val expirations = mStorageViewModel.getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(requireContext(), storageEntity.uniqueId, storageItemEntity.uniqueId, storageItemEntity.modified)
-                 expirations.forEach {
-                     val storageExpiration = it.copy()
-                     storageExpiration.created = currentDatetime
+                        val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
 
-                     val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), storageExpiration)
-                 }
-
-
+                        val expirations = mStorageViewModel.getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(requireContext(), storageEntity.uniqueId, storageItemEntity.uniqueId, storageItemEntity.modified)
+                        expirations.forEach {
+                            val storageExpiration = it.copy()
+                            storageExpiration.created = currentDatetime
+                            val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), storageExpiration)
+                        }
+                    }
+                }
+            }catch (ex: java.lang.Exception){
+                    movedSuccessfully = false
             }
 
+
             withContext(Main){
-                Toast.makeText(requireContext(),"Item successfully added",Toast.LENGTH_SHORT).show()
-                activity?.finish()
+                if(movedSuccessfully){
+                    Toast.makeText(requireContext(),"Item successfully added to storage",Toast.LENGTH_SHORT).show()
+                    activity?.finish()
+                }else{
+                    Toast.makeText(requireContext(),"Failed to add items in storage",Toast.LENGTH_SHORT).show()
+
+                }
+
             }
 
         }
+    }
+    private fun mergeStrorageItemFromAllGroceryListItems(storageEntity: StorageEntity){
 
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
 
+        mGroceryListEntity?.let{
+            mStorageViewModel.coroutineScope.launch {
+                var movedSuccessfully = true
+                val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext());
+                val boughtGroceryItemEntityies =  mStorageViewModel.getBoughtGroceryListItems(requireContext(),it.autoGeneratedUniqueId)
+
+                try {
+
+                    allHomeDatabase.withTransaction {
+                        boughtGroceryItemEntityies.forEach {
+                            val groceryItemName = it.itemName
+                            val groceryItemUnit  = it.unit
+                            val groceryItemQuantity = it.quantity
+
+                            val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(this@StorageFragment.requireContext(), groceryItemName,groceryItemUnit,storageEntity.uniqueId)
+
+                            storageItemEntity?.let{
+                                //update record
+
+                                storageItemEntity.quantity =  if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT) groceryItemQuantity else storageItemEntity.quantity + groceryItemQuantity
+
+                                val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
+                                val expirations = mStorageViewModel.getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(requireContext(), storageEntity.uniqueId, storageItemEntity.uniqueId, storageItemEntity.modified)
+                                expirations.forEach {
+                                    val storageExpiration = it.copy()
+                                    storageExpiration.created = currentDatetime
+                                    val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), storageExpiration)
+                                }
+
+                            }?:run{
+                                //insert record
+
+                                var itemUniqueID = UUID.randomUUID().toString()
+
+                                val storageItemEntity = StorageItemEntity(
+                                    uniqueId = itemUniqueID,
+                                    storageUniqueId = storageEntity.uniqueId,
+                                    name =groceryItemName,
+                                    quantity =groceryItemQuantity,
+                                    unit = groceryItemUnit,
+                                    category = "",
+                                    storage = storageEntity.name,
+                                    notes = "",
+                                    imageName = "",
+                                    itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
+                                    created = currentDatetime,
+                                    modified = currentDatetime
+                                )
+                                mStorageViewModel.saveStorageItemEntity(requireContext(),storageItemEntity)
+
+                            }
+
+                        }
+                    }
+                }catch (ex: java.lang.Exception){
+                    movedSuccessfully = false
+                }
+
+                withContext(Main){
+                    if(movedSuccessfully){
+                        Toast.makeText(requireContext(),"Item successfully added to storage",Toast.LENGTH_SHORT).show()
+                        activity?.finish()
+                    }else{
+                        Toast.makeText(requireContext(),"Failed to add items in storage",Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+            }
+        }
+
+    }
+
+    private fun replaceStorageItemFromFromAllGroceryListItems(storageEntity: StorageEntity){
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        mGroceryListEntity?.let{
+            mStorageViewModel.coroutineScope.launch {
+                var movedSuccessfully = true
+                val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext());
+                val boughtGroceryItemEntityies =  mStorageViewModel.getBoughtGroceryListItems(requireContext(),it.autoGeneratedUniqueId)
+
+                try {
+
+                    allHomeDatabase.withTransaction {
+                        boughtGroceryItemEntityies.forEach {
+                            val groceryItemName = it.itemName
+                            val groceryItemUnit  = it.unit
+                            val groceryItemQuantity = it.quantity
+
+                            val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(this@StorageFragment.requireContext(), groceryItemName,groceryItemUnit,storageEntity.uniqueId)
+
+                            storageItemEntity?.let{
+                                //update record
+
+                                storageItemEntity.quantity =  groceryItemQuantity
+
+                                val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
+                                val expirations = mStorageViewModel.getStorageItemsExpiratinsByStorageUniquedIdItemUniqueIdAndCreated(requireContext(), storageEntity.uniqueId, storageItemEntity.uniqueId, storageItemEntity.modified)
+                                expirations.forEach {
+                                    val storageExpiration = it.copy()
+                                    storageExpiration.created = currentDatetime
+                                    val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), storageExpiration)
+                                }
+
+                            }?:run{
+                                //insert record
+
+                                var itemUniqueID = UUID.randomUUID().toString()
+
+                                val storageItemEntity = StorageItemEntity(
+                                    uniqueId = itemUniqueID,
+                                    storageUniqueId = storageEntity.uniqueId,
+                                    name =groceryItemName,
+                                    quantity =groceryItemQuantity,
+                                    unit = groceryItemUnit,
+                                    category = "",
+                                    storage = storageEntity.name,
+                                    notes = "",
+                                    imageName = "",
+                                    itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
+                                    created = currentDatetime,
+                                    modified = currentDatetime
+                                )
+                                mStorageViewModel.saveStorageItemEntity(requireContext(),storageItemEntity)
+
+                            }
+
+                        }
+                    }
+                }catch (ex: java.lang.Exception){
+                    movedSuccessfully = false
+                }
+
+                withContext(Main){
+                    if(movedSuccessfully){
+                        Toast.makeText(requireContext(),"Item successfully added to storage",Toast.LENGTH_SHORT).show()
+                        activity?.finish()
+                    }else{
+                        Toast.makeText(requireContext(),"Failed to add items in storage",Toast.LENGTH_SHORT).show()
+
+                    }
+                }
+            }
+        }
     }
     fun replaceStorageItemFromGroceryList(storageEntity: StorageEntity){
         mStorageViewModel.coroutineScope.launch {
@@ -1489,10 +1680,6 @@ class StorageViewForTransferingItemsAdapter(val storageFragment: StorageFragment
                 R.id.storageItemParentLayout -> {
 
                     storageFragment.showTransferStorageItemAlertDialog(storageEntity)
-                    //Toast.makeText(view.context,"test",Toast.LENGTH_SHORT).show()
-                    /*val storageActivity = Intent(view!!.context, StorageActivity::class.java)
-                    storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG,storageEntity.name)
-                    storageFragment.requireActivity().startActivity(storageActivity)*/
                 }
 
                 R.id.storageImageView -> {
@@ -1504,7 +1691,6 @@ class StorageViewForTransferingItemsAdapter(val storageFragment: StorageFragment
                     }
                 }
             }
-            //startActivity(pantryStorageActivity
         }
 
 

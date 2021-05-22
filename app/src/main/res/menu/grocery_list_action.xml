@@ -11,6 +11,9 @@
         android:id="@+id/share_menu"
         android:title="Share" />
     <item
+        android:id="@+id/add_to_storage_menu"
+        android:title="Add to storage" />
+    <item
         android:id="@+id/duplicate_menu"
         android:title="Duplicate" />
     <item

@@ -1,7 +1,6 @@
 package com.example.allhome.storage
 
 import android.app.Activity
-import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.ComponentName
 import android.content.Context
@@ -15,16 +14,13 @@ import android.os.Build
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
 import android.view.*
+import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
-import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
@@ -137,27 +133,34 @@ class StorageAddItemActivity : AppCompatActivity() {
         val storageItemAutoSuggestCustomAdapter = StorageItemAutoSuggestCustomAdapter(this, arrayListOf())
         mActivityPantryAddItemBinding.storageItemTextinput.threshold = 0
         mActivityPantryAddItemBinding.storageItemTextinput.setAdapter(storageItemAutoSuggestCustomAdapter)
-
-
         mActivityPantryAddItemBinding.storageItemTextinput.onItemClickListener =  AdapterView.OnItemClickListener{ parent, view, position, id ->
             val storageItemAutoSuggest = parent.getItemAtPosition(position) as StorageItemAutoSuggest
+            mActivityPantryAddItemBinding.storageItemUnitTextinput.setText(storageItemAutoSuggest.unit)
+            mActivityPantryAddItemBinding.categoryItemTextinput.setText(storageItemAutoSuggest.category)
 
             if(storageItemAutoSuggest.existInStorage == StorageItemAutoSuggest.EXISTS_IN_STORAGE){
-                mActivityPantryAddItemBinding.storageItemTextinput.setText("")
-
+               // mActivityPantryAddItemBinding.storageItemTextinput.setText("")
+                closeKeyboard()
                 val alertDialog =  MaterialAlertDialogBuilder(this)
+                    .setTitle("Warning message")
                     .setMessage(storageItemAutoSuggest.itemName+" already exists in this storage. Please just update the item.")
                     .setNegativeButton("Close", null)
                     .setCancelable(false)
                     .create()
                 alertDialog.show()
 
-            }else{
-                mActivityPantryAddItemBinding.storageItemUnitTextinput.setText(storageItemAutoSuggest.unit)
-                mActivityPantryAddItemBinding.categoryItemTextinput.setText(storageItemAutoSuggest.category)
             }
-
         }
+        val unitAutoSuggestCustomAdapter = StringAutoSuggestCustomAdapter(this, arrayListOf())
+        unitAutoSuggestCustomAdapter.suggestType = StringAutoSuggestCustomAdapter.UNIT_SUGGESTION_TYPE
+        mActivityPantryAddItemBinding.storageItemUnitTextinput.setAdapter(unitAutoSuggestCustomAdapter)
+        mActivityPantryAddItemBinding.storageItemUnitTextinput.threshold = 0
+
+
+        val categoryAutoSuggestCustomAdapter = StringAutoSuggestCustomAdapter(this, arrayListOf())
+        categoryAutoSuggestCustomAdapter.suggestType = StringAutoSuggestCustomAdapter.CATEGORY_SUGGESTION_TYPE
+        mActivityPantryAddItemBinding.categoryItemTextinput.setAdapter(categoryAutoSuggestCustomAdapter)
+        mActivityPantryAddItemBinding.categoryItemTextinput.threshold = 0
 
     }
 
@@ -214,6 +217,13 @@ class StorageAddItemActivity : AppCompatActivity() {
 
         }
     }
+    private fun closeKeyboard(){
+        val view = this.currentFocus
+        view?.let{
+            val inputManager = getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            inputManager.hideSoftInputFromWindow(it.windowToken,0)
+        }
+    }
     private fun lauchImageCropper(uri: Uri){
 
         CropImage.activity(uri)
@@ -264,6 +274,7 @@ class StorageAddItemActivity : AppCompatActivity() {
         val doRecordExists = doRecordExists(storageItem,storageItemUnit)
         if(doRecordExists){
             val alertDialog =  MaterialAlertDialogBuilder(this)
+                .setTitle("Error message")
                 .setMessage(storageItem+" already exists in this storage. Please just update the item.")
                 .setNegativeButton("Close", null)
                 .setCancelable(false)
@@ -658,6 +669,78 @@ class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUn
     }
 }
 
+/**
+ * Item unit auto suggest adapter
+ */
+class StringAutoSuggestCustomAdapter(context: Context, var stringParams: List<String>):
+    ArrayAdapter<String>(context, 0, stringParams) {
+    private var stringAutoSuggest: List<String>? = null
+    private var storageAddItemActivity = context as StorageAddItemActivity
+    var suggestType = UNIT_SUGGESTION_TYPE
+
+    companion object{
+        const val UNIT_SUGGESTION_TYPE = 0
+        const val CATEGORY_SUGGESTION_TYPE = 1
+    }
+
+    init{
+        stringAutoSuggest = ArrayList(stringParams)
+    }
+
+    private var filter  = object: Filter(){
+        private var searchJob: Job? = null
+
+        override fun performFiltering(constraint: CharSequence?): FilterResults {
+            searchJob?.cancel()
+            val suggestion =  runBlocking {
+                val results = FilterResults()
+                searchJob = launch(IO) {
+                    val searchTerm = if(constraint == null) "" else constraint.toString()
+                    var arrayList = arrayListOf<String>()
+
+                    if(suggestType == UNIT_SUGGESTION_TYPE){
+                        arrayList = storageAddItemActivity.mStorageAddItemViewModel.getStrorageAndGroceryItemUnitForAutousuggest(storageAddItemActivity,searchTerm) as ArrayList<String>
+                    }else if(suggestType == CATEGORY_SUGGESTION_TYPE){
+                        arrayList = storageAddItemActivity.mStorageAddItemViewModel.getStrorageAndGroceryItemCategoryForAutousuggest(storageAddItemActivity,searchTerm) as ArrayList<String>
+                    }
+                    results.apply {
+                        results.values = arrayList
+                        results.count = arrayList.size
+                    }
+                }
+                // return the result
+                results
+            }
+            return suggestion
+        }
+
+        override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+            if(results?.values == null){
+                return
+            }
+            clear()
+            val res:List<String> = results?.values as ArrayList<String>
+            addAll(res)
+        }
+        override fun convertResultToString(resultValue: Any?): CharSequence {
+            return resultValue as CharSequence
+        }
+    }
+    override fun getFilter(): Filter {
+        return filter
+    }
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        var textView:TextView? = null
+        if(convertView == null){
+            textView = LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false) as TextView?
+        }else{
+            textView = convertView as TextView?
+        }
+        val unit = getItem(position)
+        textView!!.setText(unit)
+        return textView!!
+    }
+}
 /**
  *
  */
