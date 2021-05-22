@@ -69,7 +69,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        title = "Add Storage Item"
+
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
@@ -92,10 +92,10 @@ class StorageAddItemActivity : AppCompatActivity() {
         }
 
         intent.getIntExtra(ACTION_TAG, ADD_NEW_RECORD_ACTION).let {
-
+            title = "Add Storage Item"
             mAction = it
             if(mAction == UPDATE_RECORD_ACTION){
-
+                title = "Update Storage Item"
                 mStorageItemUniqueId = intent.getStringExtra(STORAGE_ITEM_UNIQUE_ID_TAG)
                 mStorageItemName = intent.getStringExtra(STORAGE_ITEM_NAME_TAG)
 

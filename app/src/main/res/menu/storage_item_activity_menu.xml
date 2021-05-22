@@ -42,7 +42,7 @@
                     />
                 <item
                     android:id="@+id/lastUpdateMenu"
-                    android:title="Last update"
+                    android:title="Updated on"
                     />
                 <item
                     android:id="@+id/expiredMenu"

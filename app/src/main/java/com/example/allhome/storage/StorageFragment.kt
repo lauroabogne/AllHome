@@ -51,7 +51,7 @@ import kotlin.collections.ArrayList
 
 
 class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
-    private lateinit var mStorageViewModel: StorageViewModel
+    internal lateinit var mStorageViewModel: StorageViewModel
     private lateinit var mDataBindingUtil: FragmentStorageBinding
 
     // Hold a reference to the current animator,
@@ -1466,7 +1466,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     }
     fun openStorageActivity(storageEntityWithStorageItemInformation: StorageEntityWithStorageItemInformation){
 
-        val storageEntity = storageEntityWithStorageItemInformation.storageEntity
+        /*val storageEntity = storageEntityWithStorageItemInformation.storageEntity
         val storageItemName = storageEntityWithStorageItemInformation.storageItemName
         val storageItemUnit = storageEntityWithStorageItemInformation.storageItemUnit
 
@@ -1475,7 +1475,34 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG, storageEntity)
         storageActivity.putExtra(StorageActivity.STORAGE_ITEM_NAME_TAG, storageItemName)
         storageActivity.putExtra(StorageActivity.STORAGE_ITEM_UNIT_TAG, storageItemUnit)
-        requireActivity().startActivity(storageActivity)
+        requireActivity().startActivity(storageActivity)*/
+
+
+        val storageItemName = storageEntityWithStorageItemInformation.storageItemName
+        val storageItemUnit = storageEntityWithStorageItemInformation.storageItemUnit
+        val storageEntity = storageEntityWithStorageItemInformation.storageEntity
+
+        mStorageViewModel.coroutineScope.launch{
+            val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(requireContext(),storageItemName,storageItemUnit,storageEntity.uniqueId)
+
+            withContext(Main){
+
+                storageItemEntity?.let{
+
+                    val addPantryItemActivity = Intent(requireContext(), StorageAddItemActivity::class.java)
+                    addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_NAME_TAG, storageEntity.name)
+                    addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG, StorageAddItemActivity.UPDATE_RECORD_ACTION)
+                    addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG, it.uniqueId)
+                    addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG, it.name)
+                    addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_TAG,storageEntity)
+                   startActivityForResult(addPantryItemActivity, StorageActivity.UPDATE_ITEM_REQUEST_CODE)
+                }?:run{
+                    Toast.makeText(requireContext(),"Item not found in storage.",Toast.LENGTH_SHORT).show()
+                }
+
+
+            }
+        }
     }
 
 
@@ -1521,11 +1548,12 @@ class StorageViewAdapter(val storageFragment: StorageFragment): RecyclerView.Ada
             when(view?.id){
                 R.id.storageItemParentLayout -> {
 
-
                     val storageActivity = Intent(view!!.context, StorageActivity::class.java)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_DATA_TAG, storageEntity.name)
                     storageActivity.putExtra(StorageActivity.STORAGE_EXTRA_TAG, storageEntity)
                     storageFragment.startActivityForResult(storageActivity,1989)
+
+
                 }
 
                 R.id.moreActionImageView -> {
@@ -1743,6 +1771,10 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
                     child.setOnClickListener(this)
                 }
             }
+
+
+
+
         }
         fun setImageViewClickListener(){
             storageItemLayoutBinding.storageImageView.setOnClickListener {
@@ -1774,8 +1806,8 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
                         storageGroceryListActivity.putExtra(StorageGroceryListActivity.IMAGE_NAME_TAG, storageItemImage)
                         storageGroceryListActivity.putExtra(StorageGroceryListActivity.STORAGE_TAG, storage)
 
-
                         it.context.startActivity(storageGroceryListActivity)
+
 
                         return true
                     }
@@ -1789,6 +1821,9 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
 
             val storageEntityWithStorageItemInformation = view!!.tag as StorageEntityWithStorageItemInformation
             storageFragment.openStorageActivity(storageEntityWithStorageItemInformation)
+
+
+
 
         }
 
