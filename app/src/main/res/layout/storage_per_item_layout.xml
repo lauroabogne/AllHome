@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.content.Context" />
+        <import type="com.example.allhome.storage.StorageUtil"/>
+        <import type="android.view.View" />
+        <variable
+            name="storageItemWithExpirationsAndStorages"
+            type="com.example.allhome.data.entities.StorageItemWithExpirationsAndStorages" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/pantryItemParentLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="2dp"
+        android:foreground="?attr/selectableItemBackground"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="2dp">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/storageImageView"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                android:background="@color/purple_200"
+                android:setImageForViewingStorageItem="@{storageItemWithExpirationsAndStorages.storageItemEntity.imageName}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/moreActionImageBtn"
+                tools:srcCompat="@tools:sample/avatars" />
+
+            <ImageButton
+                android:id="@+id/moreActionImageBtn"
+                android:layout_width="40dp"
+                android:layout_height="0dp"
+                android:background="?selectableItemBackgroundBorderless"
+                app:layout_constraintBottom_toBottomOf="@+id/storageItemNameTextView"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/storageItemNameTextView"
+                app:srcCompat="@drawable/ic_baseline_more_vert_24" />
+
+            <TextView
+                android:id="@+id/storageItemNameTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="@{storageItemWithExpirationsAndStorages.storageItemEntity.name}"
+                android:textColor="#000"
+                android:textSize="18sp"
+                app:layout_constraintEnd_toStartOf="@+id/moreActionImageBtn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Coke" />
+
+            <TextView
+                android:id="@+id/stockWeightTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingTop="2dp"
+                android:paddingBottom="2dp"
+                android:setStocks="@{storageItemWithExpirationsAndStorages.storageItemEntity}"
+                android:textColor="#000"
+                app:layout_constraintEnd_toStartOf="@+id/storageImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/storageItemNameTextView"
+                tools:text="Stock weight: Low (10 pcs)" />
+
+            <TextView
+                android:id="@+id/textView19"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="10dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:text="@{StorageUtil.INSTANCE.datetimeModified(storageItemWithExpirationsAndStorages.storageItemEntity.modified)}"
+                android:textColor="#000"
+                app:layout_constraintEnd_toStartOf="@+id/storageImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/stockWeightTextView"
+                tools:text="Last update: May 5, 2021" />
+
+
+            <LinearLayout
+                android:id="@+id/linearLayout1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:visibility="@{StorageUtil.INSTANCE.hasExpirationDate(storageItemWithExpirationsAndStorages.expirations) ? View.VISIBLE: View.GONE}"
+                app:layout_constraintEnd_toStartOf="@+id/storageImageView"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView19">
+
+                <TextView
+                    android:id="@+id/textView22"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:text="Expiration : "
+                    android:textColor="#000"
+                    android:visibility="visible"
+                    tools:text="Expiration : " />
+
+                <LinearLayout
+                    android:id="@+id/storageItemExpirationLinear"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:appendExpirationDates="@{storageItemWithExpirationsAndStorages.expirations}"
+                    android:orientation="vertical" />
+            </LinearLayout>
+
+            <com.google.android.flexbox.FlexboxLayout
+                android:id="@+id/storageFlexboxLayout"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:addStorages="@{storageItemWithExpirationsAndStorages}"
+                android:padding="5dp"
+                app:flexWrap="wrap"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/linearLayout1">
+
+
+            </com.google.android.flexbox.FlexboxLayout>
+
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

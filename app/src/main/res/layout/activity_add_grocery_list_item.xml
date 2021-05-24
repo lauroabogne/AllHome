@@ -28,6 +28,7 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+
             android:hint="Item name">
             <AutoCompleteTextView
                 android:id="@+id/item_name_textinput"
@@ -39,6 +40,7 @@
                 android:paddingBottom="15dp"
                 android:dropDownHeight="wrap_content"
                 android:singleLine="true"
+                android:imeOptions="actionNext"
                 android:text="@{groceryListViewModel.selectedGroceryItem.itemName}"
                 />
 
@@ -113,7 +115,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
 
-
             >
 
             <AutoCompleteTextView
@@ -127,6 +128,7 @@
                 android:paddingBottom="14dp"
                 android:dropDownHeight="wrap_content"
                 android:singleLine="true"
+                android:imeOptions="actionNext"
                 android:text="@{groceryListViewModel.selectedGroceryItem.category}" />
                 />
 

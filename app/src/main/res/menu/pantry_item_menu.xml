@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:title="Add to grocery list"
+        android:id="@+id/pantryAddToGroceryListMenu"
+        />
+    <item android:title="Move to other storage"
+        android:id="@+id/pantryItemMoveStorageMenu"
+        />
+    <item android:title="Edit"
+        android:id="@+id/pantryItemEditMenu"/>
+
+    <item android:title="Delete"
+        android:id="@+id/pantryItemDeleteMenu"
+        />
+</menu>

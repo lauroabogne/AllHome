@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/appBarSearch"
+        android:icon="@drawable/ic_search_black_24dp"
+        android:title="Search"
+        app:actionViewClass="android.widget.SearchView"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/text_style"
+        app:showAsAction="always|withText"
+        android:icon="@drawable/ic_baseline_filter_alt_24"
+        android:orderInCategory="1"
+        android:title="">
+        <!-- text style menu's sub menu start from here -->
+        <menu>
+            <!-- first group (text color) of text style sub menu -->
+            <group
+                android:id="@+id/text_color_group"
+                android:checkableBehavior="single"
+                >
+                <!-- text color group's items -->
+                <item
+                    android:title="Filter by"
+                    android:enabled="false"
+                    android:checkable="false"
+                    />
+                <item
+                    android:id="@+id/noFilterMenu"
+                    android:title="No filter"
+                    android:checked="false"
+                    />
+                <item
+                    android:id="@+id/stockWeightMenu"
+                    android:title="Stock weight"
+                    />
+                <item
+                    android:id="@+id/stockMenu"
+                    android:title="Stock quantity"
+                    />
+                <item
+                    android:id="@+id/lastUpdateMenu"
+                    android:title="Updated on"
+                    />
+                <item
+                    android:id="@+id/expiredMenu"
+                    android:title="Expired"
+                    />
+            </group>
+
+        </menu>
+    </item>
+</menu>

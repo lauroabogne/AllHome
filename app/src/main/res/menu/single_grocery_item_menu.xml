@@ -4,10 +4,10 @@
 
     <item
         android:id="@+id/menu_sort_by_item"
-        android:title="Sort by item"
+        android:title="Item view"
         />
     <item
         android:id="@+id/menu_sort_by_category"
-        android:title="Sort by category"
+        android:title="Category view"
        />
 </menu>

@@ -12,14 +12,21 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:allowBackup="true"
+        android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:launchMode="singleTop"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.AllHome">
-        <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity"></activity>
+        android:theme="@style/Theme.AllHome"
+        >
+        <activity android:name=".storage.StorageStorageListActivity"></activity>
+        <activity android:name=".storage.StorageGroceryListActivity" />
+        <activity android:name=".storage.CreateStorageActivity" />
+        <activity android:name=".storage.StorageActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar"/>
+        <activity android:name=".storage.StorageAddItemActivity" />
+        <activity android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity" />
 
         <receiver
             android:name=".GroceryListNotificationReceiver"

@@ -85,7 +85,9 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         groceryListItemIndex = intent.getIntExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1);
 
 
-        val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "", "", "", 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS)
+        val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "",
+            "", "", 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
+             datetimeCreated = "",datetimeModified = "")
         // create AddGroceryListItemActivityViewModel using AddGroceryListItemActivityViewModelFactory
         val addGroceryListItemActivityViewModelFactory = GroceryListViewModelFactory(null, initGroceryItemEntity)
         mGroceryListViewModel = ViewModelProvider(this, addGroceryListItemActivityViewModelFactory).get(GroceryListViewModel::class.java)
@@ -126,8 +128,15 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             dataBindingUtil.groceryListViewModel?.selectedGroceryItem!!.quantity = 1.0
 
             val imageUri = GroceryUtil.getImageFromPath(this, groceryItemEntity.imageName)
+
+            Log.e("IMAGE_Path","HAS IMAGE "+groceryItemEntity.imageName)
+
             if(imageUri !=null){
                 dataBindingUtil.groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri = imageUri
+                dataBindingUtil.groceryListViewModel?.selectedGroceryItemEntityNewImageUri = imageUri
+                Log.e("IMAGE","HAS IMAGE")
+            }else{
+                Log.e("IMAGE","NO IMAGE")
             }
 
             dataBindingUtil.invalidateAll()
@@ -274,6 +283,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
     }
     fun addRecord() {
+
+
         val itemName: String = dataBindingUtil.itemNameTextinput.text.toString().trim()
         val quantityString = dataBindingUtil.itemQuantityTextinput.text.toString().trim()
         val unit: String = dataBindingUtil.unitTextinput.text.toString().trim()
@@ -289,10 +300,11 @@ class AddGroceryListItemActivity : AppCompatActivity() {
          val doubleQuantity = if(quantityString.trim().isNotEmpty()) quantityString.toDouble() else 0.0
          val doublePricePerUnit = if(pricePerUnitString.trim().isNotEmpty()) pricePerUnitString.toDouble() else 0.0
 
+
         var imageName = ""
 
         mGroceryListViewModel.selectedGroceryItemEntityNewImageUri?.let{
-            imageName = itemName+"."+ IMAGE_NAME_SUFFIX
+            imageName = groceryListUniqueId+"_"+itemName+"."+ IMAGE_NAME_SUFFIX
             val imageSavedSucessfully = saveImage(it, imageName)
             if(!imageSavedSucessfully){
                 Toast.makeText(this@AddGroceryListItemActivity, "Failed to save image.", Toast.LENGTH_SHORT).show()
@@ -300,10 +312,13 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             }
         }
 
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
 
         val groceryItemEntity = GroceryItemEntity(
             groceryListUniqueId = groceryListUniqueId, sequence = 1, itemName = itemName, quantity = doubleQuantity,
-            unit = unit, pricePerUnit = doublePricePerUnit, category = category, notes = notes, imageName = imageName, bought = 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS
+            unit = unit, pricePerUnit = doublePricePerUnit, category = category, notes = notes, imageName = imageName, bought = 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
+            datetimeCreated = currentDatetime,datetimeModified = currentDatetime
         )
         // hide soft keyboard
         val view: View = findViewById(android.R.id.content)
@@ -312,8 +327,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
          CoroutineScope(IO).launch {
 
-             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-             val currentDatetime: String = simpleDateFormat.format(Date())
+
 
              mGroceryListViewModel.addGroceryListItem(this@AddGroceryListItemActivity,groceryItemEntity)
              mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
@@ -350,7 +364,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
 
-        val imageName =  itemName+"."+ IMAGE_NAME_SUFFIX
+        val imageName =  groceryListUniqueId+"_"+itemName+"."+ IMAGE_NAME_SUFFIX
 
         if(mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri != null && mGroceryListViewModel.selectedGroceryItemEntityNewImageUri !=null ){
             //delete old image and save new image
@@ -385,7 +399,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
             mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
-            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId)
+            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime)
 
 
             withContext(Main){
@@ -510,8 +524,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     /**
      * Item name auto suggest adapter
      */
-    inner class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntityForAutoSuggest>):
-        ArrayAdapter<GroceryItemEntityForAutoSuggest>(context, 0, groceryItemEntitiesParams) {
+    inner class ItemNameAutoSuggestCustomAdapter(context: Context, var groceryItemEntitiesParams: List<GroceryItemEntityForAutoSuggest>): ArrayAdapter<GroceryItemEntityForAutoSuggest>(context, 0, groceryItemEntitiesParams) {
         private var groceryItemEntities: List<GroceryItemEntityForAutoSuggest>? = null
         init{
             groceryItemEntities = ArrayList(groceryItemEntitiesParams)

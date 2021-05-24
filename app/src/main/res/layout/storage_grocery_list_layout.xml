@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.content.Context" />
+        <import type="com.example.allhome.grocerylist.GroceryUtil" />
+        <import type="android.view.View" />
+        <variable
+            name="groceryListWithCount"
+            type="com.example.allhome.data.entities.GroceryListWithItemCount" />
+
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/grocery_item_list_parent_layout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginRight="10dp"
+        android:layout_marginBottom="5dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:foreground="?attr/selectableItemBackground"
+        android:padding="0dp"
+        app:cardCornerRadius="0dp"
+        app:cardElevation="2dp"
+        app:contentPaddingTop="5dp"
+        app:contentPaddingBottom="5dp"
+        app:contentPaddingLeft="10dp"
+        app:contentPaddingRight="10dp"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:minHeight="50dp"
+        >
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:orientation="horizontal">
+
+                    <TextView
+                        android:id="@+id/textView8"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="1"
+                        android:paddingTop="4dp"
+                        android:paddingBottom="4dp"
+                        android:text="@{groceryListWithCount.groceryListEntity.name}"
+                        android:textSize="18sp"
+                        android:textColor="#000"
+                        tools:text="test" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="#FFFFFF"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/imageButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_weight="0"
+                        android:background="@null"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasLocation(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}"
+                        app:srcCompat="@drawable/ic_baseline_pin_drop_24"
+                        tools:ignore="VectorDrawableCompat" />
+                    <ImageButton
+                        android:id="@+id/alarmButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_weight="0"
+                        android:background="@null"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasAlarm(context,groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}"
+                        app:srcCompat="@drawable/ic_alarm_24"
+                        tools:ignore="VectorDrawableCompat" />
+                    <ImageButton
+                        android:id="@+id/imageButton2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_weight="0"
+                        android:background="@null"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasScheduleDate(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}"
+                        app:srcCompat="@drawable/ic_baseline_calendar_today_24"
+                        tools:ignore="VectorDrawableCompat" />
+
+                    <TextView
+                        android:id="@+id/textView10"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginLeft="4dp"
+                        android:layout_weight="0"
+                        android:gravity="center"
+                        android:text="@{GroceryUtil.INSTANCE.formatGroceryScheduledDateForGroceryListViewing(groceryListWithCount.groceryListEntity.shoppingDatetime)}"
+                        android:textSize="14sp"
+                        android:visibility="@{GroceryUtil.INSTANCE.doGroceryListHasScheduleDate(groceryListWithCount.groceryListEntity) ? View.VISIBLE : View.GONE}" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <TextView
+
+                android:id="@+id/itemCountAndBoughtTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:textColor="#000"
+                android:gravity="center"
+                android:text="@{GroceryUtil.INSTANCE.concatTotalItemAndTotalBoughtItem(groceryListWithCount.itemCount,groceryListWithCount.itemBought)}"
+                tools:text="0/10" />
+
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+</layout>

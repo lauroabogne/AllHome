@@ -4,15 +4,17 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
-import com.example.allhome.data.DAO.GroceryItemDAO
-import com.example.allhome.data.DAO.GroceryListDAO
-import com.example.allhome.data.entities.GroceryItemEntity
-import com.example.allhome.data.entities.GroceryListEntity
+import com.example.allhome.data.DAO.*
+import com.example.allhome.data.entities.*
 
-@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class),version = 3)
+@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class, StorageEntity::class),version = 3)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
     abstract fun groceryListDAO(): GroceryListDAO
+    abstract fun getStorageItemDAO():StorageItemDAO
+    abstract fun getStorageItemExpirationDAO():StorageItemExpirationDAO
+    abstract fun getStorageDAO():StorageDAO
+
 
     companion object{
         @Volatile
