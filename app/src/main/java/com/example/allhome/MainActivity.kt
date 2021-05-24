@@ -19,6 +19,7 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
+import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 
 class MainActivity : AppCompatActivity() {
@@ -55,10 +56,6 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_storage->{
-                    /*val addPantryItemActivity = Intent(this, PantryAddItemActivity::class.java)
-                    startActivity(addPantryItemActivity)*/
-                    /*val pantryStorageActivity = Intent(this, PantryStorageActivity::class.java)
-                    startActivity(pantryStorageActivity)*/
 
                     val bundle = Bundle()
                     bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
@@ -67,6 +64,11 @@ class MainActivity : AppCompatActivity() {
                     storageFragment.arguments = bundle
 
                     fragmentProcessor(storageFragment)
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+
+                R.id.nav_recipes->{
+                    fragmentProcessor(RecipesFragment())
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
             }
