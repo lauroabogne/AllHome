@@ -45,6 +45,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
         val adapter = ViewPagerFragmentAdapter(fragmentList,supportFragmentManager,lifecycle)
         mActivityAddRecipeBinding.viewPager2.adapter = adapter
+        mActivityAddRecipeBinding.viewPager2.isUserInputEnabled = false
     }
 }
 
