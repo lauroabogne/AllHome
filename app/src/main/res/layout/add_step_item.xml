@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="ingredientEntity"
-            type="com.example.allhome.data.entities.IngredientEntity" />
+            name="recipeStepEntity"
+            type="com.example.allhome.data.entities.RecipeStepEntity" />
 
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -15,16 +15,17 @@
         android:padding="5dp">
 
         <EditText
-            android:id="@+id/ingredientEditTextText"
+            android:id="@+id/instructionEditTextText"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:text="@{ingredientEntity.name}"
+            android:text="@{recipeStepEntity.instruction}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/imageButton3"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:inputType="textMultiLine"
+            android:imeOptions="actionNext"
             android:scrollHorizontally="false"/>
 
         <ImageButton
@@ -33,10 +34,11 @@
             android:layout_height="wrap_content"
             android:background="@null"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/ingredientEditTextText"
+            app:layout_constraintBottom_toBottomOf="@+id/instructionEditTextText"
             app:layout_constraintEnd_toStartOf="@+id/imageButton4"
-            app:layout_constraintTop_toTopOf="@+id/ingredientEditTextText"
-            app:srcCompat="@drawable/ic_baseline_clear_24" />
+            app:layout_constraintTop_toTopOf="@+id/instructionEditTextText"
+            app:srcCompat="@drawable/ic_baseline_clear_24"
+            tools:ignore="VectorDrawableCompat" />
 
         <ImageButton
             android:id="@+id/imageButton4"
@@ -47,6 +49,7 @@
             app:layout_constraintBottom_toBottomOf="@+id/imageButton3"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/imageButton3"
-            app:srcCompat="@drawable/ic_baseline_swap_vert" />
+            app:srcCompat="@drawable/ic_baseline_swap_vert"
+            tools:ignore="VectorDrawableCompat" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

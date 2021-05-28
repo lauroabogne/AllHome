@@ -14,17 +14,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.ColumnInfo
 import com.example.allhome.R
+import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.databinding.AddIngredientItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeIngredientsBinding
+import com.example.allhome.recipes.viewmodel.AddRecipeIngredientsFragmentModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.TimeUnit
+import kotlin.collections.ArrayList
 
 
 class AddRecipeIngredientsFragment : Fragment() {
 
+    private lateinit var mAddRecipeIngredientsFragmentModel: AddRecipeIngredientsFragmentModel
     private lateinit var mDataBindingUtil: FragmentAddRecipeIngredientsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -32,18 +40,37 @@ class AddRecipeIngredientsFragment : Fragment() {
         arguments?.let {
 
         }
+
+        mAddRecipeIngredientsFragmentModel = ViewModelProvider(this).get(AddRecipeIngredientsFragmentModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_add_recipe_ingredients, container, false)
         mDataBindingUtil.fab.setOnClickListener {
-            Toast.makeText(requireContext(), "Test fab", Toast.LENGTH_SHORT).show()
 
             val addIngredientRecyclerviewViewAdapater =  mDataBindingUtil.addIngredientRecyclerview.adapter as AddIngredientRecyclerviewViewAdapater
 
-            val elemetSize = addIngredientRecyclerviewViewAdapater.mIngredients.size
-            addIngredientRecyclerviewViewAdapater.mIngredients.add(elemetSize, "")
+            var itemUniqueID = UUID.randomUUID().toString()
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime: String = simpleDateFormat.format(Date())
+
+            val ingredientEntity = IngredientEntity(
+                uniqueId =itemUniqueID,
+                recipeUniqueId="",
+                quantity=0.0,
+                unit="",
+                name="",
+                status = IngredientEntity.NOT_DELETED_STATUS,
+                uploaded = IngredientEntity.NOT_UPLOADED,
+                created = currentDatetime,
+                modified = currentDatetime
+
+            )
+
+            val elemetSize = mAddRecipeIngredientsFragmentModel.mIngredients.size
+
+            mAddRecipeIngredientsFragmentModel.mIngredients.add(ingredientEntity)
             addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
 
             mDataBindingUtil.addIngredientRecyclerview.scrollToPosition(elemetSize );
@@ -53,13 +80,12 @@ class AddRecipeIngredientsFragment : Fragment() {
                 delay(500)
                 withContext(Dispatchers.Main) {
                     mDataBindingUtil.fab.isClickable = true
-                    Log.i("TAG", "this will be called after 3 seconds")
+
                     val holder = mDataBindingUtil.addIngredientRecyclerview.findViewHolderForLayoutPosition(elemetSize) as AddIngredientRecyclerviewViewAdapater.ItemViewHolder
 
                     holder.addIngredientItemBinding.ingredientEditTextText.requestFocus()
                     showSoftKeyboard(holder.addIngredientItemBinding.ingredientEditTextText)
-                    //showSoftKeyboard()
-                    Log.e("THE", holder.toString())
+
                 }
             }
 
@@ -68,19 +94,12 @@ class AddRecipeIngredientsFragment : Fragment() {
         }
 
 
-        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(this)
-
+        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(mAddRecipeIngredientsFragmentModel.mIngredients,this)
         mDataBindingUtil.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater
         return mDataBindingUtil.root
     }
 
 
-    /*private fun showSoftKeyboard(view: View){
-        val inputMethodManager = activity?.getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-        inputMethodManager.toggleSoftInputFromWindow(
-            view.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0
-        )
-    }*/
     private fun showSoftKeyboard(view: View) {
         if (view.requestFocus()) {
             val inputMethodManager: InputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
@@ -92,10 +111,7 @@ class AddRecipeIngredientsFragment : Fragment() {
 
 }
 
-class AddIngredientRecyclerviewViewAdapater(val addRecipeIngredientsFragment: AddRecipeIngredientsFragment): RecyclerView.Adapter<AddIngredientRecyclerviewViewAdapater.ItemViewHolder>() {
-
-
-    var mIngredients:ArrayList<String>  = arrayListOf()
+class AddIngredientRecyclerviewViewAdapater( var mIngredients:ArrayList<IngredientEntity>, addRecipeIngredientsFragment: AddRecipeIngredientsFragment): RecyclerView.Adapter<AddIngredientRecyclerviewViewAdapater.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
@@ -109,11 +125,10 @@ class AddIngredientRecyclerviewViewAdapater(val addRecipeIngredientsFragment: Ad
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
         val ingredient = mIngredients[position]
-       // holder.storageItemLayoutBinding.storageItemWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStorages
+        holder.addIngredientItemBinding.ingredientEntity = ingredient
         holder.addIngredientItemBinding.executePendingBindings()
-        holder.setText(ingredient)
+        holder.setText(ingredient.name)
         holder.setTextWatcher()
-
     }
 
     override fun getItemCount(): Int {
@@ -123,15 +138,14 @@ class AddIngredientRecyclerviewViewAdapater(val addRecipeIngredientsFragment: Ad
 
     inner class  ItemViewHolder(var addIngredientItemBinding: AddIngredientItemBinding, val addIngredientRecyclerviewViewAdapater: AddIngredientRecyclerviewViewAdapater): RecyclerView.ViewHolder(addIngredientItemBinding.root),View.OnClickListener{
 
-
         fun setText(text:String){
-
             addIngredientItemBinding.ingredientEditTextText.setText(text)
         }
         fun setTextWatcher(){
             addIngredientItemBinding.ingredientEditTextText.addTextChangedListener{
-
-                addIngredientRecyclerviewViewAdapater.mIngredients.set(adapterPosition,it.toString())
+                val ingredient =  addIngredientRecyclerviewViewAdapater.mIngredients[adapterPosition]
+                ingredient.name = it.toString()
+                addIngredientRecyclerviewViewAdapater.mIngredients.set(adapterPosition,ingredient)
             }
         }
         override fun onClick(view: View?) {
