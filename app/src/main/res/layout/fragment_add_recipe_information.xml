@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    tools:context=".recipes.AddRecipeInformationFragment">
+
+    <data>
+        <variable
+            name="recipeEntity"
+            type="com.example.allhome.data.entities.RecipeEntity" />
+
+    </data>
+
+    <ScrollView
+
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".recipes.AddRecipeInformationFragment">
+    >
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -21,6 +33,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/recipeNameTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Recipe name"
@@ -38,6 +51,7 @@
             app:layout_constraintTop_toBottomOf="@+id/recipeNametextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/servingTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Servings"
@@ -46,6 +60,7 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/difficultyTextInputLayout"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -54,14 +69,20 @@
             app:layout_constraintTop_toBottomOf="@+id/servingTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/difficultyTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
                 android:hint="Difficulty"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/preparationTimeTextInputLayout"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -70,8 +91,13 @@
             app:layout_constraintTop_toBottomOf="@+id/difficultyTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/preparationTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
                 android:hint="Preperation time"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -79,6 +105,7 @@
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/cookTimeTextInputLayout"
+            android:background="?android:attr/selectableItemBackground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5dp"
@@ -87,8 +114,13 @@
             app:layout_constraintTop_toBottomOf="@+id/preparationTimeTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/cookTimeTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
                 android:hint="Cook time"/>
         </com.google.android.material.textfield.TextInputLayout>
@@ -104,9 +136,9 @@
             app:layout_constraintTop_toBottomOf="@+id/cookTimeTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/categoryTimeTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
                 android:hint="Category"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
@@ -120,6 +152,7 @@
             app:layout_constraintTop_toBottomOf="@+id/categoryTimeTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/estimatedCostTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="numberDecimal"
@@ -137,6 +170,7 @@
             app:layout_constraintTop_toBottomOf="@+id/estimatedCostTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/descriptionTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:gravity="top"
@@ -179,3 +213,5 @@
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>
+
+</layout>

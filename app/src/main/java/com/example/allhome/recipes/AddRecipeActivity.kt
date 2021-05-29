@@ -1,29 +1,29 @@
 package com.example.allhome.recipes
 
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
-import android.widget.SearchView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.allhome.R
 import com.example.allhome.databinding.ActivityAddRecipeBinding
-import com.example.allhome.recipes.viewmodel.AddRecipeIngredientsFragmentModel
-import com.example.allhome.storage.StorageActivity
 import com.google.android.material.tabs.TabLayout
-import kotlinx.coroutines.*
 
 
 class AddRecipeActivity : AppCompatActivity() {
 
 
     lateinit var mActivityAddRecipeBinding:ActivityAddRecipeBinding
+    val mFragmentList = arrayListOf(
+        AddRecipeInformationFragment(),AddRecipeIngredientsFragment(),AddRecipeStepsFragment()
+    )
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -31,9 +31,7 @@ class AddRecipeActivity : AppCompatActivity() {
         title = "Create recipe"
 
         mActivityAddRecipeBinding = DataBindingUtil.setContentView(this, R.layout.activity_add_recipe)
-        val fragmentList = arrayListOf(
-            AddRecipeInformationFragment(),AddRecipeIngredientsFragment(),AddRecipeStepsFragment()
-        )
+
         mActivityAddRecipeBinding.addRecipeTabLayout.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
                 mActivityAddRecipeBinding.viewPager2.setCurrentItem(tab!!.position)
@@ -54,7 +52,7 @@ class AddRecipeActivity : AppCompatActivity() {
             }
         })
 
-        val adapter = ViewPagerFragmentAdapter(fragmentList,supportFragmentManager,lifecycle)
+        val adapter = ViewPagerFragmentAdapter(mFragmentList,supportFragmentManager,lifecycle)
         mActivityAddRecipeBinding.viewPager2.adapter = adapter
         mActivityAddRecipeBinding.viewPager2.isUserInputEnabled = false
     }
@@ -71,9 +69,34 @@ class AddRecipeActivity : AppCompatActivity() {
             android.R.id.home -> {
                 finish()
             }
+
+            R.id.saveRecipe->{
+                Toast.makeText(this,"save recipe",Toast.LENGTH_SHORT).show()
+                checkDataForSaving()
+            }
         }
 
         return super.onOptionsItemSelected(item)
+    }
+
+    fun checkDataForSaving(){
+
+        mFragmentList.forEach { fragment->
+            if(fragment is AddRecipeInformationFragment) {
+               val addRecipeInformationFragment = fragment as AddRecipeInformationFragment
+
+
+                Log.e("FRAGMENT","AddRecipeInformationFragment")
+            }else if(fragment is AddRecipeIngredientsFragment){
+                val addRecipeIngredientsFragment  = fragment as AddRecipeIngredientsFragment
+                //addRecipeIngredientsFragment.
+                //Log.e("FRAGMENT","AddRecipeIngredientsFragment")
+            }else if(fragment is AddRecipeStepsFragment){
+                Log.e("FRAGMENT","AddRecipeStepsFragment")
+            }
+        }
+       val viewPagerFragmentAdapter=  mActivityAddRecipeBinding.viewPager2.adapter as ViewPagerFragmentAdapter
+       // viewPagerFragmentAdapter.fr
     }
 }
 

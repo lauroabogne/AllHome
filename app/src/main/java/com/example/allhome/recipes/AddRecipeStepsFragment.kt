@@ -1,15 +1,19 @@
 package com.example.allhome.recipes
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Color
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.ColumnInfo
 import com.example.allhome.R
@@ -42,6 +46,9 @@ class AddRecipeStepsFragment : Fragment() {
 
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_add_recipe_steps, container, false)
         mDataBindingUtil.fab.setOnClickListener(fabClickListener)
+
+        recyclerViewTouchHelper.attachToRecyclerView(mDataBindingUtil.addRecipeStepRecyclerview)
+
         val addStepRecyclerviewViewAdapater = AddStepRecyclerviewViewAdapater(mAddRecipeStepsFragmentViewModel.mRecipeStepEntities,this)
         mDataBindingUtil.addRecipeStepRecyclerview.adapter = addStepRecyclerviewViewAdapater
         return mDataBindingUtil.root
@@ -98,9 +105,65 @@ class AddRecipeStepsFragment : Fragment() {
 
      }
  }
+    val recyclerViewTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
+
+
+        override fun getMovementFlags(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder): Int {
+
+            val dragFlags =  ItemTouchHelper.UP or ItemTouchHelper.DOWN
+            return makeMovementFlags(
+                dragFlags,
+                0
+            )
+        }
+
+        override fun isLongPressDragEnabled(): Boolean {
+            return false
+        }
+
+        override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+
+            val sourcePosition = viewHolder.adapterPosition
+            val targetPosition = target.adapterPosition
+
+
+            Collections.swap(mAddRecipeStepsFragmentViewModel.mRecipeStepEntities, sourcePosition, targetPosition)
+            mDataBindingUtil.addRecipeStepRecyclerview.adapter?.notifyItemMoved(sourcePosition,targetPosition)
+
+            return false
+
+        }
+
+        @SuppressLint("ResourceAsColor")
+        override fun clearView(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder) {
+            super.clearView(recyclerView, viewHolder)
+            val addStepRecyclerviewViewAdapater = mDataBindingUtil.addRecipeStepRecyclerview.adapter as AddStepRecyclerviewViewAdapater
+            addStepRecyclerviewViewAdapater.itemDropped(viewHolder)
+
+        }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if (actionState == ItemTouchHelper.ACTION_STATE_DRAG) {
+
+                // val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
+
+                //val cardView:CardView = itemViewHolder.groceryListItemBinding.groceryItemParentLayout
+
+            }
+
+        }
+
+        override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            TODO("Not yet implemented")
+        }
+
+    })
+
+
 }
 
-class AddStepRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeStepEntity>, addRecipeStepsFragment: AddRecipeStepsFragment): RecyclerView.Adapter<AddStepRecyclerviewViewAdapater.ItemViewHolder>() {
+class AddStepRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeStepEntity>, val addRecipeStepsFragment: AddRecipeStepsFragment): RecyclerView.Adapter<AddStepRecyclerviewViewAdapater.ItemViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
@@ -126,8 +189,37 @@ class AddStepRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeSt
         return mRecipeStepEntities.size
     }
 
+    fun itemDropped(viewHolderParams: RecyclerView.ViewHolder){
+
+        var viewHolder  = viewHolderParams as AddStepRecyclerviewViewAdapater.ItemViewHolder
+        viewHolder.addStepItemBinding.root.setBackgroundColor(Color.WHITE)
+
+    }
+
+    fun requestDrag(itemViewHolder: AddStepRecyclerviewViewAdapater.ItemViewHolder){
+        addRecipeStepsFragment.recyclerViewTouchHelper.startDrag(itemViewHolder)
+        val constraintLayout = itemViewHolder.addStepItemBinding.root as ConstraintLayout
+        constraintLayout.setBackgroundResource(R.drawable.with_shadow)
+
+    }
+    fun removeItem(position: Int){
+
+        mRecipeStepEntities.removeAt(position)
+        notifyItemRemoved(position)
+
+
+
+    }
+
     inner class  ItemViewHolder(var addStepItemBinding: AddStepItemBinding, val addStepRecyclerviewViewAdapater: AddStepRecyclerviewViewAdapater): RecyclerView.ViewHolder(addStepItemBinding.root),View.OnClickListener{
 
+        init {
+            addStepItemBinding.removeBtn.setOnClickListener(this)
+            addStepItemBinding.moveBtn.setOnLongClickListener {
+                requestDrag(this)
+                true
+            }
+        }
         fun setText(text:String){
             addStepItemBinding.instructionEditTextText.setText(text.toString())
         }
@@ -139,6 +231,15 @@ class AddStepRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeSt
             }
         }
         override fun onClick(view: View?) {
+
+
+            when(view?.id){
+                R.id.removeBtn->{
+
+                    addStepRecyclerviewViewAdapater.removeItem(adapterPosition)
+
+                }
+            }
 
 
         }

@@ -21,11 +21,6 @@
             app:layout_constraintBottom_toTopOf="@+id/fab"
             app:layout_constraintTop_toTopOf="parent">
 
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                android:id="@+id/swipeRefresh"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/addRecipeStepRecyclerview"
                     android:layout_width="match_parent"
@@ -34,7 +29,6 @@
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/storage_item" />
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
 
 

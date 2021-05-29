@@ -21,7 +21,7 @@
             android:ems="10"
             android:text="@{recipeStepEntity.instruction}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/imageButton3"
+            app:layout_constraintEnd_toStartOf="@+id/removeBtn"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:inputType="textMultiLine"
@@ -29,26 +29,26 @@
             android:scrollHorizontally="false"/>
 
         <ImageButton
-            android:id="@+id/imageButton3"
+            android:id="@+id/removeBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
             android:padding="10dp"
             app:layout_constraintBottom_toBottomOf="@+id/instructionEditTextText"
-            app:layout_constraintEnd_toStartOf="@+id/imageButton4"
+            app:layout_constraintEnd_toStartOf="@+id/moveBtn"
             app:layout_constraintTop_toTopOf="@+id/instructionEditTextText"
             app:srcCompat="@drawable/ic_baseline_clear_24"
             tools:ignore="VectorDrawableCompat" />
 
         <ImageButton
-            android:id="@+id/imageButton4"
+            android:id="@+id/moveBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@null"
             android:padding="10dp"
-            app:layout_constraintBottom_toBottomOf="@+id/imageButton3"
+            app:layout_constraintBottom_toBottomOf="@+id/removeBtn"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/imageButton3"
+            app:layout_constraintTop_toTopOf="@+id/removeBtn"
             app:srcCompat="@drawable/ic_baseline_swap_vert"
             tools:ignore="VectorDrawableCompat" />
     </androidx.constraintlayout.widget.ConstraintLayout>

@@ -121,6 +121,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         })
 
+        dataBindingUtil.swipeRefresh.isEnabled = false
         dataBindingUtil.swipeRefresh.setOnRefreshListener {
             iniItems()
             dataBindingUtil.swipeRefresh.isRefreshing = false
