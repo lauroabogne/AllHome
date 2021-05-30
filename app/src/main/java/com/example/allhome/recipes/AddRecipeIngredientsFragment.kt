@@ -179,6 +179,9 @@ class AddRecipeIngredientsFragment : Fragment() {
 
     })
 
+    fun getIngredents(): ArrayList<IngredientEntity> {
+        return mAddRecipeIngredientsFragmentModel.mIngredients
+    }
 
 
 }

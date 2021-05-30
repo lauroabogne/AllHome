@@ -3,11 +3,13 @@ package com.example.allhome.data.entities
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 @Entity(tableName = "ingredients")
 data class IngredientEntity(
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name="unique_id") var uniqueId:String,
     @ColumnInfo(name="recipe_unique_id") var recipeUniqueId:String,
     @ColumnInfo(name="quantity",defaultValue = 0.toString()) var quantity:Double,

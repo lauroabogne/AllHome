@@ -2,7 +2,6 @@ package com.example.allhome.recipes
 
 import android.app.AlertDialog
 import android.content.Context
-import android.content.DialogInterface
 import android.os.Bundle
 import android.text.InputFilter
 import android.text.Spanned
@@ -13,11 +12,16 @@ import android.view.inputmethod.InputMethodManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.ColumnInfo
 import com.example.allhome.R
+import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentAddRecipeInformationBinding
 import com.example.allhome.databinding.HourAndTimeInputBinding
+import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 class AddRecipeInformationFragment : Fragment() {
@@ -28,6 +32,14 @@ class AddRecipeInformationFragment : Fragment() {
     lateinit var mDataBinding:FragmentAddRecipeInformationBinding
 
 
+    companion object{
+         val DIFICULTY_OPTIONS = arrayOf(
+            "",
+            "Easy",
+            "Medium",
+            "Hard",
+        )
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -52,22 +64,23 @@ class AddRecipeInformationFragment : Fragment() {
         return mDataBinding.root
     }
     fun showDifficultyPopup(){
-        val choices = arrayOf(
-            "",
-            "Easy",
-            "Medium",
-            "Hard",
-        )
 
         val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())
             .setTitle("Select difficulty")
-            .setSingleChoiceItems(choices, 0, null)
+            .setSingleChoiceItems(DIFICULTY_OPTIONS, 0, null)
             .setPositiveButton("Ok", null)
             .setNegativeButton("Close", null)
             .setCancelable(false)
             .create()
 
         alertDialog.show()
+
+        alertDialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener {
+
+            val checkedPosition = alertDialog.listView.checkedItemPosition
+            mDataBinding.difficultyTextInputEditText.setText(DIFICULTY_OPTIONS[checkedPosition])
+            alertDialog.dismiss()
+        }
     }
     fun showPrepationTimePopup(){
 
@@ -95,15 +108,20 @@ class AddRecipeInformationFragment : Fragment() {
 
             if(hourDisplay.isNotEmpty() && minutesDisplay.isNotEmpty()){
                 mDataBinding.preparationTextInputEditText.setText("${hourDisplay}  ${minutesDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = hour.toInt()
+                mAddRecipeInformationFragmentViewModel.mTempPrepaTimeMinutes = minutes.toInt()
+
             }else if(hourDisplay.isEmpty() && minutesDisplay.isNotEmpty()){
                 mDataBinding.preparationTextInputEditText.setText("${minutesDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempPrepaTimeMinutes = minutes.toInt()
 
             }else if(hourDisplay.isNotEmpty() && minutesDisplay.isEmpty()){
                 mDataBinding.preparationTextInputEditText.setText("${hourDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = hour.toInt()
             }
+
             alertDialog.dismiss()
         }
-
 
     }
 
@@ -129,11 +147,16 @@ class AddRecipeInformationFragment : Fragment() {
 
             if(hourDisplay.isNotEmpty() && minutesDisplay.isNotEmpty()){
                 mDataBinding.cookTimeTextInputEditText.setText("${hourDisplay}  ${minutesDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempCookTimeHour = hour.toInt()
+                mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes = minutes.toInt()
+
             }else if(hourDisplay.isEmpty() && minutesDisplay.isNotEmpty()){
                 mDataBinding.cookTimeTextInputEditText.setText("${minutesDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes = minutes.toInt()
 
             }else if(hourDisplay.isNotEmpty() && minutesDisplay.isEmpty()){
                 mDataBinding.cookTimeTextInputEditText.setText("${hourDisplay}")
+                mAddRecipeInformationFragmentViewModel.mTempCookTimeHour = hour.toInt()
             }
             alertDialog.dismiss()
         }
@@ -144,6 +167,74 @@ class AddRecipeInformationFragment : Fragment() {
             val inputMethodManager: InputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
+    }
+
+    fun getRecipeInformation():RecipeEntity?{
+
+        val name = mDataBinding.recipeNameTextInputEditText.text.toString()
+        val serving = mDataBinding.servingTextInputEditText.text.toString().ifEmpty { "0" }
+        val difficulty = mDataBinding.difficultyTextInputEditText.text.toString()
+        val preperationHour = mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour
+        val preperationMinute = mAddRecipeInformationFragmentViewModel.mTempPrepaTimeMinutes
+        val cookTimeHour = mAddRecipeInformationFragmentViewModel.mTempCookTimeHour
+        val cookTimeMinute = mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes
+        val category = mDataBinding.categoryTimeTextInputEditText.text.toString()
+        val estimatedCost = mDataBinding.estimatedCostTextInputEditText.text.toString().ifEmpty { "0" }
+
+        val description = mDataBinding.descriptionTextInputEditText.text.toString()
+
+
+        if(name.isEmpty()){
+            showErroPopup("Recipe name must not empty.")
+            return null
+        }
+
+        var itemUniqueID = UUID.randomUUID().toString()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        val recipeInformation  = RecipeEntity(
+            uniqueId = itemUniqueID,
+            name= name,
+            serving = serving.toInt(),
+            difficulty = generateDifficultyInteger(difficulty),
+            preparationHour=preperationHour,
+            preparationMinutes = preperationMinute,
+            cookingHours =cookTimeHour,
+            cookingMinutes =cookTimeMinute,
+            category=category,
+            estimatedCost = estimatedCost.toDouble(),
+            description = description,
+            imageName = "",
+            status = RecipeEntity.NOT_DELETED_STATUS,
+            uploaded = RecipeEntity.NOT_UPLOADED,
+            created = currentDatetime,
+            modified = currentDatetime
+        )
+
+        return recipeInformation
+
+    }
+
+    fun showErroPopup(message:String){
+        var dialog = CustomMessageDialogFragment(null,message,true)
+        dialog.show(requireActivity().supportFragmentManager,"CustomMessageDialogFragment")
+    }
+    fun generateDifficultyInteger(difficultyString:String):Int{
+
+        if(difficultyString.length <=0){
+            return RecipeEntity.DIFFICULTY_NONE
+        }else if(difficultyString.equals(DIFICULTY_OPTIONS[1])){
+            return RecipeEntity.DIFFICULTY_EASY
+        }else if(difficultyString.equals(DIFICULTY_OPTIONS[2])){
+            return RecipeEntity.DIFFICULTY_MEDIUM
+        }else if(difficultyString.equals(DIFICULTY_OPTIONS[3])){
+            return RecipeEntity.DIFFICULTY_HARD
+        }else{
+            return RecipeEntity.DIFFICULTY_NONE
+        }
+
+
     }
 
 

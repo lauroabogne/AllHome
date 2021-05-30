@@ -7,7 +7,8 @@ import androidx.room.RoomDatabase
 import com.example.allhome.data.DAO.*
 import com.example.allhome.data.entities.*
 
-@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class, StorageEntity::class),version = 3)
+@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class,
+    StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class),version = 3)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
     abstract fun groceryListDAO(): GroceryListDAO

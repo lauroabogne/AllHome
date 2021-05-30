@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -59,6 +60,9 @@ class AddRecipeStepsFragment : Fragment() {
             inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
         }
     }
+    fun getSteps(): ArrayList<RecipeStepEntity> {
+        return mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
+    }
 
     val fabClickListener = object:View.OnClickListener{
      override fun onClick(v: View?) {
@@ -104,6 +108,8 @@ class AddRecipeStepsFragment : Fragment() {
          }
 
      }
+
+
  }
     val recyclerViewTouchHelper = ItemTouchHelper(object : ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0) {
 
@@ -193,6 +199,15 @@ class AddStepRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeSt
 
         var viewHolder  = viewHolderParams as AddStepRecyclerviewViewAdapater.ItemViewHolder
         viewHolder.addStepItemBinding.root.setBackgroundColor(Color.WHITE)
+
+        /**
+         * modifiy step
+         */
+        mRecipeStepEntities.forEachIndexed { index, recipeStepEntity ->
+            recipeStepEntity.sequence = index+1
+        }
+
+
 
     }
 

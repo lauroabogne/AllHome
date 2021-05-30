@@ -3,17 +3,21 @@ package com.example.allhome.data.entities
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
 @Entity(tableName = "recipes")
 data class RecipeEntity(
+    @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name="unique_id") var uniqueId:String,
     @ColumnInfo(name="name") var name:String,
     @ColumnInfo(name="serving") var serving:Int,
-    @ColumnInfo(name="difficulty") var difficulty:String,
-    @ColumnInfo(name="preparation_time_in_minutes") var preparationTimeInMinutes:Int,
-    @ColumnInfo(name="cooking_time_in_minutes") var cookingTimeInMinutes:Int,
+    @ColumnInfo(name="difficulty",defaultValue =DIFFICULTY_NONE.toString() ) var difficulty:Int,
+    @ColumnInfo(name="preparation_hour") var preparationHour:Int,
+    @ColumnInfo(name="preparationMinutes") var preparationMinutes:Int,
+    @ColumnInfo(name="cooking_hours") var cookingHours:Int,
+    @ColumnInfo(name="cooking_minutes") var cookingMinutes:Int,
     @ColumnInfo(name="category") var category:String,
     @ColumnInfo(name="estimated_cost") var estimatedCost:Double,
     @ColumnInfo(name="description") var description:String,
@@ -28,5 +32,11 @@ data class RecipeEntity(
         const val DELETED_STATUS = 1
         const val NOT_UPLOADED = 0
         const val UPLOADED = 1
+
+        const val DIFFICULTY_NONE = 0
+        const val DIFFICULTY_EASY = 1
+        const val DIFFICULTY_MEDIUM = 2
+        const val DIFFICULTY_HARD = 3
+
     }
 }
