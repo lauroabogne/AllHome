@@ -1,9 +1,16 @@
 package com.example.allhome.data.entities
 
+import android.net.Uri
 import android.os.Parcelable
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.bumptech.glide.Glide
+import com.example.allhome.storage.StorageUtil
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -39,4 +46,30 @@ data class RecipeEntity(
         const val DIFFICULTY_HARD = 3
 
     }
+}
+
+
+@BindingAdapter("android:setRecipeImage")
+fun setRecipeImage(view: ImageView,imageName:String){
+
+    val context = view.context
+    Glide.with(context)
+        .load(context.resources.getIdentifier("adobo","drawable",context.packageName))
+        .into(view)
+}
+@BindingAdapter("android:setServingText")
+fun setServingText(textViwe: TextView, serving:Int){
+    if(serving <=0){
+        textViwe.visibility = View.GONE
+        return
+    }
+    textViwe.setText("Serving: ${serving}")
+}
+@BindingAdapter("android:setRecipeCost")
+fun setRecipeCost(textViwe: TextView, cost:Double){
+    if(cost <=0.0){
+        textViwe.visibility = View.GONE
+        return
+    }
+    textViwe.setText("Cost: ${cost}")
 }
