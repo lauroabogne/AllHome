@@ -21,6 +21,8 @@ import com.example.allhome.databinding.AddStepItemBinding
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
+import com.example.allhome.storage.CreateStorageActivity
+import com.example.allhome.storage.StorageFragment
 import com.example.allhome.storage.StorageViewAdapter
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -96,8 +98,18 @@ class RecipesFragment : Fragment() {
         }
 
 
-        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeItemBinding.root){
+        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
 
+            init {
+                recipeItemBinding.root.setOnClickListener(this)
+            }
+            override fun onClick(view: View?) {
+                Toast.makeText(view?.context,"Clicked",Toast.LENGTH_SHORT).show()
+                val intent = Intent()
+
+                val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
+                view?.context?.startActivity(viewRecipeActivity)
+            }
 
 
         }

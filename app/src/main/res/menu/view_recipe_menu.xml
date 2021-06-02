@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:icon="@drawable/ic_baseline_shopping_basket_24"
+        app:showAsAction="always"
+        android:title="Add to grocery list" />
+    <item android:title="Edit"
+        android:icon="@drawable/ic_edit"
+        app:showAsAction="always"/>
+    <item android:title="Delete"
+        android:icon="@drawable/ic_delete_24"
+        app:showAsAction="always"/>
+</menu>

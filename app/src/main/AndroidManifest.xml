@@ -19,7 +19,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
-        <activity android:name=".recipes.AddRecipeActivity"></activity>
+        <activity android:name=".recipes.ViewRecipeActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar"></activity>
+        <activity android:name=".recipes.AddRecipeActivity" />
         <activity android:name=".storage.StorageStorageListActivity" />
         <activity android:name=".storage.StorageGroceryListActivity" />
         <activity android:name=".storage.CreateStorageActivity" />
@@ -34,7 +36,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".grocerylist.TestMainActivity" />
         <activity android:name=".grocerylist.GroceryListInformationActivity" />
         <activity
             android:name=".grocerylist.SingleGroceryListActivity"

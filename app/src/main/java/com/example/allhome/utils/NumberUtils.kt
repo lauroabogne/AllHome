@@ -1,11 +1,22 @@
 package com.example.allhome.utils
 
 import android.util.Log
+import com.example.allhome.grocerylist.GroceryUtil
 import java.math.BigDecimal
 import java.math.RoundingMode
+import java.text.DecimalFormat
 
 object NumberUtils {
 
+    val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
+    val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
+    val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
+    val withoutCommaAndWithDecimalFormater = DecimalFormat("####.00")
+    fun formatNumber(anyNumber: Double) : String{
+
+        return if(anyNumber % 1 == 0.0 ) GroceryUtil.withCommaAndWithoutDecimalFormater.format(anyNumber) else GroceryUtil.withCommaAndWithDecimalFormater.format(anyNumber)
+
+    }
         fun bigDecimalToString( bigDecimal: BigDecimal):String{
             if(bigDecimal == null){
                 return "";

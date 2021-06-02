@@ -11,6 +11,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.bumptech.glide.Glide
 import com.example.allhome.storage.StorageUtil
+import com.example.allhome.utils.NumberUtils
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -71,5 +72,7 @@ fun setRecipeCost(textViwe: TextView, cost:Double){
         textViwe.visibility = View.GONE
         return
     }
-    textViwe.setText("Cost: ${cost}")
+
+
+    textViwe.setText("Cost: ${ NumberUtils.formatNumber(cost)}")
 }
