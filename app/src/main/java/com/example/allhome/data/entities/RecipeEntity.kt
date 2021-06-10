@@ -50,29 +50,3 @@ data class RecipeEntity(
 }
 
 
-@BindingAdapter("android:setRecipeImage")
-fun setRecipeImage(view: ImageView,imageName:String){
-
-    val context = view.context
-    Glide.with(context)
-        .load(context.resources.getIdentifier("adobo","drawable",context.packageName))
-        .into(view)
-}
-@BindingAdapter("android:setServingText")
-fun setServingText(textViwe: TextView, serving:Int){
-    if(serving <=0){
-        textViwe.visibility = View.GONE
-        return
-    }
-    textViwe.setText("Serving: ${serving}")
-}
-@BindingAdapter("android:setRecipeCost")
-fun setRecipeCost(textViwe: TextView, cost:Double){
-    if(cost <=0.0){
-        textViwe.visibility = View.GONE
-        return
-    }
-
-
-    textViwe.setText("Cost: ${ NumberUtils.formatNumber(cost)}")
-}

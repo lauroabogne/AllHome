@@ -22,6 +22,7 @@ import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.example.allhome.storage.CreateStorageActivity
+import com.example.allhome.storage.StorageAddItemActivity
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.storage.StorageViewAdapter
 import com.example.allhome.storage.viewmodel.StorageViewModel
@@ -75,8 +76,6 @@ class RecipesFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
-
-
             val layoutInflater = LayoutInflater.from(parent.context)
             val recipeItemBinding =  RecipeItemBinding.inflate(layoutInflater, parent, false)
             val itemViewHolder = ItemViewHolder(recipeItemBinding, this)
@@ -105,9 +104,11 @@ class RecipesFragment : Fragment() {
             }
             override fun onClick(view: View?) {
                 Toast.makeText(view?.context,"Clicked",Toast.LENGTH_SHORT).show()
-                val intent = Intent()
+                val recipeEntity = recipesRecyclerviewViewAdapater.mRecipeStepEntities[adapterPosition]
+
 
                 val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
+                viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity)
                 view?.context?.startActivity(viewRecipeActivity)
             }
 

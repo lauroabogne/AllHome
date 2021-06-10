@@ -4,6 +4,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <import type="android.view.View"/>
+        <variable
+            name="recipeEntity"
+            type="com.example.allhome.data.entities.RecipeEntity" />
+
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
 
         android:layout_width="match_parent"
@@ -18,9 +26,9 @@
             android:layout_height="wrap_content"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="TextView"
+            android:text="@{recipeEntity.name}"
             android:textColor="#000"
-            android:textSize="18sp"
+            android:textSize="24sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +37,8 @@
             android:id="@+id/textView31"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description"
+            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
+            android:text="Description : "
             android:textColor="#000"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView30" />
@@ -40,8 +49,10 @@
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
             android:layout_marginLeft="8dp"
-            android:text="Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum Lorem Ipsum"
+            android:text="@{recipeEntity.description}"
+            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
             android:textColor="#000"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView31" />
@@ -51,6 +62,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Serving :"
+            android:setServing="@{recipeEntity.serving}"
             android:textColor="#000"
             app:layout_constraintBottom_toBottomOf="@+id/textView41"
             app:layout_constraintStart_toStartOf="parent"
@@ -76,6 +88,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Cost :"
+            android:visibility="@{recipeEntity.estimatedCost == 0 ? View.GONE:View.VISIBLE}"
             android:textColor="#000"
             app:layout_constraintBottom_toBottomOf="@+id/textView43"
             app:layout_constraintStart_toStartOf="parent"
@@ -88,7 +101,7 @@
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="150"
+            android:setRecipeCostAndVisibility="@{recipeEntity.estimatedCost}"
             android:textColor="#000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -136,7 +149,7 @@
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="1 hr 30 minutes"
+            android:setPreparationTime="@{recipeEntity}"
             android:textColor="#000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -160,7 +173,7 @@
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="45 minutes"
+            android:setCookingTime="@{recipeEntity}"
             android:textColor="#000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -180,12 +193,12 @@
         <TextView
             android:id="@+id/textView51"
             android:layout_width="0dp"
-            android:layout_height="1000dp"
+            android:layout_height="wrap_content"
             android:gravity="center_vertical"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="Chicken"
+            android:text="@{recipeEntity.category}"
             android:textColor="#000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"

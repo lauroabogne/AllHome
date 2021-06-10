@@ -21,13 +21,12 @@ import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
+import com.example.allhome.utils.IngredientEvaluator
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var drawerLayout: DrawerLayout;
-
-
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -70,6 +69,12 @@ class MainActivity : AppCompatActivity() {
                 R.id.nav_recipes->{
                     fragmentProcessor(RecipesFragment())
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+
+                R.id.nav_meal_planner->{
+                    val ingredient = IngredientEvaluator.evaluate("5.5 kilo bangus")
+
+                    Log.e("ingredient",ingredient.toString())
                 }
             }
             true
@@ -138,5 +143,7 @@ class MainActivity : AppCompatActivity() {
         Log.e("RESULT","RECEIVED")
 
     }
+
+
 
 }

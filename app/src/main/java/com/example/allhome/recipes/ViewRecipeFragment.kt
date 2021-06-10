@@ -1,6 +1,7 @@
 package com.example.allhome.recipes
 
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
@@ -10,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
+import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentViewRecipeBinding
 import com.google.android.material.tabs.TabLayout
 
@@ -18,22 +20,19 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class ViewRecipeFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    private lateinit var mRecipeEntity:RecipeEntity
 
     private lateinit var mFragmentViewRecipeBinding:FragmentViewRecipeBinding
-    val mFragmentList = arrayListOf(
-        ViewRecipeInformationFragment(),ViewRecipeIngredientsFragment(),ViewRecipeStepsFragment()
-    )
+    val mFragmentList = arrayListOf<Fragment>()
 
     companion object {
-
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        val TAG = "ViewRecipeFragment"
+        val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+        @JvmStatic fun newInstance(recipeEntity: RecipeEntity) =
             ViewRecipeFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
                 }
             }
     }
@@ -41,10 +40,14 @@ class ViewRecipeFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
+            mRecipeEntity= it.getParcelable<RecipeEntity>(RECIPE_INTENT_TAG)!!
+            mFragmentList.add( ViewRecipeInformationFragment.newInstance(mRecipeEntity))
+            mFragmentList.add(ViewRecipeIngredientsFragment.newInstance(mRecipeEntity))
+            mFragmentList.add( ViewRecipeStepsFragment.newInstance(mRecipeEntity))
 
+            Log.e(TAG,mRecipeEntity.toString())
+
+        }
 
         setHasOptionsMenu(true)
 

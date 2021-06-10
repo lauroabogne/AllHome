@@ -5,55 +5,114 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
+import com.example.allhome.data.entities.IngredientEntity
+import com.example.allhome.data.entities.RecipeEntity
+import com.example.allhome.data.entities.RecipeStepEntity
+import com.example.allhome.databinding.FragmentViewRecipeStepsBinding
+import com.example.allhome.databinding.RecipeStepTextviewBinding
+import com.example.allhome.databinding.ViewIngredientItemBinding
+import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [ViewRecipeStepsFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class ViewRecipeStepsFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
+    lateinit var mRecipeEntity:RecipeEntity
+    lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
+    lateinit var mFragmentViewRecipeStepsBinding:FragmentViewRecipeStepsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)!!
+
         }
+        mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
     }
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_view_recipe_steps, container, false)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
+        mFragmentViewRecipeStepsBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_view_recipe_steps, container, false)
+
+        val recipeSteptRecyclerviewViewAdapater = RecipeSteptRecyclerviewViewAdapater( arrayListOf<RecipeStepEntity>(),this)
+        mFragmentViewRecipeStepsBinding.viewStepRecyclerview.adapter = recipeSteptRecyclerviewViewAdapater
+
+        mRecipesFragmentViewModel.mCoroutineScope.launch {
+            val steps = mRecipesFragmentViewModel.getSteps(requireContext(),mRecipeEntity.uniqueId)
+            withContext(Main){
+                recipeSteptRecyclerviewViewAdapater.mSteps = steps as ArrayList<RecipeStepEntity>
+                recipeSteptRecyclerviewViewAdapater.notifyDataSetChanged()
+            }
+
+        }
+
+
+        return mFragmentViewRecipeStepsBinding.root
     }
 
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment ViewRecipeStepsFragment.
-         */
-        // TODO: Rename and change types and number of parameters
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+        @JvmStatic fun newInstance(recipeEntity: RecipeEntity) =
             ViewRecipeStepsFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
                 }
             }
+    }
+
+
+    class RecipeSteptRecyclerviewViewAdapater(var mSteps:ArrayList<RecipeStepEntity>, val mViewRecipeStepsFragment: ViewRecipeStepsFragment):
+        RecyclerView.Adapter<RecipeSteptRecyclerviewViewAdapater.ItemViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+
+            val layoutInflater = LayoutInflater.from(parent.context)
+
+            val recipeStepTextviewBinding =  RecipeStepTextviewBinding.inflate(layoutInflater,parent,false)
+            val itemViewHolder = ItemViewHolder(recipeStepTextviewBinding)
+
+
+
+
+            return itemViewHolder
+        }
+
+        override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+            val step = mSteps[position]
+            holder.setStep(step)
+
+
+        }
+
+        override fun getItemCount(): Int {
+
+            return mSteps.size
+        }
+
+
+        inner class  ItemViewHolder(val recipeStepTextviewBinding: RecipeStepTextviewBinding): RecyclerView.ViewHolder(recipeStepTextviewBinding.root),View.OnClickListener{
+
+
+            override fun onClick(view: View?) {
+                Toast.makeText(view?.context,"Clicked", Toast.LENGTH_SHORT).show()
+
+            }
+
+            fun setStep(recipeStepEntity: RecipeStepEntity){
+
+                recipeStepTextviewBinding.recipeStepEntity = recipeStepEntity
+
+            }
+
+        }
+
+
     }
 }
