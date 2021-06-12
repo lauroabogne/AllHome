@@ -24,13 +24,16 @@ import androidx.room.ColumnInfo
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.IngredientEntity
+import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.AddIngredientItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeIngredientsBinding
 import com.example.allhome.grocerylist.GroceryItemRecyclerViewAdapter
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.recipes.viewmodel.AddRecipeIngredientsFragmentModel
+import com.example.allhome.utils.IngredientEvaluator
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers.Main
 import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
@@ -40,12 +43,39 @@ import kotlin.collections.ArrayList
 class AddRecipeIngredientsFragment : Fragment() {
 
     private lateinit var mAddRecipeIngredientsFragmentModel: AddRecipeIngredientsFragmentModel
-     lateinit var mDataBindingUtil: FragmentAddRecipeIngredientsBinding
+    lateinit var mDataBindingUtil: FragmentAddRecipeIngredientsBinding
 
+    var mRecipeEntity:RecipeEntity? = null
+    var mAction = ADD_ACTION
+
+    companion object {
+        val TAG = "ViewRecipeFragment"
+
+
+        const val ADD_ACTION = 0
+        const val EDIT_ACTION = 1
+        val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+
+        @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
+            AddRecipeIngredientsFragment().apply {
+
+                mAction = EDIT_ACTION
+                arguments = Bundle().apply {
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+                }
+            }
+        @JvmStatic fun newInstanceForAdd() =
+
+            AddRecipeIngredientsFragment().apply {
+                mAction = ADD_ACTION
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+
+            mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)
 
         }
 
@@ -55,57 +85,28 @@ class AddRecipeIngredientsFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_add_recipe_ingredients, container, false)
+        mDataBindingUtil.fab.setOnClickListener { fabOnClick }
+        recyclerViewTouchHelper.attachToRecyclerView(mDataBindingUtil.addIngredientRecyclerview)
+        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(mAddRecipeIngredientsFragmentModel.mIngredients,this)
+        mDataBindingUtil.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater
 
-        mDataBindingUtil.fab.setOnClickListener {
-
-            val addIngredientRecyclerviewViewAdapater =  mDataBindingUtil.addIngredientRecyclerview.adapter as AddIngredientRecyclerviewViewAdapater
-            var itemUniqueID = UUID.randomUUID().toString()
-            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-            val currentDatetime: String = simpleDateFormat.format(Date())
-
-            val ingredientEntity = IngredientEntity(
-                uniqueId =itemUniqueID,
-                recipeUniqueId="",
-                quantity=0.0,
-                unit="",
-                name="",
-                status = IngredientEntity.NOT_DELETED_STATUS,
-                uploaded = IngredientEntity.NOT_UPLOADED,
-                created = currentDatetime,
-                modified = currentDatetime
-
-            )
-
-            val elemetSize = mAddRecipeIngredientsFragmentModel.mIngredients.size
-
-            mAddRecipeIngredientsFragmentModel.mIngredients.add(ingredientEntity)
-            addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
-
-            mDataBindingUtil.addIngredientRecyclerview.scrollToPosition(elemetSize );
-            mDataBindingUtil.fab.isClickable = false
-
-            CoroutineScope(IO).launch {
-                delay(500)
-                withContext(Dispatchers.Main) {
-                    mDataBindingUtil.fab.isClickable = true
-
-                    val holder = mDataBindingUtil.addIngredientRecyclerview.findViewHolderForLayoutPosition(elemetSize) as AddIngredientRecyclerviewViewAdapater.ItemViewHolder
-
-                    holder.addIngredientItemBinding.ingredientEditTextText.requestFocus()
-                    showSoftKeyboard(holder.addIngredientItemBinding.ingredientEditTextText)
+        if(mAction == EDIT_ACTION){
+            Toast.makeText(requireContext(),"Editing fragment",Toast.LENGTH_SHORT).show()
+            mAddRecipeIngredientsFragmentModel.mCoroutineScope.launch {
+                val ingredientEntities = mAddRecipeIngredientsFragmentModel.getIngredients(requireContext(),mRecipeEntity!!.uniqueId)
+                withContext(Main){
+                    addIngredientRecyclerviewViewAdapater.mIngredients = ingredientEntities as ArrayList<IngredientEntity>
+                    addIngredientRecyclerviewViewAdapater.notifyDataSetChanged()
 
                 }
+
             }
 
 
         }
 
 
-        recyclerViewTouchHelper.attachToRecyclerView(mDataBindingUtil.addIngredientRecyclerview)
 
-        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(mAddRecipeIngredientsFragmentModel.mIngredients,this)
-
-        mDataBindingUtil.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater
         return mDataBindingUtil.root
     }
 
@@ -180,10 +181,62 @@ class AddRecipeIngredientsFragment : Fragment() {
     })
 
     fun getIngredents(): ArrayList<IngredientEntity> {
-        return mAddRecipeIngredientsFragmentModel.mIngredients
+
+        val evaluatedIngredients = arrayListOf<IngredientEntity>()
+
+        mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
+            val evaluatedIngredient = IngredientEvaluator.evaluate(it.name)
+
+            evaluatedIngredient.uniqueId = it.uniqueId
+            evaluatedIngredient.status = IngredientEntity.NOT_DELETED_STATUS
+            evaluatedIngredient.uploaded = IngredientEntity.NOT_UPLOADED
+            evaluatedIngredient.created = it.created
+            evaluatedIngredient.modified = it.modified
+
+            evaluatedIngredients.add(evaluatedIngredient)
+        }
+
+        return evaluatedIngredients
     }
 
+    val fabOnClick = View.OnClickListener {
+        val addIngredientRecyclerviewViewAdapater =  mDataBindingUtil.addIngredientRecyclerview.adapter as AddIngredientRecyclerviewViewAdapater
+        var itemUniqueID = UUID.randomUUID().toString()
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
 
+        val ingredientEntity = IngredientEntity(
+            uniqueId =itemUniqueID,
+            recipeUniqueId="",
+            quantity=0.0,
+            unit="",
+            name="",
+            status = IngredientEntity.NOT_DELETED_STATUS,
+            uploaded = IngredientEntity.NOT_UPLOADED,
+            created = currentDatetime,
+            modified = currentDatetime
+
+        )
+
+        val elemetSize = mAddRecipeIngredientsFragmentModel.mIngredients.size
+
+        mAddRecipeIngredientsFragmentModel.mIngredients.add(ingredientEntity)
+        addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
+
+        mDataBindingUtil.addIngredientRecyclerview.scrollToPosition(elemetSize );
+        mDataBindingUtil.fab.isClickable = false
+
+        mAddRecipeIngredientsFragmentModel.mCoroutineScope.launch {
+            delay(500)
+            withContext(Dispatchers.Main) {
+                mDataBindingUtil.fab.isClickable = true
+                val holder = mDataBindingUtil.addIngredientRecyclerview.findViewHolderForLayoutPosition(elemetSize) as AddIngredientRecyclerviewViewAdapater.ItemViewHolder
+                holder.addIngredientItemBinding.ingredientEditTextText.requestFocus()
+                showSoftKeyboard(holder.addIngredientItemBinding.ingredientEditTextText)
+
+            }
+        }
+    }
 }
 
 class AddIngredientRecyclerviewViewAdapater( var mIngredients:ArrayList<IngredientEntity>, val addRecipeIngredientsFragment: AddRecipeIngredientsFragment): RecyclerView.Adapter<AddIngredientRecyclerviewViewAdapater.ItemViewHolder>() {
@@ -203,7 +256,6 @@ class AddIngredientRecyclerviewViewAdapater( var mIngredients:ArrayList<Ingredie
         val ingredient = mIngredients[position]
         holder.addIngredientItemBinding.ingredientEntity = ingredient
         holder.addIngredientItemBinding.executePendingBindings()
-        holder.setText(ingredient.name)
         holder.setTextWatcher()
     }
 

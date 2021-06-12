@@ -5,7 +5,7 @@ import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 
 class AddRecipeInformationFragmentViewModel:ViewModel() {
-    val mRecipeEntity:RecipeEntity? = null
+    var mRecipeEntity:RecipeEntity? = null
 
     var mTempPrepaTimeHour = 0
     var mTempPrepaTimeMinutes =0

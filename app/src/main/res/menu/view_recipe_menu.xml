@@ -4,12 +4,15 @@
 
     <item
         android:icon="@drawable/ic_baseline_shopping_basket_24"
+        android:id="@+id/addToGroceryListMenu"
         app:showAsAction="always"
         android:title="Add to grocery list" />
     <item android:title="Edit"
+        android:id="@+id/editMenu"
         android:icon="@drawable/ic_edit"
         app:showAsAction="always"/>
     <item android:title="Delete"
+        android:id="@+id/deleteMenu"
         android:icon="@drawable/ic_delete_24"
         app:showAsAction="always"/>
 </menu>

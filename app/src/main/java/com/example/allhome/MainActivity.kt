@@ -22,6 +22,7 @@ import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragme
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.utils.IngredientEvaluator
+import com.example.allhome.utils.NumberUtils
 
 class MainActivity : AppCompatActivity() {
 
@@ -72,9 +73,10 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_meal_planner->{
-                    val ingredient = IngredientEvaluator.evaluate("5.5 kilo bangus")
+                    val ingredient = IngredientEvaluator.evaluate("1 1/4 pcs of bangus")
 
-                    Log.e("ingredient",ingredient.toString())
+                    Log.e("the fraction ",NumberUtils.fraction(10.50))
+                    //Log.e("ingredient",ingredient.toString())
                 }
             }
             true

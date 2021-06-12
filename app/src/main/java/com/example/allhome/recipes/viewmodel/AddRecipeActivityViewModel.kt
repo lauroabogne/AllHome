@@ -15,7 +15,6 @@ import kotlinx.coroutines.Dispatchers
 class AddRecipeActivityViewModel: ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("AddRecipeActivityViewModel"))
     suspend fun saveRecipe(context: Context,recipe:RecipeEntity,ingredient:List<IngredientEntity>,steps:List<RecipeStepEntity>){
-
         val allHomeDatabase = AllHomeDatabase.getDatabase(context)
 
         val recipeDAO = allHomeDatabase.getRecipeDAO()

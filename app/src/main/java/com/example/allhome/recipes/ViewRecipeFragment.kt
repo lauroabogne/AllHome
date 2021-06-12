@@ -1,5 +1,6 @@
 package com.example.allhome.recipes
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
@@ -8,12 +9,17 @@ import androidx.fragment.app.Fragment
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentViewRecipeBinding
+import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.google.android.material.tabs.TabLayout
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 private const val ARG_PARAM1 = "param1"
@@ -22,8 +28,9 @@ private const val ARG_PARAM2 = "param2"
 class ViewRecipeFragment : Fragment() {
 
     private lateinit var mRecipeEntity:RecipeEntity
-
     private lateinit var mFragmentViewRecipeBinding:FragmentViewRecipeBinding
+    lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
+
     val mFragmentList = arrayListOf<Fragment>()
 
     companion object {
@@ -39,6 +46,8 @@ class ViewRecipeFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+
         arguments?.let {
             mRecipeEntity= it.getParcelable<RecipeEntity>(RECIPE_INTENT_TAG)!!
             mFragmentList.add( ViewRecipeInformationFragment.newInstance(mRecipeEntity))
@@ -49,9 +58,7 @@ class ViewRecipeFragment : Fragment() {
 
         }
 
-        setHasOptionsMenu(true)
-
-
+        mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
 
     }
 
@@ -60,13 +67,29 @@ class ViewRecipeFragment : Fragment() {
         setHasOptionsMenu(true);
     }
 
+
+
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mFragmentViewRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_view_recipe, container, false)
 
         mFragmentViewRecipeBinding.customToolbar.inflateMenu(R.menu.view_recipe_menu)
         mFragmentViewRecipeBinding.customToolbar.setNavigationOnClickListener {
+            activity?.finish()
             Toast.makeText(requireContext(),"Clicked backed",Toast.LENGTH_SHORT).show()
+        }
+        mFragmentViewRecipeBinding.customToolbar.setOnMenuItemClickListener {
+
+            when(it.itemId){
+                R.id.deleteMenu->{
+                   deleteRecipe()
+                }
+                R.id.editMenu->{
+                    editRecipe()
+                }
+            }
+            true
         }
         mFragmentViewRecipeBinding.viewRecipeTabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
@@ -81,6 +104,37 @@ class ViewRecipeFragment : Fragment() {
         })
 
         return mFragmentViewRecipeBinding.root
+    }
+    fun deleteRecipe(){
+        mRecipesFragmentViewModel.mCoroutineScope.launch {
+            mRecipesFragmentViewModel.deleteRecipe(requireContext(),mRecipeEntity.uniqueId)
+            withContext(Main){
+                Toast.makeText(requireContext(),"DELETED",Toast.LENGTH_SHORT).show()
+                activity?.finish()
+            }
+        }
+    }
+    fun editRecipe(){
+
+        val viewRecipeInformationFragment:ViewRecipeInformationFragment = mFragmentList[0] as ViewRecipeInformationFragment
+        val viewRecipeIngredientsFragment:ViewRecipeIngredientsFragment = mFragmentList[1] as ViewRecipeIngredientsFragment
+        val viewRecipeStepsFragment:ViewRecipeStepsFragment = mFragmentList[2] as ViewRecipeStepsFragment
+        mRecipesFragmentViewModel.mCoroutineScope.launch {
+
+            val ingredients= mRecipesFragmentViewModel.getIngredients(requireContext(),mRecipeEntity.uniqueId)
+            val steps = mRecipesFragmentViewModel.getSteps(requireContext(),mRecipeEntity.uniqueId)
+
+            withContext(Main){
+                val intent = Intent(requireContext(),AddRecipeActivity::class.java)
+                intent.putExtra(AddRecipeActivity.ACTION_TAG,AddRecipeActivity.EDIT_ACTION)
+                intent.putExtra(AddRecipeActivity.RECIPE_TAG,mRecipeEntity)
+
+                startActivity(intent)
+            }
+        }
+
+
+
     }
 
 

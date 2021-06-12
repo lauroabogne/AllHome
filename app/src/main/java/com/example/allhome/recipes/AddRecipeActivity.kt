@@ -26,19 +26,54 @@ import kotlinx.coroutines.launch
 
 class AddRecipeActivity : AppCompatActivity() {
 
+
     lateinit var mAddRecipeActivityViewModel:AddRecipeActivityViewModel
     lateinit var mActivityAddRecipeBinding:ActivityAddRecipeBinding
-    val mFragmentList = arrayListOf(
-        AddRecipeInformationFragment(),AddRecipeIngredientsFragment(),AddRecipeStepsFragment()
-    )
+    val mAddRecipeInformationFragment = AddRecipeInformationFragment()
+    val mAddRecipeIngredientsFragment = AddRecipeIngredientsFragment()
+    val mAddRecipeStepsFragment = AddRecipeStepsFragment()
+
+
+    val mFragmentList = arrayListOf<Fragment>()
+    var mAction = ADD_ACTION
+
+
+    companion object{
+        const val TAG = "AddRecipeActivity"
+        const val ADD_ACTION = 0
+        const val EDIT_ACTION = 1
+        const val ACTION_TAG = "ACTION_TAG"
+        const val RECIPE_TAG = "RECIPE_TAG"
+        const val INGREDIENTS_TAG = "INGREDIENTS_TAG"
+        const val STEPS_TAG = "STEPS_TAG"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Create recipe"
 
         mAddRecipeActivityViewModel = ViewModelProvider(this).get(AddRecipeActivityViewModel::class.java)
         mActivityAddRecipeBinding = DataBindingUtil.setContentView(this, R.layout.activity_add_recipe)
+
+       mAction = intent.getIntExtra(ACTION_TAG, ADD_ACTION)
+
+        if(mAction == EDIT_ACTION){
+
+
+            intent.getParcelableExtra<RecipeEntity>(RECIPE_TAG)?.let {
+                mFragmentList.add( AddRecipeInformationFragment.newInstanceForEditing(it))
+                mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForEditing(it))
+                mFragmentList.add( AddRecipeStepsFragment.newInstanceForEditing(it))
+            }
+
+
+        }else{
+            mFragmentList.add( AddRecipeInformationFragment.newInstanceForAdd())
+            mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForAdd())
+            mFragmentList.add( AddRecipeStepsFragment.newInstanceForAdd())
+        }
+
 
         mActivityAddRecipeBinding.addRecipeTabLayout.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {

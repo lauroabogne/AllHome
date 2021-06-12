@@ -19,6 +19,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.room.ColumnInfo
 import com.example.allhome.R
 import com.example.allhome.data.entities.IngredientEntity
+import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeStepEntity
 import com.example.allhome.databinding.AddStepItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeStepsBinding
@@ -33,6 +34,21 @@ class AddRecipeStepsFragment : Fragment() {
 
     lateinit var mAddRecipeStepsFragmentViewModel:AddRecipeStepsFragmentViewModel
     lateinit var mDataBindingUtil:FragmentAddRecipeStepsBinding
+
+    companion object{
+
+        val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+        @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
+            AddRecipeStepsFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+                }
+            }
+        @JvmStatic fun newInstanceForAdd() =
+            AddRecipeStepsFragment().apply {
+
+            }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {

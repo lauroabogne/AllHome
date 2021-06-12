@@ -6,6 +6,7 @@
     tools:context=".recipes.AddRecipeInformationFragment">
 
     <data>
+        <import type="com.example.allhome.utils.NumberUtils"/>
         <variable
             name="recipeEntity"
             type="com.example.allhome.data.entities.RecipeEntity" />
@@ -37,6 +38,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Recipe name"
+                android:text="@{recipeEntity.name}"
                 android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
@@ -55,7 +57,26 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Servings"
+                android:text="@{recipeEntity.serving == 0 ? `` : Integer.toString(recipeEntity.serving)}"
                 android:inputType="number" />
+        </com.google.android.material.textfield.TextInputLayout>
+        <com.google.android.material.textfield.TextInputLayout
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:id="@+id/estimatedCostTextInputLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/servingTextInputLayout">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/estimatedCostTextInputEditText"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="numberDecimal"
+                android:hint="Estimated cost"
+                android:text="@{recipeEntity.estimatedCost == 0 ? `` : NumberUtils.INSTANCE.formatNumber(recipeEntity.estimatedCost)}"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -66,7 +87,7 @@
             android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/servingTextInputLayout">
+            app:layout_constraintTop_toBottomOf="@+id/estimatedCostTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/difficultyTextInputEditText"
@@ -77,7 +98,8 @@
                 android:inputType="none"
                 android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
-                android:hint="Difficulty"/>
+                android:hint="Difficulty"
+                android:setDifficulty="@{recipeEntity.difficulty}"/>
         </com.google.android.material.textfield.TextInputLayout>
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -99,7 +121,8 @@
                 android:inputType="none"
                 android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
-                android:hint="Preperation time"/>
+                android:hint="Preperation time"
+                android:setPreparationTime="@{recipeEntity}"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -122,7 +145,8 @@
                 android:inputType="none"
                 android:longClickable="false"
                 android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
-                android:hint="Cook time"/>
+                android:hint="Cook time"
+                android:setCookingTime="@{recipeEntity}"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -139,25 +163,10 @@
                 android:id="@+id/categoryTimeTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Category"/>
+                android:hint="Category"
+                android:text="@{recipeEntity.category}"/>
         </com.google.android.material.textfield.TextInputLayout>
-        <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:id="@+id/estimatedCostTextInputLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/categoryTimeTextInputLayout">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/estimatedCostTextInputEditText"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberDecimal"
-                android:hint="Estimated cost"/>
-        </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -167,7 +176,7 @@
             android:layout_marginTop="5dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/estimatedCostTextInputLayout">
+            app:layout_constraintTop_toBottomOf="@+id/categoryTimeTextInputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/descriptionTextInputEditText"
@@ -176,7 +185,8 @@
                 android:gravity="top"
                 android:inputType="textMultiLine"
                 android:minLines="2"
-                android:hint="Description"/>
+                android:hint="Description"
+                android:text="@{recipeEntity.description}"/>
         </com.google.android.material.textfield.TextInputLayout>
 
 

@@ -14,4 +14,7 @@ interface RecipeDAO {
 
     @Query("SELECT * FROM recipes where status = ${RecipeEntity.NOT_DELETED_STATUS}")
     suspend fun getRecipes():List<RecipeEntity>
+    @Query("UPDATE recipes SET status=${RecipeEntity.DELETED_STATUS} WHERE unique_id=:uniqueId ")
+    suspend fun updateRecipeByUniqueIdAsDeleted(uniqueId:String):Int
+
 }

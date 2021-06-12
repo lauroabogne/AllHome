@@ -37,8 +37,13 @@ public class IngredientEvaluator {
             /**
              * check first value
              */
-            if(isValidNumberForRecipeQuantity(splitedIngredient[0])){
-                ingredientEntity.setQuantity(Double.parseDouble(splitedIngredient[0]));
+            String possibleQuantityString = splitedIngredient[0];
+            if(isValidNumberForRecipeQuantity(possibleQuantityString)){
+                ingredientEntity.setQuantity(Double.parseDouble(possibleQuantityString));
+                ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(1,splitedIngredient.length)));
+            }else if(isValidFractionForRecipeQuantity(possibleQuantityString)){
+                ingredientEntity.setQuantity(convertFractionToDecimal(possibleQuantityString));
+                ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(1,splitedIngredient.length)));
             }else{
                 ingredientEntity.setName(ingredientString);
             }
@@ -48,12 +53,18 @@ public class IngredientEvaluator {
             String possibleQuantityString = splitedIngredient[0];
             String possibleOtherQuantityOrUnitString = splitedIngredient[1];
             String possibleUnit = splitedIngredient[2];
+            boolean isFirstValueValidQuantity = isValidFractionForRecipeQuantity(possibleQuantityString) || isValidNumberForRecipeQuantity(possibleQuantityString);
             boolean isFirstValueValidNumber =  isValidNumberForRecipeQuantity(possibleQuantityString);
             boolean doSecondValueContainString = doValueContainString(possibleOtherQuantityOrUnitString);
 
-            if(isFirstValueValidNumber){
+            if(isFirstValueValidQuantity){
 
-                ingredientEntity.setQuantity(Double.parseDouble(possibleQuantityString));
+                if(isFirstValueValidNumber){
+                    ingredientEntity.setQuantity(Double.parseDouble(possibleQuantityString));
+                }else if(isValidFractionForRecipeQuantity(possibleQuantityString)){
+                    ingredientEntity.setQuantity(convertFractionToDecimal(possibleQuantityString));
+                }
+
 
                 Log.e(TAG,"FIRST VALUE IS QUANTITY (Quantity)");
             }else{
@@ -99,6 +110,10 @@ public class IngredientEvaluator {
 
                 if(!possibleOtherQuantityOrUnitStringIsFraction && !possibleOtherQuantityOrUnitStringIsUnit && !possibleUnitIsUnit){
                     ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(1,splitedIngredient.length)));
+                }
+
+                if(possibleOtherQuantityOrUnitStringIsFraction && !possibleOtherQuantityOrUnitStringIsUnit && !possibleUnitIsUnit){
+                    ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(2,splitedIngredient.length)));
                 }
 
 

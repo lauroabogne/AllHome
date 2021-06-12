@@ -30,19 +30,41 @@ class AddRecipeInformationFragment : Fragment() {
     private lateinit var mAddRecipeInformationFragmentViewModel: AddRecipeInformationFragmentViewModel
 
     lateinit var mDataBinding:FragmentAddRecipeInformationBinding
-
+    var mRecipeEntity:RecipeEntity? = null
+    var mAction = ADD_ACTION
 
     companion object{
+        const val ADD_ACTION = 0
+        const val EDIT_ACTION = 1
+
          val DIFICULTY_OPTIONS = arrayOf(
             "",
             "Easy",
             "Medium",
             "Hard",
         )
+
+        val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+
+        @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
+            AddRecipeInformationFragment().apply {
+                mAction = EDIT_ACTION
+                arguments = Bundle().apply {
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+                }
+
+            }
+        @JvmStatic fun newInstanceForAdd() =
+            AddRecipeInformationFragment().apply {
+
+            }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+            if(mAction == EDIT_ACTION){
+                mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)!!
+            }
 
         }
 
@@ -52,6 +74,8 @@ class AddRecipeInformationFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         // Inflate the layout for this fragment
         mDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_recipe_information, container, false)
+        mDataBinding.recipeEntity = mRecipeEntity
+
         mDataBinding.difficultyTextInputEditText.setOnClickListener {
            showDifficultyPopup()
         }

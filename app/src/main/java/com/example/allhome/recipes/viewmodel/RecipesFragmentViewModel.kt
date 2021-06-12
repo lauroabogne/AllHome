@@ -24,5 +24,15 @@ class RecipesFragmentViewModel:ViewModel() {
     suspend fun getSteps(context:Context,recipeUniqueId:String):List<RecipeStepEntity>{
         return AllHomeDatabase.getDatabase(context).getRecipeStepDAO().getStepsByRecipeUniqueId(recipeUniqueId)
     }
+
+    suspend fun deleteRecipe(context:Context,recipeUniqueId:String){
+        val recipeDAO = AllHomeDatabase.getDatabase(context).getRecipeDAO()
+        val recipeStepDAO = AllHomeDatabase.getDatabase(context).getRecipeStepDAO()
+        val ingredientDAO = AllHomeDatabase.getDatabase(context).getIngredientDAO()
+
+        recipeDAO.updateRecipeByUniqueIdAsDeleted(recipeUniqueId)
+        recipeStepDAO.updateStepsByRecipeUniqueIdAsDeleted(recipeUniqueId)
+        ingredientDAO.updateIngredientByRecipeUniqueIdAsDeleted(recipeUniqueId)
+    }
 }
 

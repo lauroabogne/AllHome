@@ -46,6 +46,12 @@ data class RecipeEntity(
         const val DIFFICULTY_MEDIUM = 2
         const val DIFFICULTY_HARD = 3
 
+        const val DIFFICULTY_NONE_TEXT = ""
+        const val DIFFICULTY_EASY_TEXT = "easy"
+        const val DIFFICULTY_MEDIUM_TEXT = "mediun"
+        const val DIFFICULTY_HARD_TEXT = "hard"
+
+
     }
 }
 

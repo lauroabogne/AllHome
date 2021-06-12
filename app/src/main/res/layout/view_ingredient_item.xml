@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+        <import type="com.example.allhome.utils.NumberUtils"/>
         <variable
             name="ingredientEntity"
             type="com.example.allhome.data.entities.IngredientEntity" />
@@ -23,7 +24,7 @@
             android:layout_marginRight="8dp"
             android:paddingTop="8dp"
             android:paddingBottom="8dp"
-            android:text="1 kilo"
+            android:text="@{NumberUtils.INSTANCE.fraction(ingredientEntity.quantity)+` `+ingredientEntity.unit}"
             android:textColor="#000"
             android:textSize="18sp"
             android:textStyle="bold"

@@ -19,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:ems="10"
-            android:text="@{ingredientEntity.name}"
+            android:setIngredient="@{ingredientEntity}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/removeBtn"
             app:layout_constraintStart_toStartOf="parent"
