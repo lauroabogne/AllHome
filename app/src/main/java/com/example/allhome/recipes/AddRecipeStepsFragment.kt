@@ -13,6 +13,7 @@ import android.view.inputmethod.InputMethodManager
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.createViewModelLazy
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -25,6 +26,7 @@ import com.example.allhome.databinding.AddStepItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeStepsBinding
 import com.example.allhome.recipes.viewmodel.AddRecipeStepsFragmentViewModel
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -35,24 +37,29 @@ class AddRecipeStepsFragment : Fragment() {
     lateinit var mAddRecipeStepsFragmentViewModel:AddRecipeStepsFragmentViewModel
     lateinit var mDataBindingUtil:FragmentAddRecipeStepsBinding
 
-    companion object{
+    var mRecipeEntity:RecipeEntity? = null
+    var mAction = ADD_ACTION
 
+    companion object{
+        const val ADD_ACTION = 0
+        const val EDIT_ACTION = 1
         val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
         @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
             AddRecipeStepsFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+                    mAction  = EDIT_ACTION
                 }
             }
         @JvmStatic fun newInstanceForAdd() =
             AddRecipeStepsFragment().apply {
-
+                    mAction = ADD_ACTION
             }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-
+            mRecipeEntity = it.getParcelable(AddRecipeIngredientsFragment.RECIPE_INTENT_TAG)
         }
 
         mAddRecipeStepsFragmentViewModel = ViewModelProvider(this).get(AddRecipeStepsFragmentViewModel::class.java)
@@ -68,6 +75,19 @@ class AddRecipeStepsFragment : Fragment() {
 
         val addStepRecyclerviewViewAdapater = AddStepRecyclerviewViewAdapater(mAddRecipeStepsFragmentViewModel.mRecipeStepEntities,this)
         mDataBindingUtil.addRecipeStepRecyclerview.adapter = addStepRecyclerviewViewAdapater
+
+        if(mAction == EDIT_ACTION){
+            mAddRecipeStepsFragmentViewModel.mCoroutineScope.launch {
+                val steps = mAddRecipeStepsFragmentViewModel.getSteps(requireContext(),mRecipeEntity!!.uniqueId)
+                mAddRecipeStepsFragmentViewModel.mRecipeStepEntities = steps as ArrayList<RecipeStepEntity>
+
+                withContext(Main){
+                    addStepRecyclerviewViewAdapater.mRecipeStepEntities = steps
+                    addStepRecyclerviewViewAdapater.notifyDataSetChanged()
+                }
+            }
+        }
+
         return mDataBindingUtil.root
     }
     private fun showSoftKeyboard(view: View) {
@@ -77,7 +97,24 @@ class AddRecipeStepsFragment : Fragment() {
         }
     }
     fun getSteps(): ArrayList<RecipeStepEntity> {
-        return mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        if(mAction == EDIT_ACTION){
+            mAddRecipeStepsFragmentViewModel.mRecipeStepEntities.forEach {
+                it.modified = currentDatetime
+            }
+            return mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
+        }else{
+            mAddRecipeStepsFragmentViewModel.mRecipeStepEntities.forEach{
+                it.created = currentDatetime
+                it.modified = currentDatetime
+            }
+            return mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
+        }
+
+
     }
 
     val fabClickListener = object:View.OnClickListener{
@@ -85,8 +122,7 @@ class AddRecipeStepsFragment : Fragment() {
          val addIngredientRecyclerviewViewAdapater =  mDataBindingUtil.addRecipeStepRecyclerview.adapter as AddStepRecyclerviewViewAdapater
 
          var uniqueID = UUID.randomUUID().toString()
-         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-         val currentDatetime: String = simpleDateFormat.format(Date())
+
 
 
          val elemetSize = mAddRecipeStepsFragmentViewModel.mRecipeStepEntities.size
@@ -97,14 +133,15 @@ class AddRecipeStepsFragment : Fragment() {
              sequence = elemetSize + 1,
              status = RecipeStepEntity.NOT_DELETED_STATUS,
              uploaded = RecipeStepEntity.NOT_UPLOADED,
-             created = currentDatetime,
-             modified = currentDatetime
+             created = "",
+             modified = ""
          )
 
 
 
 
          mAddRecipeStepsFragmentViewModel.mRecipeStepEntities.add(recipeStep)
+         addIngredientRecyclerviewViewAdapater.mRecipeStepEntities = mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
          addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
 
          mDataBindingUtil.addRecipeStepRecyclerview.scrollToPosition(elemetSize );

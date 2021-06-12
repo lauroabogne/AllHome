@@ -10,11 +10,11 @@ import kotlinx.coroutines.Dispatchers
 
 class AddRecipeIngredientsFragmentModel:ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("AddRecipeIngredientsFragmentModel"))
-    val mIngredients = arrayListOf<IngredientEntity>()
+    var mIngredients = arrayListOf<IngredientEntity>()
 
-    suspend fun getIngredients(context: Context,uniqueId:String):List<IngredientEntity>{
+    suspend fun getIngredients(context: Context,recipeUniqueId:String):List<IngredientEntity>{
 
-        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueId(uniqueId)
+        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueId(recipeUniqueId)
     }
 
 }

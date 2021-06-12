@@ -61,14 +61,23 @@ class AddRecipeInformationFragment : Fragment() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        mAddRecipeInformationFragmentViewModel = ViewModelProvider(this).get(AddRecipeInformationFragmentViewModel::class.java)
+
         arguments?.let {
             if(mAction == EDIT_ACTION){
                 mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)!!
+                mRecipeEntity?.let{
+                    mAddRecipeInformationFragmentViewModel.mTempCookTimeHour = it.cookingHours
+                    mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes = it.cookingMinutes
+                    mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = it.preparationHour
+                    mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = it.preparationHour
+                }
+
             }
 
         }
 
-        mAddRecipeInformationFragmentViewModel = ViewModelProvider(this).get(AddRecipeInformationFragmentViewModel::class.java)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -213,30 +222,56 @@ class AddRecipeInformationFragment : Fragment() {
             return null
         }
 
-        var itemUniqueID = UUID.randomUUID().toString()
+
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
-        val recipeInformation  = RecipeEntity(
-            uniqueId = itemUniqueID,
-            name= name,
-            serving = serving.toInt(),
-            difficulty = generateDifficultyInteger(difficulty),
-            preparationHour=preperationHour,
-            preparationMinutes = preperationMinute,
-            cookingHours =cookTimeHour,
-            cookingMinutes =cookTimeMinute,
-            category=category,
-            estimatedCost = estimatedCost.toDouble(),
-            description = description,
-            imageName = "",
-            status = RecipeEntity.NOT_DELETED_STATUS,
-            uploaded = RecipeEntity.NOT_UPLOADED,
-            created = currentDatetime,
-            modified = currentDatetime
-        )
+        if(mAction == EDIT_ACTION){
+            val recipeInformation  = RecipeEntity(
+                uniqueId = mRecipeEntity!!.uniqueId,
+                name= name,
+                serving = serving.toInt(),
+                difficulty = generateDifficultyInteger(difficulty),
+                preparationHour=preperationHour,
+                preparationMinutes = preperationMinute,
+                cookingHours =cookTimeHour,
+                cookingMinutes =cookTimeMinute,
+                category=category,
+                estimatedCost = estimatedCost.toDouble(),
+                description = description,
+                imageName = "",
+                status = RecipeEntity.NOT_DELETED_STATUS,
+                uploaded = RecipeEntity.NOT_UPLOADED,
+                created = mRecipeEntity!!.created,
+                modified = currentDatetime
+            )
 
-        return recipeInformation
+            return recipeInformation
+        }else{
+
+            var itemUniqueID = UUID.randomUUID().toString()
+            val recipeInformation  = RecipeEntity(
+                uniqueId = itemUniqueID,
+                name= name,
+                serving = serving.toInt(),
+                difficulty = generateDifficultyInteger(difficulty),
+                preparationHour=preperationHour,
+                preparationMinutes = preperationMinute,
+                cookingHours =cookTimeHour,
+                cookingMinutes =cookTimeMinute,
+                category=category,
+                estimatedCost = estimatedCost.toDouble(),
+                description = description,
+                imageName = "",
+                status = RecipeEntity.NOT_DELETED_STATUS,
+                uploaded = RecipeEntity.NOT_UPLOADED,
+                created = currentDatetime,
+                modified = currentDatetime
+            )
+
+            return recipeInformation
+        }
+
 
     }
 

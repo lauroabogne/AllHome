@@ -33,4 +33,28 @@ class AddRecipeActivityViewModel: ViewModel() {
 
     }
 
+    suspend fun updateRecipe(context: Context,recipe:RecipeEntity,ingredient:List<IngredientEntity>,steps:List<RecipeStepEntity>){
+        val allHomeDatabase = AllHomeDatabase.getDatabase(context)
+
+        val recipeDAO = allHomeDatabase.getRecipeDAO()
+        val ingredientDAO = allHomeDatabase.getIngredientDAO()
+        val recipeStepDAO = allHomeDatabase.getRecipeStepDAO()
+
+        allHomeDatabase.withTransaction {
+            // update as deleted first
+            recipeDAO.updateRecipeByUniqueIdAsDeleted(recipe.uniqueId)
+            ingredientDAO.updateIngredientByRecipeUniqueIdAsDeleted(recipe.uniqueId)
+            recipeStepDAO.updateStepsByRecipeUniqueIdAsDeleted(recipe.uniqueId)
+
+            val recipeId = recipeDAO.addOrUpdateItem(recipe)
+            val ingredientIDs = ingredientDAO.saveOrUpdateIngredients(ingredient)
+            val recipeStepIDs = recipeStepDAO.saveOrUpdateSteps(steps)
+
+            Log.e("recipeId",recipeId.toString());
+            Log.e("ingredientIDs",ingredientIDs.toString());
+            Log.e("recipeStepIDs",recipeStepIDs.toString());
+        }
+
+    }
+
 }

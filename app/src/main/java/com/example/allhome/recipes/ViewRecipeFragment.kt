@@ -96,6 +96,8 @@ class ViewRecipeFragment : Fragment() {
 
         val adapter = ViewPagerFragmentAdapter(mFragmentList,requireActivity().supportFragmentManager,lifecycle)
         mFragmentViewRecipeBinding.viewPager.adapter = adapter
+        mFragmentViewRecipeBinding.viewPager.offscreenPageLimit = 3 // important. It render all 3 fragment
+
 
         mFragmentViewRecipeBinding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {

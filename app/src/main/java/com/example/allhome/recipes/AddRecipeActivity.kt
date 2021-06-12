@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -21,7 +22,9 @@ import com.example.allhome.databinding.ActivityAddRecipeBinding
 import com.example.allhome.recipes.viewmodel.AddRecipeActivityViewModel
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
 import com.google.android.material.tabs.TabLayout
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 class AddRecipeActivity : AppCompatActivity() {
@@ -60,7 +63,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
         if(mAction == EDIT_ACTION){
 
-
+            title = "Editing recipe"
             intent.getParcelableExtra<RecipeEntity>(RECIPE_TAG)?.let {
                 mFragmentList.add( AddRecipeInformationFragment.newInstanceForEditing(it))
                 mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForEditing(it))
@@ -97,12 +100,17 @@ class AddRecipeActivity : AppCompatActivity() {
 
         val adapter = ViewPagerFragmentAdapter(mFragmentList,supportFragmentManager,lifecycle)
         mActivityAddRecipeBinding.viewPager2.adapter = adapter
+        mActivityAddRecipeBinding.viewPager2.offscreenPageLimit = 3 // important. It render all 3 fragment
         mActivityAddRecipeBinding.viewPager2.isUserInputEnabled = false
     }
 
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_recipe_menu, menu)
-
+        if(mAction == EDIT_ACTION){
+            menu?.findItem(R.id.saveRecipe)?.setVisible(false)
+            menu?.findItem(R.id.browseRecipe)?.setVisible(false)
+            menu?.findItem(R.id.updateRecipe)?.setVisible(true)
+        }
         return true
     }
 
@@ -116,6 +124,9 @@ class AddRecipeActivity : AppCompatActivity() {
             R.id.saveRecipe->{
                 Toast.makeText(this,"save recipe",Toast.LENGTH_SHORT).show()
                 checkDataForSaving()
+            }
+            R.id.updateRecipe->{
+                checkingForUpdate()
             }
         }
 
@@ -140,6 +151,38 @@ class AddRecipeActivity : AppCompatActivity() {
             }
 
         }
+
+    }
+    fun checkingForUpdate(){
+        val addRecipeInformationFragment =  mFragmentList[0] as AddRecipeInformationFragment
+        val addRecipeIngredientsFragment =  mFragmentList[1] as AddRecipeIngredientsFragment
+        val addRecipeStepsFragment =  mFragmentList[2] as AddRecipeStepsFragment
+
+
+        val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
+        val ingredients = addRecipeIngredientsFragment.getIngredents()
+        val steps = addRecipeStepsFragment.getSteps()
+
+        /*Log.e("ingredients",ingredients.toString())
+        Log.e("steps",steps.toString())
+        if(true){
+            return
+        }*/
+        recipeEntity?.let {
+
+            assignedSomeValueToIngredients(recipeEntity,ingredients)
+            assignedSomeValueToSteps(recipeEntity,steps)
+
+            mAddRecipeActivityViewModel.mCoroutineScope.launch {
+                mAddRecipeActivityViewModel.updateRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps)
+
+                withContext(Main){
+                    Toast.makeText(this@AddRecipeActivity,"Updated",Toast.LENGTH_SHORT).show()
+                    this@AddRecipeActivity.finish()
+                }
+            }
+        }
+
 
     }
     fun assignedSomeValueToIngredients(recipeEntity:RecipeEntity,ingredients:ArrayList<IngredientEntity>){

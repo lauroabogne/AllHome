@@ -82,8 +82,12 @@ fun setPreparationTime(textview:TextView,recipeEntity: RecipeEntity){
     }
 }
 @BindingAdapter("android:setPreparationTime")
-fun setPreparationTime(textInputEditText: TextInputEditText, recipeEntity: RecipeEntity){
+fun setPreparationTime(textInputEditText: TextInputEditText, recipeEntity: RecipeEntity?){
 
+
+    if(recipeEntity == null){
+        return;
+    }
     if(recipeEntity.preparationHour > 0 && recipeEntity.preparationMinutes > 0){
         val hourText = if(recipeEntity.preparationHour == 1) "${recipeEntity.preparationHour} hour" else "${recipeEntity.preparationHour} hours"
         val minutestText = if(recipeEntity.preparationMinutes == 1) "${recipeEntity.preparationMinutes} minute" else "${recipeEntity.preparationMinutes} minutes"
@@ -120,8 +124,10 @@ fun setCookingTime(textview:TextView,recipeEntity: RecipeEntity){
     }
 }
 @BindingAdapter("android:setCookingTime")
-fun setCookingTime(textInputEditText:TextInputEditText,recipeEntity: RecipeEntity){
-
+fun setCookingTime(textInputEditText:TextInputEditText,recipeEntity: RecipeEntity?){
+    if(recipeEntity == null){
+        return
+    }
     if(recipeEntity.cookingHours > 0 && recipeEntity.cookingMinutes > 0){
         val hourText = if(recipeEntity.cookingHours == 1) "${recipeEntity.cookingHours} hour" else "${recipeEntity.cookingHours} hours"
         val minutestText = if(recipeEntity.cookingMinutes == 1) "${recipeEntity.cookingMinutes} minute" else "${recipeEntity.cookingMinutes} minutes"
