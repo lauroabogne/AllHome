@@ -183,9 +183,7 @@ class AddRecipeIngredientsFragment : Fragment() {
     fun getIngredents(): ArrayList<IngredientEntity> {
 
         val evaluatedIngredients = arrayListOf<IngredientEntity>()
-        Log.e("Engrident", mAddRecipeIngredientsFragmentModel.mIngredients.toString())
-
-        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
 

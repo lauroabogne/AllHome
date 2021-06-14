@@ -195,10 +195,13 @@ fun setIngredient(editText:EditText,ingredient:IngredientEntity){
 
     if(quantity <=0 && unit.trim().length <=0){
         editText.setText(name)
+        ingredient.name = name
     }else if(quantity > 0 && unit.trim().length <=0){
         editText.setText("${NumberUtils.fraction(quantity)} ${name}")
+        ingredient.name = "${NumberUtils.fraction(quantity)} ${name}"
     }else if(quantity > 0 && unit.trim().length > 0){
         editText.setText("${NumberUtils.fraction(quantity)} ${unit} ${name}")
+        ingredient.name = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
     }
 
 
