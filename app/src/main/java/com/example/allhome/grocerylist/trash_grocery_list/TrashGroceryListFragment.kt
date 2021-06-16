@@ -30,7 +30,7 @@ class TrashGroceryListFragment : Fragment() {
 
 
     private lateinit var mDataBindingUtil: FragmentTrashGroceryListBinding
-    private lateinit var mGroceryListFragmentViewModel: TrashGroceryListFragmentViewModel;
+    private lateinit var mGroceryListFragmentViewModel: TrashGroceryListFragmentViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -91,7 +91,7 @@ class TrashGroceryListRecyclerViewAdapter(val trashGroceryListFragment: TrashGro
         val groceryListItemBinding = TrashGroceryListItemBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding)
 
-        return itemViewHolder;
+        return itemViewHolder
 
     }
 
@@ -120,7 +120,7 @@ class TrashGroceryListRecyclerViewAdapter(val trashGroceryListFragment: TrashGro
         override fun onClick(view: View?) {
 
             if(view?.id == R.id.trash_grocery_item_list_parent_layout){
-                Toast.makeText(view!!.context,"Parent toast",Toast.LENGTH_SHORT).show()
+                Toast.makeText(view.context,"Parent toast",Toast.LENGTH_SHORT).show()
 
                 val groceryListWithCount  = groceryListItemBinding.groceryListWithCount
                 val intent = Intent(trashGroceryListFragment.requireContext(), TrashSingleGroceryListActivity::class.java)

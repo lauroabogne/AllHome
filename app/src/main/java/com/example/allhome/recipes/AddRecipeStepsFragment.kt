@@ -144,7 +144,7 @@ class AddRecipeStepsFragment : Fragment() {
          addIngredientRecyclerviewViewAdapater.mRecipeStepEntities = mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
          addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
 
-         mDataBindingUtil.addRecipeStepRecyclerview.scrollToPosition(elemetSize );
+         mDataBindingUtil.addRecipeStepRecyclerview.scrollToPosition(elemetSize )
          mDataBindingUtil.fab.isClickable = false
 
          CoroutineScope(Dispatchers.IO).launch {

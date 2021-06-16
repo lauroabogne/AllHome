@@ -67,7 +67,7 @@ class StorageGroceryListActivity : AppCompatActivity() {
             finish()
         }
 
-        intent.getIntExtra(ACTION_TAG, ADD_SINGLE_PRODUCT_ACTION)?.let { action->
+        intent.getIntExtra(ACTION_TAG, ADD_SINGLE_PRODUCT_ACTION).let { action->
 
             if(action == ADD_SINGLE_PRODUCT_ACTION){
 
@@ -139,7 +139,7 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 datetimeCreated = datetimeCreated, shoppingDatetime = "0000-00-00 00:00:00", location = "",
                 longitude = 0.0, latitude = 0.0,viewingType = 0,notify = 0,notifyType = getString(R.string.grocery_notification_none),
                 itemStatus = GroceryListEntityValues.ACTIVE_STATUS,datetimeStatusUpdated = datetimeCreated,uploaded = GroceryListEntityValues.NOT_YET_UPLOADED
-            );
+            )
 
             mStorageViewModel.coroutineScope.launch {
                 val id = mStorageViewModel.createNewGroceryList(this@StorageGroceryListActivity,groceryListEntity)
@@ -388,9 +388,10 @@ class CustomDialog(context: Context) : AlertDialog.Builder(context) {
 
     }
 
-    var mGroceryListNameInput: LinearLayout;
-    lateinit var mOnClickListener: View.OnClickListener;
-    lateinit var mAlertDialog: AlertDialog;
+    var mGroceryListNameInput: LinearLayout
+    lateinit var mOnClickListener: View.OnClickListener
+    lateinit var mAlertDialog: AlertDialog
+
     init {
 
         mGroceryListNameInput = LayoutInflater.from(context).inflate(R.layout.grocery_list_name_input, null, false) as LinearLayout
@@ -409,7 +410,7 @@ class CustomDialog(context: Context) : AlertDialog.Builder(context) {
     }
     fun groceryListName():String{
         var groceryListNameTextInput: TextInputEditText = mGroceryListNameInput.findViewById(R.id.grocery_list_name_textinputedittext)
-        return groceryListNameTextInput.text.toString();
+        return groceryListNameTextInput.text.toString()
 
     }
 

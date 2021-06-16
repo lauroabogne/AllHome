@@ -2,6 +2,7 @@ package com.example.allhome.data.entities
 
 import android.os.Parcelable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
@@ -25,6 +26,17 @@ data class IngredientEntity(
         const val DELETED_STATUS = 1
         const val NOT_UPLOADED = 0
         const val UPLOADED = 1
+
+    }
+}
+@Parcelize
+data class IngredientEntityTransferringToGroceryList(
+    @Embedded val ingredientEntity: IngredientEntity,
+    var isSelected:Int = SELECTED,
+):Parcelable{
+    companion object{
+        const val NOT_SELECTED = 0
+        const val SELECTED = 1
 
     }
 }

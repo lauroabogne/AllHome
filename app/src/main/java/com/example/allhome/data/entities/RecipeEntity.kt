@@ -7,9 +7,9 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import com.bumptech.glide.Glide
 import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.NumberUtils
 import kotlinx.android.parcel.Parcelize
@@ -54,5 +54,6 @@ data class RecipeEntity(
 
     }
 }
+
 
 

@@ -168,12 +168,12 @@ class StorageAddItemActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.pantry_add_item_menu, menu)
         if(mAction == ADD_NEW_RECORD_ACTION){
 
-            menu?.findItem(R.id.update_pantry_item_menu)?.setVisible(false)
-            menu?.findItem(R.id.save_pantry_item_menu)?.setVisible(true)
+            menu?.findItem(R.id.update_pantry_item_menu)?.isVisible = false
+            menu?.findItem(R.id.save_pantry_item_menu)?.isVisible = true
 
         }else{
-            menu?.findItem(R.id.update_pantry_item_menu)?.setVisible(true)
-            menu?.findItem(R.id.save_pantry_item_menu)?.setVisible(false)
+            menu?.findItem(R.id.update_pantry_item_menu)?.isVisible = true
+            menu?.findItem(R.id.save_pantry_item_menu)?.isVisible = false
         }
 
         return true
@@ -294,7 +294,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     private fun saveNewData(storageItemEntity:StorageItemEntity){
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
-            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity);
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity)
 
             try{
                 mStorageAddItemViewModel.newImageUri?.let {
@@ -367,7 +367,7 @@ class StorageAddItemActivity : AppCompatActivity() {
 
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
-            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity);
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity)
 
             mStorageAddItemViewModel.newImageUri?.let {
                 mStorageAddItemViewModel.previousImageUri?.let {
@@ -486,7 +486,7 @@ class StorageAddItemActivity : AppCompatActivity() {
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri!!, this)
+        val imageBitmap = uriToBitmap(imageUri, this)
         val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
         val storageDir: File = getExternalFilesDir(StorageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){
@@ -628,7 +628,7 @@ class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUn
                 return
             }
             clear()
-            val res:List<StorageItemAutoSuggest> = results?.values as ArrayList<StorageItemAutoSuggest>
+            val res:List<StorageItemAutoSuggest> = results.values as ArrayList<StorageItemAutoSuggest>
             addAll(res)
         }
         override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -649,18 +649,18 @@ class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUn
 
         textView?.let{
             if(storageItemAutoSuggest!!.existInStorage  == StorageItemAutoSuggest.EXISTS_IN_STORAGE){
-                it.setPaintFlags(it.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+                it.paintFlags = it.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 it.setTextColor(Color.GRAY)
 
             }else{
-                it.setPaintFlags(0)
+                it.paintFlags = 0
                 it.setTextColor(Color.parseColor("#000000"))
             }
 
             if(storageItemAutoSuggest.unit.trim().isNotEmpty()){
-                it.setText(storageItemAutoSuggest.itemName+" (${storageItemAutoSuggest.unit})")
+                it.text = storageItemAutoSuggest.itemName+" (${storageItemAutoSuggest.unit})"
             }else{
-                it.setText(storageItemAutoSuggest.itemName)
+                it.text = storageItemAutoSuggest.itemName
             }
 
         }
@@ -719,7 +719,7 @@ class StringAutoSuggestCustomAdapter(context: Context, var stringParams: List<St
                 return
             }
             clear()
-            val res:List<String> = results?.values as ArrayList<String>
+            val res:List<String> = results.values as ArrayList<String>
             addAll(res)
         }
         override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -737,8 +737,8 @@ class StringAutoSuggestCustomAdapter(context: Context, var stringParams: List<St
             textView = convertView as TextView?
         }
         val unit = getItem(position)
-        textView!!.setText(unit)
-        return textView!!
+        textView!!.text = unit
+        return textView
     }
 }
 /**

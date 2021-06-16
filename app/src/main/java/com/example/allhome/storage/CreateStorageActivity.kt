@@ -62,7 +62,7 @@ class CreateStorageActivity : AppCompatActivity() {
             mStorageViewModel.coroutineScope.launch {
                 val storageEntity:StorageEntity =  mStorageViewModel.getStorage(this@CreateStorageActivity,storageUniqueId)
                 val imageName = storageEntity.imageName
-                val imageURI = StorageUtil.getImageUriFromPath(this@CreateStorageActivity,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName!!)
+                val imageURI = StorageUtil.getImageUriFromPath(this@CreateStorageActivity,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION, imageName)
                 mStorageViewModel.storagePreviousImageUri = imageURI
 
             }
@@ -86,10 +86,10 @@ class CreateStorageActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         if(mAction == UPDATE_RECORD_ACTION){
-            menu?.findItem(R.id.saveStorageMenu)?.setVisible(false)
+            menu?.findItem(R.id.saveStorageMenu)?.isVisible = false
 
         }else{
-            menu?.findItem(R.id.updateStorageMenu)?.setVisible(false)
+            menu?.findItem(R.id.updateStorageMenu)?.isVisible = false
         }
 
         return super.onPrepareOptionsMenu(menu)
@@ -282,7 +282,7 @@ class CreateStorageActivity : AppCompatActivity() {
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri!!, this)
+        val imageBitmap = uriToBitmap(imageUri, this)
         val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
         val storageDir: File = getExternalFilesDir(StorageUtil.STORAGE_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){

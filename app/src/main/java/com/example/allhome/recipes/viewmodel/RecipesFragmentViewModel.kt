@@ -3,10 +3,7 @@ package com.example.allhome.recipes.viewmodel
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
-import com.example.allhome.data.entities.IngredientEntity
-import com.example.allhome.data.entities.RecipeEntity
-import com.example.allhome.data.entities.RecipeStepEntity
-import com.example.allhome.data.entities.StorageEntity
+import com.example.allhome.data.entities.*
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -19,6 +16,10 @@ class RecipesFragmentViewModel:ViewModel() {
     }
     suspend fun getIngredients(context:Context,recipeUniqueId:String):List<IngredientEntity>{
         return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueId(recipeUniqueId)
+    }
+
+    suspend fun getIngredientsForTransferringInGroceryList(context:Context,recipeUniqueId:String):List<IngredientEntityTransferringToGroceryList>{
+        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsForGroceryListByRecipeUniqueId(recipeUniqueId)
     }
 
     suspend fun getSteps(context:Context,recipeUniqueId:String):List<RecipeStepEntity>{

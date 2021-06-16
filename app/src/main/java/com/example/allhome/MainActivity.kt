@@ -27,7 +27,7 @@ import com.example.allhome.utils.NumberUtils
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    lateinit var drawerLayout: DrawerLayout;
+    lateinit var drawerLayout: DrawerLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,7 +41,6 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         // for drawerlayout
         val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
-            override fun onDrawerClosed(drawerView: View) { super.onDrawerClosed(drawerView) }
         }
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
@@ -125,7 +124,7 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
 
         intent?.action?.let{
-            intent?.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+            intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
                 intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
                 startActivity(intent)

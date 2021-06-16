@@ -18,9 +18,9 @@ import java.util.*
 object StorageUtil {
     val STORAGE_IMAGES_FINAL_LOCATION = "storage_images"
     val STORAGE_ITEM_IMAGES_FINAL_LOCATION = "storage_item_images"
-    val TEMPORARY_IMAGES_LOCATION = "temporary_images";
-    val IMAGE_TEMP_NAME = "temp_image";
-    val IMAGE_NAME_SUFFIX = "jpg";
+    val TEMPORARY_IMAGES_LOCATION = "temporary_images"
+    val IMAGE_TEMP_NAME = "temp_image"
+    val IMAGE_NAME_SUFFIX = "jpg"
 
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
     fun formatExpirationDate(expirationDateString:String):String{

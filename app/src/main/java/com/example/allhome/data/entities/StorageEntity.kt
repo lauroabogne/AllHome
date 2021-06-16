@@ -105,7 +105,7 @@ fun setSoonToExpireItemText(view: TextView, itemToExpireInDays:Int){
         view.visibility = View.GONE
         return
     }
-    view.setText("Some item will expire within $itemToExpireInDays days")
+    view.text = "Some item will expire within $itemToExpireInDays days"
 
 
 }

@@ -49,23 +49,23 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     var groceryListUniqueId: String = ""
     var action = ADD_NEW_RECORD_ACTION
     var groceryListItemId = 0
-    var groceryListItemIndex = -1;
+    var groceryListItemIndex = -1
     var tempPhotoFileForAddingImage: File? = null
    // var croppedImageUri:Uri? = null
     var imageChanged = false
 
     companion object {
 
-        val IMAGE_TEMP_NAME = "temp_image";
-        val IMAGE_NAME_SUFFIX = "jpg";
+        val IMAGE_TEMP_NAME = "temp_image"
+        val IMAGE_NAME_SUFFIX = "jpg"
         val ADD_NEW_RECORD_ACTION = 1
-        val UPDATE_RECORD_ACTION = 2;
+        val UPDATE_RECORD_ACTION = 2
 
         val REQUEST_PICK_IMAGE = 4
 
 
 
-        val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG";
+        val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
         val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
         val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
         val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
@@ -81,8 +81,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
 
         groceryListItemId = intent.getIntExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
-        action = intent.getIntExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_ACTION);
-        groceryListItemIndex = intent.getIntExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1);
+        action = intent.getIntExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_ACTION)
+        groceryListItemIndex = intent.getIntExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
 
         val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "",
@@ -323,9 +323,9 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         // hide soft keyboard
         val view: View = findViewById(android.R.id.content)
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
 
-         CoroutineScope(IO).launch {
+        CoroutineScope(IO).launch {
 
 
 
@@ -362,7 +362,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         // hide soft keyboard
         val view: View = findViewById(android.R.id.content)
         val imm = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+        imm.hideSoftInputFromWindow(view.windowToken, 0)
 
         val imageName =  groceryListUniqueId+"_"+itemName+"."+ IMAGE_NAME_SUFFIX
 
@@ -457,7 +457,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         )
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri!!, this)
+        val imageBitmap = uriToBitmap(imageUri, this)
         val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
         val storageDir: File = getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
         if(!storageDir.exists()){
@@ -494,10 +494,10 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_grocery_item, menu)
         if(action == ADD_NEW_RECORD_ACTION){
-            menu?.findItem(R.id.add_item)?.setVisible(true)
+            menu?.findItem(R.id.add_item)?.isVisible = true
 
         }else if(action == UPDATE_RECORD_ACTION){
-            menu?.findItem(R.id.update_item)?.setVisible(true)
+            menu?.findItem(R.id.update_item)?.isVisible = true
         }
         return super.onCreateOptionsMenu(menu)
     }
@@ -558,7 +558,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                     return
                 }
                 clear()
-                val res:List<GroceryItemEntityForAutoSuggest> = results?.values as ArrayList<GroceryItemEntityForAutoSuggest>
+                val res:List<GroceryItemEntityForAutoSuggest> = results.values as ArrayList<GroceryItemEntityForAutoSuggest>
                 addAll(res)
             }
             override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -576,21 +576,21 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                 textView = convertView as TextView?
             }
             val groceryItemEntity = getItem(position)
-            textView!!.setText(groceryItemEntity?.groceryItemEntity?.itemName)
+            textView!!.text = groceryItemEntity?.groceryItemEntity?.itemName
 
             if(groceryItemEntity?.itemInListCount!! > 0){
-                textView.setPaintFlags(textView.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+                textView.paintFlags = textView.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 textView.setTextColor(Color.GRAY)
 
             }else{
-                textView.setPaintFlags(0)
+                textView.paintFlags = 0
                 textView.setTextColor(Color.parseColor("#000000"))
             }
 
 
 
 
-            return textView!!
+            return textView
         }
     }
     /**
@@ -629,7 +629,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                     return
                 }
                 clear()
-                val res:List<String> = results?.values as ArrayList<String>
+                val res:List<String> = results.values as ArrayList<String>
                 addAll(res)
             }
             override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -647,8 +647,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                 textView = convertView as TextView?
             }
             val unit = getItem(position)
-            textView!!.setText(unit)
-            return textView!!
+            textView!!.text = unit
+            return textView
         }
     }
 
@@ -689,7 +689,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                     return
                 }
                 clear()
-                val res:List<String> = results?.values as ArrayList<String>
+                val res:List<String> = results.values as ArrayList<String>
                 addAll(res)
             }
             override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -707,8 +707,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
                 textView = convertView as TextView?
             }
             val category = getItem(position)
-            textView!!.setText(category)
-            return textView!!
+            textView!!.text = category
+            return textView
         }
     }
 

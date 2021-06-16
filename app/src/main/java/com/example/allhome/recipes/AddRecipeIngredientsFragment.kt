@@ -249,7 +249,7 @@ class AddRecipeIngredientsFragment : Fragment() {
             addIngredientRecyclerviewViewAdapater.mIngredients =  mAddRecipeIngredientsFragmentModel.mIngredients
             addIngredientRecyclerviewViewAdapater.notifyItemInserted(elemetSize)
 
-            mDataBindingUtil.addIngredientRecyclerview.scrollToPosition(elemetSize );
+            mDataBindingUtil.addIngredientRecyclerview.scrollToPosition(elemetSize )
             mDataBindingUtil.fab.isClickable = false
 
             mAddRecipeIngredientsFragmentModel.mCoroutineScope.launch {

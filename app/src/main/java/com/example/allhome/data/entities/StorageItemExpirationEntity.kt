@@ -63,10 +63,10 @@ fun setExpirationTextWithNumberOfDays(textView: TextView, expirationDateString:S
     val days = Days.daysBetween(currentDate, expirationDate).days
     val expirationDateFormated = DateTimeFormat.forPattern("MMMM d, Y").print(expirationDate)
     if(days <=0){
-        textView.setText("${expirationDateFormated} (${days.absoluteValue} day)")
+        textView.text = "${expirationDateFormated} (${days.absoluteValue} day)"
         textView.setTextColor(Color.RED)
     }else{
-        textView.setText("${expirationDateFormated} (${days.absoluteValue} day)")
+        textView.text = "${expirationDateFormated} (${days.absoluteValue} day)"
     }
 }
 

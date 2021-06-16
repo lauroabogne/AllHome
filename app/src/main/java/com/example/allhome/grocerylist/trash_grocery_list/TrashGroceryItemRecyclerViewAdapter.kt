@@ -35,7 +35,7 @@ import java.util.*
 class TrashGroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<TrashGroceryItemRecyclerViewAdapter.ItemViewHolder>() {
 
     var mGroceryItems: List<GroceryItemEntity> = arrayListOf()
-    var context: Context = contextParams;
+    var context: Context = contextParams
     val mSingleGroceryListActivity: TrashSingleGroceryListActivity = contextParams as TrashSingleGroceryListActivity
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrashGroceryItemRecyclerViewAdapter.ItemViewHolder {
@@ -43,22 +43,22 @@ class TrashGroceryItemRecyclerViewAdapter(val contextParams: Context, val produc
         val groceryListItemBinding = TrashGroceryListProductBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding,productImageClickListener)
 
-        return itemViewHolder;
+        return itemViewHolder
     }
 
     override fun getItemCount(): Int {
         if (mGroceryItems != null) {
-            return mGroceryItems!!.size
+            return mGroceryItems.size
         }
         return 0
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val groceryItemEntity = mGroceryItems?.get(position)
+        val groceryItemEntity = mGroceryItems.get(position)
         holder.groceryListItemBinding.groceryItemEntity = groceryItemEntity
         holder.groceryListItemBinding.executePendingBindings()
         holder.groceryListItemBinding.checkBox.isChecked = holder.groceryListItemBinding.groceryItemEntity?.bought == 1
-        holder.groceryListItemBinding.itemImage.setTag(groceryItemEntity)
+        holder.groceryListItemBinding.itemImage.tag = groceryItemEntity
 
         if(groceryItemEntity.forCategoryDivider){
             holder.groceryListItemBinding.itemInformationLinearlayout.visibility = View.GONE

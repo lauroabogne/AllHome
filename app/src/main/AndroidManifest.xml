@@ -25,6 +25,7 @@
         <activity android:name=".storage.StorageStorageListActivity" />
         <activity android:name=".storage.StorageGroceryListActivity" />
         <activity android:name=".storage.CreateStorageActivity" />
+        <activity android:name=".recipes.RecipeGroceryListActivity" />
         <activity
             android:name=".storage.StorageActivity"
             android:theme="@style/Theme.AllHome.NoActionBar" />

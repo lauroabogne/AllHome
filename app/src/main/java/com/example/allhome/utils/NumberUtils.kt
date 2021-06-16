@@ -19,9 +19,9 @@ object NumberUtils {
     }
         fun bigDecimalToString(bigDecimal: BigDecimal):String{
             if(bigDecimal == null){
-                return "";
+                return ""
             }
-            val isInteger = bigDecimal.signum() == 0 || bigDecimal.scale() <= 0 || bigDecimal.stripTrailingZeros().scale() <= 0;
+            val isInteger = bigDecimal.signum() == 0 || bigDecimal.scale() <= 0 || bigDecimal.stripTrailingZeros().scale() <= 0
 
             if(isInteger && bigDecimal.signum() <= 0 ){
                 // if bigDecimal is interger and  bigDecimal less than or equal 0

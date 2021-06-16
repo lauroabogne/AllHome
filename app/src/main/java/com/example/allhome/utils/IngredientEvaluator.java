@@ -16,7 +16,7 @@ public class IngredientEvaluator {
 
         IngredientEntity ingredientEntity = new IngredientEntity("","",0.0,"","",0,0,"","");
 
-        String units[] ={
+        String[] units ={
              "teaspoon","t","tsp","tablespoon","tbl","tbsp","oz","gill","cup","pint","p","pt","quart","q","qt",
              "gallon","g","gal","ml","milliliter","millilitre","cc","l","liter","litre","dl","deciliter","decilitre",
               "pound","lb","ounce","oz","mg","milligram","milligramme","g","gram","gramme","kg","kilo","kilogram","kilogramme",
@@ -25,7 +25,7 @@ public class IngredientEvaluator {
         };
 
 
-        String splitedIngredient[] = ingredientString.split("\\s+");
+        String[] splitedIngredient = ingredientString.split("\\s+");
 
         if(splitedIngredient.length <= 1){
 
@@ -132,26 +132,17 @@ public class IngredientEvaluator {
     public static boolean isValidNumberForRecipeQuantity(String stringToCheck){
         Pattern pattern = Pattern.compile("[0-9]*\\.?[0-9]*");
         Matcher matcher = pattern.matcher(stringToCheck);
-        if(matcher.matches()){
-            return true;
-        }
-        return false;
+        return matcher.matches();
     }
     public static boolean isValidFractionForRecipeQuantity(String stringToCheck){
         Pattern pattern = Pattern.compile("[1-9]{1,2}/[1-9]{1,2}");
         Matcher matcher = pattern.matcher(stringToCheck);
-        if(matcher.matches()){
-            return true;
-        }
-        return false;
+        return matcher.matches();
     }
     public static boolean doValueContainString(String stringToCheck){
         Pattern pattern = Pattern.compile("[a-zA-Z]");
         Matcher matcher = pattern.matcher(stringToCheck);
-        if(matcher.find()){
-            return true;
-        }
-        return false;
+        return matcher.find();
     }
     public static String listToString(List<String> listString){
 
@@ -166,7 +157,7 @@ public class IngredientEvaluator {
     }
     public static double convertFractionToDecimal(String fractionString){
 
-        String splitteString[] = fractionString.split("/");
+        String[] splitteString = fractionString.split("/");
 
         return Double.parseDouble(splitteString[0]) / Double.parseDouble(splitteString[1]);
 

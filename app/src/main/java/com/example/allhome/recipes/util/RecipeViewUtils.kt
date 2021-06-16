@@ -21,7 +21,7 @@ import com.google.android.material.textfield.TextInputEditText
             return
         }
 
-        textView.setText(serving.toString())
+    textView.text = serving.toString()
 
     }
 @BindingAdapter("android:setCost")
@@ -32,6 +32,7 @@ fun setCost(textView:TextView,cost:Double){
 fun setRecipeImage(view: ImageView, imageName:String){
 
     val context = view.context
+
     Glide.with(context)
         .load(context.resources.getIdentifier("adobo","drawable",context.packageName))
         .into(view)
@@ -42,7 +43,7 @@ fun setServingText(textViwe: TextView, serving:Int){
         textViwe.visibility = View.GONE
         return
     }
-    textViwe.setText("Serving: ${serving}")
+    textViwe.text = "Serving: ${serving}"
 }
 @BindingAdapter("android:setRecipeCost")
 fun setRecipeCost(textView: TextView, cost:Double){
@@ -52,7 +53,7 @@ fun setRecipeCost(textView: TextView, cost:Double){
     }
 
 
-    textView.setText("Cost: ${ NumberUtils.formatNumber(cost)}")
+    textView.text = "Cost: ${ NumberUtils.formatNumber(cost)}"
 }
 @BindingAdapter("android:setRecipeCostAndVisibility")
 fun setRecipeCostAndVisibility(textView: TextView, cost:Double){
@@ -61,7 +62,7 @@ fun setRecipeCostAndVisibility(textView: TextView, cost:Double){
         return
     }
 
-    textView.setText("${ NumberUtils.formatNumber(cost)}")
+    textView.text = "${ NumberUtils.formatNumber(cost)}"
 }
 @BindingAdapter("android:setPreparationTime")
 fun setPreparationTime(textview:TextView,recipeEntity: RecipeEntity){
@@ -69,15 +70,15 @@ fun setPreparationTime(textview:TextView,recipeEntity: RecipeEntity){
     if(recipeEntity.preparationHour > 0 && recipeEntity.preparationMinutes > 0){
         val hourText = if(recipeEntity.preparationHour == 1) "${recipeEntity.preparationHour} hour" else "${recipeEntity.preparationHour} hours"
         val minutestText = if(recipeEntity.preparationMinutes == 1) "${recipeEntity.preparationMinutes} minute" else "${recipeEntity.preparationMinutes} minutes"
-        textview.setText(hourText+" "+minutestText)
+        textview.text = hourText+" "+minutestText
 
     }else if(recipeEntity.preparationHour <=0 && recipeEntity.preparationMinutes > 0){
         val minutestText = if(recipeEntity.preparationMinutes == 1) "${recipeEntity.preparationMinutes} minute" else "${recipeEntity.preparationMinutes} minutes"
-        textview.setText(minutestText)
+        textview.text = minutestText
 
     }else if(recipeEntity.preparationHour > 0 && recipeEntity.preparationMinutes <= 0){
         val hourText = if(recipeEntity.preparationHour == 1) "${recipeEntity.preparationHour} hour" else "${recipeEntity.preparationHour} hours"
-        textview.setText(hourText)
+        textview.text = hourText
 
     }
 }
@@ -86,7 +87,7 @@ fun setPreparationTime(textInputEditText: TextInputEditText, recipeEntity: Recip
 
 
     if(recipeEntity == null){
-        return;
+        return
     }
     if(recipeEntity.preparationHour > 0 && recipeEntity.preparationMinutes > 0){
         val hourText = if(recipeEntity.preparationHour == 1) "${recipeEntity.preparationHour} hour" else "${recipeEntity.preparationHour} hours"
@@ -111,15 +112,15 @@ fun setCookingTime(textview:TextView,recipeEntity: RecipeEntity){
     if(recipeEntity.cookingHours > 0 && recipeEntity.cookingMinutes > 0){
         val hourText = if(recipeEntity.cookingHours == 1) "${recipeEntity.cookingHours} hour" else "${recipeEntity.cookingHours} hours"
         val minutestText = if(recipeEntity.cookingMinutes == 1) "${recipeEntity.cookingMinutes} minute" else "${recipeEntity.cookingMinutes} minutes"
-        textview.setText(hourText+" "+minutestText)
+        textview.text = hourText+" "+minutestText
 
     }else if(recipeEntity.cookingHours <=0 && recipeEntity.cookingMinutes > 0){
         val minutestText = if(recipeEntity.cookingMinutes == 1) "${recipeEntity.cookingMinutes} minute" else "${recipeEntity.cookingMinutes} minutes"
-        textview.setText(minutestText)
+        textview.text = minutestText
 
     }else if(recipeEntity.cookingHours > 0 && recipeEntity.cookingHours <= 0){
         val hourText = if(recipeEntity.cookingHours == 1) "${recipeEntity.cookingHours} hour" else "${recipeEntity.cookingHours} hours"
-        textview.setText(hourText)
+        textview.text = hourText
 
     }
 }
@@ -148,12 +149,12 @@ fun setCookingTime(textInputEditText:TextInputEditText,recipeEntity: RecipeEntit
 fun setDifficulty(textview:TextView,difficulty:Int){
 
     if(difficulty == RecipeEntity.DIFFICULTY_EASY){
-        textview.setText(RecipeEntity.DIFFICULTY_EASY_TEXT)
+        textview.text = RecipeEntity.DIFFICULTY_EASY_TEXT
 
     }else if(difficulty == RecipeEntity.DIFFICULTY_MEDIUM){
-        textview.setText(RecipeEntity.DIFFICULTY_MEDIUM_TEXT)
+        textview.text = RecipeEntity.DIFFICULTY_MEDIUM_TEXT
     }else if(difficulty == RecipeEntity.DIFFICULTY_HARD){
-        textview.setText(RecipeEntity.DIFFICULTY_HARD_TEXT)
+        textview.text = RecipeEntity.DIFFICULTY_HARD_TEXT
     }
 
 }
@@ -178,11 +179,11 @@ fun setIngredient(textView:TextView,ingredient:IngredientEntity){
     val name = ingredient.name
 
     if(quantity <=0 && unit.trim().length <=0){
-        textView.setText(name)
+        textView.text = name
     }else if(quantity > 0 && unit.trim().length <=0){
-        textView.setText("${NumberUtils.fraction(quantity)} ${name}")
+        textView.text = "${NumberUtils.fraction(quantity)} ${name}"
     }else if(quantity > 0 && unit.trim().length > 0){
-        textView.setText("${NumberUtils.fraction(quantity)} ${unit} ${name}")
+        textView.text = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
     }
 
 
@@ -203,6 +204,19 @@ fun setIngredient(editText:EditText,ingredient:IngredientEntity){
         editText.setText("${NumberUtils.fraction(quantity)} ${unit} ${name}")
         ingredient.name = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
     }
+}
+@BindingAdapter("android:setIngredentToGroceryQuantityAndUnit")
+fun setIngredentToGroceryQuantityAndUnit(textView:TextView,ingredent:IngredientEntity){
+    val quantity = Math.ceil(ingredent.quantity).toInt()
+    val unit = ingredent.unit
+    if(quantity > 0){
 
+        textView.setText("${quantity} ${unit}")
+    }else{
+        textView.visibility = View.GONE
+    }
 
 }
+
+
+

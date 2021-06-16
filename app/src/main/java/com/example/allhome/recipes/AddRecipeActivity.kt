@@ -55,7 +55,6 @@ class AddRecipeActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Create recipe"
-
         mAddRecipeActivityViewModel = ViewModelProvider(this).get(AddRecipeActivityViewModel::class.java)
         mActivityAddRecipeBinding = DataBindingUtil.setContentView(this, R.layout.activity_add_recipe)
 
@@ -80,7 +79,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
         mActivityAddRecipeBinding.addRecipeTabLayout.addOnTabSelectedListener(object:TabLayout.OnTabSelectedListener{
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                mActivityAddRecipeBinding.viewPager2.setCurrentItem(tab!!.position)
+                mActivityAddRecipeBinding.viewPager2.currentItem = tab!!.position
             }
 
             override fun onTabUnselected(tab: TabLayout.Tab?) {
@@ -107,9 +106,9 @@ class AddRecipeActivity : AppCompatActivity() {
     override fun onCreateOptionsMenu(menu: Menu?): Boolean {
         menuInflater.inflate(R.menu.add_recipe_menu, menu)
         if(mAction == EDIT_ACTION){
-            menu?.findItem(R.id.saveRecipe)?.setVisible(false)
-            menu?.findItem(R.id.browseRecipe)?.setVisible(false)
-            menu?.findItem(R.id.updateRecipe)?.setVisible(true)
+            menu?.findItem(R.id.saveRecipe)?.isVisible = false
+            menu?.findItem(R.id.browseRecipe)?.isVisible = false
+            menu?.findItem(R.id.updateRecipe)?.isVisible = true
         }
         return true
     }

@@ -26,9 +26,9 @@ class AddRecipeActivityViewModel: ViewModel() {
             val ingredientIDs = ingredientDAO.saveIngredients(ingredient)
             val recipeStepIDs = recipeStepDAO.saveSteps(steps)
 
-            Log.e("recipeId",recipeId.toString());
-            Log.e("ingredientIDs",ingredientIDs.toString());
-            Log.e("recipeStepIDs",recipeStepIDs.toString());
+            Log.e("recipeId",recipeId.toString())
+            Log.e("ingredientIDs",ingredientIDs.toString())
+            Log.e("recipeStepIDs",recipeStepIDs.toString())
         }
 
     }
@@ -50,9 +50,9 @@ class AddRecipeActivityViewModel: ViewModel() {
             val ingredientIDs = ingredientDAO.saveOrUpdateIngredients(ingredient)
             val recipeStepIDs = recipeStepDAO.saveOrUpdateSteps(steps)
 
-            Log.e("recipeId",recipeId.toString());
-            Log.e("ingredientIDs",ingredientIDs.toString());
-            Log.e("recipeStepIDs",recipeStepIDs.toString());
+            Log.e("recipeId",recipeId.toString())
+            Log.e("ingredientIDs",ingredientIDs.toString())
+            Log.e("recipeStepIDs",recipeStepIDs.toString())
         }
 
     }

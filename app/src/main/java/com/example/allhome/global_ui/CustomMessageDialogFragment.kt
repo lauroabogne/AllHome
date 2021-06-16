@@ -18,8 +18,6 @@ import com.example.allhome.databinding.MessageLayoutBinding
 
 class CustomMessageDialogFragment(val title:String?,val message:String,val isErrorMessage:Boolean): DialogFragment() {
 
-
-
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val inflater = LayoutInflater.from(requireContext())
@@ -34,7 +32,7 @@ class CustomMessageDialogFragment(val title:String?,val message:String,val isErr
         if(isErrorMessage){
             messageLayoutBinding.messageTextView.setTextColor(Color.RED)
         }
-        messageLayoutBinding.messageTextView.setText(message)
+        messageLayoutBinding.messageTextView.text = message
         alertDialogBuilder.setView(messageLayoutBinding.root)
         alertDialogBuilder.setPositiveButton("Close", DialogInterface.OnClickListener { dialog, which ->
             // on success

@@ -21,7 +21,7 @@ import java.util.*
 
 object GroceryUtil {
     val FINAL_IMAGES_LOCATION = "item_images"
-    val TEMPORARY_IMAGES_LOCATION = "temporary_images";
+    val TEMPORARY_IMAGES_LOCATION = "temporary_images"
     val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
     val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
@@ -52,7 +52,7 @@ object GroceryUtil {
         }
 
 
-        return "test";
+        return "test"
 
     }
 
@@ -262,7 +262,7 @@ object GroceryUtil {
         if(groceryListEntity == null){
             return ""
         }
-        if(groceryListEntity!!.notify <=0){
+        if(groceryListEntity.notify <=0){
             return ""
         }
         return groceryListEntity.notify.toString()

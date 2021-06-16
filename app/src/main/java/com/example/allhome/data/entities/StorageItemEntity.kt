@@ -152,15 +152,15 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
 
     if(storageItemEntity.stockWeight == StorageItemEntityValues.NO_STOCK ){
 
-        view.setText("Stock Weight : "+StorageItemEntityValues.NO_STOCK_STRING)
+        view.text = "Stock Weight : "+StorageItemEntityValues.NO_STOCK_STRING
 
     }else if(storageItemEntity.stockWeight == StorageItemEntityValues.LOW_STOCK){
 
         if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT){
-            view.setText("Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING)
+            view.text = "Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING
         }else{
 
-            view.setText("Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")")
+            view.text = "Stock Weight : "+StorageItemEntityValues.LOW_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")"
         }
 
 
@@ -168,13 +168,13 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
 
 
         if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT){
-            view.setText("Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING)
+            view.text = "Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING
         }else{
-            view.setText("Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")")
+            view.text = "Stock Weight : "+StorageItemEntityValues.HIGH_STOCK_STRING+" ("+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit+")"
         }
     }else if(storageItemEntity.stockWeight == StorageItemEntityValues.NO_STOCK_WEIGHT_INPUT){
 
-        view.setText("Stock : "+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit)
+        view.text = "Stock : "+StorageUtil.displayQuantity(storageItemEntity.quantity)+" "+storageItemEntity.unit
 
     }
 
@@ -184,11 +184,11 @@ fun setStockWeight(view: TextView, storageItemEntity: StorageItemEntity){
 fun setStocks(view: TextView, storageItemEntity: StorageItemEntity){
 
     if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT ){
-        view.setText("Stock: ")
+        view.text = "Stock: "
     }else if(storageItemEntity.quantity == 0.0){
-        view.setText("Stock: 0 "+storageItemEntity.unit)
+        view.text = "Stock: 0 "+storageItemEntity.unit
     }else{
-        view.setText("Stock: "+ DecimalFormat("#,###").format(storageItemEntity.quantity)+" "+storageItemEntity.unit)
+        view.text = "Stock: "+ DecimalFormat("#,###").format(storageItemEntity.quantity)+" "+storageItemEntity.unit
     }
 
 
@@ -204,12 +204,12 @@ fun addStorages(flexboxLayout: FlexboxLayout,storageItemWithExpirationsAndStorag
         val chip:Chip = LayoutInflater.from(flexboxLayout.context).inflate(R.layout.chip_layout,null,false) as Chip
 
         if(it.storageItemQuantity > StorageItemEntityValues.NO_QUANTITY_INPUT){
-            chip.setText(it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")")
+            chip.text = it.storageEntity.name+" ("+it.storageItemQuantity+" "+it.storageItemUnit+")"
         }else{
-            chip.setText(it.storageEntity.name)
+            chip.text = it.storageEntity.name
         }
 
-        chip.setTag(it)
+        chip.tag = it
         flexboxLayout.addView(chip)
         val divider = TextView(flexboxLayout.context)
         divider.isEnabled = false

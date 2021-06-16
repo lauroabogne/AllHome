@@ -117,7 +117,7 @@ class AddRecipeInformationFragment : Fragment() {
     }
     fun showPrepationTimePopup(){
 
-        val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false);
+        val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false)
 
         hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxFilter( 1 , 168 ))
         hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxFilter( 1 , 59 ))
@@ -159,7 +159,7 @@ class AddRecipeInformationFragment : Fragment() {
     }
 
     fun showCookingTimePopup(){
-        val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false);
+        val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false)
         hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxFilter( 1 , 168 ))
         hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxFilter( 1 , 59 ))
         val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())

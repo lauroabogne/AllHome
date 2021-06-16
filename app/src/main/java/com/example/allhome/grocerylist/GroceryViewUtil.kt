@@ -1,4 +1,3 @@
 package com.example.allhome.grocerylist
 
-class GroceryViewUtil {
-}
+class GroceryViewUtil

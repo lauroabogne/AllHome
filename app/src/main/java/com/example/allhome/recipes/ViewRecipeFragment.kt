@@ -15,6 +15,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentViewRecipeBinding
+import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
@@ -64,7 +65,7 @@ class ViewRecipeFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
-        setHasOptionsMenu(true);
+        setHasOptionsMenu(true)
     }
 
 
@@ -87,6 +88,10 @@ class ViewRecipeFragment : Fragment() {
                 }
                 R.id.editMenu->{
                     editRecipe()
+                }
+                R.id.addToGroceryListMenu->{
+                    var ingredientDialogFragment = IngredientDialogFragment("Select ingredients",mRecipeEntity)
+                    ingredientDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
                 }
             }
             true
@@ -143,7 +148,7 @@ class ViewRecipeFragment : Fragment() {
     val onTabSelectedListener = object:TabLayout.OnTabSelectedListener{
         override fun onTabSelected(tab: TabLayout.Tab?) {
 
-            mFragmentViewRecipeBinding.viewPager.setCurrentItem(tab!!.position)
+            mFragmentViewRecipeBinding.viewPager.currentItem = tab!!.position
         }
         override fun onTabUnselected(tab: TabLayout.Tab?) {
         }
