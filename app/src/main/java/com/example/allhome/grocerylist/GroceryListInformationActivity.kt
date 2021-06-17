@@ -105,7 +105,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
 
                 val notifyType = mDataBindingUtil.notificationSpinner.selectedItem.toString()
                 val notifyText = mDataBindingUtil.notificationTextInputEditText.text.toString()
-                val notifyInt = notifyText.toInt()
+                val notifyInt =  if(notifyText.trim().length <=0 ) 0 else notifyText.toInt()
 
                 mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.name = mDataBindingUtil.nameTextInputEditText.text.toString().trim()
                 mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.location = mDataBindingUtil.locationTextInputEditText.text.toString().trim()
@@ -177,7 +177,10 @@ class GroceryListInformationActivity : AppCompatActivity() {
     }
     private fun createAlarm(groceryListUniqueId: String){
 
-        mDataBindingUtil.groceryListInformationActivityViewModel!!.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime
+
+        if(mDataBindingUtil.notificationTextInputEditText.text.toString().trim().length <=0){
+            return
+        }
 
         val notificationStringData = mDataBindingUtil.notificationTextInputEditText.text.toString().toInt()
         val notificationTypeSelected =mDataBindingUtil.notificationSpinner.selectedItem.toString()

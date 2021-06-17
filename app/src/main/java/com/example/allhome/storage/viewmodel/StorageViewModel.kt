@@ -436,7 +436,7 @@ class StorageViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).groceryListDAO().addItem(groceryListEntity)
     }
     suspend fun getSingleGroceryItemEntity(context:Context, groceryListUniqueId:String, itemName:String, unit:String):GroceryItemEntity{
-        return AllHomeDatabase.getDatabase(context).groceryItemDAO().getItemByNameAndUnit(groceryListUniqueId,itemName,unit)
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().getItemByGroceryListUniqueIdNameAndUnit(groceryListUniqueId,itemName,unit)
 
     }
     suspend fun addGroceryListItem(context:Context,groceryItemEntity:GroceryItemEntity):Long{
