@@ -1,30 +1,18 @@
 package com.example.allhome.recipes
 
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.Toast
-import androidx.constraintlayout.widget.ConstraintLayout
-import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeEntity
-import com.example.allhome.data.entities.RecipeStepEntity
-import com.example.allhome.databinding.AddStepItemBinding
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
-import com.example.allhome.storage.CreateStorageActivity
-import com.example.allhome.storage.StorageAddItemActivity
-import com.example.allhome.storage.StorageFragment
-import com.example.allhome.storage.StorageViewAdapter
-import com.example.allhome.storage.viewmodel.StorageViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -37,6 +25,7 @@ class RecipesFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
         arguments?.let {
 
         }
@@ -44,6 +33,33 @@ class RecipesFragment : Fragment() {
         mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.view_all_recipe_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+
+            R.id.noFilterMenu -> {
+
+            }
+            R.id.recipeInformationFilterMenu -> {
+                val filterByInformationDialogFragment  = FilterByInformationDialogFragment()
+                filterByInformationDialogFragment.isCancelable = false
+                filterByInformationDialogFragment.setRecipeFilterSetter(recipeFilterSetter)
+                filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
+            }
+            R.id.recipeIngredientFilterMenu -> {
+
+
+            }
+
+        }
+
+
+        return true
+    }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
         mFragmentRecipesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
         mFragmentRecipesBinding.fab.setOnClickListener {
@@ -69,6 +85,66 @@ class RecipesFragment : Fragment() {
 
         return mFragmentRecipesBinding.root
     }
+    private val  recipeFilterSetter = object:RecipeFilterSetter{
+        override fun filterConditions(costSpinnerSelectedFilter: String, servingSelectedFilter: String, prepPlusCookTimeSelectedFilter: String) {
+            mRecipesFragmentViewModel.mCostSpinnerSelectedFilter=costSpinnerSelectedFilter
+            mRecipesFragmentViewModel.mServingSelectedFilter=servingSelectedFilter
+            mRecipesFragmentViewModel.mPrepPlusCookTimeSelectedFilter=prepPlusCookTimeSelectedFilter
+        }
+
+        override fun filters(costString: String, servingString: String, prepPlusCookHourString: String, prepPlusCookMinutesString: String) {
+
+            mRecipesFragmentViewModel.mCostString = costString
+            mRecipesFragmentViewModel.mServingString = servingString
+            mRecipesFragmentViewModel.mPrepPlusCookHourString = prepPlusCookHourString
+            mRecipesFragmentViewModel.mPrepPlusCookMinutesString = prepPlusCookMinutesString
+        }
+
+        override fun onFilterSet(hasCostInput:Boolean,hasServingInput:Boolean,hasHourOrMinuteInput:Boolean) {
+
+            Toast.makeText(requireContext(),"Filtering",Toast.LENGTH_SHORT).show()
+            mRecipesFragmentViewModel.mHasCostInput = hasCostInput
+            mRecipesFragmentViewModel.mHasServingInput = hasServingInput
+            mRecipesFragmentViewModel.mHasHourOrMinuteInput = hasHourOrMinuteInput
+            mRecipesFragmentViewModel.mFiltering = true
+
+            if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
+                //filter by cost, serving and total preparation and cook time
+                val cost =mRecipesFragmentViewModel.mCostString.toDouble()
+                val serving = mRecipesFragmentViewModel.mServingString.toInt()
+                val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTime(requireContext(),cost,serving,totalPrepAndCookTimeInMinutes)
+                }
+            }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
+                // filter by input and serving
+            }else if(hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
+                // filter by input and total preparation and cook time
+            }else if(!hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
+                // filter by hasCostInput and total preparation and cook time
+            }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ){
+                // filter by hasCostInput
+            }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
+                // filter by serving
+            }else if(!hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
+                // filter by total preparation and cook time
+            }
+        }
+        fun totalPrepAndCookTimeInMinutes(prepPlusCookHourString: String, prepPlusCookMinutesString: String):Int{
+            val prepAPlusCookHourInt = if(prepPlusCookHourString.isEmpty()) 0 else prepPlusCookHourString.toInt()
+            val prepPlusCookMinutesString = if(prepPlusCookMinutesString.isEmpty()) 0 else prepPlusCookMinutesString.toInt()
+            val minutesInHour = 60
+            return (prepAPlusCookHourInt / minutesInHour)+prepPlusCookMinutesString
+        }
+    }
+
+    interface RecipeFilterSetter{
+        fun filterConditions(costSpinnerSelectedFilter:String,servingSelectedFilter:String,prepPlusCookTimeSelectedFilter:String)
+        fun filters(costString:String,servingString:String,prepPlusCookHourString:String,prepPlusCookMinutesString:String)
+        fun onFilterSet(hasCostInput:Boolean,hasServingInput:Boolean,hasHourOrMinuteInput:Boolean)
+    }
+
 
     class RecipesRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeEntity>, val mRecipesFragment: RecipesFragment):
         RecyclerView.Adapter<RecipesRecyclerviewViewAdapater.ItemViewHolder>() {

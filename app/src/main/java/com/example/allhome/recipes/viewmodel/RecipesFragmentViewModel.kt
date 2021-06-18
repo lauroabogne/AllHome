@@ -11,6 +11,21 @@ import kotlinx.coroutines.Dispatchers
 class RecipesFragmentViewModel:ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("RecipesFragmentViewModel"))
 
+    var mFiltering = false
+
+    var mCostSpinnerSelectedFilter: String = ""
+    var mServingSelectedFilter: String = ""
+    var mPrepPlusCookTimeSelectedFilter: String= ""
+
+    var mCostString: String = ""
+    var mServingString: String = ""
+    var mPrepPlusCookHourString: String = ""
+    var mPrepPlusCookMinutesString: String = ""
+
+    var mHasCostInput:Boolean = false
+    var mHasServingInput:Boolean = false
+    var mHasHourOrMinuteInput:Boolean = false
+
     suspend fun getRecipes(context: Context): List<RecipeEntity> {
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes()
     }
@@ -46,6 +61,10 @@ class RecipesFragmentViewModel:ViewModel() {
 
     suspend fun updateItemQuantityDatetimeModified(context: Context,quantity:Double,id:Int,datetimeModified:String):Int{
        return AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItemQuantityDatetimeModified(quantity,id,datetimeModified)
+
+    }
+
+    suspend fun filterByCostServingAndTotalPrepAndCookTime(context:Context,cost:Double,serving:Int,totalPrepAndCookTimeInMinutes:Int){
 
     }
 }

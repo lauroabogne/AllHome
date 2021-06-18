@@ -35,6 +35,35 @@
         <item>@string/grocery_notification_hour_before</item>
         <item>@string/grocery_notification_day_before</item>
     </string-array>
+
+    <string name="cost_is_equal">Cost is equal</string>
+    <string name="cost_is_less_than">Cost is less than</string>
+    <string name="cost_is_greater_than">Cost is greater than</string>
+    <string-array name="cost_filter">
+        <item>@string/cost_is_equal</item>
+        <item>@string/cost_is_less_than</item>
+        <item>@string/cost_is_greater_than</item>
+
+    </string-array>
+
+    <string name="serving_is_equal">Serving is equal</string>
+    <string name="serving_is_less_than">Serving is less than</string>
+    <string name="serving_is_greater_than">Serving is greater than</string>
+    <string-array name="serving_filter">
+        <item>@string/serving_is_equal</item>
+        <item>@string/serving_is_less_than</item>
+        <item>@string/serving_is_greater_than</item>
+    </string-array>
+    <string name="prep_plus_cook_time_is_equal">Prep + cook time is equal</string>
+    <string name="prep_plus_cook_time_is_less_than">Prep + cook time is less than</string>
+    <string name="prep_plus_cook_time_is_greater_than">Prep + cook time is greater than</string>
+
+    <string-array name="total_time_filter">
+        <item>@string/prep_plus_cook_time_is_equal</item>
+        <item>@string/prep_plus_cook_time_is_less_than</item>
+        <item>@string/prep_plus_cook_time_is_greater_than</item>
+
+    </string-array>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <!-- PANTRY-->

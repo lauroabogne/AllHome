@@ -19,6 +19,7 @@ import com.example.allhome.databinding.FragmentAddRecipeInformationBinding
 import com.example.allhome.databinding.HourAndTimeInputBinding
 import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
+import com.example.allhome.utils.MinMaxInputFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.text.SimpleDateFormat
 import java.util.*
@@ -119,8 +120,8 @@ class AddRecipeInformationFragment : Fragment() {
 
         val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false)
 
-        hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxFilter( 1 , 168 ))
-        hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxFilter( 1 , 59 ))
+        hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxInputFilter( 1 , 168 ))
+        hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxInputFilter( 1 , 59 ))
 
         val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())
             .setTitle("Preperation time")
@@ -160,8 +161,8 @@ class AddRecipeInformationFragment : Fragment() {
 
     fun showCookingTimePopup(){
         val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false)
-        hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxFilter( 1 , 168 ))
-        hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxFilter( 1 , 59 ))
+        hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxInputFilter( 1 , 168 ))
+        hourAndTimeInputBinding.minutesEditext.filters = arrayOf(MinMaxInputFilter( 1 , 59 ))
         val alertDialog =  MaterialAlertDialogBuilder(this.requireContext())
             .setTitle("Cooking time")
             .setView(hourAndTimeInputBinding.root)
@@ -299,19 +300,3 @@ class AddRecipeInformationFragment : Fragment() {
 
 }
 
-class MinMaxFilter( var mIntMin: Int,var mIntMax: Int) : InputFilter {
-
-    override fun filter(source: CharSequence, start: Int, end: Int, dest: Spanned, dstart: Int, dend: Int): CharSequence? {
-        try {
-            val input = (dest.toString() + source.toString()).toInt()
-            if (isInRange(mIntMin, mIntMax, input)) return null
-        } catch (e: NumberFormatException) {
-            e.printStackTrace()
-        }
-        return ""
-    }
-
-    private fun isInRange(a: Int, b: Int, c: Int): Boolean {
-        return if (b > a) c >= a && c <= b else c >= b && c <= a
-    }
-}
