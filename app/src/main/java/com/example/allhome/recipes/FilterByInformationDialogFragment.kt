@@ -5,20 +5,29 @@ import android.app.Dialog
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.example.allhome.R
 import com.example.allhome.databinding.FilterByInformationDialogFragmentBinding
+import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.example.allhome.utils.MinMaxInputFilter
-class FilterByInformationDialogFragment: DialogFragment() {
+class FilterByInformationDialogFragment(val mRecipesFragmentViewModel: RecipesFragmentViewModel): DialogFragment() {
          lateinit var mFilterByInformationDialogFragmentBinding:FilterByInformationDialogFragmentBinding
          var mRecipeFilterSetter:RecipesFragment.RecipeFilterSetter? = null
 
+    companion object{
+        const val EQAUL = "="
+        const val LESS_THAN = "<"
+        const val GREATER_THAN = ">"
+    }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
             val inflater = LayoutInflater.from(requireContext())
             mFilterByInformationDialogFragmentBinding = DataBindingUtil.inflate(inflater, R.layout.filter_by_information_dialog_fragment,null,false)
+            mFilterByInformationDialogFragmentBinding.recipesFragmentViewModel = mRecipesFragmentViewModel
+
             val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(activity)
             mFilterByInformationDialogFragmentBinding.hourPrepPlusCookTimeTextInputEditText.filters = arrayOf(MinMaxInputFilter( 1 , 168))
             mFilterByInformationDialogFragmentBinding.minutePrepPlusCookTimeTextInputEditText.filters = arrayOf(MinMaxInputFilter( 1 , 59 ))
@@ -43,7 +52,6 @@ class FilterByInformationDialogFragment: DialogFragment() {
         val servingSelectedFilter = mFilterByInformationDialogFragmentBinding.servingSpinner.selectedItem.toString()
         val prepPlusCookTimeSelectedFilter = mFilterByInformationDialogFragmentBinding.prepPlusCookTimeSpinner.selectedItem.toString()
 
-
         val costString = mFilterByInformationDialogFragmentBinding.costTextInputEditText.text.toString()
         val servingString = mFilterByInformationDialogFragmentBinding.servingTextInputEditText.text.toString()
         val prepPlusCookHourString = mFilterByInformationDialogFragmentBinding.hourPrepPlusCookTimeTextInputEditText.text.toString()
@@ -54,7 +62,7 @@ class FilterByInformationDialogFragment: DialogFragment() {
         val hasHourOrMinuteInput = hasHourOrMinuteInput(prepPlusCookHourString,prepPlusCookMinutesString)
 
         mRecipeFilterSetter?.let {
-            it.filterConditions(costSpinnerSelectedFilter, servingSelectedFilter, prepPlusCookTimeSelectedFilter)
+            it.filterConditions(convertEqualLessThanGreaterThanToSymbol(costSpinnerSelectedFilter), convertEqualLessThanGreaterThanToSymbol(servingSelectedFilter), convertEqualLessThanGreaterThanToSymbol(prepPlusCookTimeSelectedFilter))
             it.filters(costString,servingString,prepPlusCookHourString,prepPlusCookMinutesString)
             it.onFilterSet(hasCostInput,hasServingInput,hasHourOrMinuteInput)
         }
@@ -98,6 +106,21 @@ class FilterByInformationDialogFragment: DialogFragment() {
         }
 
         return true
+    }
+    private fun convertEqualLessThanGreaterThanToSymbol(stringToConvert:String):String{
+
+        if(stringToConvert.equals(getString(R.string.cost_is_equal)) || stringToConvert.equals(getString(R.string.prep_plus_cook_time_is_equal))|| stringToConvert.equals(getString(R.string.serving_is_equal))){
+            return EQAUL
+        }
+
+        if(stringToConvert.equals(getString(R.string.cost_is_less_than)) || stringToConvert.equals(getString(R.string.prep_plus_cook_time_is_less_than))|| stringToConvert.equals(getString(R.string.serving_is_less_than))){
+            return LESS_THAN
+        }
+        if(stringToConvert.equals(getString(R.string.cost_is_greater_than)) || stringToConvert.equals(getString(R.string.prep_plus_cook_time_is_greater_than))|| stringToConvert.equals(getString(R.string.serving_is_greater_than))){
+            return GREATER_THAN
+        }
+        return EQAUL
+
     }
 
 }

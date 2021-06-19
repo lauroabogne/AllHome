@@ -1,16 +1,21 @@
 package com.example.allhome.recipes
 
 import android.net.Uri
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.Spinner
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.example.allhome.R
 import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
+import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.example.allhome.utils.NumberUtils
 import com.google.android.material.textfield.TextInputEditText
+import com.google.android.material.textfield.TextInputLayout
 
 
 @BindingAdapter("android:setServing")
@@ -218,5 +223,149 @@ fun setIngredentToGroceryQuantityAndUnit(textView:TextView,ingredent:IngredientE
 
 }
 
+@BindingAdapter("android:setCostSpinnerValue")
+fun setCostSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragmentViewModel?){
+    val resources = spinner.context.resources
+    val filters = resources.getStringArray(R.array.cost_filter)
+    recipesFragmentViewModel?.mCostCondition.let {
+        when(it){
+            FilterByInformationDialogFragment.EQAUL->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_equal)))
+            }
+            FilterByInformationDialogFragment.GREATER_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_greater_than)))
+            }
+            FilterByInformationDialogFragment.LESS_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_less_than)))
+            }
+            else->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_equal)))
+            }
+        }
+    }
+}
 
+@BindingAdapter("android:setServingSpinnerValue")
+fun setServingSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragmentViewModel?){
+    val resources = spinner.context.resources
+    val filters = resources.getStringArray(R.array.serving_filter)
+    recipesFragmentViewModel?.mServingCondition.let {
+        when(it){
+            FilterByInformationDialogFragment.EQAUL->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_equal)))
+            }
+            FilterByInformationDialogFragment.GREATER_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_greater_than)))
+            }
+            FilterByInformationDialogFragment.LESS_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_less_than)))
+            }
+            else->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_equal)))
+            }
+        }
+    }
+}
 
+@BindingAdapter("android:setPrepPlusCookingTimeSpinnerValue")
+fun setPrepPlusCookingTimeSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragmentViewModel?){
+    val resources = spinner.context.resources
+    val filters = resources.getStringArray(R.array.total_time_filter)
+    recipesFragmentViewModel?.mServingCondition.let {
+        when(it){
+            FilterByInformationDialogFragment.EQAUL->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_equal)))
+            }
+            FilterByInformationDialogFragment.GREATER_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_greater_than)))
+            }
+            FilterByInformationDialogFragment.LESS_THAN->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_less_than)))
+            }
+            else->{
+                spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_equal)))
+            }
+        }
+    }
+}
+
+@BindingAdapter("android:setCostText")
+fun setCostText(textInputEditText:TextInputEditText,recipesFragmentViewModel:RecipesFragmentViewModel?){
+
+    recipesFragmentViewModel?.let{
+        val costString = it.mCostString
+
+        if(costString.isEmpty()){
+            textInputEditText.setText("")
+            return
+        }
+
+        val servingInt = costString.toInt()
+
+        if(servingInt <=0){
+            textInputEditText.setText("")
+            return
+        }
+
+        textInputEditText.setText(costString)
+    }
+
+}
+@BindingAdapter("android:setServingText")
+fun setServingText(textInputEditText:TextInputEditText,recipesFragmentViewModel:RecipesFragmentViewModel?){
+
+    recipesFragmentViewModel?.let{
+        val servingString = it.mServingString
+
+        if(servingString.isEmpty()){
+            textInputEditText.setText("")
+            return
+        }
+        val servingInt = servingString.toInt()
+
+        if(servingInt <=0){
+            textInputEditText.setText("")
+            return
+        }
+        textInputEditText.setText(servingString)
+    }
+}
+
+@BindingAdapter("android:setHourText")
+fun setHourText(textInputEditText:TextInputEditText,recipesFragmentViewModel:RecipesFragmentViewModel?){
+
+    recipesFragmentViewModel?.let{
+        val hourString = it.mPrepPlusCookHourString
+
+        if(hourString.isEmpty()){
+            textInputEditText.setText("")
+            return
+        }
+        val servingInt = hourString.toInt()
+
+        if(servingInt <=0){
+            textInputEditText.setText("")
+            return
+        }
+        textInputEditText.setText(hourString)
+    }
+}
+@BindingAdapter("android:setMinuteText")
+fun setMinuteText(textInputEditText:TextInputEditText,recipesFragmentViewModel:RecipesFragmentViewModel?){
+
+    recipesFragmentViewModel?.let{
+        val minutesString = it.mPrepPlusCookMinutesString
+
+        if(minutesString.isEmpty()){
+            textInputEditText.setText("")
+            return
+        }
+        val servingInt = minutesString.toInt()
+
+        if(servingInt <=0){
+            textInputEditText.setText("")
+            return
+        }
+        textInputEditText.setText(minutesString)
+    }
+}

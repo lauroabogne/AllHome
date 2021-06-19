@@ -15,27 +15,45 @@ import com.example.allhome.utils.NumberUtils
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-@Entity(tableName = "recipes")
+@Entity(tableName = RecipeEntity.TABLE_NAME)
 data class RecipeEntity(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name="unique_id") var uniqueId:String,
-    @ColumnInfo(name="name") var name:String,
-    @ColumnInfo(name="serving") var serving:Int,
-    @ColumnInfo(name="difficulty",defaultValue =DIFFICULTY_NONE.toString() ) var difficulty:Int,
-    @ColumnInfo(name="preparation_hour") var preparationHour:Int,
-    @ColumnInfo(name="preparationMinutes") var preparationMinutes:Int,
-    @ColumnInfo(name="cooking_hours") var cookingHours:Int,
-    @ColumnInfo(name="cooking_minutes") var cookingMinutes:Int,
-    @ColumnInfo(name="category") var category:String,
-    @ColumnInfo(name="estimated_cost") var estimatedCost:Double,
-    @ColumnInfo(name="description") var description:String,
-    @ColumnInfo(name="image_name") var imageName:String,
-    @ColumnInfo(name="status",defaultValue = NOT_DELETED_STATUS.toString()) var status:Int,
-    @ColumnInfo(name="uploaded",defaultValue = NOT_UPLOADED.toString()) var uploaded:Int,
-    @ColumnInfo(name="created", defaultValue = "CURRENT_TIMESTAMP" ) var created:String,
-    @ColumnInfo(name="modified", defaultValue = "CURRENT_TIMESTAMP" ) var modified:String
+    @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String,
+    @ColumnInfo(name= COLUMN_NAME) var name:String,
+    @ColumnInfo(name= COLUMN_SERVING) var serving:Int,
+    @ColumnInfo(name= COLUMN_DIFFICULTY,defaultValue =DIFFICULTY_NONE.toString() ) var difficulty:Int,
+    @ColumnInfo(name= COLUMN_PREPARATION_HOUR) var preparationHour:Int,
+    @ColumnInfo(name= COLUMN_PREPARATION_MINUTES) var preparationMinutes:Int,
+    @ColumnInfo(name= COLUMN_COOKING_HOUR) var cookingHours:Int,
+    @ColumnInfo(name= COLUMN_COOKING_MINUTES) var cookingMinutes:Int,
+    @ColumnInfo(name= COLUMN_CATEGORY) var category:String,
+    @ColumnInfo(name= COLUMN_ESTIMATED_COST) var estimatedCost:Double,
+    @ColumnInfo(name= COLUMN_DESCRIPTION) var description:String,
+    @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:String,
+    @ColumnInfo(name= COLUMN_STATUS,defaultValue = NOT_DELETED_STATUS.toString()) var status:Int,
+    @ColumnInfo(name= COLUMN_UPLOADED,defaultValue = NOT_UPLOADED.toString()) var uploaded:Int,
+    @ColumnInfo(name= COLUMN_CREATED, defaultValue = "CURRENT_TIMESTAMP" ) var created:String,
+    @ColumnInfo(name= COLUMN_MODIFIED, defaultValue = "CURRENT_TIMESTAMP" ) var modified:String
 ):Parcelable{
     companion object{
+        const val TABLE_NAME = "recipes"
+        const val COLUMN_UNIQUE_ID= "unique_id"
+        const val COLUMN_NAME= "name"
+        const val COLUMN_SERVING= "serving"
+        const val COLUMN_DIFFICULTY= "difficulty"
+        const val COLUMN_PREPARATION_HOUR= "preparation_hour"
+        const val COLUMN_PREPARATION_MINUTES= "preparationMinutes"
+        const val COLUMN_COOKING_HOUR= "cooking_hours"
+        const val COLUMN_COOKING_MINUTES= "cooking_minutes"
+        const val COLUMN_CATEGORY= "category"
+        const val COLUMN_ESTIMATED_COST= "estimated_cost"
+        const val COLUMN_DESCRIPTION= "description"
+        const val COLUMN_IMAGE_NAME= "image_name"
+        const val COLUMN_STATUS= "status"
+        const val COLUMN_UPLOADED= "uploaded"
+        const val COLUMN_CREATED= "created"
+        const val COLUMN_MODIFIED= "modified"
+
         const val NOT_DELETED_STATUS = 0
         const val DELETED_STATUS = 1
         const val NOT_UPLOADED = 0

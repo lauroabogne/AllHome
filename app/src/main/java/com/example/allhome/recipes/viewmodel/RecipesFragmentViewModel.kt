@@ -1,7 +1,9 @@
 package com.example.allhome.recipes.viewmodel
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
 import kotlinx.coroutines.CoroutineName
@@ -13,14 +15,14 @@ class RecipesFragmentViewModel:ViewModel() {
 
     var mFiltering = false
 
-    var mCostSpinnerSelectedFilter: String = ""
-    var mServingSelectedFilter: String = ""
-    var mPrepPlusCookTimeSelectedFilter: String= ""
+    var mCostCondition: String = ""
+    var mServingCondition: String = ""
+    var mPrepPlusCookTimeCondition: String= ""
 
-    var mCostString: String = ""
-    var mServingString: String = ""
-    var mPrepPlusCookHourString: String = ""
-    var mPrepPlusCookMinutesString: String = ""
+    var mCostString: String = "0"
+    var mServingString: String = "0"
+    var mPrepPlusCookHourString: String = "0"
+    var mPrepPlusCookMinutesString: String = "0"
 
     var mHasCostInput:Boolean = false
     var mHasServingInput:Boolean = false
@@ -64,8 +66,111 @@ class RecipesFragmentViewModel:ViewModel() {
 
     }
 
-    suspend fun filterByCostServingAndTotalPrepAndCookTime(context:Context,cost:Double,serving:Int,totalPrepAndCookTimeInMinutes:Int){
+    suspend fun filterByCostServingAndTotalPrepAndCookTime(context:Context,costCondition:String,cost:Double,servingCondition:String,serving:Int,
+                                                           totalPrepAndCookTimeInMinutesCondtion:String,totalPrepAndCookTimeInMinutes:Int):List<RecipeEntity>{
+        val queryString  = createForFilterByCostServingAndTotalPrepAndCookTime(costCondition,servingCondition, totalPrepAndCookTimeInMinutesCondtion)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(cost,serving,totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
 
+    }
+
+    private fun createForFilterByCostServingAndTotalPrepAndCookTime(costCondition:String, servingCondition:String, totalPrepAndCookTimeInMinutesCondtion:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
+                " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${ RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+    suspend fun filterByCostAndServing(context:Context,costCondition:String,cost:Double,servingCondition:String,serving:Int,
+                                                           ):List<RecipeEntity>{
+        val queryString  = createForFilterByCostAndServing(costCondition,servingCondition)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(cost,serving))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByCostAndServing(costCondition:String, servingCondition:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+
+    suspend fun filterByCostAndTotalPrepAndCookTime(context:Context,costCondition:String,cost:Double,totalPrepAndCookTimeInMinutesCondtion:String,totalPrepAndCookTimeInMinutes:Int ):List<RecipeEntity>{
+        val queryString  = createForFilterByCostAndTotalPrepAndCookTime(costCondition,totalPrepAndCookTimeInMinutesCondtion)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(cost,totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByCostAndTotalPrepAndCookTime(costCondition:String, totalPrepAndCookTimeInMinutesCondtion:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${ RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+
+    suspend fun filterByServingAndTotalPrepAndCookTime(context:Context,servingCondition:String,serving:Int,totalPrepAndCookTimeInMinutesCondtion:String,totalPrepAndCookTimeInMinutes:Int ):List<RecipeEntity>{
+        val queryString  = createForFilterByServingAndTotalPrepAndCookTime(servingCondition,totalPrepAndCookTimeInMinutesCondtion)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(serving,totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByServingAndTotalPrepAndCookTime(costCondition:String, servingCondition:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+
+    suspend fun filterByCost(context:Context,costCondition:String,cost:Double):List<RecipeEntity>{
+        val queryString  = createForFilterByCost(costCondition)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(cost))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByCost(costCondition:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+
+
+    suspend fun filterByServing(context:Context,servingCondition:String,serving:Int):List<RecipeEntity>{
+        val queryString  = createForFilterByServing(servingCondition)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(serving))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByServing(servingCondition:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
+    }
+
+    suspend fun filterByTotalPrepAndCookTime(context:Context,totalPrepAndCookTimeInMinutesCondtion:String,totalPrepAndCookTimeInMinutes:Int):List<RecipeEntity>{
+        val queryString  = createForFilterByTotalPrepAndCookTime(totalPrepAndCookTimeInMinutesCondtion)
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    private fun createForFilterByTotalPrepAndCookTime(totalPrepAndCookTimeInMinutesCondtion:String):String{
+
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${ RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
+
+        return query
     }
 }
 

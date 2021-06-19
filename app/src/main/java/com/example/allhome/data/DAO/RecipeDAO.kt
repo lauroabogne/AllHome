@@ -1,9 +1,7 @@
 package com.example.allhome.data.DAO
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
+import androidx.sqlite.db.SupportSQLiteQuery
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.StorageEntity
@@ -19,7 +17,14 @@ interface RecipeDAO {
     suspend fun getRecipes():List<RecipeEntity>
     @Query("UPDATE recipes SET status=${RecipeEntity.DELETED_STATUS} WHERE unique_id=:uniqueId ")
     suspend fun updateRecipeByUniqueIdAsDeleted(uniqueId:String):Int
-    /*@Query("SELECT * FROM recipes where estimated_cost=:coststatus = ${RecipeEntity.NOT_DELETED_STATUS}")
-    suspend fun getRecipes(cost:Double,serving:Int,preparationPlusCookTime:Int):List<RecipeEntity>*/
+    /*@Query("SELECT * FROM recipes where estimated_cost :costCondition :cost  AND status = ${RecipeEntity.NOT_DELETED_STATUS}")
+    suspend fun getRecipes(costCondition:String,cost:Double,servingCondition:String,serving:Int,totalPrepAndCookTimeInMinutesCondtion:String,
+                           preparationPlusCookTime:Int):List<RecipeEntity>*/
+
+    @RawQuery
+    suspend fun getRecipes(query:SupportSQLiteQuery):List<RecipeEntity>
+
+
+
 
 }

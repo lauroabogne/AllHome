@@ -2,6 +2,7 @@ package com.example.allhome.recipes
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.Toast
@@ -45,7 +46,7 @@ class RecipesFragment : Fragment() {
 
             }
             R.id.recipeInformationFilterMenu -> {
-                val filterByInformationDialogFragment  = FilterByInformationDialogFragment()
+                val filterByInformationDialogFragment  = FilterByInformationDialogFragment(mRecipesFragmentViewModel)
                 filterByInformationDialogFragment.isCancelable = false
                 filterByInformationDialogFragment.setRecipeFilterSetter(recipeFilterSetter)
                 filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
@@ -86,10 +87,10 @@ class RecipesFragment : Fragment() {
         return mFragmentRecipesBinding.root
     }
     private val  recipeFilterSetter = object:RecipeFilterSetter{
-        override fun filterConditions(costSpinnerSelectedFilter: String, servingSelectedFilter: String, prepPlusCookTimeSelectedFilter: String) {
-            mRecipesFragmentViewModel.mCostSpinnerSelectedFilter=costSpinnerSelectedFilter
-            mRecipesFragmentViewModel.mServingSelectedFilter=servingSelectedFilter
-            mRecipesFragmentViewModel.mPrepPlusCookTimeSelectedFilter=prepPlusCookTimeSelectedFilter
+        override fun filterConditions(costCondition: String, servingCondition: String, prepPlusCookTimeSelectedCondition: String) {
+            mRecipesFragmentViewModel.mCostCondition=costCondition
+            mRecipesFragmentViewModel.mServingCondition=servingCondition
+            mRecipesFragmentViewModel.mPrepPlusCookTimeCondition=prepPlusCookTimeSelectedCondition
         }
 
         override fun filters(costString: String, servingString: String, prepPlusCookHourString: String, prepPlusCookMinutesString: String) {
@@ -108,27 +109,115 @@ class RecipesFragment : Fragment() {
             mRecipesFragmentViewModel.mHasHourOrMinuteInput = hasHourOrMinuteInput
             mRecipesFragmentViewModel.mFiltering = true
 
+            Log.e("onFilterSet",hasCostInput.toString()+" "+hasServingInput.toString()+" "+hasHourOrMinuteInput.toString())
             if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
                 //filter by cost, serving and total preparation and cook time
+                    Log.e("FILTER_BY","filterByCostServingAndTotalPrepAndCookTime")
                 val cost =mRecipesFragmentViewModel.mCostString.toDouble()
                 val serving = mRecipesFragmentViewModel.mServingString.toInt()
                 val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
                 mRecipesFragmentViewModel.mCoroutineScope.launch {
-                    mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTime(requireContext(),cost,serving,totalPrepAndCookTimeInMinutes)
+                    val recipes = mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTime(requireContext(),
+                        mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving,
+                        mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
                 }
             }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
-                // filter by input and serving
+                // filter by cost and serving
+                val cost =mRecipesFragmentViewModel.mCostString.toDouble()
+                val serving = mRecipesFragmentViewModel.mServingString.toInt()
+
+                Log.e("FILTER_BY","filterByCostAndServing")
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByCostAndServing(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }else if(hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
-                // filter by input and total preparation and cook time
+                // filter by cost and total preparation + cook time
+
+                val cost = mRecipesFragmentViewModel.mCostString.toDouble()
+                val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+
+                Log.e("FILTER_BY","filterByCostAndTotalPrepAndCookTime")
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
             }else if(!hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
-                // filter by hasCostInput and total preparation and cook time
+                // filter by serving and total preparation and cook time
+
+                val serving = mRecipesFragmentViewModel.mServingString.toInt()
+                val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+
+                Log.e("FILTER_BY","filterByServingAndTotalPrepAndCookTime")
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mServingCondition,serving,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
             }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ){
-                // filter by hasCostInput
+                // filter by cost
+                val cost = mRecipesFragmentViewModel.mCostString.toDouble()
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByCost(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
             }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
                 // filter by serving
+
+                val serving = mRecipesFragmentViewModel.mServingString.toInt()
+
+                Log.e("FILTER_BY","filterByServing")
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByServing(requireContext(), mRecipesFragmentViewModel.mServingCondition,serving)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }else if(!hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
                 // filter by total preparation and cook time
+                val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+
+                Log.e("FILTER_BY","filterByTotalPrepAndCookTime")
+
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val recipes = mRecipesFragmentViewModel.filterByTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }
         }
         fun totalPrepAndCookTimeInMinutes(prepPlusCookHourString: String, prepPlusCookMinutesString: String):Int{
@@ -140,7 +229,7 @@ class RecipesFragment : Fragment() {
     }
 
     interface RecipeFilterSetter{
-        fun filterConditions(costSpinnerSelectedFilter:String,servingSelectedFilter:String,prepPlusCookTimeSelectedFilter:String)
+        fun filterConditions(costCondition:String,servingCondition:String,prepPlusCookTimeSelectedCondition:String)
         fun filters(costString:String,servingString:String,prepPlusCookHourString:String,prepPlusCookMinutesString:String)
         fun onFilterSet(hasCostInput:Boolean,hasServingInput:Boolean,hasHourOrMinuteInput:Boolean)
     }
