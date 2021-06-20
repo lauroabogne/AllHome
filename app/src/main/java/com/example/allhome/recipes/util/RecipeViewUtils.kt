@@ -239,7 +239,7 @@ fun setCostSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragment
                 spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_less_than)))
             }
             else->{
-                spinner.setSelection(filters.indexOf(resources.getString(R.string.cost_is_equal)))
+                spinner.setSelection(0)
             }
         }
     }
@@ -261,7 +261,7 @@ fun setServingSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragm
                 spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_less_than)))
             }
             else->{
-                spinner.setSelection(filters.indexOf(resources.getString(R.string.serving_is_equal)))
+                spinner.setSelection(0)
             }
         }
     }
@@ -283,7 +283,7 @@ fun setPrepPlusCookingTimeSpinnerValue(spinner:Spinner,recipesFragmentViewModel:
                 spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_less_than)))
             }
             else->{
-                spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_equal)))
+                spinner.setSelection(0)
             }
         }
     }

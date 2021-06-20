@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
+import com.example.allhome.recipes.RecipesFragment
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -13,6 +14,8 @@ import kotlinx.coroutines.Dispatchers
 class RecipesFragmentViewModel:ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("RecipesFragmentViewModel"))
 
+
+    var mFilter = RecipesFragment.NO_FILTER
     var mFiltering = false
 
     var mCostCondition: String = ""
@@ -66,17 +69,20 @@ class RecipesFragmentViewModel:ViewModel() {
 
     }
 
-    suspend fun filterByCostServingAndTotalPrepAndCookTime(context:Context,costCondition:String,cost:Double,servingCondition:String,serving:Int,
+    suspend fun filterByCostServingAndTotalPrepAndCookTime(context:Context,searchQuery:String,costCondition:String,cost:Double,servingCondition:String,serving:Int,
                                                            totalPrepAndCookTimeInMinutesCondtion:String,totalPrepAndCookTimeInMinutes:Int):List<RecipeEntity>{
         val queryString  = createForFilterByCostServingAndTotalPrepAndCookTime(costCondition,servingCondition, totalPrepAndCookTimeInMinutesCondtion)
-        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf(cost,serving,totalPrepAndCookTimeInMinutes))
+
+        val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf("%${searchQuery}%",cost,serving,totalPrepAndCookTimeInMinutes))
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
 
     }
 
     private fun createForFilterByCostServingAndTotalPrepAndCookTime(costCondition:String, servingCondition:String, totalPrepAndCookTimeInMinutesCondtion:String):String{
 
-        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+        val query = "SELECT * FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ?" +
+                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
                 " AND ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
                 " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${ RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
                 " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
