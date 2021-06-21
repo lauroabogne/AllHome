@@ -25,4 +25,10 @@ interface IngredientDAO{
     @Query("UPDATE ingredients SET status=${IngredientEntity.DELETED_STATUS} WHERE recipe_unique_id=:recipeUniqueId")
     suspend fun updateIngredientByRecipeUniqueIdAsDeleted(recipeUniqueId:String):Int
 
+    @Query(" SELECT ${IngredientEntity.COLUMN_NAME} " +
+            " FROM  ${IngredientEntity.TABLE_NAME} "+
+            " WHERE ${IngredientEntity.COLUMN_NAME} LIKE '%'||:searchTerm||'%' AND ${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS} " +
+            " GROUP BY ${IngredientEntity.COLUMN_NAME} ORDER BY ${IngredientEntity.COLUMN_NAME} ")
+    suspend fun getIngredientForAutousuggest(searchTerm:String):List<String>
+
 }

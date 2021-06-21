@@ -31,6 +31,8 @@ class RecipesFragmentViewModel:ViewModel() {
     var mHasServingInput:Boolean = false
     var mHasHourOrMinuteInput:Boolean = false
 
+    var mFilterIngredients = arrayListOf<IngredientEntity>()
+
     suspend fun getRecipes(context: Context): List<RecipeEntity> {
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes()
     }
@@ -177,6 +179,11 @@ class RecipesFragmentViewModel:ViewModel() {
                 " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
 
         return query
+    }
+
+    suspend fun getIngredientForAutoSuggest(context: Context,searchTerm:String):List<String>{
+
+        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientForAutousuggest(searchTerm)
     }
 }
 

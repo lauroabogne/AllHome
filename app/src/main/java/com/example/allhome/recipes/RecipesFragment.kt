@@ -98,8 +98,9 @@ class RecipesFragment : Fragment() {
                 filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
             }
             R.id.recipeIngredientFilterMenu -> {
-
-
+                val filterByIngredientsDialogFragment  =  FilterByIngredientsDialogFragment(mRecipesFragmentViewModel)
+                filterByIngredientsDialogFragment.isCancelable = false
+                filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
             }
 
         }
