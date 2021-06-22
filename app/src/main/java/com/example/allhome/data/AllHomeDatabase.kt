@@ -35,8 +35,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
                     context.applicationContext,
                     AllHomeDatabase::class.java,
                     "all_home_database"
-                ).fallbackToDestructiveMigration()
-                    .build()
+                ).fallbackToDestructiveMigration().build()
 
                 INSTANCE = intance
                 return intance

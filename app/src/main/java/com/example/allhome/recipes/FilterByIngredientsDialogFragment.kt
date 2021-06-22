@@ -10,6 +10,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.ArrayAdapter
 import android.widget.Filter
@@ -38,21 +39,28 @@ import kotlin.collections.ArrayList
 class FilterByIngredientsDialogFragment(var mRecipesFragmentViewModel: RecipesFragmentViewModel): DialogFragment() {
 
     lateinit var mFilterByIngredientsDialogFragmentBinding:FilterByIngredientsDialogFragmentBinding
+    var mRecipeIngredientFilterListener: RecipesFragment.RecipeIngredientFilterListener? = null
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
 
 
-        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(arrayListOf())
-        mFilterByIngredientsDialogFragmentBinding.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater
+
+
+
+        /*val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(mRecipesFragmentViewModel.mFilterIngredients)
+        mFilterByIngredientsDialogFragmentBinding.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater*/
+
 
     }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
-
-
         val inflater = LayoutInflater.from(requireContext())
         mFilterByIngredientsDialogFragmentBinding = DataBindingUtil.inflate(inflater, R.layout.filter_by_ingredients_dialog_fragment,null,false)
+
+        val addIngredientRecyclerviewViewAdapater = AddIngredientRecyclerviewViewAdapater(arrayListOf())
+        addIngredientRecyclerviewViewAdapater.mIngredients = mRecipesFragmentViewModel.mFilterIngredients
+        mFilterByIngredientsDialogFragmentBinding.addIngredientRecyclerview.adapter = addIngredientRecyclerviewViewAdapater
 
         mFilterByIngredientsDialogFragmentBinding.addIngredientBtn.setOnClickListener(addIngredientBtnOnClick)
 
@@ -61,18 +69,24 @@ class FilterByIngredientsDialogFragment(var mRecipesFragmentViewModel: RecipesFr
         mFilterByIngredientsDialogFragmentBinding.ingredientTextInput.setAdapter(storageItemAutoSuggestCustomAdapter)
 
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(activity)
+
         alertDialogBuilder.setView(mFilterByIngredientsDialogFragmentBinding.root)
         alertDialogBuilder.setPositiveButton("Search", DialogInterface.OnClickListener { dialog, which ->
-
+            mRecipeIngredientFilterListener?.onIngredientFilterSet(mRecipesFragmentViewModel.mFilterIngredients)
         })
         alertDialogBuilder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, which ->
             this.dismiss()
         })
 
-        return alertDialogBuilder.create()
+        val alertDialog = alertDialogBuilder.create()
+
+        alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
+
+        return alertDialog
     }
-
-
+    fun setRecipeIngredientFilterListener(recipeIngredientFilterListener: RecipesFragment.RecipeIngredientFilterListener){
+        mRecipeIngredientFilterListener = recipeIngredientFilterListener
+    }
     val addIngredientBtnOnClick = object:View.OnClickListener {
         override fun onClick(v: View?) {
 
@@ -87,44 +101,18 @@ class FilterByIngredientsDialogFragment(var mRecipesFragmentViewModel: RecipesFr
             }
 
 
-
-            val ingredientEntity = IngredientEntity(
-                uniqueId ="",
-                recipeUniqueId="",
-                quantity=0.0,
-                unit="",
-                name=ingredient,
-                status = IngredientEntity.NOT_DELETED_STATUS,
-                uploaded = IngredientEntity.NOT_UPLOADED,
-                created = "",
-                modified = ""
-
-            )
-
-            val elemetSize = mRecipesFragmentViewModel.mFilterIngredients.size
-
-            mRecipesFragmentViewModel.mFilterIngredients.add(ingredientEntity)
-            addIngredientRecyclerviewViewAdapater.mIngredients.add(ingredientEntity)
+            mRecipesFragmentViewModel.mFilterIngredients.add(ingredient)
             addIngredientRecyclerviewViewAdapater.notifyDataSetChanged()
 
 
-            mFilterByIngredientsDialogFragmentBinding.addIngredientRecyclerview.scrollToPosition(elemetSize )
-            //mFilterByIngredientsDialogFragmentBinding.fab.isClickable = false
-
 
         }
 
-        fun showSoftKeyboard(view: View){
-            val inputMethodManager = requireContext().getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.toggleSoftInputFromWindow(
-                view.applicationWindowToken, InputMethodManager.SHOW_FORCED, 0
-            )
-        }
     }
     /**
      *
      */
-    class AddIngredientRecyclerviewViewAdapater(var mIngredients:ArrayList<IngredientEntity>): RecyclerView.Adapter<AddIngredientRecyclerviewViewAdapater.ItemViewHolder>() {
+    class AddIngredientRecyclerviewViewAdapater(var mIngredients:ArrayList<String>): RecyclerView.Adapter<AddIngredientRecyclerviewViewAdapater.ItemViewHolder>() {
 
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -140,7 +128,7 @@ class FilterByIngredientsDialogFragment(var mRecipesFragmentViewModel: RecipesFr
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val ingredient = mIngredients[position]
 
-            holder.addIngredientItemForSeachingBinding.ingredientEntity = ingredient
+            holder.addIngredientItemForSeachingBinding.ingredient = ingredient
             holder.addIngredientItemForSeachingBinding.executePendingBindings()
             holder.setTextWatcher()
         }

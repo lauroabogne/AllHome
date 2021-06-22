@@ -5,8 +5,8 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="ingredientEntity"
-            type="com.example.allhome.data.entities.IngredientEntity" />
+            name="ingredient"
+            type="String" />
 
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -20,7 +20,7 @@
             android:layout_height="wrap_content"
             android:textColor="#000"
             android:textSize="18sp"
-            android:text="@{ingredientEntity.name}"
+            android:text="@{ingredient}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/removeBtn"
             app:layout_constraintStart_toStartOf="parent"

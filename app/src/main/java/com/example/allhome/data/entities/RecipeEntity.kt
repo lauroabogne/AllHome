@@ -54,6 +54,8 @@ data class RecipeEntity(
         const val COLUMN_CREATED= "created"
         const val COLUMN_MODIFIED= "modified"
 
+
+
         const val NOT_DELETED_STATUS = 0
         const val DELETED_STATUS = 1
         const val NOT_UPLOADED = 0
@@ -70,6 +72,17 @@ data class RecipeEntity(
         const val DIFFICULTY_HARD_TEXT = "hard"
 
 
+    }
+}
+@Parcelize
+data class RecipeEntityWithTotalIngredient(
+    @Embedded val recipeEntity: RecipeEntity,
+    var totalIngredientCount: Int = 0,
+    var totalIngredientMatchCount: Int = 0
+):Parcelable{
+    companion object{
+        const val TOTAL_INGREDIENT_COUNT= "totalIngredientCount"
+        const val TOTAL_INGREDIENT_MATCH_COUNT = "totalIngredientMatchCount"
     }
 }
 

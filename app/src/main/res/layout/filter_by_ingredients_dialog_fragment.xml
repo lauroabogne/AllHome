@@ -17,34 +17,37 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-            app:layout_constraintBottom_toTopOf="@+id/textInputLayout9"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            tools:listitem="@layout/add_ingredient_item_for_seaching">
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout9"
+            tools:listitem="@layout/add_ingredient_item_for_seaching"
+            android:nestedScrollingEnabled="true"
+            >
 
         </androidx.recyclerview.widget.RecyclerView>
 
         <com.google.android.material.textfield.TextInputLayout
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:id="@+id/textInputLayout9"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/addIngredientBtn"
-            app:layout_constraintStart_toStartOf="parent">
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
             <AutoCompleteTextView
                 android:id="@+id/ingredientTextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingTop="15dp"
-                android:paddingBottom="15dp"
+                android:dropDownAnchor="@id/textInputLayout9"
                 android:dropDownHeight="wrap_content"
-                android:singleLine="true"
+                android:hint="Enter ingredient here"
                 android:imeOptions="actionNext"
-                android:hint="Enter recipe here" />
+                android:paddingLeft="10dp"
+                android:paddingTop="15dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="15dp"
+                android:singleLine="true" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <ImageButton

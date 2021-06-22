@@ -4,8 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
-            name="recipeEntity"
-            type="com.example.allhome.data.entities.RecipeEntity" />
+            name="recipeEntityWithTotalIngredient"
+            type="com.example.allhome.data.entities.RecipeEntityWithTotalIngredient" />
 
     </data>
 
@@ -30,7 +30,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:padding="4dp"
-                android:setRecipeImage="@{recipeEntity.imageName}"
+                android:setRecipeImage="@{recipeEntityWithTotalIngredient.recipeEntity.imageName}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -50,7 +50,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="5dp"
-                    android:text="@{recipeEntity.name}"
+                    android:text="@{recipeEntityWithTotalIngredient.recipeEntity.name}"
                     android:textColor="#000"
                     android:textSize="18sp" />
 
@@ -61,7 +61,7 @@
                     android:paddingLeft="10dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
-                    android:setServingText="@{recipeEntity.serving}"
+                    android:setServingText="@{recipeEntityWithTotalIngredient.recipeEntity.serving}"
                     android:textColor="#000" />
 
                 <TextView
@@ -71,8 +71,19 @@
                     android:paddingLeft="10dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
-                    android:setRecipeCost="@{recipeEntity.estimatedCost}"
+                    android:setRecipeCost="@{recipeEntityWithTotalIngredient.recipeEntity.estimatedCost}"
                     android:textColor="#000" />
+                <TextView
+                    android:id="@+id/textView30"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="10dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    app:totalIngredient="@{recipeEntityWithTotalIngredient.totalIngredientCount}"
+                    app:totalIngredientMatch="@{recipeEntityWithTotalIngredient.totalIngredientMatchCount}"
+                    android:textColor="#000"
+                    tools:text="test"/>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -12,20 +12,20 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeEntity
+import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
-import com.example.allhome.storage.StoragePerItemRecyclerviewViewAdapater
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 
 
-class RecipesFragment : Fragment() {
+@Suppress("NAME_SHADOWING") class RecipesFragment : Fragment() {
 
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
     private lateinit var mFragmentRecipesBinding: FragmentRecipesBinding
     var mSelectedMenuItem:MenuItem? = null
-
+    private var mSearchView:SearchView? = null
     var mSearchJob = Job()
 
     companion object{
@@ -44,7 +44,7 @@ class RecipesFragment : Fragment() {
     }
 
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
         mFragmentRecipesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
         mFragmentRecipesBinding.fab.setOnClickListener {
 
@@ -52,32 +52,46 @@ class RecipesFragment : Fragment() {
             startActivity(intent)
         }
 
+        mFragmentRecipesBinding.swipeRefresh.setOnRefreshListener {
+            val searchQuery = mSearchView?.query.toString()
+            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                val searchResult = getSearchItems(searchQuery)
+                withContext(Main){
+                    val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                    adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                    adapter.notifyDataSetChanged()
+                    mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
+                }
+            }
+        }
 
         val recipesRecyclerviewViewAdapater = RecipesRecyclerviewViewAdapater(arrayListOf(),this)
         mFragmentRecipesBinding.recipesRecyclerview.adapter = recipesRecyclerviewViewAdapater
-        loadAll()
 
+
+        mRecipesFragmentViewModel.mCoroutineScope.launch {
+            val searchResult = getSearchItems()
+            withContext(Main){
+                val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                adapter.notifyDataSetChanged()
+            }
+        }
 
 
         return mFragmentRecipesBinding.root
     }
-    private fun loadAll(){
-        mRecipesFragmentViewModel.mCoroutineScope.launch {
-            val recipes = mRecipesFragmentViewModel.getRecipes(requireContext())
+    private suspend fun loadAll(searchTerm: String): List<RecipeEntityWithTotalIngredient> {
 
-            withContext(Main){
-                val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
-                adapter.notifyDataSetChanged()
-            }
-        }
+        return mRecipesFragmentViewModel.getRecipes(requireContext(), searchTerm)
+
     }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.view_all_recipe_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
 
-        val searchView = menu.findItem(R.id.appBarSearch)?.actionView as SearchView
-        searchView?.setOnQueryTextListener(searchViewListener)
+        mSearchView = menu.findItem(R.id.appBarSearch)?.actionView as SearchView
+        mSearchView?.setOnQueryTextListener(searchViewListener)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -89,17 +103,26 @@ class RecipesFragment : Fragment() {
                 mRecipesFragmentViewModel.mFilter = NO_FILTER
                 mSelectedMenuItem?.isChecked = true
 
-                loadAll()
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val searchResult = getSearchItems()
+                    Log.e("data",searchResult.toString())
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                        adapter.notifyDataSetChanged()
+                    }
+                }
             }
             R.id.recipeInformationFilterMenu -> {
                 val filterByInformationDialogFragment  = FilterByInformationDialogFragment(mRecipesFragmentViewModel)
                 filterByInformationDialogFragment.isCancelable = false
-                filterByInformationDialogFragment.setRecipeFilterSetter(recipeFilterSetter)
+                filterByInformationDialogFragment.setRecipeInformationFilterListener(recipeInformationFilterListener)
                 filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
             }
             R.id.recipeIngredientFilterMenu -> {
                 val filterByIngredientsDialogFragment  =  FilterByIngredientsDialogFragment(mRecipesFragmentViewModel)
                 filterByIngredientsDialogFragment.isCancelable = false
+                filterByIngredientsDialogFragment.setRecipeIngredientFilterListener(recipeIngredientFilterListener)
                 filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
             }
 
@@ -109,12 +132,11 @@ class RecipesFragment : Fragment() {
         return true
     }
 
-    suspend fun filterByInformations(searchQuery:String = ""):List<RecipeEntity>{
+    suspend fun filterByInformations(searchQuery:String = ""):List<RecipeEntityWithTotalIngredient>{
         mRecipesFragmentViewModel.mFilter = FILTER_BY_INFORMATION
         val hasCostInput = mRecipesFragmentViewModel.mHasCostInput
         val hasServingInput = mRecipesFragmentViewModel.mHasServingInput
         val  hasHourOrMinuteInput = mRecipesFragmentViewModel.mHasHourOrMinuteInput
-
 
         if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
             //filter by cost, serving and total preparation and cook time
@@ -134,7 +156,7 @@ class RecipesFragment : Fragment() {
             // filter by cost and serving
             val cost =mRecipesFragmentViewModel.mCostString.toDouble()
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val recipes = mRecipesFragmentViewModel.filterByCostAndServing(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving)
+            val recipes = mRecipesFragmentViewModel.filterByCostAndServing(requireContext(), searchQuery,mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving)
 
             return recipes
         }else if(hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
@@ -142,7 +164,7 @@ class RecipesFragment : Fragment() {
 
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
             val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
-            val recipes = mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
+            val recipes = mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
             return recipes
 
         }else if(!hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
@@ -151,41 +173,47 @@ class RecipesFragment : Fragment() {
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
             val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
-            val recipes = mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mServingCondition,serving,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
+            val recipes = mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition,serving,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
 
             return recipes
 
         }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ){
             // filter by cost
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
-            val recipes = mRecipesFragmentViewModel.filterByCost(requireContext(), mRecipesFragmentViewModel.mCostCondition,cost)
+            val recipes = mRecipesFragmentViewModel.filterByCost(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition,cost)
             return recipes
 
         }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
             // filter by serving
 
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val recipes = mRecipesFragmentViewModel.filterByServing(requireContext(), mRecipesFragmentViewModel.mServingCondition,serving)
+            val recipes = mRecipesFragmentViewModel.filterByServing(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition,serving)
             return recipes
 
         }else if(!hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
             // filter by total preparation and cook time
             val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
-            val recipes = mRecipesFragmentViewModel.filterByTotalPrepAndCookTime(requireContext(), mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
+            val recipes = mRecipesFragmentViewModel.filterByTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
 
             return recipes
         }
-        return arrayListOf<RecipeEntity>()
+        return arrayListOf<RecipeEntityWithTotalIngredient>()
     }
 
+    suspend fun filterByRecipeIngredients(searchTerm: String = "",ingredients:List<String>):List<RecipeEntityWithTotalIngredient>{
+
+        return mRecipesFragmentViewModel.getRecipesByIngredients(requireContext(),searchTerm,ingredients)
+    }
     fun totalPrepAndCookTimeInMinutes(prepPlusCookHourString: String, prepPlusCookMinutesString: String):Int{
         val prepAPlusCookHourInt = if(prepPlusCookHourString.isEmpty()) 0 else prepPlusCookHourString.toInt()
-        val prepPlusCookMinutesString = if(prepPlusCookMinutesString.isEmpty()) 0 else prepPlusCookMinutesString.toInt()
+        val prepPlusCookMinutesString: Int = if(prepPlusCookMinutesString.isEmpty()) 0 else prepPlusCookMinutesString.toInt()
         val minutesInHour = 60
-        return (prepAPlusCookHourInt / minutesInHour)+prepPlusCookMinutesString
+        return (prepAPlusCookHourInt * minutesInHour)+prepPlusCookMinutesString
     }
-    private val  recipeFilterSetter = object:RecipeFilterSetter{
+    private val  recipeInformationFilterListener = object:RecipeInformationFilterListener{
         override fun filterConditions(costCondition: String, servingCondition: String, prepPlusCookTimeSelectedCondition: String) {
+
+
             mRecipesFragmentViewModel.mCostCondition=costCondition
             mRecipesFragmentViewModel.mServingCondition=servingCondition
             mRecipesFragmentViewModel.mPrepPlusCookTimeCondition=prepPlusCookTimeSelectedCondition
@@ -213,12 +241,28 @@ class RecipesFragment : Fragment() {
                 val recipes =  filterByInformations()
                 withContext(Main){
                     val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                    adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntity>
+                    adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntityWithTotalIngredient>
                     adapter.notifyDataSetChanged()
                 }
             }
 
 
+        }
+
+    }
+    private val recipeIngredientFilterListener = object:RecipeIngredientFilterListener{
+        override fun onIngredientFilterSet(ingredients: ArrayList<String>) {
+
+            mRecipesFragmentViewModel.mFilter = FILTER_BY_INGREDIENTS
+            mSelectedMenuItem?.isChecked = true
+            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                val searchResult = getSearchItems("")
+                withContext(Main){
+                    val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                    adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                    adapter.notifyDataSetChanged()
+                }
+            }
         }
 
     }
@@ -241,39 +285,42 @@ class RecipesFragment : Fragment() {
                     val searchResult = getSearchItems(it)
                     withContext(Main){
                         val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntity>
+                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
                         adapter.notifyDataSetChanged()
                     }
                 }
-
 
             }
 
             return true
         }
-
     }
-    suspend fun getSearchItems(searchTerm:String):List<RecipeEntity>{
+    suspend fun getSearchItems(searchTerm:String = ""):List<RecipeEntityWithTotalIngredient>{
         if(mRecipesFragmentViewModel.mFilter == NO_FILTER){
+            return loadAll(searchTerm)
 
         }else if(mRecipesFragmentViewModel.mFilter == FILTER_BY_INFORMATION){
-            Log.e("TEST","SEARCHING")
+
             return filterByInformations(searchTerm)
         }else if(mRecipesFragmentViewModel.mFilter == FILTER_BY_INGREDIENTS){
 
+            return filterByRecipeIngredients(searchTerm,mRecipesFragmentViewModel.mFilterIngredients)
         }
 
         return arrayListOf()
 
     }
-    interface RecipeFilterSetter{
+    interface RecipeInformationFilterListener{
         fun filterConditions(costCondition:String,servingCondition:String,prepPlusCookTimeSelectedCondition:String)
         fun filters(costString:String,servingString:String,prepPlusCookHourString:String,prepPlusCookMinutesString:String)
         fun onFilterSet(hasCostInput:Boolean,hasServingInput:Boolean,hasHourOrMinuteInput:Boolean)
     }
 
+    interface RecipeIngredientFilterListener{
+        fun onIngredientFilterSet(ingredients:ArrayList<String>)
+    }
 
-    class RecipesRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeEntity>, val mRecipesFragment: RecipesFragment):
+    class RecipesRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeEntityWithTotalIngredient>, val mRecipesFragment: RecipesFragment):
         RecyclerView.Adapter<RecipesRecyclerviewViewAdapater.ItemViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -288,7 +335,7 @@ class RecipesFragment : Fragment() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
             val recipeEntity = mRecipeStepEntities[position]
-            holder.recipeItemBinding.recipeEntity = recipeEntity
+            holder.recipeItemBinding.recipeEntityWithTotalIngredient = recipeEntity
             holder.recipeItemBinding.executePendingBindings()
 
         }

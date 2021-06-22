@@ -69,6 +69,14 @@ fun setRecipeCostAndVisibility(textView: TextView, cost:Double){
 
     textView.text = "${ NumberUtils.formatNumber(cost)}"
 }
+
+@BindingAdapter(value=["bind:totalIngredient","bind:totalIngredientMatch"])
+fun setRecipeCount(textView: TextView, totalIngredient:Int,totalIngredientMatch:Int){
+
+    textView.visibility = if(totalIngredientMatch <=0) View.GONE else View.VISIBLE
+    textView.setText("${totalIngredientMatch} of ${totalIngredient} ingredient match")
+}
+
 @BindingAdapter("android:setPreparationTime")
 fun setPreparationTime(textview:TextView,recipeEntity: RecipeEntity){
 
@@ -271,7 +279,7 @@ fun setServingSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragm
 fun setPrepPlusCookingTimeSpinnerValue(spinner:Spinner,recipesFragmentViewModel:RecipesFragmentViewModel?){
     val resources = spinner.context.resources
     val filters = resources.getStringArray(R.array.total_time_filter)
-    recipesFragmentViewModel?.mServingCondition.let {
+    recipesFragmentViewModel?.mPrepPlusCookTimeCondition.let {
         when(it){
             FilterByInformationDialogFragment.EQAUL->{
                 spinner.setSelection(filters.indexOf(resources.getString(R.string.prep_plus_cook_time_is_equal)))

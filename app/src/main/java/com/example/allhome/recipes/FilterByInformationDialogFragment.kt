@@ -3,7 +3,6 @@ package com.example.allhome.recipes
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -15,7 +14,7 @@ import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.example.allhome.utils.MinMaxInputFilter
 class FilterByInformationDialogFragment(val mRecipesFragmentViewModel: RecipesFragmentViewModel): DialogFragment() {
          lateinit var mFilterByInformationDialogFragmentBinding:FilterByInformationDialogFragmentBinding
-         var mRecipeFilterSetter:RecipesFragment.RecipeFilterSetter? = null
+         var mRecipeInformationFilterListener:RecipesFragment.RecipeInformationFilterListener? = null
 
     companion object{
         const val EQAUL = "="
@@ -43,8 +42,8 @@ class FilterByInformationDialogFragment(val mRecipesFragmentViewModel: RecipesFr
 
         return alertDialogBuilder.create()
     }
-    fun setRecipeFilterSetter( recipeFilterSetter:RecipesFragment.RecipeFilterSetter){
-        mRecipeFilterSetter = recipeFilterSetter
+    fun setRecipeInformationFilterListener(recipeInformationFilterListener:RecipesFragment.RecipeInformationFilterListener){
+        mRecipeInformationFilterListener = recipeInformationFilterListener
     }
     private fun checkFilters(){
 
@@ -61,7 +60,7 @@ class FilterByInformationDialogFragment(val mRecipesFragmentViewModel: RecipesFr
         val hasServingInput = hasServingInput(servingString)
         val hasHourOrMinuteInput = hasHourOrMinuteInput(prepPlusCookHourString,prepPlusCookMinutesString)
 
-        mRecipeFilterSetter?.let {
+        mRecipeInformationFilterListener?.let {
             it.filterConditions(convertEqualLessThanGreaterThanToSymbol(costSpinnerSelectedFilter), convertEqualLessThanGreaterThanToSymbol(servingSelectedFilter), convertEqualLessThanGreaterThanToSymbol(prepPlusCookTimeSelectedFilter))
             it.filters(costString,servingString,prepPlusCookHourString,prepPlusCookMinutesString)
             it.onFilterSet(hasCostInput,hasServingInput,hasHourOrMinuteInput)
@@ -109,6 +108,7 @@ class FilterByInformationDialogFragment(val mRecipesFragmentViewModel: RecipesFr
     }
     private fun convertEqualLessThanGreaterThanToSymbol(stringToConvert:String):String{
 
+        Log.e("FILTER",stringToConvert+" ${stringToConvert.equals(getString(R.string.prep_plus_cook_time_is_greater_than))}")
         if(stringToConvert.equals(getString(R.string.cost_is_equal)) || stringToConvert.equals(getString(R.string.prep_plus_cook_time_is_equal))|| stringToConvert.equals(getString(R.string.serving_is_equal))){
             return EQAUL
         }
