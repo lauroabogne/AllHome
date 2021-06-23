@@ -6,10 +6,7 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.databinding.BindingAdapter
-import androidx.room.ColumnInfo
-import androidx.room.Embedded
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.NumberUtils
 import kotlinx.android.parcel.Parcelize
@@ -78,11 +75,15 @@ data class RecipeEntity(
 data class RecipeEntityWithTotalIngredient(
     @Embedded val recipeEntity: RecipeEntity,
     var totalIngredientCount: Int = 0,
-    var totalIngredientMatchCount: Int = 0
+    var totalIngredientMatchCount: Int = 0,
+    var totalIngredientCountLessTotalIngredientMatchCount:Int? = 0
+
 ):Parcelable{
+
     companion object{
         const val TOTAL_INGREDIENT_COUNT= "totalIngredientCount"
         const val TOTAL_INGREDIENT_MATCH_COUNT = "totalIngredientMatchCount"
+        const val TOTAL_INGREDIENT_COUNT_LESS_TOTAL_INGREDIENT_MATCH_COUNT = "totalIngredientCountLessTotalIngredientMatchCount"
     }
 }
 

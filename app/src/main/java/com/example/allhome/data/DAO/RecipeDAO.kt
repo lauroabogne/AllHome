@@ -27,7 +27,17 @@ interface RecipeDAO {
                 " WHERE ${IngredientEntity.COLUMN_RECIPE_UNIQUE_ID} = ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
                 " AND ${IngredientEntity.COLUMN_NAME} IN (:ingredients)" +
                 " AND ${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS}" +
-            " ) AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT} " +
+            " ) AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}," +
+            " ((" +
+            " SELECT COUNT(*) FROM ${IngredientEntity.TABLE_NAME} " +
+            " WHERE ${IngredientEntity.COLUMN_RECIPE_UNIQUE_ID} = ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
+            " AND ${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS})" +
+            " - " +
+            " (SELECT COUNT(*) FROM ${IngredientEntity.TABLE_NAME} " +
+            " WHERE ${IngredientEntity.COLUMN_RECIPE_UNIQUE_ID} = ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
+            " AND ${IngredientEntity.COLUMN_NAME} IN (:ingredients)" +
+            " AND ${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS}" +
+            " )) AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT_LESS_TOTAL_INGREDIENT_MATCH_COUNT} " +
             " FROM ${RecipeEntity.TABLE_NAME} " +
             " LEFT JOIN ${IngredientEntity.TABLE_NAME} " +
             " ON ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} = ${IngredientEntity.TABLE_NAME}.${IngredientEntity.COLUMN_RECIPE_UNIQUE_ID}" +
@@ -36,13 +46,7 @@ interface RecipeDAO {
             " AND ${IngredientEntity.TABLE_NAME}.${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS} " +
             " AND ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}" +
             " GROUP BY ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
-            " ORDER BY " +
-            " (" +
-                " SELECT COUNT(*) FROM ${IngredientEntity.TABLE_NAME} " +
-                " WHERE ${IngredientEntity.COLUMN_RECIPE_UNIQUE_ID} = ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
-                " AND ${IngredientEntity.COLUMN_NAME} IN (:ingredients)" +
-                " AND ${IngredientEntity.COLUMN_STATUS} = ${IngredientEntity.NOT_DELETED_STATUS}" +
-            " ) DESC," +
+            " ORDER BY ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT_LESS_TOTAL_INGREDIENT_MATCH_COUNT} ASC," +
             " ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_NAME}")
     suspend fun getRecipesByIngredients(searchTerm:String,ingredients:List<String>):List<RecipeEntityWithTotalIngredient>
     /*@Query("SELECT * FROM recipes where estimated_cost :costCondition :cost  AND status = ${RecipeEntity.NOT_DELETED_STATUS}")

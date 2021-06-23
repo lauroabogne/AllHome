@@ -20,7 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 
 
-@Suppress("NAME_SHADOWING") class RecipesFragment : Fragment() {
+class RecipesFragment : Fragment() {
 
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
     private lateinit var mFragmentRecipesBinding: FragmentRecipesBinding
@@ -257,6 +257,8 @@ import kotlinx.coroutines.Dispatchers.Main
             mSelectedMenuItem?.isChecked = true
             mRecipesFragmentViewModel.mCoroutineScope.launch {
                 val searchResult = getSearchItems("")
+
+                Log.e("RECIPE",searchResult.toString())
                 withContext(Main){
                     val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
                     adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
@@ -335,6 +337,9 @@ import kotlinx.coroutines.Dispatchers.Main
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
             val recipeEntity = mRecipeStepEntities[position]
+
+
+            Log.e("TAG", recipeEntity.totalIngredientCountLessTotalIngredientMatchCount.toString())
             holder.recipeItemBinding.recipeEntityWithTotalIngredient = recipeEntity
             holder.recipeItemBinding.executePendingBindings()
 
@@ -357,7 +362,7 @@ import kotlinx.coroutines.Dispatchers.Main
 
 
                 val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
-                viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity)
+                viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
                 view?.context?.startActivity(viewRecipeActivity)
             }
 
