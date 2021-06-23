@@ -226,7 +226,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
 
         var shoppingDateTimeString:String = mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.shoppingDatetime
 
-        if(shoppingDateTimeString.length <=0){
+        if(shoppingDateTimeString.length <=0 || shoppingDateTimeString.equals("0000-00-00 00:00:00")){
 
             return 0
         }

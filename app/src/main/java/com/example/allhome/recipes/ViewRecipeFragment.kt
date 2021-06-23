@@ -75,10 +75,11 @@ class ViewRecipeFragment : Fragment() {
 
         mFragmentViewRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_view_recipe, container, false)
 
+        mFragmentViewRecipeBinding.customToolbar.title = mRecipeEntity.name
+
         mFragmentViewRecipeBinding.customToolbar.inflateMenu(R.menu.view_recipe_menu)
         mFragmentViewRecipeBinding.customToolbar.setNavigationOnClickListener {
             activity?.finish()
-            Toast.makeText(requireContext(),"Clicked backed",Toast.LENGTH_SHORT).show()
         }
         mFragmentViewRecipeBinding.customToolbar.setOnMenuItemClickListener {
 

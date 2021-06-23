@@ -25,6 +25,7 @@
             android:id="@+id/appBar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:fitsSystemWindows="true"
             android:background="?attr/colorPrimary"
             android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
 
@@ -33,6 +34,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="256dp"
                 android:fitsSystemWindows="true"
+                app:expandedTitleMarginBottom="?attr/actionBarSize"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
                 app:contentScrim="?attr/colorPrimary">
 
@@ -51,8 +53,10 @@
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin"
                     android:layout_gravity="top"
+                    app:title="TEST"
                     android:layout_marginBottom="?attr/actionBarSize"
-                    app:navigationIcon="?attr/homeAsUpIndicator"/>
+                    app:navigationIcon="?attr/homeAsUpIndicator"
+                    />
 
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/viewRecipeTabLayout"

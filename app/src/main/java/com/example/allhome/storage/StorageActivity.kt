@@ -1057,7 +1057,6 @@ class StorageActivity : AppCompatActivity() {
                     }
                     R.id.pantryItemParentLayout -> {
 
-
                         val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPosition].storageItemEntity
 
                         val addPantryItemActivity = Intent(storageActivity, StorageAddItemActivity::class.java)
@@ -1065,6 +1064,8 @@ class StorageActivity : AppCompatActivity() {
                         addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG, StorageAddItemActivity.UPDATE_RECORD_ACTION)
                         addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG, pantryItemEntity.uniqueId)
                         addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG, pantryItemEntity.name)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_TAG, storageActivity.mStorageEntity)
+
 
                         storageActivity.startActivityForResult(addPantryItemActivity, UPDATE_ITEM_REQUEST_CODE)
 
