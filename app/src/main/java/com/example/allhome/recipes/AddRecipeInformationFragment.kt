@@ -1,14 +1,22 @@
 package com.example.allhome.recipes
 
+import android.app.Activity
 import android.app.AlertDialog
+import android.content.ComponentName
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.os.Parcelable
+import android.provider.MediaStore
 import android.text.InputFilter
 import android.text.Spanned
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
+import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -19,8 +27,14 @@ import com.example.allhome.databinding.FragmentAddRecipeInformationBinding
 import com.example.allhome.databinding.HourAndTimeInputBinding
 import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
+import com.example.allhome.storage.StorageAddItemActivity
+import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.MinMaxInputFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.theartofdev.edmodo.cropper.CropImage
+import com.theartofdev.edmodo.cropper.CropImageView
+import java.io.File
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -33,11 +47,12 @@ class AddRecipeInformationFragment : Fragment() {
     lateinit var mDataBinding:FragmentAddRecipeInformationBinding
     var mRecipeEntity:RecipeEntity? = null
     var mAction = ADD_ACTION
+    var mTempPhotoFileForAddingImage: File? = null
 
     companion object{
         const val ADD_ACTION = 0
         const val EDIT_ACTION = 1
-
+        val REQUEST_PICK_IMAGE = 3
          val DIFICULTY_OPTIONS = arrayOf(
             "",
             "Easy",
@@ -95,7 +110,48 @@ class AddRecipeInformationFragment : Fragment() {
         mDataBinding.cookTimeTextInputEditText.setOnClickListener {
             showCookingTimePopup()
         }
+        mDataBinding.recipeAddImageBtn.setOnClickListener{
+        Toast.makeText(requireContext(),"Test",Toast.LENGTH_SHORT).show()
+         showIntentChooser()
+        }
+
         return mDataBinding.root
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        Toast.makeText(requireContext(),"Recieced",Toast.LENGTH_SHORT).show()
+        if(requestCode == REQUEST_PICK_IMAGE){
+            data?.data?.let{
+                lauchImageCropper(it)
+            }
+
+            mTempPhotoFileForAddingImage?.let{
+                val fileUri = Uri.fromFile(mTempPhotoFileForAddingImage) as Uri
+                lauchImageCropper(fileUri)
+            }
+        }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
+
+            val result = CropImage.getActivityResult(data)
+            mAddRecipeInformationFragmentViewModel.newImageUri = result.uri
+            mDataBinding.itemImageView.setImageURI(result.uri)
+
+
+           /* mStorageAddItemViewModel.newImageUri = result.uri
+            mActivityPantryAddItemBinding.itemImageView.setImageURI(result.uri)*/
+            //itemImageView
+            //mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
+            //dataBindingUtil.itemImageview.setImageURI(result.uri)
+
+
+        }
+    }
+    private fun lauchImageCropper(uri: Uri){
+
+        CropImage.activity(uri)
+            .setGuidelines(CropImageView.Guidelines.ON)
+            .setCropShape(CropImageView.CropShape.RECTANGLE)
+            .start(requireContext(),this)
     }
     fun showDifficultyPopup(){
 
@@ -158,7 +214,6 @@ class AddRecipeInformationFragment : Fragment() {
         }
 
     }
-
     fun showCookingTimePopup(){
         val hourAndTimeInputBinding:HourAndTimeInputBinding = DataBindingUtil.inflate(LayoutInflater.from(requireContext()), R.layout.hour_and_time_input, null, false)
         hourAndTimeInputBinding.hourEditext.filters = arrayOf(MinMaxInputFilter( 1 , 168 ))
@@ -195,14 +250,6 @@ class AddRecipeInformationFragment : Fragment() {
             alertDialog.dismiss()
         }
     }
-
-    private fun showSoftKeyboard(view: View) {
-        if (view.requestFocus()) {
-            val inputMethodManager: InputMethodManager = activity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT)
-        }
-    }
-
     fun getRecipeInformation():RecipeEntity?{
 
         val name = mDataBinding.recipeNameTextInputEditText.text.toString()
@@ -275,7 +322,6 @@ class AddRecipeInformationFragment : Fragment() {
 
 
     }
-
     fun showErroPopup(message:String){
         var dialog = CustomMessageDialogFragment(null,message,true)
         dialog.show(requireActivity().supportFragmentManager,"CustomMessageDialogFragment")
@@ -295,6 +341,67 @@ class AddRecipeInformationFragment : Fragment() {
         }
 
 
+    }
+
+    private fun showIntentChooser(){
+        // Determine Uri of camera image to save.
+
+        // create temporary file
+        mTempPhotoFileForAddingImage = createImageFile()
+        var photoURI = FileProvider.getUriForFile(requireContext(), "com.example.allhome.fileprovider", mTempPhotoFileForAddingImage!!)
+
+        // Camera.
+        val imageIntents: MutableList<Intent> = java.util.ArrayList()
+        val captureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        val packageManager = requireContext().packageManager
+        val listCam = packageManager.queryIntentActivities(captureIntent, 0)
+        for (res in listCam) {
+            val packageName = res.activityInfo.packageName
+            val intent = Intent(captureIntent)
+            intent.component = ComponentName(packageName, res.activityInfo.name)
+            intent.setPackage(packageName)
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI)
+            imageIntents.add(intent)
+        }
+
+        // all intent for picking image. eg Gallery app
+        val pickImageIntent = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)
+        pickImageIntent.type = "image/*"
+        val pickImageResolver = packageManager.queryIntentActivities(pickImageIntent, 0)
+        for (res in pickImageResolver) {
+            val intent = Intent(pickImageIntent)
+            intent.component = ComponentName(res.activityInfo.packageName, res.activityInfo.name)
+            intent.setPackage(res.activityInfo.packageName)
+            imageIntents.add(intent)
+        }
+
+        val finalIntent = Intent()
+        finalIntent.type = "image/*"
+        finalIntent.action = Intent.ACTION_GET_CONTENT
+
+        // Chooser of filesystem options.
+        val chooserIntent = Intent.createChooser(finalIntent, "Select Source")
+        // Add the camera options.
+        chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, imageIntents.toTypedArray<Parcelable>())
+        startActivityForResult(chooserIntent,REQUEST_PICK_IMAGE)
+
+
+
+    }
+
+    @Throws(IOException::class)
+    private fun createImageFile(): File {
+        val storageDir: File = requireContext().getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+
+        if(!storageDir.exists()){
+            storageDir.mkdir()
+        }
+
+        return File.createTempFile(
+            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            storageDir /* directory */
+        )
     }
 
 
