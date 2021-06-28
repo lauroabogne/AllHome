@@ -40,6 +40,7 @@ import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.*
 import com.example.allhome.storage.viewmodel.StorageViewModel
+import com.example.allhome.utils.ImageUtil
 import com.google.android.material.chip.Chip
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.tabs.TabLayout
@@ -1653,7 +1654,7 @@ class StorageViewAdapter(val storageFragment: StorageFragment): RecyclerView.Ada
                 R.id.storageImageView -> {
 
                     val storageEntity = storageEntities[adapterPosition].storageEntity
-                    val imageUri = StorageUtil.getImageUriFromPath(view.context, StorageUtil.STORAGE_IMAGES_FINAL_LOCATION, storageEntity.imageName)
+                    val imageUri = StorageUtil.getImageUriFromPath(view.context, ImageUtil.STORAGE_IMAGES_FINAL_LOCATION, storageEntity.imageName)
                     imageUri?.let {
                         storageFragment.zoomImageFromThumb(view, it)
                     }
@@ -1713,7 +1714,7 @@ class StorageViewForTransferingItemsAdapter(val storageFragment: StorageFragment
                 R.id.storageImageView -> {
 
                     val storageEntity = storageEntities[adapterPosition].storageEntity
-                    val imageUri = StorageUtil.getImageUriFromPath(view.context, StorageUtil.STORAGE_IMAGES_FINAL_LOCATION, storageEntity.imageName)
+                    val imageUri = StorageUtil.getImageUriFromPath(view.context, ImageUtil.STORAGE_IMAGES_FINAL_LOCATION, storageEntity.imageName)
                     imageUri?.let {
                         storageFragment.zoomImageFromThumb(view, it)
                     }

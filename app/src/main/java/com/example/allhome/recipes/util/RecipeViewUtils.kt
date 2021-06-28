@@ -1,21 +1,27 @@
 package com.example.allhome.recipes
 
-import android.net.Uri
-import android.util.Log
+import android.content.Intent
+import android.graphics.Typeface
+import android.text.Spannable
+import android.text.SpannableStringBuilder
+import android.text.TextPaint
+import android.text.style.ClickableSpan
+import android.text.style.StyleSpan
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.core.content.ContextCompat.startActivity
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
 import com.example.allhome.R
 import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
+import com.example.allhome.utils.ImageUtil
 import com.example.allhome.utils.NumberUtils
 import com.google.android.material.textfield.TextInputEditText
-import com.google.android.material.textfield.TextInputLayout
 
 
 @BindingAdapter("android:setServing")
@@ -33,14 +39,36 @@ import com.google.android.material.textfield.TextInputLayout
 fun setCost(textView:TextView,cost:Double){
 
 }
+@BindingAdapter("android:setRecipeIngredientText")
+fun setRecipeIngredientText(textView:TextView,ingredient: IngredientEntity){
+
+    val quantityWithUom = "${NumberUtils.fraction(ingredient.quantity)} ${ingredient.unit}"
+    var ingredientText: SpannableStringBuilder
+
+    if(ingredient.quantity > 0){
+        ingredientText = SpannableStringBuilder("${quantityWithUom} ${ingredient.name}")
+        ingredientText.setSpan(StyleSpan(Typeface.BOLD), 0, quantityWithUom.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    }else{
+        ingredientText= SpannableStringBuilder("${ingredient.name}")
+    }
+
+
+    textView.text = ingredientText
+}
 @BindingAdapter("android:setRecipeImage")
 fun setRecipeImage(view: ImageView, imageName:String){
 
     val context = view.context
 
-    Glide.with(context)
-        .load(context.resources.getIdentifier("adobo","drawable",context.packageName))
-        .into(view)
+    val imageUri = ImageUtil.getImageUriFromPath(context,ImageUtil.RECIPE_IMAGES_FINAL_LOCATION,"${imageName}.${ImageUtil.IMAGE_NAME_SUFFIX}")
+    imageUri?.let {
+        Glide.with(context)
+            .load(imageUri)
+            .into(view)
+    }?:run{
+
+    }
+
 }
 @BindingAdapter("android:setServingText")
 fun setServingText(textViwe: TextView, serving:Int){

@@ -29,6 +29,7 @@ import com.example.allhome.data.entities.GroceryListEntityValues
 import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
+import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.*
@@ -159,23 +160,14 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             customView.findViewById<View>(R.id.cameraTextView).setOnClickListener{
                 customDialog.dismiss()
 
-                val storageDir: File = getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
-                storageDir.exists().apply {
-                    storageDir.deleteRecursively()
-                }
-
-
+                ImageUtil.deleteAllTemporaryImages(this)
 
                 dispatchTakePictureIntent()
             }
             customView.findViewById<View>(R.id.pickFromGalleryTextView).setOnClickListener{
                 customDialog.dismiss()
 
-                val storageDir: File = getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
-                storageDir.exists().apply {
-                    storageDir.deleteRecursively()
-                }
-
+                ImageUtil.deleteAllTemporaryImages(this)
 
                 val mimeTypes = arrayOf("image/jpeg", "image/png", "image/jpg")
                 val gallery = Intent(Intent.ACTION_PICK, MediaStore.Images.Media.INTERNAL_CONTENT_URI)

@@ -29,6 +29,7 @@ import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
 import com.example.allhome.storage.StorageAddItemActivity
 import com.example.allhome.storage.StorageUtil
+import com.example.allhome.utils.ImageUtil
 import com.example.allhome.utils.MinMaxInputFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theartofdev.edmodo.cropper.CropImage
@@ -111,7 +112,8 @@ class AddRecipeInformationFragment : Fragment() {
             showCookingTimePopup()
         }
         mDataBinding.recipeAddImageBtn.setOnClickListener{
-        Toast.makeText(requireContext(),"Test",Toast.LENGTH_SHORT).show()
+
+            ImageUtil.deleteAllTemporaryImages(requireContext())
          showIntentChooser()
         }
 
@@ -322,6 +324,9 @@ class AddRecipeInformationFragment : Fragment() {
 
 
     }
+    fun getRecipeImageURI():Uri?{
+        return mAddRecipeInformationFragmentViewModel.newImageUri
+    }
     fun showErroPopup(message:String){
         var dialog = CustomMessageDialogFragment(null,message,true)
         dialog.show(requireActivity().supportFragmentManager,"CustomMessageDialogFragment")
@@ -391,15 +396,16 @@ class AddRecipeInformationFragment : Fragment() {
 
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val storageDir: File = requireContext().getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+
+        val storageDir: File = requireContext().getExternalFilesDir(ImageUtil.TEMPORARY_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
 
         return File.createTempFile(
-            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
-            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            ImageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${ImageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
             storageDir /* directory */
         )
     }

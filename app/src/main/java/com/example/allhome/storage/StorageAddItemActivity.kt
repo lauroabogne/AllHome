@@ -30,6 +30,7 @@ import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityStorageAddItemBinding
 import com.example.allhome.databinding.StorageExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
+import com.example.allhome.utils.ImageUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -254,7 +255,7 @@ class StorageAddItemActivity : AppCompatActivity() {
         var itemUniqueID = UUID.randomUUID().toString()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
-        val imageName =itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+        val imageName =itemUniqueID+"_"+storageItem+"."+ImageUtil.IMAGE_NAME_SUFFIX
 
         val storageItemEntity = StorageItemEntity(
             uniqueId = itemUniqueID,
@@ -374,7 +375,7 @@ class StorageAddItemActivity : AppCompatActivity() {
                     StorageUtil.deleteImageFile(it)
                 }
                 var itemUniqueID = UUID.randomUUID().toString()
-                imageName = itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+                imageName = itemUniqueID+"_"+storageItem+"."+ImageUtil.IMAGE_NAME_SUFFIX
                 saveImage(mStorageAddItemViewModel.newImageUri!!, imageName)
 
             }?:run{
@@ -437,7 +438,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     private fun imageName(storageItemName: String):String?{
 
         var itemUniqueID = UUID.randomUUID().toString()
-        return itemUniqueID+"_"+storageItemName+"."+StorageUtil.IMAGE_NAME_SUFFIX
+        return itemUniqueID+"_"+storageItemName+"."+ImageUtil.IMAGE_NAME_SUFFIX
 
     }
     private fun showIntentChooser(){
@@ -486,9 +487,9 @@ class StorageAddItemActivity : AppCompatActivity() {
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri, this)
-        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
-        val storageDir: File = getExternalFilesDir(StorageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
+        val imageBitmap =  ImageUtil.uriToBitmap(imageUri, this)
+        val resizedImageBitmap = ImageUtil.resizeImage(imageBitmap,1000)
+        val storageDir: File = getExternalFilesDir(ImageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
@@ -508,28 +509,18 @@ class StorageAddItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
 
-        if(Build.VERSION.SDK_INT < 28) {
-            return  MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
-
-        } else {
-            val source = ImageDecoder.createSource(this.contentResolver, uri)
-            return ImageDecoder.decodeBitmap(source)
-
-        }
-    }
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val storageDir: File = getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+        val storageDir: File = getExternalFilesDir(ImageUtil.TEMPORARY_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
 
         return File.createTempFile(
-            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
-            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            ImageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${ImageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
             storageDir /* directory */
         )
     }

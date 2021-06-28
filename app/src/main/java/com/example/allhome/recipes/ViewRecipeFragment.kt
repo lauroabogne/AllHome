@@ -55,7 +55,7 @@ class ViewRecipeFragment : Fragment() {
             mFragmentList.add(ViewRecipeIngredientsFragment.newInstance(mRecipeEntity))
             mFragmentList.add( ViewRecipeStepsFragment.newInstance(mRecipeEntity))
 
-            Log.e(TAG,mRecipeEntity.toString())
+
 
         }
 
@@ -76,6 +76,7 @@ class ViewRecipeFragment : Fragment() {
         mFragmentViewRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_view_recipe, container, false)
 
         mFragmentViewRecipeBinding.customToolbar.title = mRecipeEntity.name
+        mFragmentViewRecipeBinding.recipeEntity = mRecipeEntity
 
         mFragmentViewRecipeBinding.customToolbar.inflateMenu(R.menu.view_recipe_menu)
         mFragmentViewRecipeBinding.customToolbar.setNavigationOnClickListener {

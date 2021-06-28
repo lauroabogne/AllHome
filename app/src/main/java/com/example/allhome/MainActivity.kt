@@ -19,6 +19,8 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
+import com.example.allhome.meal_planner.CalendarFragment
+import com.example.allhome.meal_planner.MealPlannerFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.utils.IngredientEvaluator
@@ -72,9 +74,8 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_meal_planner->{
-                    val ingredient = IngredientEvaluator.evaluate("1 1/4 pcs of bangus")
-
-                    Log.e("the fraction ",NumberUtils.fraction(10.50))
+                    fragmentProcessor(CalendarFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
                     //Log.e("ingredient",ingredient.toString())
                 }
             }

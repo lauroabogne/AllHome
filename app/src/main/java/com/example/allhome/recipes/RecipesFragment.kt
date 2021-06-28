@@ -36,6 +36,7 @@ class RecipesFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
+        requireActivity().title = "Recipe"
         arguments?.let {
 
         }
@@ -105,7 +106,7 @@ class RecipesFragment : Fragment() {
 
                 mRecipesFragmentViewModel.mCoroutineScope.launch {
                     val searchResult = getSearchItems()
-                    Log.e("data",searchResult.toString())
+
                     withContext(Main){
                         val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
                         adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
@@ -140,7 +141,6 @@ class RecipesFragment : Fragment() {
 
         if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
             //filter by cost, serving and total preparation and cook time
-            Log.e("SEARCHING","Searching here")
             val cost =mRecipesFragmentViewModel.mCostString.toDouble()
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
             val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
@@ -204,7 +204,7 @@ class RecipesFragment : Fragment() {
 
         return mRecipesFragmentViewModel.getRecipesByIngredients(requireContext(),searchTerm,ingredients)
     }
-    fun totalPrepAndCookTimeInMinutes(prepPlusCookHourString: String, prepPlusCookMinutesString: String):Int{
+    private fun totalPrepAndCookTimeInMinutes(prepPlusCookHourString: String, prepPlusCookMinutesString: String):Int{
         val prepAPlusCookHourInt = if(prepPlusCookHourString.isEmpty()) 0 else prepPlusCookHourString.toInt()
         val prepPlusCookMinutesString: Int = if(prepPlusCookMinutesString.isEmpty()) 0 else prepPlusCookMinutesString.toInt()
         val minutesInHour = 60

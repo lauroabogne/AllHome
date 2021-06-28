@@ -1,5 +1,6 @@
 package com.example.allhome.recipes
 
+import android.media.Image
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -21,6 +22,7 @@ import com.example.allhome.data.entities.RecipeStepEntity
 import com.example.allhome.databinding.ActivityAddRecipeBinding
 import com.example.allhome.recipes.viewmodel.AddRecipeActivityViewModel
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
+import com.example.allhome.utils.ImageUtil
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -121,7 +123,6 @@ class AddRecipeActivity : AppCompatActivity() {
             }
 
             R.id.saveRecipe->{
-                Toast.makeText(this,"save recipe",Toast.LENGTH_SHORT).show()
                 checkDataForSaving()
             }
             R.id.updateRecipe->{
@@ -139,6 +140,8 @@ class AddRecipeActivity : AppCompatActivity() {
        val addRecipeStepsFragment =  mFragmentList[2] as AddRecipeStepsFragment
 
         val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
+        val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
+
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
         recipeEntity?.let{
@@ -146,7 +149,16 @@ class AddRecipeActivity : AppCompatActivity() {
             assignedSomeValueToSteps(recipeEntity,steps)
 
             mAddRecipeActivityViewModel.mCoroutineScope.launch {
+
                     mAddRecipeActivityViewModel.saveRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps)
+                    recipeImageUri?.let {
+                        ImageUtil.saveImage(this@AddRecipeActivity,recipeImageUri,"${recipeEntity.uniqueId}.${ImageUtil.IMAGE_NAME_SUFFIX}",ImageUtil.RECIPE_IMAGES_FINAL_LOCATION)
+                    }
+                withContext(Main){
+                    Toast.makeText(this@AddRecipeActivity,"Recipe saved successfully",Toast.LENGTH_SHORT).show()
+                    this@AddRecipeActivity.finish()
+                }
+
             }
 
         }
@@ -159,14 +171,11 @@ class AddRecipeActivity : AppCompatActivity() {
 
 
         val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
+        val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
 
-        /*Log.e("ingredients",ingredients.toString())
-        Log.e("steps",steps.toString())
-        if(true){
-            return
-        }*/
+
         recipeEntity?.let {
 
             assignedSomeValueToIngredients(recipeEntity,ingredients)
@@ -174,9 +183,11 @@ class AddRecipeActivity : AppCompatActivity() {
 
             mAddRecipeActivityViewModel.mCoroutineScope.launch {
                 mAddRecipeActivityViewModel.updateRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps)
-
+                recipeImageUri?.let {
+                    ImageUtil.saveImage(this@AddRecipeActivity,recipeImageUri,"${recipeEntity.uniqueId}.${ImageUtil.IMAGE_NAME_SUFFIX}",ImageUtil.RECIPE_IMAGES_FINAL_LOCATION)
+                }
                 withContext(Main){
-                    Toast.makeText(this@AddRecipeActivity,"Updated",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@AddRecipeActivity,"Recipe updated successfully",Toast.LENGTH_SHORT).show()
                     this@AddRecipeActivity.finish()
                 }
             }

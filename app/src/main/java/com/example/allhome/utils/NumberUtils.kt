@@ -57,9 +57,9 @@ object NumberUtils {
         val theFraction = "${numerator/gcd}/${denominator/gcd}"
 
         if(wholeNumber <= 0){
-            return theFraction
+            return theFraction.trim()
         }else{
-            return "${wholeNumber} ${theFraction}"
+            return "${wholeNumber} ${theFraction}".trim()
         }
 
     }
