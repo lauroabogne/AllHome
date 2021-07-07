@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 <androidx.constraintlayout.widget.ConstraintLayout
-
+    android:visibility="gone"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
     <!-- FIRST WEEK-->
@@ -12,14 +12,14 @@
         layout="@layout/calendar_day"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:background="#BA4545"
         android:gravity="center"
         android:padding="4dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"
-        >
+        app:layout_constraintWidth_percent="0.1428">
 
     </include>
 
@@ -29,11 +29,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="4dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/day1"
         app:layout_constraintStart_toEndOf="@+id/day1"
         app:layout_constraintTop_toTopOf="@+id/day1"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+       />
 
     <include
         android:id="@+id/day3"
@@ -41,12 +42,13 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="4dp"
+        android:visibility="invisible"
         android:text="3"
         app:layout_constraintBottom_toBottomOf="@+id/day2"
         app:layout_constraintStart_toEndOf="@+id/day2"
         app:layout_constraintTop_toTopOf="@+id/day2"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+        />
 
     <include
         android:id="@+id/day4"
@@ -54,11 +56,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="4dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/day3"
         app:layout_constraintStart_toEndOf="@+id/day3"
         app:layout_constraintTop_toTopOf="@+id/day3"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+        />
 
     <include
         android:id="@+id/day5"
@@ -66,11 +69,12 @@
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:padding="4dp"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/day4"
         app:layout_constraintStart_toEndOf="@+id/day4"
         app:layout_constraintTop_toTopOf="@+id/day4"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+        />
 
     <include
         android:id="@+id/day6"
@@ -79,11 +83,12 @@
         android:layout_height="wrap_content"
         android:padding="4dp"
         android:text="6"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/day5"
         app:layout_constraintStart_toEndOf="@+id/day5"
         app:layout_constraintTop_toTopOf="@+id/day5"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+        />
 
     <include
         android:id="@+id/day7"
@@ -92,11 +97,12 @@
         android:layout_height="wrap_content"
         android:padding="4dp"
         android:text="7"
+        android:visibility="invisible"
         app:layout_constraintBottom_toBottomOf="@+id/day6"
         app:layout_constraintStart_toEndOf="@+id/day6"
         app:layout_constraintTop_toTopOf="@+id/day6"
         app:layout_constraintWidth_percent="0.1428"
-        android:visibility="invisible"/>
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

@@ -1,6 +1,7 @@
 package com.example.allhome.meal_planner
 
 import android.os.Bundle
+import android.os.Handler
 import android.text.format.DateUtils
 import android.util.Log
 import android.view.LayoutInflater
@@ -12,6 +13,7 @@ import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.adapter.FragmentViewHolder
+import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentCalendarBinding
 import java.text.DateFormat
@@ -63,8 +65,79 @@ class CalendarFragment : Fragment() {
         val adapter = ViewPagerFragmentAdapter(dates, requireActivity().supportFragmentManager, lifecycle)
 
         mFragmentCalendarBinding.calendarViewPager.adapter = adapter
-        mFragmentCalendarBinding.calendarViewPager.currentItem = indexOfCurrentDate
+        mFragmentCalendarBinding.calendarViewPager.setCurrentItem(indexOfCurrentDate,false)
+        mFragmentCalendarBinding.calendarViewPager.offscreenPageLimit = 2
+
+        mFragmentCalendarBinding.calendarViewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+
+            override fun onPageSelected(position: Int) {
+                super.onPageSelected(position)
+
+               /* if(position + 1 == adapter.fragmentList.size){
+                    val next3YearsCalendar = java.util.Calendar.getInstance()
+                    next3YearsCalendar.time = adapter.fragmentList[position].mDate
+                    next3YearsCalendar.add(java.util.Calendar.MONTH, 1)
+                    val calendar = Calendar.newInstance("","")
+                    calendar.mDate = next3YearsCalendar.time
+                    adapter.fragmentList.add(calendar)
+                    adapter.notifyDataSetChanged()
+                }*/
+
+                //if(position == 1){
+
+                //}
+
+               /* if(true){
+                    return
+                }*/
+                if(position == 0){
+                    //Handler().postDelayed({
+                        //doSomethingHere()
+                        val firstFragment = adapter.fragmentList[0]
+                        firstFragment.mDate = addMonth(firstFragment.mDate!!,-1)
+                        firstFragment.generateData()
+
+                        val secondFragment = adapter.fragmentList[1]
+                        secondFragment.mDate = addMonth(secondFragment.mDate!!,-1)
+                        secondFragment.generateData()
+
+                        val thirdFragment = adapter.fragmentList[2]
+                        thirdFragment.mDate = addMonth(thirdFragment.mDate!!,-1)
+                        thirdFragment.generateData()
+
+                        mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
+                    //}, 1000)
+                }
+                if(position == 2){
+                   // Handler().postDelayed({
+                        //doSomethingHere()
+
+                        val firstFragment = adapter.fragmentList[0]
+                        firstFragment.mDate = addMonth(firstFragment.mDate!!,1)
+                        firstFragment.generateData()
+
+                        val secondFragment = adapter.fragmentList[1]
+                        secondFragment.mDate = addMonth(secondFragment.mDate!!,1)
+                        secondFragment.generateData()
+
+                        val thirdFragment = adapter.fragmentList[2]
+                        thirdFragment.mDate = addMonth(thirdFragment.mDate!!,1)
+                        thirdFragment.generateData()
+
+                        mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
+                   // }, 1000)
+                }
+
+            }
+        })
         return mFragmentCalendarBinding.root
+    }
+
+    fun addMonth(date:Date,month:Int):Date{
+        val calendar = java.util.Calendar.getInstance()
+        calendar.time = date
+        calendar.add(java.util.Calendar.MONTH,month)
+        return calendar.time
     }
 
     fun getIndexOfCurrentDate(calendars:ArrayList<Calendar>):Int{
@@ -80,7 +153,7 @@ class CalendarFragment : Fragment() {
     fun getMonthsAndYearFragment():ArrayList<Calendar>{
 
         val last3YearsCalendar = java.util.Calendar.getInstance()
-        last3YearsCalendar.add(java.util.Calendar.MONTH,-2)
+        last3YearsCalendar.add(java.util.Calendar.MONTH,-1)
 
         val next3YearsCalendar = java.util.Calendar.getInstance()
         next3YearsCalendar.add(java.util.Calendar.MONTH,2)
@@ -106,17 +179,14 @@ class CalendarFragment : Fragment() {
         return fragments
     }
 
-    class ViewPagerFragmentAdapter(fragmentList: ArrayList<Calendar>, fragmentManager: FragmentManager, lifecyle: Lifecycle) : FragmentStateAdapter(fragmentManager,lifecyle) {
-        private val fragmentList: ArrayList<Calendar> = fragmentList
-
-        override fun onBindViewHolder(holder: FragmentViewHolder, position: Int, payloads: MutableList<Any>) {
+    class ViewPagerFragmentAdapter(var fragmentList: ArrayList<Calendar>, fragmentManager: FragmentManager, lifecyle: Lifecycle) : FragmentStateAdapter(fragmentManager,lifecyle) {
+         override fun onBindViewHolder(holder: FragmentViewHolder, position: Int, payloads: MutableList<Any>) {
             super.onBindViewHolder(holder, position, payloads)
 
 
         }
         override fun getItemCount(): Int {
 
-            Log.e("SIZE",fragmentList.size.toString())
             return fragmentList.size
         }
 
