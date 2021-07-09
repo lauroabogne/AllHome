@@ -19,8 +19,8 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
-import com.example.allhome.meal_planner.CalendarFragment
 import com.example.allhome.meal_planner.MealPlannerFragment
+import com.example.allhome.meal_planner.calendar.CalendarFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.utils.IngredientEvaluator

@@ -18,6 +18,7 @@
     <style name="Theme.AllHome.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="Theme.AllHome.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

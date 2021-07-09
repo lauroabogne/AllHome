@@ -19,8 +19,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
-        <activity android:name=".recipes.ViewRecipeActivity"
+        <activity android:name=".meal_planner.ViewMealOfTheDayActivity"
             android:theme="@style/Theme.AllHome.NoActionBar"></activity>
+        <activity
+            android:name=".recipes.ViewRecipeActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity android:name=".recipes.AddRecipeActivity" />
         <activity android:name=".storage.StorageStorageListActivity" />
         <activity android:name=".storage.StorageGroceryListActivity" />
