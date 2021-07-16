@@ -8,7 +8,7 @@ import com.example.allhome.data.DAO.*
 import com.example.allhome.data.entities.*
 
 @Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class,
-    StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class),version = 3)
+    StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class,MealEntity::class),version = 3)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
     abstract fun groceryListDAO(): GroceryListDAO
@@ -18,6 +18,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun getRecipeDAO():RecipeDAO
     abstract fun getIngredientDAO():IngredientDAO
     abstract fun getRecipeStepDAO():RecipeStepDAO
+    abstract fun getMealDAO():MealDAO
 
 
     companion object{

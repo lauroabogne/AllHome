@@ -9,10 +9,11 @@ class ViewMealOfTheDayActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_meal_of_the_day)
+        intent.getStringExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM)?.let {
+            val viewMealOfTheDayFragment = ViewMealOfTheDayFragment.newInstance(it)
+            supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer,viewMealOfTheDayFragment).commit()
+        }
 
-        val viewMealOfTheDayFragment = ViewMealOfTheDayFragment.newInstance("","")
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer,viewMealOfTheDayFragment)
-            .commit()
+
     }
 }

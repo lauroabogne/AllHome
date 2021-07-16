@@ -75,15 +75,15 @@ class CalendarFragment : Fragment() {
                     Handler(Looper.getMainLooper()).postDelayed({
                         val firstFragment = adapter.fragmentList[0]
 
-                        firstFragment.mCalendar = addMonth(firstFragment.mCalendar,-1)
+                        firstFragment.mCalendar = addMonth(firstFragment.mCalendar!!,-1)
                         firstFragment.generateData()
 
                         val secondFragment = adapter.fragmentList[1]
-                        secondFragment.mCalendar = addMonth(secondFragment.mCalendar,-1)
+                        secondFragment.mCalendar = addMonth(secondFragment.mCalendar!!,-1)
                         secondFragment.generateData()
 
                         val thirdFragment = adapter.fragmentList[2]
-                         thirdFragment.mCalendar = addMonth(thirdFragment.mCalendar,-1)
+                         thirdFragment.mCalendar = addMonth(thirdFragment.mCalendar!!,-1)
                         thirdFragment.generateData()
 
                         mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
@@ -96,15 +96,15 @@ class CalendarFragment : Fragment() {
                     mFragmentCalendarBinding.calendarViewPager.setUserInputEnabled(false)
                     Handler(Looper.getMainLooper()).postDelayed({
                         val firstFragment = adapter.fragmentList[0]
-                        firstFragment.mCalendar = addMonth(firstFragment.mCalendar,1)
+                        firstFragment.mCalendar = addMonth(firstFragment.mCalendar!!,1)
                         firstFragment.generateData()
 
                         val secondFragment = adapter.fragmentList[1]
-                        secondFragment.mCalendar = addMonth(secondFragment.mCalendar,1)
+                        secondFragment.mCalendar = addMonth(secondFragment.mCalendar!!,1)
                         secondFragment.generateData()
 
                         val thirdFragment = adapter.fragmentList[2]
-                        thirdFragment.mCalendar = addMonth(thirdFragment.mCalendar,1)
+                        thirdFragment.mCalendar = addMonth(thirdFragment.mCalendar!!,1)
                         thirdFragment.generateData()
 
                         mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
@@ -125,7 +125,7 @@ class CalendarFragment : Fragment() {
     fun getIndexOfCurrentDate(calendars:ArrayList<Calendar>):Int{
         val currenDateCalendar = java.util.Calendar.getInstance()
         return calendars.indexOfFirst {
-            var fragmentCalendar = it.mCalendar
+            var fragmentCalendar = it.mCalendar!!
             currenDateCalendar.get(java.util.Calendar.YEAR) == fragmentCalendar.get(java.util.Calendar.YEAR)&& currenDateCalendar.get(java.util.Calendar.MONTH) == fragmentCalendar.get(java.util.Calendar.MONTH)
 
         }

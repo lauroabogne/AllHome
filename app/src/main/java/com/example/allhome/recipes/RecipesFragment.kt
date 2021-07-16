@@ -7,6 +7,7 @@ import android.view.*
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -15,23 +16,29 @@ import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
+import com.example.allhome.meal_planner.AddMealDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 
 
-class RecipesFragment : Fragment() {
+class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedListener: AddMealDialogFragment.RecipeSelectedListener? = null) : Fragment() {
 
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
     private lateinit var mFragmentRecipesBinding: FragmentRecipesBinding
     var mSelectedMenuItem:MenuItem? = null
     private var mSearchView:SearchView? = null
+
+    var mAction = action
     var mSearchJob = Job()
+
 
     companion object{
         const val NO_FILTER = 0
         const val FILTER_BY_INFORMATION = 1
         const val FILTER_BY_INGREDIENTS = 2
+        const val NORMAL_RECIPE_VIEWING = 1
+        const val ADDING_MEAL_VIEWING = 2
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,6 +54,7 @@ class RecipesFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
         mFragmentRecipesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
+
         mFragmentRecipesBinding.fab.setOnClickListener {
 
             val intent = Intent(requireContext(),AddRecipeActivity::class.java)
@@ -78,9 +86,64 @@ class RecipesFragment : Fragment() {
                 adapter.notifyDataSetChanged()
             }
         }
+        if(action == ADDING_MEAL_VIEWING){
+            mFragmentRecipesBinding.fab.visibility = View.GONE
+        }
 
 
         return mFragmentRecipesBinding.root
+    }
+
+
+    /*fun setUpToolbar(toolbar: Toolbar){
+
+        toolbar.title = "Recipe"
+        toolbar.inflateMenu(R.menu.view_all_recipe_menu)
+
+
+        mSearchView = toolbar.menu.findItem(R.id.appBarSearch)?.actionView as SearchView
+        mSearchView?.setOnQueryTextListener(searchViewListener)
+
+        toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
+
+    }*/
+
+    val toolbarMenuItemClickListener = object:Toolbar.OnMenuItemClickListener{
+        override fun onMenuItemClick(item: MenuItem?): Boolean {
+            mSelectedMenuItem = item
+            when (item?.itemId) {
+
+                R.id.noFilterMenu -> {
+                    mRecipesFragmentViewModel.mFilter = NO_FILTER
+                    mSelectedMenuItem?.isChecked = true
+
+                    mRecipesFragmentViewModel.mCoroutineScope.launch {
+                        val searchResult = getSearchItems()
+
+                        withContext(Main){
+                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                            adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                            adapter.notifyDataSetChanged()
+                        }
+                    }
+                }
+                R.id.recipeInformationFilterMenu -> {
+                    val filterByInformationDialogFragment  = FilterByInformationDialogFragment(mRecipesFragmentViewModel)
+                    filterByInformationDialogFragment.isCancelable = false
+                    filterByInformationDialogFragment.setRecipeInformationFilterListener(recipeInformationFilterListener)
+                    filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
+                }
+                R.id.recipeIngredientFilterMenu -> {
+                    val filterByIngredientsDialogFragment  =  FilterByIngredientsDialogFragment(mRecipesFragmentViewModel)
+                    filterByIngredientsDialogFragment.isCancelable = false
+                    filterByIngredientsDialogFragment.setRecipeIngredientFilterListener(recipeIngredientFilterListener)
+                    filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
+                }
+
+            }
+            return true
+        }
+
     }
     private suspend fun loadAll(searchTerm: String): List<RecipeEntityWithTotalIngredient> {
 
@@ -338,8 +401,6 @@ class RecipesFragment : Fragment() {
 
             val recipeEntity = mRecipeStepEntities[position]
 
-
-            Log.e("TAG", recipeEntity.totalIngredientCountLessTotalIngredientMatchCount.toString())
             holder.recipeItemBinding.recipeEntityWithTotalIngredient = recipeEntity
             holder.recipeItemBinding.executePendingBindings()
 
@@ -357,9 +418,12 @@ class RecipesFragment : Fragment() {
                 recipeItemBinding.root.setOnClickListener(this)
             }
             override fun onClick(view: View?) {
-                Toast.makeText(view?.context,"Clicked",Toast.LENGTH_SHORT).show()
                 val recipeEntity = recipesRecyclerviewViewAdapater.mRecipeStepEntities[adapterPosition]
 
+                if(mRecipesFragment.mAction == ADDING_MEAL_VIEWING){
+                    mRecipesFragment.recipeSelectedListener?.onSelect(recipeEntity.recipeEntity)
+                    return
+                }
 
                 val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
                 viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
