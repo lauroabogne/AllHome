@@ -54,3 +54,7 @@ data class MealEntity(
         const val NOT_DELETED = 0
     }
 }
+@Parcelize
+data class MealTypes(
+    var type:Int
+):Parcelable

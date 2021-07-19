@@ -35,79 +35,172 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
+
 
                 <TextView
                     android:id="@+id/textView34"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Breakfast" />
+                    android:text="Breakfast"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/red"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/breakFastsRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item" />
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
 
                 <TextView
                     android:id="@+id/textView36"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Snack" />
+                    android:text="Snack"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/light_gray"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/snackAfterBreakfastFastsRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
 
                 <TextView
                     android:id="@+id/textView52"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Lunch" />
+                    android:text="Lunch"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/black"/>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/lunchRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
 
                 <TextView
                     android:id="@+id/textView53"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Snack" />
+                    android:text="Snack"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/light_gray"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/snackAfterLunchRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
 
                 <TextView
                     android:id="@+id/textView54"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Dinner" />
+                    android:text="Dinner"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/green"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/dinnerLunchRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:orientation="vertical"
+                android:minHeight="100dp">
 
                 <TextView
                     android:id="@+id/textView55"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="#d3d3d3"
                     android:padding="8dp"
-                    android:text="Snack" />
+                    android:text="Snack"
+                    android:textStyle="bold" />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="4dp"
+                    android:background="@color/light_gray"/>
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/snackAfterDinnerRecyclerview"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
         </LinearLayout>
     </ScrollView>

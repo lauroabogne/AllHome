@@ -13,20 +13,31 @@ import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.ColumnInfo
 import com.example.allhome.R
 import com.example.allhome.data.entities.MealEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.AddMealDialogFragmentBinding
+import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.recipes.RecipesFragment
+import com.example.allhome.recipes.viewmodel.AddRecipeActivityViewModel
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.lang.Exception
+import java.text.SimpleDateFormat
+import java.util.*
 
 
-class AddMealDialogFragment(): DialogFragment() {
+class AddMealDialogFragment(val mDate: Date): DialogFragment() {
 
+    lateinit var mMealPlannerViewModel:MealPlannerViewModel
     lateinit var mlayoutBinding: AddMealDialogFragmentBinding
-    var mSelectedFragment:Fragment? = null
-
-    val mSelectedMealTypes = arrayListOf<String>()
     lateinit var mCurrentFragment:Fragment
+
+    var mSelectedFragment:Fragment? = null
+    val mSelectedMealTypes = arrayListOf<String>()
     var mMealKind = MealEntity.NO_KIND
     var mMealType  = MealEntity.NO_TYPE
 
@@ -34,6 +45,11 @@ class AddMealDialogFragment(): DialogFragment() {
     var mQuickRecipeName = ""
     var mQuckRecipeCost = 0.0
 
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mMealPlannerViewModel = ViewModelProvider(this).get(MealPlannerViewModel::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val inflater = LayoutInflater.from(requireContext())
@@ -94,11 +110,109 @@ class AddMealDialogFragment(): DialogFragment() {
                 loadFragment(mealTypeFragment)
             }else if(mCurrentFragment is MealTypeFragment){
 
-                Log.e("MEAL_TYPE",mSelectedMealTypes.toString())
-                Toast.makeText(requireContext(),"Saving",Toast.LENGTH_SHORT).show()
+                if(mSelectedMealTypes.isEmpty()){
+                    Toast.makeText(requireContext(),"Please select meal type.",Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                Log.e("data",mSelectedMealTypes.toString())
+                try{
+                    saveData()
+                }catch (e:Exception){
+                    Log.e("ex",e.toString())
+                }
+
             }
         }
 
+    }
+    fun convertStringMealTypeStringToInt( mealTypeString:String):Int{
+
+
+        if( mealTypeString.equals(requireContext().getString(R.string.breakfast))){
+            return MealEntity.BREAKFAST_TYPE
+        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_breakfast))){
+            return MealEntity.SNACK_AFTER_BREAKFAST_TYPE
+        }else if(mealTypeString.equals(requireContext().getString(R.string.lunch))){
+            return MealEntity.LUNCK_TYPE
+        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_lunch))){
+            return MealEntity.SNACK_AFTERLUNCK_TYPE
+        }else if(mealTypeString.equals(requireContext().getString(R.string.dinner))){
+            return MealEntity.DINNER_TYPE
+        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_dinner))){
+            return MealEntity.SNACK_AFTER_DINNER_TYPE
+        }
+
+        return MealEntity.BREAKFAST_TYPE
+    }
+    fun saveData(){
+
+        val selectedDate = SimpleDateFormat("yyyy-MM-dd").format(mDate)
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+
+        if(mMealKind == MealEntity.RECIPE_KIND){
+
+
+                mMealPlannerViewModel.mCoroutineScope.launch {
+
+                    mSelectedMealTypes.forEach {mealTypeString->
+                        mSelectedRecipeEntity?.let {recipe->
+
+                            val uniqueId = UUID.randomUUID().toString()
+                                val mealEntity = MealEntity(
+                                    uniqueId,
+                                    recipe.uniqueId,
+                                    recipe.name,
+                                    selectedDate,
+                                    convertStringMealTypeStringToInt(mealTypeString),
+                                    MealEntity.RECIPE_KIND,
+                                    recipe.estimatedCost,
+                                    MealEntity.NOT_UPLOADED,
+                                    MealEntity.NOT_DELETED,
+                                    currentDatetime,
+                                    currentDatetime
+                                )
+                                val id = mMealPlannerViewModel.saveMealPlan(requireContext(),mealEntity)
+
+                        }
+                    }
+                    withContext(Main){
+                        Toast.makeText(requireContext(),"Meal plan saved successfully.",Toast.LENGTH_SHORT).show()
+                        this@AddMealDialogFragment.dismiss()
+                    }
+                }
+        }else if(mMealKind == MealEntity.QUICK_RECIPE_KIND){
+
+            mMealPlannerViewModel.mCoroutineScope.launch {
+                mSelectedMealTypes.forEach {mealTypeString->
+                        val uniqueId = UUID.randomUUID().toString()
+                        val mealEntity = MealEntity(
+                            uniqueId,
+                            "",
+                            mQuickRecipeName,
+                            selectedDate,
+                            convertStringMealTypeStringToInt(mealTypeString),
+                            MealEntity.RECIPE_KIND,
+                            mQuckRecipeCost,
+                            MealEntity.NOT_UPLOADED,
+                            MealEntity.NOT_DELETED,
+                            currentDatetime,
+                            currentDatetime
+                        )
+                        val id = mMealPlannerViewModel.saveMealPlan(requireContext(),mealEntity)
+                    Log.e("mealTypeString","${mealTypeString} ${convertStringMealTypeStringToInt(mealTypeString)}")
+                    Log.e("mealTypeString","${mealTypeString} ${convertStringMealTypeStringToInt(mealTypeString)}")
+
+
+                }
+                withContext(Main){
+                    Toast.makeText(requireContext(),"Meal plan saved successfully.",Toast.LENGTH_SHORT).show()
+                    this@AddMealDialogFragment.dismiss()
+                }
+            }
+        }
     }
     val toolbarNavigationClickListener= object:View.OnClickListener{
         override fun onClick(v: View?) {

@@ -4,29 +4,32 @@ import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
-import android.text.format.DateUtils
+import android.text.SpannableString
+import android.text.SpannableStringBuilder
+import android.text.style.ForegroundColorSpan
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.TextView
-import android.widget.Toast
-import androidx.appcompat.widget.LinearLayoutCompat
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
+import com.example.allhome.data.entities.MealEntity
+import com.example.allhome.data.entities.MealTypes
 import com.example.allhome.databinding.CalendarBinding
 import com.example.allhome.meal_planner.ViewMealOfTheDayActivity
 import com.example.allhome.meal_planner.ViewMealOfTheDayFragment
-import com.example.allhome.recipes.AddRecipeActivity
-import kotlinx.coroutines.*
+import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
+import kotlinx.coroutines.CoroutineName
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
-import java.util.*
-import kotlin.collections.ArrayList
 
 
 private const val ARG_PARAM1 = "param1"
@@ -34,11 +37,12 @@ private const val ARG_PARAM2 = "param2"
 
 
 class Calendar : Fragment() {
-    // TODO: Rename and change types of parameters
+
+    val mCoroutineScope = CoroutineScope(CoroutineName("MealPlannerCalendarLoaded"))
     private var param1: String? = null
     private var param2: String? = null
     var mCalendar:java.util.Calendar? = null
-    //var mDate:Date? = null
+    lateinit var mMealPlannerViewModel:MealPlannerViewModel
 
 
     val mWeekViews:ArrayList<View> = arrayListOf()
@@ -52,17 +56,18 @@ class Calendar : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        mMealPlannerViewModel = ViewModelProvider(this).get(MealPlannerViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mCalendarBinding =  DataBindingUtil.inflate(inflater, R.layout.calendar, container, false)
-
         generateData()
         return mCalendarBinding.root
     }
     fun generateData(){
-        val calendar = mCalendar
+
         mCalendar?.let{
             it.set(java.util.Calendar.DAY_OF_MONTH,1)
 
@@ -85,26 +90,35 @@ class Calendar : Fragment() {
             var totalDays = 0
             for (i in 1..numberOfWeeksInMonth){
                 if(i==1){
-                    var hasVisibleView = false
                     val constraintLayout = mCalendarBinding.firstWeek.root as ConstraintLayout
                     constraintLayout.visibility = View.VISIBLE
+
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
                         if (x+1 < firstDayOfMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
                         }
-                        hasVisibleView = true
                         totalDays++
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
-
 
                         dayHolder.setOnClickListener(dayViewClickListener)
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
 
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
                     }
 
 
@@ -114,6 +128,10 @@ class Calendar : Fragment() {
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
+
                         if (totalDays >= totalDaysInMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
@@ -126,6 +144,14 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
 
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
 
                     }
                 }else if(i == 3){
@@ -134,6 +160,10 @@ class Calendar : Fragment() {
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
+
                         if (totalDays >= totalDaysInMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
@@ -147,6 +177,14 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
 
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
 
                     }
                 }else if(i == 4){
@@ -155,6 +193,10 @@ class Calendar : Fragment() {
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
+
                         if (totalDays >= totalDaysInMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
@@ -167,6 +209,15 @@ class Calendar : Fragment() {
                         dayHolder.setOnClickListener(dayViewClickListener)
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
+
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
 
                     }
                 }else if(i == 5){
@@ -175,6 +226,10 @@ class Calendar : Fragment() {
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
+
                         if (totalDays >= totalDaysInMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
@@ -187,6 +242,15 @@ class Calendar : Fragment() {
                         dayHolder.setOnClickListener(dayViewClickListener)
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
+
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
 
                     }
                 }else if(i == 6){
@@ -195,6 +259,10 @@ class Calendar : Fragment() {
                     for(x in 0..6){
 
                         val dayHolder = constraintLayout.getChildAt(x) as ConstraintLayout
+                        val textView = dayHolder.findViewById<View>(R.id.indicatorTextView) as TextView
+                        textView.text = ""
+                        textView.visibility = View.INVISIBLE
+
                         if (totalDays >= totalDaysInMonth) {
                             dayHolder.visibility = View.INVISIBLE
                             continue
@@ -208,11 +276,55 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         dayHolder.setTag("${year}-${numericMonth}-${dayWithZero}")
 
+                        mCoroutineScope.launch {
+
+                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
+                            withContext(Main){
+                                showIndicator(textView,mealPlan)
+
+                            }
+                        }
                     }
                 }
             }
         }
 
+
+    }
+    fun showIndicator(indicatorTextView:TextView,mealPlans:List<MealTypes>){
+
+        val builder = SpannableStringBuilder()
+
+
+        mealPlans.forEachIndexed{index,mealType->
+
+            if(mealType.type == MealEntity.BREAKFAST_TYPE){
+                val redSpannable = SpannableString(".")
+                redSpannable.setSpan(ForegroundColorSpan(Color.RED), 0, 1, 0)
+                builder.append(redSpannable)
+            }else if(mealType.type == MealEntity.LUNCK_TYPE){
+                val redSpannable = SpannableString(".")
+                redSpannable.setSpan(ForegroundColorSpan(Color.BLUE), 0, 1, 0)
+                builder.append(redSpannable)
+            }else if(mealType.type == MealEntity.DINNER_TYPE){
+                val redSpannable = SpannableString(".")
+                redSpannable.setSpan(ForegroundColorSpan(Color.GREEN), 0, 1, 0)
+                builder.append(redSpannable)
+            }else if(mealType.type == MealEntity.SNACK_AFTER_BREAKFAST_TYPE || mealType.type == MealEntity.SNACK_AFTERLUNCK_TYPE|| mealType.type == MealEntity.SNACK_AFTER_DINNER_TYPE){
+                val redSpannable = SpannableString(".")
+                redSpannable.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, 1, 0)
+                builder.append(redSpannable)
+            }
+
+        }
+        /*mealPlans.forEach {
+            //textView.setText(".")
+            val redSpannable = SpannableString(".")
+            redSpannable.setSpan(ForegroundColorSpan(Color.RED), 0, 1, 0)
+            builder.append(redSpannable)
+        }*/
+        indicatorTextView.setText(builder,TextView.BufferType.SPANNABLE)
+        indicatorTextView.visibility = View.VISIBLE
 
     }
 
