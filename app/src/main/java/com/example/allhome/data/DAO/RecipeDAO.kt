@@ -56,4 +56,6 @@ interface RecipeDAO {
     @RawQuery
     suspend fun getRecipes(query:SupportSQLiteQuery):List<RecipeEntityWithTotalIngredient>
 
+    @Query("SELECT *  FROM  ${RecipeEntity.TABLE_NAME} WHERE unique_id=:uniqueId  AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} LIMIT 1")
+    suspend fun getRecipeByUniqueId(uniqueId:String):RecipeEntity
 }

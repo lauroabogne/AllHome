@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.MealEntity
 import com.example.allhome.data.entities.MealTypes
+import com.example.allhome.data.entities.RecipeEntity
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -24,5 +25,9 @@ class MealPlannerViewModel: ViewModel() {
     suspend fun getMealByTypeAndDate(context: Context,mealType:Int,date:String):List<MealEntity>{
         val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
         return mealDAO.getMealByTypeAndDate(mealType,date)
+    }
+    suspend fun getRecipe(context:Context,recipeUniqueId:String):RecipeEntity{
+        val recipeDAO = AllHomeDatabase.getDatabase(context).getRecipeDAO()
+        return recipeDAO.getRecipeByUniqueId(recipeUniqueId)
     }
 }

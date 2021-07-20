@@ -19,12 +19,14 @@ class QuickRecipeFragment : Fragment() {
     private var mName: String? = null
     private var mCost: Double = 0.0
     lateinit var mFragmentQuickRecipeBinding:FragmentQuickRecipeBinding
+    var mAction = ADD_ACTION
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
             mName = it.getString(NAME)
             mCost = it.getDouble(COST)
+            mAction = it.getInt(ACTION_TAG)
         }
     }
 
@@ -32,18 +34,23 @@ class QuickRecipeFragment : Fragment() {
         // Inflate the layout for this fragment
 
         mFragmentQuickRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_quick_recipe, container, false)
-        mFragmentQuickRecipeBinding.quickRecipeTextInput.setText(mName)
+        mFragmentQuickRecipeBinding.quickRecipeTextInput.setText("${mName}")
         mFragmentQuickRecipeBinding.quickRecipeCostTextInput.setText(if(mCost ==0.0) "" else mCost.toString())
+
+        mFragmentQuickRecipeBinding.action = mAction
         return mFragmentQuickRecipeBinding.root
     }
 
     companion object {
-
-        @JvmStatic fun newInstance(name: String, cost: Double) =
+        const val ACTION_TAG = "action"
+        const val ADD_ACTION = 0
+        const val VIEW_ACTION = 1
+        @JvmStatic fun newInstance(name: String, cost: Double,action:Int = ADD_ACTION) =
             QuickRecipeFragment().apply {
                 arguments = Bundle().apply {
                     putString(NAME, name)
                     putDouble(COST, cost)
+                    putInt(ACTION_TAG,action)
                 }
             }
     }

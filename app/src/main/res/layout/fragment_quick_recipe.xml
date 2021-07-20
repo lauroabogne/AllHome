@@ -3,6 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.example.allhome.meal_planner.QuickRecipeFragment"/>
+        <variable
+            name="action"
+            type="Integer" />
+
+    </data>
 <androidx.constraintlayout.widget.ConstraintLayout
 
     android:layout_width="match_parent"
@@ -16,6 +23,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:hint="@{action == QuickRecipeFragment.VIEW_ACTION ? `Recipe name`:`Enter quick recipe name`}"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -24,8 +32,11 @@
             android:id="@+id/quickRecipeTextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:cursorVisible="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:focusable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:textIsSelectable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
             android:gravity="top"
-            android:hint="Enter Note"
             android:inputType="textMultiLine"
             android:minLines="3" />
     </com.google.android.material.textfield.TextInputLayout>
@@ -42,6 +53,10 @@
             android:id="@+id/quickRecipeCostTextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:clickable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:cursorVisible="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:focusable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
+            android:textIsSelectable="@{action == QuickRecipeFragment.VIEW_ACTION ? false:true}"
             android:inputType="numberDecimal"
             android:hint="Cost" />
     </com.google.android.material.textfield.TextInputLayout>

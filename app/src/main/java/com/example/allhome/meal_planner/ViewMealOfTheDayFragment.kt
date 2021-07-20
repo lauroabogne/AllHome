@@ -1,14 +1,14 @@
 package com.example.allhome.meal_planner
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
+import androidx.appcompat.widget.PopupMenu
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -17,16 +17,11 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.MealEntity
-import com.example.allhome.data.entities.StorageEntityWithExtraInformation
 import com.example.allhome.databinding.FragmentViewMealOfTheDayBinding
-import com.example.allhome.global_ui.CustomMessageDialogFragment
+import com.example.allhome.databinding.MealItemBinding
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
-import com.example.allhome.recipes.RecipesFragment
-import com.example.allhome.storage.StorageFragment
-import com.example.allhome.storage.StorageUtil
-import com.example.allhome.utils.ImageUtil
-import kotlinx.coroutines.CoroutineName
-import kotlinx.coroutines.CoroutineScope
+import com.example.allhome.recipes.ViewRecipeActivity
+import com.example.allhome.recipes.ViewRecipeFragment
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -105,9 +100,6 @@ class ViewMealOfTheDayFragment : Fragment() {
 
             withContext(Main){
 
-                Log.e("snackAfterLunchPlan",snackAfterLunchPlan.toString())
-                Log.e("dinnerPlan",dinnerPlan.toString())
-                Log.e("snackAfterDinnerPlan",snackAfterDinnerPlan.toString())
                 setupBreakFastMealPlan(breakFastPlan)
                 setupSnackAfterBreakFastMealPlan(snackAfterBreakFastPlan)
                 setupLunchMealPlan(lunchFastPlan)
@@ -131,6 +123,11 @@ class ViewMealOfTheDayFragment : Fragment() {
         breakFastMealPlanItemsAdapter.notifyDataSetChanged()
     }
     fun setupSnackAfterBreakFastMealPlan(mealEntities:List<MealEntity>){
+
+        if(mealEntities.isEmpty()){
+            mFragmentViewMealOfTheDayBinding.snackAfterBreakfastFastsLinearLayout.visibility = View.GONE
+            return
+        }
         var mealPlanItemsAdapter = MealPlanItemsAdapter(this@ViewMealOfTheDayFragment)
         mealPlanItemsAdapter.mMealEntities = mealEntities as ArrayList<MealEntity>
         var rcyclerview = mFragmentViewMealOfTheDayBinding.snackAfterBreakfastFastsRecyclerview
@@ -148,6 +145,10 @@ class ViewMealOfTheDayFragment : Fragment() {
     }
 
     fun setupSnackAfterLunchMealPlan(mealEntities:List<MealEntity>){
+        if(mealEntities.isEmpty()){
+            mFragmentViewMealOfTheDayBinding.snackAfterLunchLinearLayout.visibility = View.GONE
+            return
+        }
         var mealPlanItemsAdapter = MealPlanItemsAdapter(this@ViewMealOfTheDayFragment)
         mealPlanItemsAdapter.mMealEntities = mealEntities as ArrayList<MealEntity>
         var rcyclerview = mFragmentViewMealOfTheDayBinding.snackAfterLunchRecyclerview
@@ -165,6 +166,10 @@ class ViewMealOfTheDayFragment : Fragment() {
     }
 
     fun setupSnackAfterDinnerMealPlan(mealEntities:List<MealEntity>){
+        if(mealEntities.isEmpty()){
+            mFragmentViewMealOfTheDayBinding.snackAfterDinnerLinearLayout.visibility = View.GONE
+            return
+        }
         var mealPlanItemsAdapter = MealPlanItemsAdapter(this@ViewMealOfTheDayFragment)
         mealPlanItemsAdapter.mMealEntities = mealEntities as ArrayList<MealEntity>
         var rcyclerview = mFragmentViewMealOfTheDayBinding.snackAfterDinnerRecyclerview
@@ -178,8 +183,8 @@ class ViewMealOfTheDayFragment : Fragment() {
         override fun onMenuItemClick(item: MenuItem?): Boolean {
             when(item?.itemId){
                 R.id.addMeal->{
-                    Toast.makeText(requireContext(),"addToGrocer dasf asdf yList",Toast.LENGTH_SHORT).show()
                     var dialog = AddMealDialogFragment(mDateSelected!!)
+                    dialog.mDialogDettachedListener  = dialogDettachedListener
                     dialog.show(childFragmentManager,"AddMealDialogFragment")
 
                 }
@@ -193,6 +198,12 @@ class ViewMealOfTheDayFragment : Fragment() {
         }
     }
 
+    val dialogDettachedListener = object:AddMealDialogFragment.DialogDettachedListener{
+        override fun onDialogDettached() {
+            mealPlan()
+        }
+
+    }
 
     class MealPlanItemsAdapter(val viewMealOfTheDayFragment: ViewMealOfTheDayFragment): RecyclerView.Adapter<MealPlanItemsAdapter.ItemViewHolder>() {
 
@@ -200,14 +211,13 @@ class ViewMealOfTheDayFragment : Fragment() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
-
-            val textView: TextView = layoutInflater.inflate(android.R.layout.simple_list_item_1,null,false) as TextView
-            val itemViewHolder = ItemViewHolder(textView)
-            return itemViewHolder
+            val mealItemBinding = MealItemBinding.inflate(layoutInflater, parent, false)
+            return ItemViewHolder(mealItemBinding)
         }
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val mealEntity = mMealEntities[position]
-            holder.textView.setText("${mealEntity.name}")
+            holder.setOnClickListener()
+            holder.setText(mealEntity.name)
 
         }
 
@@ -215,8 +225,52 @@ class ViewMealOfTheDayFragment : Fragment() {
 
             return mMealEntities.size
         }
-        inner class  ItemViewHolder(val textView: TextView): RecyclerView.ViewHolder(textView){
+        inner class  ItemViewHolder(val mealItemBinding: MealItemBinding): RecyclerView.ViewHolder(mealItemBinding.root),View.OnClickListener{
 
+            fun setText(text:String){
+                mealItemBinding.textView.setText(text)
+            }
+            fun setOnClickListener(){
+                mealItemBinding.textView.setOnClickListener(this)
+                mealItemBinding.moreActionImageBtn.setOnClickListener(this)
+            }
+
+            override fun onClick(v: View?) {
+
+                when(v!!.id){
+                    R.id.textView ->{
+                        val mealEntity = mMealEntities[adapterPosition]
+
+                        if(mealEntity.kind == MealEntity.RECIPE_KIND){
+                            val recipeUniqueId = mealEntity.recipeUniqueId
+                            viewMealOfTheDayFragment.mMealPlannerViewModel.mCoroutineScope.launch {
+                                val recipe = viewMealOfTheDayFragment.mMealPlannerViewModel.getRecipe(v.context,recipeUniqueId)
+                                withContext(Main){
+                                    recipe?.let{
+
+                                        val viewRecipeActivity = Intent(v.context, ViewRecipeActivity::class.java)
+                                        viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,it)
+                                        v.context.startActivity(viewRecipeActivity)
+                                    }
+                                }
+                            }
+
+                        }else if(mealEntity.kind == MealEntity.QUICK_RECIPE_KIND){
+
+                            val viewerIntent = Intent(v.context,ViewerActivity::class.java)
+                            viewerIntent.putExtra(ViewerActivity.TITLE_TAG,"View quick recipe")
+                            v.context.startActivity(viewerIntent)
+
+                        }
+
+
+                    }
+                    R.id.moreActionImageBtn->{
+                      Toast.makeText(v.context,"Delete",Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            }
 
         }
 

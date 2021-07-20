@@ -234,10 +234,8 @@ class GroceryListFragment : Fragment(),OnItemAdded {
                 }
             }
 
-            if (true) {
+           return@OnClickListener
 
-                return@OnClickListener
-            }
 
 
         })

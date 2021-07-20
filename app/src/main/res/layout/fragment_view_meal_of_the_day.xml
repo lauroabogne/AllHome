@@ -59,10 +59,12 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/recipe_item" />
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/snackAfterBreakfastFastsLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -87,6 +89,7 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
@@ -116,10 +119,12 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/snackAfterLunchLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="vertical"
@@ -143,6 +148,7 @@
                     android:layout_height="match_parent"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
+                    android:nestedScrollingEnabled="false"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                     tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
@@ -172,10 +178,12 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/snackAfterDinnerLinearLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
@@ -200,6 +208,7 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                    android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/recipe_item"/>
             </LinearLayout>
         </LinearLayout>

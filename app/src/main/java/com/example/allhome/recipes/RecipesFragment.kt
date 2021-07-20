@@ -95,18 +95,16 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
     }
 
 
-    /*fun setUpToolbar(toolbar: Toolbar){
+    fun setUpToolbar(toolbar: Toolbar){
 
         toolbar.title = "Recipe"
         toolbar.inflateMenu(R.menu.view_all_recipe_menu)
-
-
         mSearchView = toolbar.menu.findItem(R.id.appBarSearch)?.actionView as SearchView
         mSearchView?.setOnQueryTextListener(searchViewListener)
 
         toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
 
-    }*/
+    }
 
     val toolbarMenuItemClickListener = object:Toolbar.OnMenuItemClickListener{
         override fun onMenuItemClick(item: MenuItem?): Boolean {
