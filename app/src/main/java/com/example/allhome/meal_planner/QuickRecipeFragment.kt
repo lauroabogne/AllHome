@@ -10,8 +10,7 @@ import com.example.allhome.R
 import com.example.allhome.databinding.FragmentQuickRecipeBinding
 
 
-private const val NAME = "NAME"
-private const val COST = "COST"
+
 
 
 class QuickRecipeFragment : Fragment() {
@@ -42,7 +41,9 @@ class QuickRecipeFragment : Fragment() {
     }
 
     companion object {
-        const val ACTION_TAG = "action"
+        const val NAME = "NAME"
+        const val COST = "COST"
+        const val ACTION_TAG = "ACTION"
         const val ADD_ACTION = 0
         const val VIEW_ACTION = 1
         @JvmStatic fun newInstance(name: String, cost: Double,action:Int = ADD_ACTION) =

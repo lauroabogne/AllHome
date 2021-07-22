@@ -30,7 +30,11 @@ class ViewerActivity : AppCompatActivity() {
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
 
-        val quickRecipeFragment = QuickRecipeFragment.newInstance("test",0.0,QuickRecipeFragment.VIEW_ACTION)
+        val name = intent.getStringExtra(QuickRecipeFragment.NAME)
+        val cost = intent.getDoubleExtra(QuickRecipeFragment.COST,0.0)
+
+
+        val quickRecipeFragment = QuickRecipeFragment.newInstance(name!!,cost,QuickRecipeFragment.VIEW_ACTION)
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.container,quickRecipeFragment)
@@ -39,7 +43,6 @@ class ViewerActivity : AppCompatActivity() {
 
     val toolbarNavigationClickListener= object: View.OnClickListener{
         override fun onClick(v: View?) {
-            Toast.makeText(this@ViewerActivity,"Test",Toast.LENGTH_SHORT).show()
             this@ViewerActivity.finish()
         }
 

@@ -4,14 +4,15 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <androidx.appcompat.widget.LinearLayoutCompat
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:layout_height="match_parent">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/constraintLayout2"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
                 android:id="@+id/imageButton3"
@@ -35,6 +36,7 @@
                 app:layout_constraintEnd_toStartOf="@+id/imageButton4"
                 app:layout_constraintStart_toEndOf="@+id/imageButton3"
                 app:layout_constraintTop_toTopOf="@+id/imageButton3" />
+
             <ImageButton
                 android:id="@+id/imageButton4"
                 android:layout_width="wrap_content"
@@ -49,30 +51,93 @@
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
-        <include layout="@layout/calendar_day_name_header" />
+        <include
+            android:id="@+id/include"
+            layout="@layout/calendar_day_name_header"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/constraintLayout2" />
 
         <include
             android:id="@+id/firstWeek"
-            layout="@layout/calendar_week" />
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/include" />
 
         <include
             android:id="@+id/secondWeek"
-            layout="@layout/calendar_week" />
-
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/firstWeek"/>
         <include
             android:id="@+id/thirdWeek"
-            layout="@layout/calendar_week" />
-
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/secondWeek"/>
         <include
             android:id="@+id/forthWeek"
-            layout="@layout/calendar_week" />
-
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/thirdWeek"/>
         <include
             android:id="@+id/fifthWeek"
-            layout="@layout/calendar_week" />
-
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/forthWeek"/>
         <include
             android:id="@+id/sixthWeek"
-            layout="@layout/calendar_week" />
-    </androidx.appcompat.widget.LinearLayoutCompat>
+            layout="@layout/calendar_week"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/fifthWeek"/>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/totalCostConstraintLayout"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/sixthWeek">
+
+            <TextView
+                android:id="@+id/textView68"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:text="Cost: "
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent" />
+
+            <TextView
+                android:id="@+id/costTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:padding="4dp"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/textView68" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

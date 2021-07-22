@@ -30,4 +30,25 @@ class MealPlannerViewModel: ViewModel() {
         val recipeDAO = AllHomeDatabase.getDatabase(context).getRecipeDAO()
         return recipeDAO.getRecipeByUniqueId(recipeUniqueId)
     }
+    suspend fun getQuickRecipe(context:Context,recipeUniqueId:String):MealEntity{
+        val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
+        return mealDAO.getQuickRecipeMeal(recipeUniqueId)
+    }
+    suspend fun updateMealAsDeleted(context:Context,mealEntityUniqueId:String):Int{
+        val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
+        return mealDAO.updateMealAsDeleted(mealEntityUniqueId)
+    }
+    suspend fun getTotalCostInTheDay(context:Context,date:String):Double{
+        val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
+        val totalCost = mealDAO.getTotalCostInTheDay(date)
+        return totalCost?.toDouble() ?: 0.0
+
+    }
+    suspend fun getTotalCostInTheMonth(context: Context,startDateOfTheMonth:String,endDateOfTheMonth:String):Double{
+
+        val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
+        val totalCost = mealDAO.getTotalCostInTheMonth(startDateOfTheMonth,endDateOfTheMonth)
+        return totalCost?.toDouble() ?: 0.0
+
+    }
 }
