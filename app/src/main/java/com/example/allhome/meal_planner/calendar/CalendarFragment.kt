@@ -15,6 +15,7 @@ import androidx.viewpager2.adapter.FragmentViewHolder
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentCalendarBinding
+import java.util.*
 import kotlin.collections.ArrayList
 
 // TODO: Rename parameter arguments, choose names that match
@@ -22,13 +23,8 @@ import kotlin.collections.ArrayList
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [CalendarFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
+
 class CalendarFragment : Fragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
     private lateinit var mFragmentCalendarBinding: FragmentCalendarBinding
@@ -129,6 +125,11 @@ class CalendarFragment : Fragment() {
             currenDateCalendar.get(java.util.Calendar.YEAR) == fragmentCalendar.get(java.util.Calendar.YEAR)&& currenDateCalendar.get(java.util.Calendar.MONTH) == fragmentCalendar.get(java.util.Calendar.MONTH)
 
         }
+
+    }
+    fun getSelectedDate(): java.util.Calendar? {
+        val viewPagerFragmentAdapter = mFragmentCalendarBinding.calendarViewPager.adapter as ViewPagerFragmentAdapter
+        return viewPagerFragmentAdapter.fragmentList[1].mCalendar
 
     }
     fun generate3Fragment():ArrayList<Calendar>{

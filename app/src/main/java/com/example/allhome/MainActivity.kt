@@ -74,8 +74,14 @@ class MainActivity : AppCompatActivity() {
                 }
 
                 R.id.nav_meal_planner->{
-                    fragmentProcessor(CalendarFragment.newInstance("",""))
+
+
+                    fragmentProcessor(MealPlannerFragment.newInstance("",""))
                     drawerLayout.closeDrawer(GravityCompat.START)
+
+
+                    /*fragmentProcessor(CalendarFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)*/
                     //Log.e("ingredient",ingredient.toString())
                 }
             }

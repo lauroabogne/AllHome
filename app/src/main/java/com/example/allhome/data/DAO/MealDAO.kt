@@ -24,4 +24,8 @@ interface MealDAO {
 
     @Query("SELECT SUM(${MealEntity.COLUMN_COST}) FROM ${MealEntity.TABLE_NAME} WHERE ${MealEntity.COLUMN_DATE} >= :startDateOfTheMonth AND ${MealEntity.COLUMN_DATE} <= :endDateOfTheMonth  AND ${MealEntity.COLUMN_DELETED} = ${MealEntity.NOT_DELETED}")
     suspend fun getTotalCostInTheMonth(startDateOfTheMonth:String,endDateOfTheMonth:String):String?
+
+
+    @Query("SELECT ${MealEntity.COLUMN_RECIPE_UNIQUE_ID} FROM ${MealEntity.TABLE_NAME} WHERE ${MealEntity.COLUMN_KIND} = ${MealEntity.RECIPE_KIND} AND ${MealEntity.COLUMN_DATE} >= :startDateOfTheMonth AND ${MealEntity.COLUMN_DATE} <= :endDateOfTheMonth  AND ${MealEntity.COLUMN_DELETED} = ${MealEntity.NOT_DELETED}")
+    suspend fun getRecipeUniqueIDs(startDateOfTheMonth:String,endDateOfTheMonth:String):List<String>
 }

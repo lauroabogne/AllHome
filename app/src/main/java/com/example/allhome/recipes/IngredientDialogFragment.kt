@@ -30,7 +30,17 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class IngredientDialogFragment(var title:String,val mRecipeEntity:RecipeEntity): DialogFragment() {
+class IngredientDialogFragment(var title:String ): DialogFragment() {
+
+    var mRecipeEntity:RecipeEntity? = null
+    var mRecipeUniqueIds:ArrayList<String> = ArrayList()
+
+    constructor(title:String,  recipeEntity:RecipeEntity?) : this(title) {
+        this.mRecipeEntity = recipeEntity
+    }
+    constructor(title:String,  recipeUniqueIds:ArrayList<String>) : this(title) {
+        this.mRecipeUniqueIds = recipeUniqueIds
+    }
 
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
     var mIngredientEntityTransferringToGroceryList = arrayListOf<IngredientEntityTransferringToGroceryList>()
@@ -54,7 +64,12 @@ class IngredientDialogFragment(var title:String,val mRecipeEntity:RecipeEntity):
         ingredientDialogFragmentBinding.ingredientsRecyclerview.adapter = recipesRecyclerviewViewAdapater
 
         mRecipesFragmentViewModel.mCoroutineScope.launch {
-            mIngredientEntityTransferringToGroceryList = mRecipesFragmentViewModel.getIngredientsForTransferringInGroceryList(requireContext(),mRecipeEntity.uniqueId) as ArrayList<IngredientEntityTransferringToGroceryList>
+            mRecipeEntity?.let{recipe->
+                mIngredientEntityTransferringToGroceryList = mRecipesFragmentViewModel.getIngredientsForTransferringInGroceryList(requireContext(),recipe.uniqueId) as ArrayList<IngredientEntityTransferringToGroceryList>
+            }?:run{
+                mIngredientEntityTransferringToGroceryList = mRecipesFragmentViewModel.getIngredientsForTransferringInGroceryListByIds(requireContext(),mRecipeUniqueIds) as ArrayList<IngredientEntityTransferringToGroceryList>
+            }
+
 
             withContext(Main){
                 recipesRecyclerviewViewAdapater.mIngredientEntities = mIngredientEntityTransferringToGroceryList

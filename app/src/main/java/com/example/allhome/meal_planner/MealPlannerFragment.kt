@@ -1,11 +1,18 @@
 package com.example.allhome.meal_planner
 
 import android.os.Bundle
+import android.util.Log
+import android.view.*
+import android.widget.SearchView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
+import com.example.allhome.meal_planner.calendar.CalendarFragment
+import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
+import com.example.allhome.recipes.IngredientDialogFragment
+import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -17,6 +24,8 @@ class MealPlannerFragment : Fragment() {
 
     private var param1: String? = null
     private var param2: String? = null
+    var mSelectedFragment:Fragment? = null
+    lateinit var mMealPlannerViewModel:MealPlannerViewModel
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,10 +37,64 @@ class MealPlannerFragment : Fragment() {
 
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
+        // hide option menu
+        mMealPlannerViewModel = ViewModelProvider(this).get(MealPlannerViewModel::class.java)
+        mSelectedFragment = CalendarFragment.newInstance("","")
+
+        fragmentProcessor(mSelectedFragment!!)
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        setHasOptionsMenu(true)
 
+        activity?.title = "Meal Planner"
         return inflater.inflate(R.layout.fragment_meal_planner, container, false)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.calendar_meal_planner_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.addToGroceryList->{
+
+                if(mSelectedFragment is CalendarFragment){
+                    val selectedDateCalendar = (mSelectedFragment as CalendarFragment).getSelectedDate()
+                    selectedDateCalendar?.let { calendar->
+
+                        val totalDaysInMonth: Int = calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+                        val year = calendar.get(java.util.Calendar.YEAR)
+                        val numericMonth = SimpleDateFormat("MM").format(calendar.time)
+
+                        val startDate = "${year}-${numericMonth}-01"
+                        val endDate = "${year}-${numericMonth}-${totalDaysInMonth}"
+
+                        mMealPlannerViewModel.mCoroutineScope.launch {
+
+                                val uniqueIds = mMealPlannerViewModel.getRecipeUniqueIDs(requireContext(),startDate,endDate)
+                                uniqueIds?.let{
+                                    val ingredientDialogFragment = IngredientDialogFragment("Ingredients",uniqueIds as ArrayList<String>)
+                                    ingredientDialogFragment.show(childFragmentManager,"ingredientDialogFragment")
+                                }
+                        }
+                    }
+
+                }
+
+            }
+        }
+
+        return true
+    }
+
+    fun fragmentProcessor(fragment: Fragment){
+        childFragmentManager.beginTransaction().apply {
+            replace(R.id.fragmentContainer,fragment).commit()
+        }
     }
 
     companion object {

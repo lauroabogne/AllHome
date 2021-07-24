@@ -70,6 +70,9 @@ class RecipesFragmentViewModel:ViewModel() {
         return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsForGroceryListByRecipeUniqueId(recipeUniqueId)
     }
 
+    suspend fun getIngredientsForTransferringInGroceryListByIds(context:Context,recipeUniqueIds:List<String>):List<IngredientEntityTransferringToGroceryList>{
+        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsForGroceryListByRecipeUniqueIds(recipeUniqueIds)
+    }
 
 
     suspend fun getSteps(context:Context,recipeUniqueId:String):List<RecipeStepEntity>{

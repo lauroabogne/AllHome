@@ -2,6 +2,7 @@ package com.example.allhome.meal_planner
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.MenuItem
@@ -20,6 +21,7 @@ import com.example.allhome.data.entities.MealEntity
 import com.example.allhome.databinding.FragmentViewMealOfTheDayBinding
 import com.example.allhome.databinding.MealItemBinding
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
+import com.example.allhome.recipes.IngredientDialogFragment
 import com.example.allhome.recipes.ViewRecipeActivity
 import com.example.allhome.recipes.ViewRecipeFragment
 import com.example.allhome.utils.NumberUtils
@@ -28,6 +30,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class ViewMealOfTheDayFragment : Fragment() {
@@ -199,6 +202,19 @@ class ViewMealOfTheDayFragment : Fragment() {
 
                 }
                 R.id.addToGroceryList->{
+
+                    mMealPlannerViewModel.mCoroutineScope.launch {
+                        mStringDateSelected?.let {
+
+                            val uniqueIds = mMealPlannerViewModel.getRecipeUniqueIDs(requireContext(),it,it)
+                            uniqueIds?.let{
+                                val ingredientDialogFragment = IngredientDialogFragment("Ingredients",uniqueIds as ArrayList<String>)
+                                ingredientDialogFragment.show(childFragmentManager,"ingredientDialogFragment")
+
+                            }
+                        }
+
+                    }
                     Toast.makeText(requireContext(),"addToGroceryList",Toast.LENGTH_SHORT).show()
 
 

@@ -22,6 +22,9 @@ interface IngredientDAO{
     @Query("SELECT *,${IngredientEntityTransferringToGroceryList.SELECTED} as 'isSelected' FROM ingredients WHERE recipe_unique_id = :recipeUniqueId AND status  =  ${IngredientEntity.NOT_DELETED_STATUS}")
     suspend fun getIngredientsForGroceryListByRecipeUniqueId(recipeUniqueId:String):List<IngredientEntityTransferringToGroceryList>
 
+    @Query("SELECT *,${IngredientEntityTransferringToGroceryList.SELECTED} as 'isSelected' FROM ingredients WHERE recipe_unique_id IN(:recipeUniqueIds) AND status  =  ${IngredientEntity.NOT_DELETED_STATUS}")
+    suspend fun getIngredientsForGroceryListByRecipeUniqueIds(recipeUniqueIds:List<String>):List<IngredientEntityTransferringToGroceryList>
+
     @Query("UPDATE ingredients SET status=${IngredientEntity.DELETED_STATUS} WHERE recipe_unique_id=:recipeUniqueId")
     suspend fun updateIngredientByRecipeUniqueIdAsDeleted(recipeUniqueId:String):Int
 
