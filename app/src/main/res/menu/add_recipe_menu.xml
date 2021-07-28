@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/saveRecipe"
+        android:title="Save"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/updateRecipe"
+        android:visible="false"
+        android:title="Update"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/browseRecipe"
+        android:title="Update"
+        android:icon="@drawable/ic_browse_24"
+        app:showAsAction="always" />
+</menu>

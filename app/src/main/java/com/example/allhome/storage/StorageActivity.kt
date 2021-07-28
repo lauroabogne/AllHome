@@ -76,10 +76,10 @@ class StorageActivity : AppCompatActivity() {
     var mSearchJob = Job()
 
     companion object{
-        const val ADD_ITEM_REQUEST_CODE = 1986;
+        const val ADD_ITEM_REQUEST_CODE = 1986
         const val UPDATE_ITEM_REQUEST_CODE = 1987
 
-        const val STORAGE_EXTRA_DATA_TAG = "STORAGE_EXTRA_DATA_TAG";
+        const val STORAGE_EXTRA_DATA_TAG = "STORAGE_EXTRA_DATA_TAG"
         const val STORAGE_EXTRA_TAG = "STORAGE_EXTRA_TAG"
         const val STORAGE_ITEM_UNIQUE_ID_TAG = "STORAGE_ITEM_UNIQUE_ID_TAG"
         const val STORAGE_ITEM_NAME_TAG = "STORAGE_ITEM_NAME_TAG"
@@ -114,11 +114,11 @@ class StorageActivity : AppCompatActivity() {
         mActivityPantryStorageBinding.storageEntity = mStorageEntity
 
 
-        mActivityPantryStorageBinding.customToolbar.setTitle( mStorageEntity.name)
+        mActivityPantryStorageBinding.customToolbar.title = mStorageEntity.name
         // customCollapsingToolbarLayout.title = "Collapsing Toolbar"
         setSupportActionBar(mActivityPantryStorageBinding.customToolbar).apply {
-            getSupportActionBar()?.setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar()?.setDisplayShowHomeEnabled(true);
+            supportActionBar?.setDisplayHomeAsUpEnabled(true)
+            supportActionBar?.setDisplayShowHomeEnabled(true)
         }
 
         val itemName = intent.getStringExtra(STORAGE_ITEM_NAME_TAG)
@@ -441,7 +441,7 @@ class StorageActivity : AppCompatActivity() {
         storageQuanityFilterBinding.greaterThanRadioButton.setOnCheckedChangeListener{ buttonView, isChecked->
             if(isChecked){
 
-                getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE);
+                window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
 
                 storageQuanityFilterBinding.lessThanRadioButton.isChecked = false
                 storageQuanityFilterBinding.lessThanEditText.setText("")
@@ -505,12 +505,12 @@ class StorageActivity : AppCompatActivity() {
     fun showSoftKeyboard(view: View){
         val inputMethodManager = getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.toggleSoftInputFromWindow(
-            view.getApplicationWindowToken(), InputMethodManager.SHOW_FORCED, 0
+            view.applicationWindowToken, InputMethodManager.SHOW_FORCED, 0
         )
     }
     fun hideKeyboard() {
 
-        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN);
+        this.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
 
 
     }
@@ -549,11 +549,21 @@ class StorageActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.storage_item_activity_menu, menu)
 
         when(mFilter){
-            NO_FILTER->{menu?.findItem(R.id.noFilterMenu)?.setChecked(true)}
-            FILTER_BY_STOCK_WEIGHT->{menu?.findItem(R.id.stockWeightMenu)?.setChecked(true)}
-            FILTER_BY_QUANTITY->{menu?.findItem(R.id.stockMenu)?.setChecked(true)}
-            FILTER_BY_LAST_UPDATE->{menu?.findItem(R.id.lastUpdateMenu)?.setChecked(true)}
-            FILTER_BY_EXPIRED->{menu?.findItem(R.id.expiredMenu)?.setChecked(true)}
+            NO_FILTER->{
+                menu?.findItem(R.id.noFilterMenu)?.isChecked = true
+            }
+            FILTER_BY_STOCK_WEIGHT->{
+                menu?.findItem(R.id.stockWeightMenu)?.isChecked = true
+            }
+            FILTER_BY_QUANTITY->{
+                menu?.findItem(R.id.stockMenu)?.isChecked = true
+            }
+            FILTER_BY_LAST_UPDATE->{
+                menu?.findItem(R.id.lastUpdateMenu)?.isChecked = true
+            }
+            FILTER_BY_EXPIRED->{
+                menu?.findItem(R.id.expiredMenu)?.isChecked = true
+            }
         }
 
 
@@ -782,7 +792,7 @@ class StorageActivity : AppCompatActivity() {
 
         }else{
 
-            mActivityPantryStorageBinding.appBar.setExpanded(false);
+            mActivityPantryStorageBinding.appBar.setExpanded(false)
 
             mActivityPantryStorageBinding.pantryStorageRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 var found = false
@@ -1008,7 +1018,7 @@ class StorageActivity : AppCompatActivity() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val storageItemWithExpirations = mStorageItemWithExpirations[position]
             holder.storageItemLayoutBinding.pantryItemWithExpirations = storageItemWithExpirations
-            holder.storageItemLayoutBinding.storageImageView.setTag(storageItemWithExpirations)
+            holder.storageItemLayoutBinding.storageImageView.tag = storageItemWithExpirations
             holder.storageItemLayoutBinding.executePendingBindings()
 
         }
@@ -1040,13 +1050,12 @@ class StorageActivity : AppCompatActivity() {
 
                 when(view?.id){
                     R.id.moreActionImageBtn -> {
-                        val popupMenu = PopupMenu(view!!.context, storageItemLayoutBinding.moreActionImageBtn)
+                        val popupMenu = PopupMenu(view.context, storageItemLayoutBinding.moreActionImageBtn)
                         popupMenu.menuInflater.inflate(R.menu.pantry_item_menu, popupMenu.menu)
                         popupMenu.setOnMenuItemClickListener(CustomPopupMenuItemCLickListener(view.context, this, adapterPosition, mPantryStorageActivity))
                         popupMenu.show()
                     }
                     R.id.pantryItemParentLayout -> {
-
 
                         val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPosition].storageItemEntity
 
@@ -1055,7 +1064,9 @@ class StorageActivity : AppCompatActivity() {
                         addPantryItemActivity.putExtra(StorageAddItemActivity.ACTION_TAG, StorageAddItemActivity.UPDATE_RECORD_ACTION)
                         addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_UNIQUE_ID_TAG, pantryItemEntity.uniqueId)
                         addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_ITEM_NAME_TAG, pantryItemEntity.name)
-                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_TAG,storageActivity.mStorageEntity)
+                        addPantryItemActivity.putExtra(StorageAddItemActivity.STORAGE_TAG, storageActivity.mStorageEntity)
+
+
                         storageActivity.startActivityForResult(addPantryItemActivity, UPDATE_ITEM_REQUEST_CODE)
 
                     }
@@ -1156,11 +1167,15 @@ interface OnItemRemovedListener{
             }
             R.id.pantryAddToGroceryListMenu -> {
 
+                Toast.makeText(context,"working here",Toast.LENGTH_SHORT).show()
+
+
                 val storageGroceryListActivity = Intent(context, StorageGroceryListActivity::class.java)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ACTION_TAG, StorageGroceryListActivity.ADD_SINGLE_PRODUCT_ACTION)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ITEM_NAME_TAG, storageItemEntity.name)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ITEM_UNIT_TAG, storageItemEntity.unit)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.IMAGE_NAME_TAG, storageItemEntity.imageName)
+                storageGroceryListActivity.putExtra(StorageGroceryListActivity.STORAGE_TAG, storageActivity.mStorageEntity)
 
                 val storageActivity = context as StorageActivity
                 storageActivity.startActivity(storageGroceryListActivity)

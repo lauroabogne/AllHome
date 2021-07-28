@@ -17,10 +17,10 @@ class GroceryListNotificationReceiver : BroadcastReceiver() {
     companion object{
         val NOTIFCATION_CHANNEL_ID = "GroceryList"
         val NOTIFICATION_NAME = "Grocery list notification"
-        val NOTIFICATION_DESCRIPTION = "This is the notification for grocery list";
+        val NOTIFICATION_DESCRIPTION = "This is the notification for grocery list"
         val NOTIFICATION_REQUEST_CODE = 1234
         val GROCERY_LIST_UNIQUE_ID = "GROCERY_LIST_UNIQUE_ID"
-        val GROCERY_NOTIFICATION_ACTION = "grocery_list_scheduled_notification";
+        val GROCERY_NOTIFICATION_ACTION = "grocery_list_scheduled_notification"
     }
     override fun onReceive(context: Context, intent: Intent) {
         // This method is called when the BroadcastReceiver is receiving an Intent broadcast.
@@ -42,7 +42,7 @@ class GroceryListNotificationReceiver : BroadcastReceiver() {
             val pendingIntent = PendingIntent.getActivity(context.applicationContext,1,groceryIntent,0)
 
             createNotificationChannel(context)
-            var builder = NotificationCompat.Builder(context!!, NOTIFCATION_CHANNEL_ID)
+            var builder = NotificationCompat.Builder(context, NOTIFCATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.check)
                 .setContentTitle("This is your reminder")
                 .setContentText("Hello... How are you?"+groceryListUniqueid)
@@ -67,7 +67,7 @@ class GroceryListNotificationReceiver : BroadcastReceiver() {
 
             val importance = NotificationManager.IMPORTANCE_DEFAULT
             val channel = NotificationChannel(NOTIFCATION_CHANNEL_ID, NOTIFICATION_NAME, importance).apply {
-                description = NOTIFICATION_DESCRIPTION;
+                description = NOTIFICATION_DESCRIPTION
             }
             // Register the channel with the system
             val notificationManager: NotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

@@ -69,17 +69,17 @@ fun setImageToImageView(view: View, groceryListItemEntity: GroceryItemEntity?){
 @BindingAdapter("android:setImageToImageViewForAddingItem")
 fun setImageToImageViewForAddingItem(view: View, groceryListViewModel: GroceryListViewModel?){
 
-   if(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri != null && groceryListViewModel?.selectedGroceryItemEntityNewImageUri !=null){
-      (view as ImageView).setImageURI(groceryListViewModel?.selectedGroceryItemEntityNewImageUri)
+   if(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri != null && groceryListViewModel.selectedGroceryItemEntityNewImageUri !=null){
+      (view as ImageView).setImageURI(groceryListViewModel.selectedGroceryItemEntityNewImageUri)
    }
 
 
     if(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri == null && groceryListViewModel?.selectedGroceryItemEntityNewImageUri != null){
-       (view as ImageView).setImageURI(groceryListViewModel?.selectedGroceryItemEntityNewImageUri)
+       (view as ImageView).setImageURI(groceryListViewModel.selectedGroceryItemEntityNewImageUri)
         return
     }
-    if(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri != null && groceryListViewModel?.selectedGroceryItemEntityNewImageUri == null){
-        (view as ImageView).setImageURI(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri)
+    if(groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri != null && groceryListViewModel.selectedGroceryItemEntityNewImageUri == null){
+        (view as ImageView).setImageURI(groceryListViewModel.selectedGroceryItemEntityCurrentImageUri)
         return
     }
 

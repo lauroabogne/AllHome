@@ -82,7 +82,7 @@ class GroceryListFragmentViewModel: ViewModel() {
         }
         if(groupedItemsSortedAlphabetically.size > 1 && groupedItemsSortedAlphabetically[0].first.trim().equals("",true)){
             val uncategories = groupedItemsSortedAlphabetically[0]
-            groupedItemsSortedAlphabetically = groupedItemsSortedAlphabetically.toMutableList().drop(1);
+            groupedItemsSortedAlphabetically = groupedItemsSortedAlphabetically.toMutableList().drop(1)
 
             groupedItemsSortedAlphabetically = groupedItemsSortedAlphabetically.toMutableList()
             groupedItemsSortedAlphabetically.add(uncategories)

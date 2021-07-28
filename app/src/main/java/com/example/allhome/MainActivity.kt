@@ -19,14 +19,17 @@ import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
+import com.example.allhome.meal_planner.MealPlannerFragment
+import com.example.allhome.meal_planner.calendar.CalendarFragment
+import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
+import com.example.allhome.utils.IngredientEvaluator
+import com.example.allhome.utils.NumberUtils
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
-    lateinit var drawerLayout: DrawerLayout;
-
-
+    lateinit var drawerLayout: DrawerLayout
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -40,7 +43,6 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         // for drawerlayout
         val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
-            override fun onDrawerClosed(drawerView: View) { super.onDrawerClosed(drawerView) }
         }
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
@@ -55,10 +57,6 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_storage->{
-                    /*val addPantryItemActivity = Intent(this, PantryAddItemActivity::class.java)
-                    startActivity(addPantryItemActivity)*/
-                    /*val pantryStorageActivity = Intent(this, PantryStorageActivity::class.java)
-                    startActivity(pantryStorageActivity)*/
 
                     val bundle = Bundle()
                     bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
@@ -68,6 +66,23 @@ class MainActivity : AppCompatActivity() {
 
                     fragmentProcessor(storageFragment)
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+
+                R.id.nav_recipes->{
+                    fragmentProcessor(RecipesFragment())
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+
+                R.id.nav_meal_planner->{
+
+
+                    fragmentProcessor(MealPlannerFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+
+
+                    /*fragmentProcessor(CalendarFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)*/
+                    //Log.e("ingredient",ingredient.toString())
                 }
             }
             true
@@ -116,7 +131,7 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
 
         intent?.action?.let{
-            intent?.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+            intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
                 intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
                 startActivity(intent)
@@ -136,5 +151,7 @@ class MainActivity : AppCompatActivity() {
         Log.e("RESULT","RECEIVED")
 
     }
+
+
 
 }

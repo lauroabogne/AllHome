@@ -39,7 +39,7 @@ import kotlinx.coroutines.withContext
 
 class TrashSingleGroceryListActivity : AppCompatActivity() {
 
-    lateinit var mGroceryListViewModel: TrashGroceryListViewModel;
+    lateinit var mGroceryListViewModel: TrashGroceryListViewModel
     lateinit var dataBindingUtil: ActivityTrashSingleGroceryListBinding
     var groceryListUniqueId: String = ""
     // Hold a reference to the current animator,
@@ -258,7 +258,7 @@ class TrashSingleGroceryListActivity : AppCompatActivity() {
 
 
         val groceryItemEntity: GroceryItemEntity = it.tag as GroceryItemEntity
-        groceryItemEntity.imageName;
+        groceryItemEntity.imageName
         val imageUri = GroceryUtil.getImageFromPath(it.context, groceryItemEntity.imageName)
 
         zoomImageFromThumb(it, imageUri!!)

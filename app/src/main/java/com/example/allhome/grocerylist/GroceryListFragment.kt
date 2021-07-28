@@ -38,12 +38,12 @@ import java.util.*
 
 class GroceryListFragment : Fragment(),OnItemAdded {
     private lateinit var mDataBindingUtil:FragmentGroceryListBinding
-    private lateinit var mGroceryListFragmentViewModel: GroceryListFragmentViewModel;
+    private lateinit var mGroceryListFragmentViewModel: GroceryListFragmentViewModel
 
     companion object {
         val ACTION_TAG = "ACTION_TAG"
-        val VIEW_INFORMATION = 1;
-        val UPDATED_ACTION = 2;
+        val VIEW_INFORMATION = 1
+        val UPDATED_ACTION = 2
 
         val OPEN_SINGLE_GROCERY_LIST_REQUEST = 3
 
@@ -77,15 +77,15 @@ class GroceryListFragment : Fragment(),OnItemAdded {
 
         mDataBindingUtil.groceryListRecyclerview.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                if (dy > 0 || dy < 0 && mDataBindingUtil.fab.isShown()) {
-                    mDataBindingUtil.fab.hide();
+                if (dy > 0 || dy < 0 && mDataBindingUtil.fab.isShown) {
+                    mDataBindingUtil.fab.hide()
                 }
                 super.onScrolled(recyclerView, dx, dy)
             }
 
             override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
                 if (newState == RecyclerView.SCROLL_STATE_IDLE) {
-                    mDataBindingUtil.fab.show();
+                    mDataBindingUtil.fab.show()
                 }
                 super.onScrollStateChanged(recyclerView, newState)
             }
@@ -143,7 +143,7 @@ class GroceryListFragment : Fragment(),OnItemAdded {
     fun updateRecyclerViewList(groceryListUniqueId:String){
         mGroceryListFragmentViewModel.coroutineScope.launch {
 
-            val index = mGroceryListFragmentViewModel.getItemIndex(groceryListUniqueId!!)
+            val index = mGroceryListFragmentViewModel.getItemIndex(groceryListUniqueId)
             val groceryListWithItemCount = mGroceryListFragmentViewModel.getGroceryListWithItemCount(this@GroceryListFragment.requireContext(), groceryListUniqueId)
 
             mGroceryListFragmentViewModel.groceryLists.set(index, groceryListWithItemCount)
@@ -207,7 +207,7 @@ class GroceryListFragment : Fragment(),OnItemAdded {
                 datetimeCreated = datetimeCreated, shoppingDatetime = "0000-00-00 00:00:00", location = "",
                 longitude = 0.0, latitude = 0.0,viewingType = 0,notify = 0,notifyType = getString(R.string.grocery_notification_none),
                 itemStatus = GroceryListEntityValues.ACTIVE_STATUS,datetimeStatusUpdated = datetimeCreated,uploaded =GroceryListEntityValues.NOT_YET_UPLOADED
-            );
+            )
 
 
             CoroutineScope(Dispatchers.IO).launch {
@@ -234,10 +234,8 @@ class GroceryListFragment : Fragment(),OnItemAdded {
                 }
             }
 
-            if (true) {
+           return@OnClickListener
 
-                return@OnClickListener
-            }
 
 
         })
@@ -255,9 +253,10 @@ class GroceryListFragment : Fragment(),OnItemAdded {
 
         }
 
-        var mGroceryListNameInput: LinearLayout;
-        lateinit var mOnClickListener: View.OnClickListener;
-        lateinit var mAlertDialog: AlertDialog;
+        var mGroceryListNameInput: LinearLayout
+        lateinit var mOnClickListener: View.OnClickListener
+        lateinit var mAlertDialog: AlertDialog
+
         init {
 
             mGroceryListNameInput = LayoutInflater.from(context).inflate(R.layout.grocery_list_name_input, null, false) as LinearLayout
@@ -272,7 +271,7 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         }
         fun groceryListName():String{
             var groceryListNameTextInput: TextInputEditText = mGroceryListNameInput.findViewById(R.id.grocery_list_name_textinputedittext)
-            return groceryListNameTextInput.text.toString();
+            return groceryListNameTextInput.text.toString()
 
         }
         fun setGroceryListName(name: String){
@@ -324,7 +323,7 @@ class GroceryListRecyclerViewAdapter(val groceryListFragment: GroceryListFragmen
         val groceryListItemBinding = GroceryListItemBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding)
 
-        return itemViewHolder;
+        return itemViewHolder
 
     }
 

@@ -30,6 +30,7 @@ import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityStorageAddItemBinding
 import com.example.allhome.databinding.StorageExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
+import com.example.allhome.utils.ImageUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -168,12 +169,12 @@ class StorageAddItemActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.pantry_add_item_menu, menu)
         if(mAction == ADD_NEW_RECORD_ACTION){
 
-            menu?.findItem(R.id.update_pantry_item_menu)?.setVisible(false)
-            menu?.findItem(R.id.save_pantry_item_menu)?.setVisible(true)
+            menu?.findItem(R.id.update_pantry_item_menu)?.isVisible = false
+            menu?.findItem(R.id.save_pantry_item_menu)?.isVisible = true
 
         }else{
-            menu?.findItem(R.id.update_pantry_item_menu)?.setVisible(true)
-            menu?.findItem(R.id.save_pantry_item_menu)?.setVisible(false)
+            menu?.findItem(R.id.update_pantry_item_menu)?.isVisible = true
+            menu?.findItem(R.id.save_pantry_item_menu)?.isVisible = false
         }
 
         return true
@@ -254,7 +255,7 @@ class StorageAddItemActivity : AppCompatActivity() {
         var itemUniqueID = UUID.randomUUID().toString()
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
-        val imageName =itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+        val imageName =itemUniqueID+"_"+storageItem+"."+ImageUtil.IMAGE_NAME_SUFFIX
 
         val storageItemEntity = StorageItemEntity(
             uniqueId = itemUniqueID,
@@ -294,7 +295,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     private fun saveNewData(storageItemEntity:StorageItemEntity){
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
-            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity);
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity)
 
             try{
                 mStorageAddItemViewModel.newImageUri?.let {
@@ -367,14 +368,14 @@ class StorageAddItemActivity : AppCompatActivity() {
 
         mStorageAddItemViewModel.coroutineScope.launch {
             var savedSuccessfully = true
-            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity);
+            val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageAddItemActivity)
 
             mStorageAddItemViewModel.newImageUri?.let {
                 mStorageAddItemViewModel.previousImageUri?.let {
                     StorageUtil.deleteImageFile(it)
                 }
                 var itemUniqueID = UUID.randomUUID().toString()
-                imageName = itemUniqueID+"_"+storageItem+"."+StorageUtil.IMAGE_NAME_SUFFIX
+                imageName = itemUniqueID+"_"+storageItem+"."+ImageUtil.IMAGE_NAME_SUFFIX
                 saveImage(mStorageAddItemViewModel.newImageUri!!, imageName)
 
             }?:run{
@@ -437,7 +438,7 @@ class StorageAddItemActivity : AppCompatActivity() {
     private fun imageName(storageItemName: String):String?{
 
         var itemUniqueID = UUID.randomUUID().toString()
-        return itemUniqueID+"_"+storageItemName+"."+StorageUtil.IMAGE_NAME_SUFFIX
+        return itemUniqueID+"_"+storageItemName+"."+ImageUtil.IMAGE_NAME_SUFFIX
 
     }
     private fun showIntentChooser(){
@@ -486,9 +487,9 @@ class StorageAddItemActivity : AppCompatActivity() {
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri!!, this)
-        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
-        val storageDir: File = getExternalFilesDir(StorageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
+        val imageBitmap =  ImageUtil.uriToBitmap(imageUri, this)
+        val resizedImageBitmap = ImageUtil.resizeImage(imageBitmap,1000)
+        val storageDir: File = getExternalFilesDir(ImageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
@@ -508,28 +509,18 @@ class StorageAddItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
 
-        if(Build.VERSION.SDK_INT < 28) {
-            return  MediaStore.Images.Media.getBitmap(this.contentResolver, uri)
-
-        } else {
-            val source = ImageDecoder.createSource(this.contentResolver, uri)
-            return ImageDecoder.decodeBitmap(source)
-
-        }
-    }
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val storageDir: File = getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+        val storageDir: File = getExternalFilesDir(ImageUtil.TEMPORARY_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
 
         return File.createTempFile(
-            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
-            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            ImageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${ImageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
             storageDir /* directory */
         )
     }
@@ -628,7 +619,7 @@ class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUn
                 return
             }
             clear()
-            val res:List<StorageItemAutoSuggest> = results?.values as ArrayList<StorageItemAutoSuggest>
+            val res:List<StorageItemAutoSuggest> = results.values as ArrayList<StorageItemAutoSuggest>
             addAll(res)
         }
         override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -649,18 +640,18 @@ class StorageItemAutoSuggestCustomAdapter(context: Context,  storageItemEntityUn
 
         textView?.let{
             if(storageItemAutoSuggest!!.existInStorage  == StorageItemAutoSuggest.EXISTS_IN_STORAGE){
-                it.setPaintFlags(it.getPaintFlags() or Paint.STRIKE_THRU_TEXT_FLAG)
+                it.paintFlags = it.paintFlags or Paint.STRIKE_THRU_TEXT_FLAG
                 it.setTextColor(Color.GRAY)
 
             }else{
-                it.setPaintFlags(0)
+                it.paintFlags = 0
                 it.setTextColor(Color.parseColor("#000000"))
             }
 
             if(storageItemAutoSuggest.unit.trim().isNotEmpty()){
-                it.setText(storageItemAutoSuggest.itemName+" (${storageItemAutoSuggest.unit})")
+                it.text = storageItemAutoSuggest.itemName+" (${storageItemAutoSuggest.unit})"
             }else{
-                it.setText(storageItemAutoSuggest.itemName)
+                it.text = storageItemAutoSuggest.itemName
             }
 
         }
@@ -719,7 +710,7 @@ class StringAutoSuggestCustomAdapter(context: Context, var stringParams: List<St
                 return
             }
             clear()
-            val res:List<String> = results?.values as ArrayList<String>
+            val res:List<String> = results.values as ArrayList<String>
             addAll(res)
         }
         override fun convertResultToString(resultValue: Any?): CharSequence {
@@ -737,8 +728,8 @@ class StringAutoSuggestCustomAdapter(context: Context, var stringParams: List<St
             textView = convertView as TextView?
         }
         val unit = getItem(position)
-        textView!!.setText(unit)
-        return textView!!
+        textView!!.text = unit
+        return textView
     }
 }
 /**

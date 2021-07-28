@@ -9,6 +9,7 @@ import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.StorageUtil
+import com.example.allhome.utils.ImageUtil
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -74,7 +75,7 @@ fun setImageToImageViewForCreatingStorage(view: View, previousImageUri: Uri?, cu
 @BindingAdapter("android:setImageStorageImage")
 fun setImageStorageImage(view: View,imageName:String){
 
-    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
+    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context, ImageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
 
     uri?.apply {
         (view as ImageView).setImageURI(uri)
@@ -88,7 +89,7 @@ fun setImageStorageImage(view: View,imageName:String){
 @BindingAdapter("android:setCollapseImageStorageImage")
 fun setCollapseImageStorageImage(view: View,imageName:String){
 
-    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
+    val uri:Uri? = StorageUtil.getImageUriFromPath(view.context,ImageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName)
 
     uri?.apply {
         (view as ImageView).setImageURI(uri)
@@ -105,7 +106,7 @@ fun setSoonToExpireItemText(view: TextView, itemToExpireInDays:Int){
         view.visibility = View.GONE
         return
     }
-    view.setText("Some item will expire within $itemToExpireInDays days")
+    view.text = "Some item will expire within $itemToExpireInDays days"
 
 
 }

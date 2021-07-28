@@ -2,11 +2,13 @@ package com.example.allhome.storage
 
 import android.content.Context
 import android.net.Uri
+import android.os.Build
 import android.util.Log
 import com.example.allhome.R
 import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.grocerylist.GroceryUtil
+import com.example.allhome.utils.ImageUtil
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
@@ -16,11 +18,6 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 object StorageUtil {
-    val STORAGE_IMAGES_FINAL_LOCATION = "storage_images"
-    val STORAGE_ITEM_IMAGES_FINAL_LOCATION = "storage_item_images"
-    val TEMPORARY_IMAGES_LOCATION = "temporary_images";
-    val IMAGE_TEMP_NAME = "temp_image";
-    val IMAGE_NAME_SUFFIX = "jpg";
 
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
     fun formatExpirationDate(expirationDateString:String):String{
@@ -64,11 +61,11 @@ object StorageUtil {
 
     fun getStorageItemImageUriFromPath(context: Context, imageName:String): Uri? {
 
-        val storageDir: File =  context.getExternalFilesDir(STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
+
+        val storageDir: File =  context.getExternalFilesDir(ImageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){
             return null
         }
-
 
         val imageFile  = File(storageDir, imageName)
 
@@ -97,19 +94,24 @@ object StorageUtil {
     fun datetimeModified(datetimeModified:String):String{
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd h:mm:ss")
         val date: Date? = simpleDateFormat.parse(datetimeModified)
-        return "Last update: "+SimpleDateFormat("MMMM d, Y h:mm a").format(date)
+        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            "Last update: "+SimpleDateFormat("MMMM d, Y h:mm a").format(date)
+        } else {
+            "Last update: "+SimpleDateFormat("MMMM d, y h:mm a").format(date)
+        }
     }
     fun hasExpirationDate(expirations:List<StorageItemExpirationEntity>):Boolean{
         return expirations.size > 0
     }
     fun deleteImageFile(context: Context, imageName:String) {
-        val storageDir: File =  context.getExternalFilesDir(STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
+
+        val storageDir: File =  context.getExternalFilesDir(ImageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)!!
         val imageFile  = File(storageDir, imageName)
         imageFile.delete()
 
     }
     fun deleteImageFile( uri:Uri) {
-        val imageFile: File = File(uri.path)
+        val imageFile = File(uri.path)
         imageFile.delete()
 
     }

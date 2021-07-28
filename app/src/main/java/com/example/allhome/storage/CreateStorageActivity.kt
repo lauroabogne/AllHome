@@ -24,6 +24,7 @@ import com.example.allhome.data.entities.StorageEntityValues
 import com.example.allhome.databinding.ActivityCreateStorageBinding
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.viewmodel.StorageViewModel
+import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.Dispatchers.Main
@@ -62,7 +63,7 @@ class CreateStorageActivity : AppCompatActivity() {
             mStorageViewModel.coroutineScope.launch {
                 val storageEntity:StorageEntity =  mStorageViewModel.getStorage(this@CreateStorageActivity,storageUniqueId)
                 val imageName = storageEntity.imageName
-                val imageURI = StorageUtil.getImageUriFromPath(this@CreateStorageActivity,StorageUtil.STORAGE_IMAGES_FINAL_LOCATION,imageName!!)
+                val imageURI = StorageUtil.getImageUriFromPath(this@CreateStorageActivity, ImageUtil.STORAGE_IMAGES_FINAL_LOCATION, imageName)
                 mStorageViewModel.storagePreviousImageUri = imageURI
 
             }
@@ -75,10 +76,7 @@ class CreateStorageActivity : AppCompatActivity() {
 
         mActivityCreateStorageBinding.storageItemAddImageBtn.setOnClickListener{
 
-            val storageDir: File = getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
-            storageDir.exists().apply {
-                storageDir.deleteRecursively()
-            }
+            ImageUtil.deleteAllTemporaryImages(this)
 
             showIntentChooser()
         }
@@ -86,10 +84,10 @@ class CreateStorageActivity : AppCompatActivity() {
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {
         if(mAction == UPDATE_RECORD_ACTION){
-            menu?.findItem(R.id.saveStorageMenu)?.setVisible(false)
+            menu?.findItem(R.id.saveStorageMenu)?.isVisible = false
 
         }else{
-            menu?.findItem(R.id.updateStorageMenu)?.setVisible(false)
+            menu?.findItem(R.id.updateStorageMenu)?.isVisible = false
         }
 
         return super.onPrepareOptionsMenu(menu)
@@ -147,7 +145,7 @@ class CreateStorageActivity : AppCompatActivity() {
         val storageName = mActivityCreateStorageBinding.storageNameTextinput.text.toString()
         val storageDescription = mActivityCreateStorageBinding.storageDescriptionTextinput.text.toString()
 
-        val imageName =storageUniqueId+"_"+storageName+"."+StorageUtil.IMAGE_NAME_SUFFIX
+        val imageName =storageUniqueId+"_"+storageName+"."+ImageUtil.IMAGE_NAME_SUFFIX
 
         val storageEntity = StorageEntity(
             uniqueId = storageUniqueId,
@@ -196,7 +194,7 @@ class CreateStorageActivity : AppCompatActivity() {
         val storageDescription = mActivityCreateStorageBinding.storageDescriptionTextinput.text.toString()
 
         var imageName = mStorageViewModel.storageNewImageUri?.let {
-                            UUID.randomUUID().toString()+"_"+storageName+"."+StorageUtil.IMAGE_NAME_SUFFIX
+                            UUID.randomUUID().toString()+"_"+storageName+"."+ImageUtil.IMAGE_NAME_SUFFIX
                         }?:run {
                             mStorageViewModel.storageEntity!!.imageName
                         }
@@ -282,9 +280,9 @@ class CreateStorageActivity : AppCompatActivity() {
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
-        val imageBitmap = uriToBitmap(imageUri!!, this)
-        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
-        val storageDir: File = getExternalFilesDir(StorageUtil.STORAGE_IMAGES_FINAL_LOCATION)!!
+        val imageBitmap = uriToBitmap(imageUri, this)
+        val resizedImageBitmap = ImageUtil.resizeImage(imageBitmap,1000)
+        val storageDir: File = getExternalFilesDir(ImageUtil.STORAGE_IMAGES_FINAL_LOCATION)!!
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
@@ -317,15 +315,15 @@ class CreateStorageActivity : AppCompatActivity() {
     }
     @Throws(IOException::class)
     private fun createImageFile(): File {
-        val storageDir: File = getExternalFilesDir(StorageUtil.TEMPORARY_IMAGES_LOCATION)!!
+        val storageDir: File = getExternalFilesDir(ImageUtil.TEMPORARY_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
 
         return File.createTempFile(
-            StorageUtil.IMAGE_TEMP_NAME, /* prefix */
-            ".${StorageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
+            ImageUtil.IMAGE_TEMP_NAME, /* prefix */
+            ".${ImageUtil.IMAGE_NAME_SUFFIX}", /* suffix */
             storageDir /* directory */
         )
     }

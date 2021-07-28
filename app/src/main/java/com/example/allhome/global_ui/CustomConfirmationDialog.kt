@@ -19,7 +19,8 @@ class CustomConfirmationDialog(context: Context) : AlertDialog.Builder(context) 
 
     //var mMessageTextView: TextView;
     var mOnClickListener: View.OnClickListener? = null
-    lateinit var mAlertDialog: AlertDialog;
+    lateinit var mAlertDialog: AlertDialog
+
     init {
 
         //mMessageTextView = LayoutInflater.from(context).inflate(R.layout.confirmation_textview, null, false) as TextView

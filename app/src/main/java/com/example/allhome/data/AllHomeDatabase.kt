@@ -7,13 +7,18 @@ import androidx.room.RoomDatabase
 import com.example.allhome.data.DAO.*
 import com.example.allhome.data.entities.*
 
-@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class, StorageEntity::class),version = 3)
+@Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class,
+    StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class,MealEntity::class),version = 3)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
     abstract fun groceryListDAO(): GroceryListDAO
     abstract fun getStorageItemDAO():StorageItemDAO
     abstract fun getStorageItemExpirationDAO():StorageItemExpirationDAO
     abstract fun getStorageDAO():StorageDAO
+    abstract fun getRecipeDAO():RecipeDAO
+    abstract fun getIngredientDAO():IngredientDAO
+    abstract fun getRecipeStepDAO():RecipeStepDAO
+    abstract fun getMealDAO():MealDAO
 
 
     companion object{
@@ -31,8 +36,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
                     context.applicationContext,
                     AllHomeDatabase::class.java,
                     "all_home_database"
-                ).fallbackToDestructiveMigration()
-                    .build()
+                ).fallbackToDestructiveMigration().build()
 
                 INSTANCE = intance
                 return intance

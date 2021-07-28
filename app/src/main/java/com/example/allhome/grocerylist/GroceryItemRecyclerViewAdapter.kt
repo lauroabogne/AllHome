@@ -32,7 +32,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
     var mGroceryItems: List<GroceryItemEntity> = arrayListOf()
     var mTouchHelper: ItemTouchHelper? = null
     var mDraggable: Boolean = true
-    var context: Context = contextParams;
+    var context: Context = contextParams
     lateinit var mSelectedView: View
     val mSingleGroceryListActivity: SingleGroceryListActivity = contextParams as SingleGroceryListActivity
     val mGroceryListViewModel = mSingleGroceryListActivity.mGroceryListViewModel
@@ -42,12 +42,12 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
         val groceryListItemBinding = GroceryListProductBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding,productImageClickListener)
 
-        return itemViewHolder;
+        return itemViewHolder
     }
 
     override fun getItemCount(): Int {
         if (mGroceryItems != null) {
-            return mGroceryItems!!.size
+            return mGroceryItems.size
         }
         return 0
     }
@@ -65,11 +65,11 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
     }
 
     override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-        val groceryItemEntity = mGroceryItems?.get(position)
+        val groceryItemEntity = mGroceryItems.get(position)
         holder.groceryListItemBinding.groceryItemEntity = groceryItemEntity
         holder.groceryListItemBinding.executePendingBindings()
 
-        holder.groceryListItemBinding.itemImage.setTag(groceryItemEntity)
+        holder.groceryListItemBinding.itemImage.tag = groceryItemEntity
 
         if(groceryItemEntity.forCategoryDivider){
             holder.groceryListItemBinding.itemInformationLinearlayout.visibility = View.GONE
@@ -140,7 +140,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
                     })
                     popupMenu.show()
-                    return;
+                    return
                 }else{
                     val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
                     popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
@@ -167,7 +167,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                 }
 
                 mGroceryListViewModel.coroutineScope.launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity.id, groceryItemEntity.itemName)
 
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
@@ -208,7 +208,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                 }
 
                 mGroceryListViewModel.coroutineScope.launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity!!.id, groceryItemEntity!!.itemName)
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity.id, groceryItemEntity.itemName)
 
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
