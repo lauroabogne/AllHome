@@ -19,6 +19,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun getIngredientDAO():IngredientDAO
     abstract fun getRecipeStepDAO():RecipeStepDAO
     abstract fun getMealDAO():MealDAO
+    abstract fun getBillItemDAO():BillDAO
 
 
     companion object{

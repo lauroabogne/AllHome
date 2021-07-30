@@ -1,73 +1,93 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:padding="4dp"
-    tools:context=".bill.AddBillFragment">
-
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/storageNameTextinputLayout"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+    xmlns:tools="http://schemas.android.com/tools">
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:layout_height="wrap_content">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="4dp"
+        tools:context=".bill.AddBillFragment">
 
-        <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/storageNameTextinput"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/storageNameTextinputLayout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Amount"
-            android:inputType="numberDecimal" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/textInputLayout12"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/storageNameTextinputLayout">
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/storageNameTextinput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Amount"
+                android:inputType="numberDecimal" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <com.google.android.material.textfield.TextInputEditText
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayout12"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Name" />
-    </com.google.android.material.textfield.TextInputLayout>
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/storageNameTextinputLayout">
 
-    <RadioGroup
-        android:id="@+id/radioGroup"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textInputLayout12">
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:hint="Name" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <RadioButton
-            android:id="@+id/radioButton"
+        <RadioGroup
+            android:id="@+id/oneTimeOrRecurringRadioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="One time"
-            android:textSize="16sp" />
+            android:orientation="horizontal"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textInputLayout12">
 
-        <RadioButton
-            android:id="@+id/radioButton2"
+            <RadioButton
+                android:id="@+id/onetimeRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="One time"
+                android:checked="true"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/recurringRadioButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recurring"
+                android:textSize="16sp" />
+        </RadioGroup>
+
+        <include
+            android:id="@+id/recurringBillIncludeLayout"
+            layout="@layout/recurring_bill"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/oneTimeOrRecurringRadioGroup" />
+
+        <Button
+            android:id="@+id/saveBtn"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Recurring"
-            android:textSize="16sp" />
-    </RadioGroup>
+            android:text="Save"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recurringBillIncludeLayout" />
 
-    <include
-        layout="@layout/recurring_bill"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+    </ScrollView>
+</layout>
