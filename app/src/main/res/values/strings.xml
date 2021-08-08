@@ -83,7 +83,7 @@
     </string-array>
 
     <string name="year">Year</string>
-    <string name="date_in_month">Date in month</string>
+    <string name="date_of_month">Date of month</string>
     <string name="end_of_month">End of month</string>
     <string name="month">Month</string>
     <string name="week">Week</string>
@@ -94,7 +94,7 @@
         <item>@string/week</item>
         <item>@string/month</item>
         <item>@string/end_of_month</item>
-        <item>@string/date_in_month</item>
+        <item>@string/date_of_month</item>
         <item>@string/year</item>
     </string-array>
 

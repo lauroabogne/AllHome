@@ -9,14 +9,21 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.databinding.DataBindingUtil
+import androidx.lifecycle.ViewModelProvider
+import androidx.room.ColumnInfo
 import com.example.allhome.R
+import com.example.allhome.bill.viewmodel.BillViewModel
+import com.example.allhome.data.entities.BillEntity
 import com.example.allhome.data.entities.StorageItemEntityValues
 import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.databinding.FragmentAddBillBinding
+import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.meal_planner.AddMealDialogFragment
+import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.storage.PantryItemRecyclerViewAdapter
 import com.example.allhome.utils.MinMaxInputFilter
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -32,7 +39,7 @@ class AddBillFragment : Fragment() {
     private var param2: String? = null
 
     lateinit var mFragmentAddBillBinding:FragmentAddBillBinding
-
+    lateinit var mBillViewModel:BillViewModel
     var mDueDate:String? = null
     var mRepeatUntilDate:String? = null
 
@@ -43,6 +50,9 @@ class AddBillFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+
+        mBillViewModel = ViewModelProvider(this).get(BillViewModel::class.java)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -70,7 +80,9 @@ class AddBillFragment : Fragment() {
                     saveRecurring()
                 }
                 R.id.onetimeRadioButton->{
-                    Toast.makeText(requireContext(),"one time",Toast.LENGTH_SHORT).show()
+
+                    saveOnetimeBill()
+
                 }
             }
 
@@ -81,67 +93,554 @@ class AddBillFragment : Fragment() {
 
 
     }
-    fun saveRecurring(){
-
-        val repeatCountString =mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.text.toString().trim()
-        val repeatCountInt = if(repeatCountString.isEmpty()) 0 else repeatCountString.toInt()
-        val repeatEvery =mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.selectedItem
-
+    private fun saveRecurring(){
 
         when(mFragmentAddBillBinding.recurringBillIncludeLayout.recurringConditionRadioGroup.checkedRadioButtonId){
             R.id.untilRadioButton->{
-                val untilDateCalendar = Calendar.getInstance()
-                untilDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mRepeatUntilDate)
-
+                saveBillWithEndDate()
             }
             R.id.forRadioButton->{
+                saveBillWithoutEndDate()
+            }
+        }
 
-                val repeatTimesString = mFragmentAddBillBinding.recurringBillIncludeLayout.timesTextInputEditText.text.toString().trim()
-                val repeatTimesInt = if(repeatTimesString.isEmpty()) 0 else repeatTimesString.toInt()
+        Toast.makeText(requireContext(),"Recurring",Toast.LENGTH_SHORT).show()
 
-                val dueDateCalendar = Calendar.getInstance()
-                dueDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mDueDate)
+    }
+    private fun saveBillWithEndDate(){
 
 
-                repeat(repeatTimesInt){
-                    when(repeatEvery){
-                        requireContext().getString(R.string.day)->{
+        val billAmountString = mFragmentAddBillBinding.billAmountTextinput.text.toString().trim()
+        val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
-                            dueDateCalendar.add(Calendar.DAY_OF_MONTH,repeatCountInt)
-                            val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
 
-                            Log.e("FORMATED_DATE",formatedDate)
+        val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
+        val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
+        val repeatEvery:String = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.selectedItem as String
 
-                        }
-                        requireContext().getString(R.string.week)->{
-                            dueDateCalendar.add(Calendar.WEEK_OF_MONTH,repeatCountInt)
-                            val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        if(billAmountDouble <=0){
+            Toast.makeText(requireContext(),"Please input bill amount.",Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                            Log.e("FORMATED_WEEK",formatedDate)
-                        }
-                        requireContext().getString(R.string.month)->{
-                            dueDateCalendar.add(Calendar.MONTH,repeatCountInt)
-                            val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        if(billName.isNullOrEmpty()){
+            Toast.makeText(requireContext(),"Please input bill name.",Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                            Log.e("FORMATED_MONTH",formatedDate)
-                        }
-                        requireContext().getString(R.string.end_of_month)->{
-                            dueDateCalendar.add(Calendar.MONTH,1)
-                            dueDateCalendar.set(Calendar.DAY_OF_MONTH,dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+        if(mDueDate.isNullOrEmpty() || mDueDate.isNullOrBlank()){
+            Toast.makeText(requireContext(),"Please select due date or starting date.",Toast.LENGTH_SHORT).show()
+            return
+        }
+        if(mRepeatUntilDate.isNullOrEmpty() || mRepeatUntilDate.isNullOrBlank()){
+            Toast.makeText(requireContext(),"Please select until date.",Toast.LENGTH_SHORT).show()
+            return
+        }
 
-                            val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        if(!repeatEvery.equals(requireContext().getString(R.string.end_of_month)) && repeatEveryInt <=0){
+            Toast.makeText(requireContext(),"Please value for 'Repeat every'.",Toast.LENGTH_SHORT).show()
+            mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.requestFocus()
+            return
+        }
 
-                            Log.e("FORMATED_MONTH",formatedDate)
-                        }
-                        requireContext().getString(R.string.year)->{
 
-                        }
+        val dueDateCalendar = Calendar.getInstance()
+        dueDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mDueDate)
+
+        val untilDateCalendar = Calendar.getInstance()
+        untilDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mRepeatUntilDate)
+
+        //val billDueOrStartingDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        val billEntities = arrayListOf<BillEntity>()
+        var billsGroupUniqueId = UUID.randomUUID().toString()
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        when(repeatEvery){
+            requireContext().getString(R.string.day)->{
+
+
+                do {
+                    dueDateCalendar.add(Calendar.DAY_OF_MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+                }while (dueDateCalendar.before(untilDateCalendar))
+            }
+            requireContext().getString(R.string.week)->{
+
+                do {
+                    dueDateCalendar.add(Calendar.WEEK_OF_MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+                }while (dueDateCalendar.before(untilDateCalendar))
+            }
+
+            requireContext().getString(R.string.month)->{
+
+
+                do {
+                    dueDateCalendar.add(Calendar.MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+                }while (dueDateCalendar.before(untilDateCalendar))
+            }
+
+            requireContext().getString(R.string.end_of_month)->{
+
+                do {
+                    dueDateCalendar.add(Calendar.MONTH,1)
+                    dueDateCalendar.set(Calendar.DAY_OF_MONTH,dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+                }while (dueDateCalendar.before(untilDateCalendar))
+
+            }
+
+            requireContext().getString(R.string.date_of_month)->{
+
+                do {
+                    dueDateCalendar.add(Calendar.MONTH,1)
+                    val maxDayOfMonth = dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEveryInt > maxDayOfMonth ){
+                        dueDateCalendar.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCalendar.set(Calendar.DAY_OF_MONTH,repeatEveryInt)
                     }
-                }
+
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+
+                }while(dueDateCalendar.before(untilDateCalendar))
+            }
+
+            requireContext().getString(R.string.year)->{
+
+                do {
+                    dueDateCalendar.add(Calendar.YEAR,1)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= mRepeatUntilDate!!,
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+
+                }while (dueDateCalendar.before(untilDateCalendar))
+            }
+        }
+
+        mBillViewModel.mCoroutineScope.launch {
+            mBillViewModel.addBills(requireContext(),billEntities)
+            withContext(Main){
 
             }
         }
-        Toast.makeText(requireContext(),"Recurring",Toast.LENGTH_SHORT).show()
+
+
+    }
+    private fun saveBillWithoutEndDate(){
+
+        val billAmountString = mFragmentAddBillBinding.billAmountTextinput.text.toString().trim()
+        val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
+
+        val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
+
+        val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
+        val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
+        val repeatEvery:String = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.selectedItem as String
+
+        if(billAmountDouble <=0){
+            Toast.makeText(requireContext(),"Please input bill amount.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if(billName.isNullOrEmpty()){
+            Toast.makeText(requireContext(),"Please input bill name.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if(mDueDate.isNullOrEmpty() || mDueDate.isNullOrBlank()){
+            Toast.makeText(requireContext(),"Please select due date or starting date.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if(!repeatEvery.equals(requireContext().getString(R.string.end_of_month)) && repeatEveryInt <=0){
+            Toast.makeText(requireContext(),"Please value for 'Repeat every'.",Toast.LENGTH_SHORT).show()
+            mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.requestFocus()
+            return
+        }
+
+
+        val repeatTimesString = mFragmentAddBillBinding.recurringBillIncludeLayout.timesTextInputEditText.text.toString().trim()
+        val repeatTimesInt = if(repeatTimesString.isEmpty()) 0 else repeatTimesString.toInt()
+
+        val dueDateCalendar = Calendar.getInstance()
+        dueDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mDueDate)
+
+        val billEntities = arrayListOf<BillEntity>()
+        var billsGroupUniqueId = UUID.randomUUID().toString()
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+
+        repeat(repeatTimesInt){
+            when(repeatEvery){
+                requireContext().getString(R.string.day)->{
+
+
+                    dueDateCalendar.add(Calendar.DAY_OF_MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                            groupUniqueId =  billsGroupUniqueId,
+                            uniqueId = billUniqueId,
+                            amount = billAmountDouble,
+                            name = billName,
+                            dueDate = formatedDate,
+                            isRecurring = BillEntity.RECURRING,
+                            repeatEvery = repeatEveryInt,
+                            repeatBy = repeatEvery,
+                            repeatUntil= "",
+                            repeatCount = 0,
+                            imageName = "",
+                            status = BillEntity.NOT_DELETED_STATUS,
+                            uploaded = BillEntity.NOT_UPLOADED,
+                            created = currentDatetime,
+                            modified = currentDatetime
+                        )
+
+                        billEntities.add(billEntity)
+
+                }
+                requireContext().getString(R.string.week)->{
+                    dueDateCalendar.add(Calendar.WEEK_OF_MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= "",
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+                }
+                requireContext().getString(R.string.month)->{
+                    dueDateCalendar.add(Calendar.MONTH,repeatEveryInt)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= "",
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+                }
+                requireContext().getString(R.string.end_of_month)->{
+                    dueDateCalendar.add(Calendar.MONTH,1)
+                    dueDateCalendar.set(Calendar.DAY_OF_MONTH,dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= "",
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+                }
+                requireContext().getString(R.string.date_of_month)->{
+                    dueDateCalendar.add(Calendar.MONTH,1)
+                    val maxDayOfMonth = dueDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEveryInt > maxDayOfMonth ){
+                        dueDateCalendar.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCalendar.set(Calendar.DAY_OF_MONTH,repeatEveryInt)
+                    }
+
+
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= "",
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+                }
+                requireContext().getString(R.string.year)->{
+                    dueDateCalendar.add(Calendar.YEAR,1)
+                    val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+
+                    var billUniqueId = UUID.randomUUID().toString()
+                    val billEntity = BillEntity(
+                        groupUniqueId =  billsGroupUniqueId,
+                        uniqueId = billUniqueId,
+                        amount = billAmountDouble,
+                        name = billName,
+                        dueDate = formatedDate,
+                        isRecurring = BillEntity.RECURRING,
+                        repeatEvery = repeatEveryInt,
+                        repeatBy = repeatEvery,
+                        repeatUntil= "",
+                        repeatCount = 0,
+                        imageName = "",
+                        status = BillEntity.NOT_DELETED_STATUS,
+                        uploaded = BillEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    billEntities.add(billEntity)
+                }
+            }
+        }
+
+        Log.e("BILLS",billEntities.toString())
+        mBillViewModel.mCoroutineScope.launch {
+            mBillViewModel.addBills(requireContext(),billEntities)
+            withContext(Main){
+
+            }
+        }
+    }
+    private fun saveOnetimeBill(){
+
+        val billAmountString = mFragmentAddBillBinding.billAmountTextinput.text.toString().trim()
+        val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
+
+        val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
+        if(billAmountDouble <=0){
+            Toast.makeText(requireContext(),"Please input bill amount.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if(billName.isNullOrEmpty()){
+            Toast.makeText(requireContext(),"Please input bill name.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        if(mDueDate.isNullOrEmpty() || mDueDate.isNullOrBlank()){
+            Toast.makeText(requireContext(),"Please select due date or starting date.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+        var billsGroupUniqueId = UUID.randomUUID().toString()
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+
+        var billUniqueId = UUID.randomUUID().toString()
+        val billEntity = BillEntity(
+            groupUniqueId =  billsGroupUniqueId,
+            uniqueId = billUniqueId,
+            amount = billAmountDouble,
+            name = billName,
+            dueDate = mDueDate!!,
+            isRecurring = BillEntity.NOT_RECURRING,
+            repeatEvery = BillEntity.NOT_RECURRING,
+            repeatBy = "",
+            repeatUntil= "",
+            repeatCount = 0,
+            imageName = "",
+            status = BillEntity.NOT_DELETED_STATUS,
+            uploaded = BillEntity.NOT_UPLOADED,
+            created = currentDatetime,
+            modified = currentDatetime
+        )
+
+        mBillViewModel.mCoroutineScope.launch {
+            val id = mBillViewModel.addBill(requireContext(),billEntity)
+            withContext(Main){
+
+            }
+        }
+
 
     }
     fun showCalendar(requestDateType:Int){
@@ -222,25 +721,37 @@ class AddBillFragment : Fragment() {
             }
         }
     }
+
+    var mIsUserAction = false
     private val repeatSpinnerOnItemSelectedListener = object :AdapterView.OnItemSelectedListener{
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+
+            if(!mIsUserAction){
+                mIsUserAction = true
+                return
+            }
+
             var selectedRepeat = requireContext().resources.getStringArray(R.array.bill_recurring)[position]
             when(selectedRepeat){
                 requireContext().getString(R.string.end_of_month)->{
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.setText("")
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.isEnabled = false
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.setText("")
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.isEnabled = false
                 }
-                requireContext().getString(R.string.date_in_month)->{
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.filters = arrayOf(MinMaxInputFilter( 1 , 31))
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.isEnabled = true
+                requireContext().getString(R.string.date_of_month)->{
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.filters = arrayOf(MinMaxInputFilter( 1 , 31))
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.isEnabled = true
 
-                    var dialog = DateInMonthDialogFragment()
-                    dialog.setDateSelectedListener(dateInMonthDialogFragmentDateSelectedListener)
-                    dialog.show(childFragmentManager,"DateInMonthDialogFragment")
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.requestFocus()
+
+                    var dateInMonthDialogFragment = DateInMonthDialogFragment()
+                    dateInMonthDialogFragment.mDateSelectedListener = dateInMonthDialogFragmentDateSelectedListener
+                    dateInMonthDialogFragment.show(childFragmentManager,"DateInMonthDialogFragment")
+
                 }
                 else->{
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.isEnabled = true
-                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.filters = arrayOf()
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.isEnabled = true
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.filters = arrayOf()
+                    mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.requestFocus()
 
 
                 }
@@ -256,7 +767,7 @@ class AddBillFragment : Fragment() {
     private val dateInMonthDialogFragmentDateSelectedListener = object:DateInMonthDialogFragment.DateSelectedListener{
         override fun dateSelected(date: String) {
             Toast.makeText(requireContext(),"date selected ${date}",Toast.LENGTH_SHORT).show()
-            mFragmentAddBillBinding.recurringBillIncludeLayout.repeatCountTextInputEditText.setText(date)
+            mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.setText(date)
         }
 
     }

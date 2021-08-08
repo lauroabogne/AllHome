@@ -11,17 +11,17 @@ import kotlinx.android.parcel.Parcelize
 @Entity(tableName = BillEntity.TABLE_NAME)
 data class BillEntity(
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name= COLUMN_GROUP_UNIQUE_ID) var groupUniqueId:String,
     @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String,
+    @ColumnInfo(name= COLUMN_GROUP_UNIQUE_ID) var groupUniqueId:String,
     @ColumnInfo(name= COLUMN_AMOUNT) var amount:Double,
     @ColumnInfo(name= COLUMN_NAME) var name:String,
     @ColumnInfo(name= COLUMN_DUE_DATE) var dueDate:String,
     @ColumnInfo(name= COLUMN_IS_RECURRING) var isRecurring:Int,
-    @ColumnInfo(name= COLUMN_REPEAT_IN) var repeatIn:Int,
-    @ColumnInfo(name= COLUMN_REPEAT_BY) var repeatBy:Int,
+    @ColumnInfo(name= COLUMN_REPEAT_EVERY) var repeatEvery:Int,
+    @ColumnInfo(name= COLUMN_REPEAT_BY) var repeatBy:String,
     @ColumnInfo(name= COLUMN_REPEAT_UNTIL) var repeatUntil:String,
     @ColumnInfo(name= COLUMN_REPEAT_COUNT) var repeatCount:Int,
-    @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:Int,
+    @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:String,
     @ColumnInfo(name= COLUMN_STATUS,defaultValue="${NOT_DELETED_STATUS}") var status:Int,
     @ColumnInfo(name= COLUMN_UPLOADED,defaultValue="${NOT_UPLOADED}") var uploaded:Int,
     @ColumnInfo(name= COLUMN_CREATED,defaultValue="CURRENT_TIMESTAMP") var created:String,
@@ -42,7 +42,7 @@ data class BillEntity(
         const val COLUMN_NAME ="name"
         const val COLUMN_DUE_DATE ="due_date"
         const val COLUMN_IS_RECURRING ="is_recurring"
-        const val COLUMN_REPEAT_IN ="repeat_in"
+        const val COLUMN_REPEAT_EVERY ="repeat_every"
         const val COLUMN_REPEAT_BY ="repeat_by"
         const val COLUMN_REPEAT_UNTIL ="repeat_until"
         const val COLUMN_REPEAT_COUNT ="repeat_count"

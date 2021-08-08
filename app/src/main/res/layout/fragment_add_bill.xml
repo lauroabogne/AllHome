@@ -22,7 +22,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/storageNameTextinput"
+                android:id="@+id/billAmountTextinput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Amount"
@@ -39,6 +39,7 @@
             app:layout_constraintTop_toBottomOf="@+id/storageNameTextinputLayout">
 
             <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/billNameTextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="text"
