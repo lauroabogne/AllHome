@@ -19,9 +19,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
+        <activity android:name=".bill.BillActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar" ></activity>
         <activity
             android:name=".meal_planner.ViewerActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar" ></activity>
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".meal_planner.ViewMealOfTheDayActivity"
             android:theme="@style/Theme.AllHome.NoActionBar" />

@@ -16,6 +16,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
 import com.example.allhome.bill.AddBillFragment
+import com.example.allhome.bill.BillsFragment
 import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
@@ -81,7 +82,7 @@ class MainActivity : AppCompatActivity() {
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
                 R.id.nav_bills->{
-                    fragmentProcessor(AddBillFragment.newInstance("",""))
+                    fragmentProcessor(BillsFragment.newInstance("",""))
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
             }
