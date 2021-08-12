@@ -41,14 +41,11 @@ class Calendar : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
     var mCalendar:java.util.Calendar? = null
-    lateinit var mMealPlannerViewModel:MealPlannerViewModel
-
-
     val mWeekViews:ArrayList<View> = arrayListOf()
-
-
     lateinit var mCalendarBinding:CalendarBinding
     lateinit var mCurrentDateString:String
+
+    var mCalendarRenderingListener:CalendarRenderingListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -57,7 +54,6 @@ class Calendar : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
 
-        mMealPlannerViewModel = ViewModelProvider(this).get(MealPlannerViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -72,7 +68,6 @@ class Calendar : Fragment() {
     }
     fun generateData(){
 
-        setTotalCostOfTheMonth()
         mCalendar?.let{
             it.set(java.util.Calendar.DAY_OF_MONTH,1)
 
@@ -116,20 +111,14 @@ class Calendar : Fragment() {
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
-                        dayHolder.setOnClickListener(dayViewClickListener)
+
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
 
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
                     }
 
@@ -155,19 +144,13 @@ class Calendar : Fragment() {
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
-                        dayHolder.setOnClickListener(dayViewClickListener)
+
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
-                        dayHolder.setTag(dateString)
+                       dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
 
                     }
@@ -193,19 +176,13 @@ class Calendar : Fragment() {
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
 
-                        dayHolder.setOnClickListener(dayViewClickListener)
+
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
 
                     }
@@ -230,20 +207,13 @@ class Calendar : Fragment() {
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
-                        dayHolder.setOnClickListener(dayViewClickListener)
+
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
 
                     }
@@ -268,20 +238,12 @@ class Calendar : Fragment() {
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
-
-                        dayHolder.setOnClickListener(dayViewClickListener)
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
 
                     }
@@ -307,20 +269,12 @@ class Calendar : Fragment() {
                         dayHolder.visibility = View.VISIBLE
                         (dayHolder.getChildAt(0) as TextView).setText("${totalDays}")
 
-
-                        dayHolder.setOnClickListener(dayViewClickListener)
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
-                        dayHolder.setTag(dateString)
                         showCurrentDateIndicator(dateString,currentDateIndicator)
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val mealPlan = mMealPlannerViewModel.getMealPlanForDay(requireContext(),dayHolder.tag.toString())
-                            withContext(Main){
-                                showIndicator(textView,mealPlan)
-
-                            }
+                        dayHolder.setTag(dateString)
+                        mCalendarRenderingListener?.let {
+                            it.onDayRendering(dateString,dayHolder)
                         }
                     }
                 }
@@ -330,48 +284,17 @@ class Calendar : Fragment() {
 
     }
     private fun showCurrentDateIndicator(dateString:String,view:View){
-        Log.e("DATE","${dateString} ${mCurrentDateString}")
+
         if(mCurrentDateString.equals(dateString)){
             view.visibility = View.VISIBLE
         }
     }
-    private fun showIndicator(indicatorTextView:TextView,mealPlans:List<MealTypes>){
-
-        val builder = SpannableStringBuilder()
 
 
-        mealPlans.forEachIndexed{index,mealType->
-
-            if(mealType.type == MealEntity.BREAKFAST_TYPE){
-                val redSpannable = SpannableString(".")
-                redSpannable.setSpan(ForegroundColorSpan(Color.RED), 0, 1, 0)
-                builder.append(redSpannable)
-            }else if(mealType.type == MealEntity.LUNCK_TYPE){
-                val redSpannable = SpannableString(".")
-                redSpannable.setSpan(ForegroundColorSpan(Color.BLUE), 0, 1, 0)
-                builder.append(redSpannable)
-            }else if(mealType.type == MealEntity.DINNER_TYPE){
-                val redSpannable = SpannableString(".")
-                redSpannable.setSpan(ForegroundColorSpan(Color.GREEN), 0, 1, 0)
-                builder.append(redSpannable)
-            }else if(mealType.type == MealEntity.SNACK_AFTER_BREAKFAST_TYPE || mealType.type == MealEntity.SNACK_AFTERLUNCK_TYPE|| mealType.type == MealEntity.SNACK_AFTER_DINNER_TYPE){
-                val redSpannable = SpannableString(".")
-                redSpannable.setSpan(ForegroundColorSpan(Color.LTGRAY), 0, 1, 0)
-                builder.append(redSpannable)
-            }
-
-        }
-        /*mealPlans.forEach {
-            //textView.setText(".")
-            val redSpannable = SpannableString(".")
-            redSpannable.setSpan(ForegroundColorSpan(Color.RED), 0, 1, 0)
-            builder.append(redSpannable)
-        }*/
-        indicatorTextView.setText(builder,TextView.BufferType.SPANNABLE)
-        indicatorTextView.visibility = View.VISIBLE
-
-    }
-    private fun setTotalCostOfTheMonth(){
+    /**
+     * @todo be implemented on CalendarFragment.kt
+     */
+    /*private fun setTotalCostOfTheMonth(){
 
         mCalendarBinding.totalCostConstraintLayout.visibility = View.GONE
 
@@ -399,7 +322,7 @@ class Calendar : Fragment() {
 
 
         }
-    }
+    }*/
     private fun setCircleBackground(view: View) {
         val sdk = Build.VERSION.SDK_INT
         if (sdk < Build.VERSION_CODES.JELLY_BEAN) {
@@ -410,7 +333,7 @@ class Calendar : Fragment() {
     }
 
 
-    val dayViewClickListener = object:View.OnClickListener{
+   /* private val dayViewClickListener = object:View.OnClickListener{
         override fun onClick(v: View?) {
             val dateString = v?.getTag()
 
@@ -420,9 +343,8 @@ class Calendar : Fragment() {
 
         }
 
-    }
+    }*/
     companion object {
-
         @JvmStatic fun newInstance(param1: String, param2: String) =
             Calendar().apply {
                 arguments = Bundle().apply {
@@ -430,5 +352,9 @@ class Calendar : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    interface CalendarRenderingListener{
+        fun onDayRendering(dateString:String,dayHolder:ConstraintLayout)
     }
 }
