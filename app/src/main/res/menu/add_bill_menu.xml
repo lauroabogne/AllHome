@@ -7,5 +7,11 @@
         app:showAsAction="always"
         android:id="@+id/addBillMenuItem"
         android:icon="@drawable/ic_add"
-        android:title="Item" />
+        android:title="Add" />
+    <item
+        app:showAsAction="always"
+        android:id="@+id/filterBillMenuItem"
+        android:icon="@drawable/ic_baseline_filter_alt_24"
+        android:title="Filter"
+        />
 </menu>

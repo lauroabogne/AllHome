@@ -15,7 +15,7 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <ImageButton
-                android:id="@+id/imageButton3"
+                android:id="@+id/previousMonthBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"
@@ -32,13 +32,13 @@
                 android:gravity="center"
                 android:textColor="#000"
                 android:textSize="24sp"
-                app:layout_constraintBottom_toBottomOf="@+id/imageButton3"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton4"
-                app:layout_constraintStart_toEndOf="@+id/imageButton3"
-                app:layout_constraintTop_toTopOf="@+id/imageButton3" />
+                app:layout_constraintBottom_toBottomOf="@+id/previousMonthBtn"
+                app:layout_constraintEnd_toStartOf="@+id/nextMonthBtn"
+                app:layout_constraintStart_toEndOf="@+id/previousMonthBtn"
+                app:layout_constraintTop_toTopOf="@+id/previousMonthBtn" />
 
             <ImageButton
-                android:id="@+id/imageButton4"
+                android:id="@+id/nextMonthBtn"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"

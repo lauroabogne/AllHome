@@ -3,10 +3,8 @@ package com.example.allhome.bill
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.util.Log
+import android.view.*
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
 import android.widget.*
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -50,6 +48,7 @@ class AddBillFragment : Fragment() {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
+        setHasOptionsMenu(true)
 
         mBillViewModel = ViewModelProvider(this).get(BillViewModel::class.java)
 
@@ -70,25 +69,35 @@ class AddBillFragment : Fragment() {
         mFragmentAddBillBinding.recurringBillIncludeLayout.recurringConditionRadioGroup.setOnCheckedChangeListener(recurringConditionRadioGroupOnChangeCheckedListener)
 
 
-
-
-
-        mFragmentAddBillBinding.saveBtn.setOnClickListener {
-            when(mFragmentAddBillBinding.oneTimeOrRecurringRadioGroup.checkedRadioButtonId){
-                R.id.recurringRadioButton->{
-
-                    saveRecurring()
-                }
-                R.id.onetimeRadioButton->{
-
-                    saveOnetimeBill()
-
-                }
-            }
-
-        }
         return mFragmentAddBillBinding.root
     }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.create_bill_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+
+        when(item.itemId){
+            R.id.saveBillMenu->{
+                when(mFragmentAddBillBinding.oneTimeOrRecurringRadioGroup.checkedRadioButtonId){
+                    R.id.recurringRadioButton->{
+
+                        saveRecurring()
+                    }
+                    R.id.onetimeRadioButton->{
+
+                        saveOnetimeBill()
+
+                    }
+                }
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
+
     fun clickCalendar(view:View){
 
 

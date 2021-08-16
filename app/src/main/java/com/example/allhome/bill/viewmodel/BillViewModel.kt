@@ -20,9 +20,11 @@ class BillViewModel: ViewModel() {
     }
 
     suspend fun addBill(context: Context, bill: BillEntity):Long{
-
         val billDAO = AllHomeDatabase.getDatabase(context).getBillItemDAO()
         return billDAO.saveBill(bill)
-
+    }
+    suspend fun getBillsInMonth(context:Context,yearMonth:String):List<BillEntity>{
+        val billDAO = AllHomeDatabase.getDatabase(context).getBillItemDAO()
+        return billDAO.getBillsInMonth(yearMonth)
     }
 }
