@@ -3,6 +3,13 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="billEntity"
+            type="com.example.allhome.data.entities.BillEntity" />
+
+    </data>
+
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -16,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="Internet"
         android:textColor="#000"
-        android:textSize="18sp"
+        android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -29,7 +36,7 @@
         android:layout_marginLeft="4dp"
         android:text="Due date: August 16,2021"
         android:textColor="#000"
-        android:textSize="14sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/billNameTextView" />
@@ -42,7 +49,7 @@
         android:layout_marginLeft="4dp"
         android:text="Amound due : 2,000"
         android:textColor="#000"
-        android:textSize="14sp"
+        android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dueDateTextView" />
@@ -69,12 +76,12 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toStartOf="@+id/dueDateImageView"
+        app:layout_constraintEnd_toStartOf="@+id/paymentDateImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout15">
 
         <com.google.android.material.textfield.TextInputEditText
-            android:id="@+id/dueDateTextInputEditText"
+            android:id="@+id/paymentDateTextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:cursorVisible="false"
@@ -85,7 +92,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <ImageView
-        android:id="@+id/dueDateImageView"
+        android:id="@+id/paymentDateImageView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:background="?selectableItemBackgroundBorderless"
@@ -109,6 +116,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout14">
 
         <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/billPaymentNoteTextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="top"
@@ -129,9 +137,13 @@
 
     <ImageButton
         android:id="@+id/billPaymentAddImageBtn"
-        android:layout_width="wrap_content"
-        android:layout_height="0dp"
-        android:background="@null"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackgroundBorderless"
+        android:paddingLeft="12dp"
+        android:paddingTop="10dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/textView17"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="@+id/textView17"

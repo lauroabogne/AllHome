@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import com.example.allhome.R
+import com.example.allhome.data.entities.BillEntity
 import com.example.allhome.meal_planner.ViewerActivity
 
 class BillActivity : AppCompatActivity() {
@@ -38,8 +39,9 @@ class BillActivity : AppCompatActivity() {
                     .commit()
             }
             ADD_BILL_PAYMENT_FRAGMENT->{
+                val billEntity = intent.getParcelableExtra<BillEntity>(AddPaymentFragment.ARG_BILL_ENTITY)
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.container,AddPaymentFragment.newInstance("",""))
+                    .replace(R.id.container,AddPaymentFragment.newInstance(billEntity!!,""))
                     .commit()
             }
         }

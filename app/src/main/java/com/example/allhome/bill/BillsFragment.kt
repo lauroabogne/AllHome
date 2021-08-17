@@ -150,7 +150,7 @@ class BillsFragment : Fragment() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val billItemBinding = BillItemBinding.inflate(layoutInflater, parent, false)
-            val itemHolder = ItemViewHolder(billItemBinding)
+            val itemHolder = ItemViewHolder(billItemBinding,this)
             itemHolder.setClickListener(itemHolder)
             return itemHolder
         }
@@ -165,7 +165,7 @@ class BillsFragment : Fragment() {
         override fun getItemCount(): Int {
             return bills.size
         }
-        class  ItemViewHolder(var billItemBinding: BillItemBinding): RecyclerView.ViewHolder(billItemBinding.root),View.OnClickListener{
+        class  ItemViewHolder(var billItemBinding: BillItemBinding,var billRecyclerviewViewAdapater:BillRecyclerviewViewAdapater): RecyclerView.ViewHolder(billItemBinding.root),View.OnClickListener{
 
             fun setClickListener(clickListener:View.OnClickListener){
                 billItemBinding.root.setOnClickListener(clickListener)
@@ -175,6 +175,7 @@ class BillsFragment : Fragment() {
 
                 when(view!!.id){
                     R.id.moreActionImageView->{
+                        val billEntity = billRecyclerviewViewAdapater.bills[adapterPosition]
 
                         val popupMenu = PopupMenu(view.context, view)
                         popupMenu.menuInflater.inflate(R.menu.bill_item_menu, popupMenu.menu)
@@ -187,6 +188,7 @@ class BillsFragment : Fragment() {
                                         val intent = Intent(view.context, BillActivity::class.java)
                                         intent.putExtra(BillActivity.TITLE_TAG,"Add bill payment")
                                         intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.ADD_BILL_PAYMENT_FRAGMENT)
+                                        intent.putExtra(AddPaymentFragment.ARG_BILL_ENTITY,billEntity)
                                         view.context.startActivity(intent)
                                     }
                                 }
