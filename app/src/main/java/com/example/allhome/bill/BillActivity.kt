@@ -2,10 +2,13 @@ package com.example.allhome.bill
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.appcompat.widget.Toolbar
 import com.example.allhome.R
 import com.example.allhome.data.entities.BillEntity
+import com.example.allhome.data.entities.BillEntityWithTotalPayment
+import com.example.allhome.data.entities.BillPaymentEntity
 import com.example.allhome.meal_planner.ViewerActivity
 
 class BillActivity : AppCompatActivity() {
@@ -14,6 +17,7 @@ class BillActivity : AppCompatActivity() {
         const val WHAT_FRAGMENT = "WHAT_FRAGMENT"
         const val ADD_BILL_FRAGMENT = 0
         const val ADD_BILL_PAYMENT_FRAGMENT = 1
+        const val BILL_INFORMATIONS_VIEWING = 2
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +43,20 @@ class BillActivity : AppCompatActivity() {
                     .commit()
             }
             ADD_BILL_PAYMENT_FRAGMENT->{
-                val billEntity = intent.getParcelableExtra<BillEntity>(AddPaymentFragment.ARG_BILL_ENTITY)
+                val billEntityWithPayment = intent.getParcelableExtra<BillEntityWithTotalPayment>(AddPaymentFragment.ARG_BILL_ENTITY)
+                val action = intent.getIntExtra(AddPaymentFragment.ARG_ACTION,AddPaymentFragment.ADD_ACTION)
+                val paymentEntity = intent.getParcelableExtra<BillPaymentEntity>(AddPaymentFragment.ARG_PAYMENT_ENTITY)
+
+                Log.e("THE_ACTION","${action}")
                 supportFragmentManager.beginTransaction()
-                    .replace(R.id.container,AddPaymentFragment.newInstance(billEntity!!,""))
+                    .replace(R.id.container,AddPaymentFragment.newInstance(billEntityWithPayment!!,action,paymentEntity))
+                    .commit()
+            }
+
+            BILL_INFORMATIONS_VIEWING->{
+                val billEntityWithPayment = intent.getParcelableExtra<BillEntityWithTotalPayment>(BillInformationViewingFragment.ARG_BILL_ENTITY)
+                supportFragmentManager.beginTransaction()
+                    .replace(R.id.container,BillInformationViewingFragment.newInstance(billEntityWithPayment!!,""))
                     .commit()
             }
         }

@@ -5,4 +5,8 @@
     <item android:title="Save"
         android:id="@+id/saveBillPaymentMenu"
         app:showAsAction="always"/>
+    <item
+        android:id="@+id/updateBilPaymentMenu"
+        android:title="Update"
+        app:showAsAction="always"/>
 </menu>

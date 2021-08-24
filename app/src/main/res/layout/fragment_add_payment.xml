@@ -4,12 +4,23 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
+        <import type="com.example.allhome.utils.NumberUtils" />
+        <import type="com.example.allhome.utils.DateUtil" />
+        <import type="com.example.allhome.bill.AddPaymentFragment" />
         <variable
-            name="billEntity"
-            type="com.example.allhome.data.entities.BillEntity" />
+            name="billEntityWithTotalPayment"
+            type="com.example.allhome.data.entities.BillEntityWithTotalPayment" />
+        <variable
+            name="billPaymentEntity"
+            type="com.example.allhome.data.entities.BillPaymentEntity" />
+        <variable
+            name="action"
+            type="Integer" />
 
     </data>
-
+<ScrollView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
 <androidx.constraintlayout.widget.ConstraintLayout
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -21,7 +32,8 @@
         android:id="@+id/billNameTextView"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Internet"
+        android:text="@{billEntityWithTotalPayment.billEntity.name}"
+        tools:text="Internet"
         android:textColor="#000"
         android:textSize="24sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -34,7 +46,8 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:text="Due date: August 16,2021"
+        tools:text="Due date: August 16, 2021"
+        android:text="@{`Due date: `+DateUtil.INSTANCE.formatDateString(billEntityWithTotalPayment.billEntity.dueDate,`MMMM dd, yyyy`)}"
         android:textColor="#000"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -47,28 +60,46 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="4dp"
         android:layout_marginLeft="4dp"
-        android:text="Amound due : 2,000"
+        android:text="@{`Amound due : `+NumberUtils.INSTANCE.formatNumber(billEntityWithTotalPayment.billEntity.amount)}"
+        tools:text="Amount due : 2,400"
         android:textColor="#000"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/dueDateTextView" />
 
+    <TextView
+        android:id="@+id/textView58"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="4dp"
+        android:layout_marginLeft="4dp"
+        android:text="@{`Total payment : `+NumberUtils.INSTANCE.formatNumber(billEntityWithTotalPayment.totalPayment)}"
+        android:textColor="#000"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/amountTextView"
+        tools:text="Total payment : 0" />
+
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout15"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/amountTextView">
+        app:layout_constraintTop_toBottomOf="@+id/textView58">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/paymentAmountTextInputEditText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="Payment amount"
-            android:inputType="numberDecimal" />
+            android:inputType="numberDecimal"
+            android:text="@{(action == AddPaymentFragment.ADD_ACTION) ? NumberUtils.INSTANCE.formatNumberWithout(billEntityWithTotalPayment.billEntity.amount - billEntityWithTotalPayment.totalPayment) : NumberUtils.INSTANCE.formatNumberWithout(billPaymentEntity.paymentAmount) }"
+          />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -157,4 +188,5 @@
         android:contentDescription="Bill payment image"
         app:layout_constraintTop_toBottomOf="@+id/textView17" />
 </androidx.constraintlayout.widget.ConstraintLayout>
+</ScrollView>
 </layout>

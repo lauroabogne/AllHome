@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.bill.viewmodel.BillViewModel
 import com.example.allhome.data.entities.BillEntity
+import com.example.allhome.data.entities.BillEntityWithTotalPayment
 import com.example.allhome.databinding.BillItemBinding
 import com.example.allhome.databinding.FragmentBillsBinding
 import com.example.allhome.databinding.RecipeItemBinding
@@ -136,6 +137,7 @@ class BillsFragment : Fragment() {
 
             mStartingCalendar.add(Calendar.MONTH,-1)
             setDateDisplay(mStartingCalendar)
+            getBills(mStartingCalendar,mEndingCalendar)
 
         }
     }
@@ -143,10 +145,11 @@ class BillsFragment : Fragment() {
         override fun onClick(v: View?) {
             mStartingCalendar.add(Calendar.MONTH,1)
             setDateDisplay(mStartingCalendar)
+            getBills(mStartingCalendar,mEndingCalendar)
         }
     }
 
-    class BillRecyclerviewViewAdapater(var bills:List<BillEntity>): RecyclerView.Adapter<BillRecyclerviewViewAdapater.ItemViewHolder>() {
+    class BillRecyclerviewViewAdapater(var bills:List<BillEntityWithTotalPayment>): RecyclerView.Adapter<BillRecyclerviewViewAdapater.ItemViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val billItemBinding = BillItemBinding.inflate(layoutInflater, parent, false)
@@ -158,7 +161,7 @@ class BillsFragment : Fragment() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
             val billeEntity = bills[position]
-            holder.billItemBinding.billEntity = billeEntity
+            holder.billItemBinding.billEntityWithTotalPayment = billeEntity
             holder.billItemBinding.executePendingBindings()
         }
 
@@ -172,10 +175,11 @@ class BillsFragment : Fragment() {
                 billItemBinding.moreActionImageView.setOnClickListener(clickListener)
             }
             override fun onClick(view: View?) {
+                val billEntity = billRecyclerviewViewAdapater.bills[adapterPosition]
 
                 when(view!!.id){
                     R.id.moreActionImageView->{
-                        val billEntity = billRecyclerviewViewAdapater.bills[adapterPosition]
+
 
                         val popupMenu = PopupMenu(view.context, view)
                         popupMenu.menuInflater.inflate(R.menu.bill_item_menu, popupMenu.menu)
@@ -188,7 +192,16 @@ class BillsFragment : Fragment() {
                                         val intent = Intent(view.context, BillActivity::class.java)
                                         intent.putExtra(BillActivity.TITLE_TAG,"Add bill payment")
                                         intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.ADD_BILL_PAYMENT_FRAGMENT)
+                                        intent.putExtra(AddPaymentFragment.ARG_ACTION,AddPaymentFragment.ADD_ACTION)
                                         intent.putExtra(AddPaymentFragment.ARG_BILL_ENTITY,billEntity)
+                                        view.context.startActivity(intent)
+                                    }
+                                    R.id.viewInformationMenu->{
+
+                                        val intent = Intent(view.context, BillActivity::class.java)
+                                        intent.putExtra(BillActivity.TITLE_TAG,"Bill Informations")
+                                        intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.BILL_INFORMATIONS_VIEWING)
+                                        intent.putExtra(BillInformationViewingFragment.ARG_BILL_ENTITY,billEntity)
                                         view.context.startActivity(intent)
                                     }
                                 }
@@ -200,7 +213,11 @@ class BillsFragment : Fragment() {
                         popupMenu.show()
                     }
                     R.id.parent->{
-
+                        val intent = Intent(view.context, BillActivity::class.java)
+                        intent.putExtra(BillActivity.TITLE_TAG,"Bill Informations")
+                        intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.BILL_INFORMATIONS_VIEWING)
+                        intent.putExtra(BillInformationViewingFragment.ARG_BILL_ENTITY,billEntity)
+                        view.context.startActivity(intent)
                     }
                 }
             }

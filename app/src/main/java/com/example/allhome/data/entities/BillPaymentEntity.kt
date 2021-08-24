@@ -2,6 +2,7 @@ package com.example.allhome.data.entities
 
 import android.os.Parcelable
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
@@ -13,7 +14,7 @@ data class BillPaymentEntity(
     @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String,
     @ColumnInfo(name= COLUMN_BILL_UNIQUE_ID) var billUniqueId:String,
     @ColumnInfo(name= COLUMN_GROUP_UNIQUE_ID) var billGroupUniqueId:String,
-    @ColumnInfo(name= COLUMN_PAYMENT_AMOUNT) var paymentAmount:String,
+    @ColumnInfo(name= COLUMN_PAYMENT_AMOUNT) var paymentAmount:Double,
     @ColumnInfo(name= COLUMN_PAYMENT_DATE) var paymentDate:String,
     @ColumnInfo(name= COLUMN_PAYMENT_NOTE) var paymentNote:String,
     @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:String,
@@ -42,3 +43,4 @@ data class BillPaymentEntity(
 
     }
 }
+

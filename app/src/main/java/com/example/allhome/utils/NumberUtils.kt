@@ -17,6 +17,11 @@ object NumberUtils {
         return if(anyNumber % 1 == 0.0 ) withCommaAndWithoutDecimalFormater.format(anyNumber) else withCommaAndWithDecimalFormater.format(anyNumber)
 
     }
+    fun formatNumberWithout(anyNumber: Double) : String{
+
+        return if(anyNumber % 1 == 0.0 ) withoutCommaAndWithoutDecimalFormater.format(anyNumber) else withoutCommaAndWithDecimalFormater.format(anyNumber)
+
+    }
         fun bigDecimalToString(bigDecimal: BigDecimal):String{
             if(bigDecimal == null){
                 return ""

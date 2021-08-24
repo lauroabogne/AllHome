@@ -1,10 +1,23 @@
 package com.example.allhome.data.entities
 
+import android.graphics.Color
+import android.os.Build
 import android.os.Parcelable
+import android.view.View
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.content.res.ResourcesCompat
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
+import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.allhome.R
 import kotlinx.android.parcel.Parcelize
+import org.joda.time.DateTime
+import org.joda.time.Days
+import org.joda.time.format.DateTimeFormat
+import kotlin.math.absoluteValue
 
 
 @Parcelize
@@ -54,3 +67,74 @@ data class BillEntity(
 
     }
 }
+@Parcelize
+data class BillEntityWithTotalPayment(
+    @Embedded val billEntity: BillEntity,
+    var totalPayment:Double = 0.0
+):Parcelable
+
+@BindingAdapter("android:setDueDateWithNumberOfDays")
+fun setDueDateWithNumberOfDays(textView: TextView, dueDateString:String){
+
+    val currentDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now()), DateTimeFormat.forPattern("yyyy-MM-dd"))
+    val dueDate = DateTime.parse(dueDateString, DateTimeFormat.forPattern("yyyy-MM-dd"))
+
+    val days = Days.daysBetween(currentDate, dueDate).days
+    val dueDateFormated = DateTimeFormat.forPattern("MMMM d, Y").print(dueDate)
+    if(days <=0){
+        textView.text = "Due date: ${dueDateFormated} (${days} day)"
+    }else{
+        textView.text = "Due date: ${dueDateFormated} (${days} day)"
+    }
+}
+@BindingAdapter("android:setBillStatusIndicator")
+fun setBillStatusIndicator(textView:TextView,billEntityWithTotalPayment: BillEntityWithTotalPayment){
+
+    val currentDate = DateTime.parse(DateTimeFormat.forPattern("yyyy-MM-dd").print(DateTime.now()), DateTimeFormat.forPattern("yyyy-MM-dd"))
+    val dueDate = DateTime.parse(billEntityWithTotalPayment.billEntity.dueDate, DateTimeFormat.forPattern("yyyy-MM-dd"))
+    val days = Days.daysBetween(currentDate, dueDate).days
+    val isOverdue = days < 0
+
+    val dueAmount = billEntityWithTotalPayment.billEntity.amount
+    val totalPayment = billEntityWithTotalPayment.totalPayment
+
+    if(dueAmount > totalPayment && totalPayment > 0){
+
+        if(isOverdue){
+            textView.visibility = View.VISIBLE
+            textView.setTextColor(Color.WHITE)
+            textView.background = ContextCompat.getDrawable(textView.context,R.drawable.overdue_bill_status_bg)
+            textView.setText("OVERDUE")
+        }else{
+            textView.visibility = View.VISIBLE
+            textView.setTextColor(Color.BLACK)
+            textView.background = ContextCompat.getDrawable(textView.context,R.drawable.partial_bill_status_bg)
+            textView.setText("PARTIAL")
+        }
+
+        return;
+    }
+
+    if(totalPayment <=0 ){
+        if(isOverdue){
+            textView.visibility = View.VISIBLE
+            textView.setTextColor(Color.WHITE)
+            textView.background = ContextCompat.getDrawable(textView.context,R.drawable.overdue_bill_status_bg)
+            textView.setText("OVERDUE")
+        }else{
+
+            textView.visibility = View.GONE
+        }
+        return;
+    }
+
+    if(totalPayment >= dueAmount){
+        textView.visibility = View.VISIBLE
+        textView.setTextColor(Color.BLACK)
+        textView.background = ContextCompat.getDrawable(textView.context,R.drawable.paid_bill_status_bg)
+        textView.setText("PAID")
+        return
+    }
+
+}
+
