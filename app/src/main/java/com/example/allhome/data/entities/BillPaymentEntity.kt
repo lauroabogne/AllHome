@@ -1,6 +1,11 @@
 package com.example.allhome.data.entities
 
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Parcelable
+import android.view.View
+import android.widget.ImageView
+import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
 import androidx.room.Entity
@@ -44,3 +49,34 @@ data class BillPaymentEntity(
     }
 }
 
+
+@BindingAdapter(value=["bind:paymentOldImageUri","bind:paymentNewImageUri"],requireAll = false)
+fun setImageInImageView(view: View, paymentOldImageUri: Uri?, paymentNewImageUri: Uri?){
+
+    if(paymentNewImageUri !=null){
+        (view as ImageView).setImageURI(paymentNewImageUri)
+    }else if(paymentNewImageUri ==null && paymentOldImageUri !=null){
+        (view as ImageView).setImageURI(paymentOldImageUri)
+    }
+}
+/*@BindingAdapter(value=["bind:billPaymentImage","bind:noBillPaymentImage"],requireAll = false)
+fun setBillPaymentImage(view: View, billPaymentImage: Uri?, noBillPaymentImage: Uri?){
+
+    if(noBillPaymentImage !=null){
+        (view as ImageView).setImageURI(noBillPaymentImage)
+    }else if(noBillPaymentImage ==null && billPaymentImage !=null){
+        (view as ImageView).setImageURI(billPaymentImage)
+    }
+}*/
+
+@BindingAdapter(value = ["billPaymentImage","noImageDrawable"],requireAll = false)
+fun billPaymentImage(view: View, billPaymentImage: Uri?,noImageDrawable: Drawable?){
+
+    if(billPaymentImage !=null){
+        (view as ImageView).setImageURI(billPaymentImage)
+    }else{
+
+        (view as ImageView).setImageDrawable(noImageDrawable)
+    }
+
+}

@@ -42,8 +42,8 @@ interface GroceryItemDAO {
     @Query("UPDATE grocery_items SET quantity=:quantity,datetime_modified= :datetimeModified WHERE id=:id")
     fun updateItemQuantityDatetimeModified(quantity:Double,id:Int,datetimeModified:String):Int
 
-    @Query("UPDATE grocery_items SET bought = :bought WHERE id=:id AND item_name = :itemName")
-    fun updateItem(bought:Int,id:Int,itemName: String):Int
+    @Query("UPDATE grocery_items SET bought = :bought,datetime_modified=:datetimeModified WHERE id=:id AND item_name = :itemName")
+    fun updateItem(bought:Int,id:Int,itemName: String,datetimeModified:String):Int
     @Query("SELECT item_name from grocery_items WHERE item_name LIKE '%'||:itemName||'%' ORDER BY item_name")
     fun getItems(itemName:String):List<String>
 
@@ -69,4 +69,6 @@ interface GroceryItemDAO {
 
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status= 0 AND bought = 1")
     fun getBoughtGroceryListItems(groceryListUniqueId:String): List<GroceryItemEntity>
+
+
 }

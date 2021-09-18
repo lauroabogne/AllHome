@@ -1,9 +1,12 @@
 package com.example.allhome.data.entities
 
 import android.graphics.Color
+import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Build
 import android.os.Parcelable
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.content.res.ResourcesCompat
@@ -13,10 +16,15 @@ import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.allhome.R
+import com.example.allhome.bill.BillsFragment
+import com.example.allhome.bill.viewmodel.BillViewModel
+import com.example.allhome.grocerylist.GroceryUtil
 import kotlinx.android.parcel.Parcelize
 import org.joda.time.DateTime
 import org.joda.time.Days
 import org.joda.time.format.DateTimeFormat
+import java.text.SimpleDateFormat
+import java.util.*
 import kotlin.math.absoluteValue
 
 
@@ -135,6 +143,23 @@ fun setBillStatusIndicator(textView:TextView,billEntityWithTotalPayment: BillEnt
         textView.setText("PAID")
         return
     }
+
+}
+
+
+@BindingAdapter("android:setBillDateViewing")
+fun setBillDateViewing(textView: TextView, mBillViewModel: BillViewModel){
+
+    //if(mBillViewModel.mVIEWING == BillsFragment.MONTH_VIEWING){
+        val startingDateString = SimpleDateFormat("MMM d, yyyy").format(mBillViewModel.mStartingCalendar.time)
+        val endingDateString = SimpleDateFormat("MMM d, yyyy").format(mBillViewModel.mEndingCalendar.time)
+        textView.setText("${startingDateString} - ${endingDateString}")
+    /*}else if(mBillViewModel.mVIEWING == BillsFragment.WEEK_VIEWING){
+
+        val startingDateString = SimpleDateFormat("MMM dd, yyyy").format(mBillViewModel.mStartingCalendar.time)
+        val endingDateString = SimpleDateFormat("MMM dd, yyyy").format(mBillViewModel.mEndingCalendar.time)
+        textView.setText("${startingDateString} - ${endingDateString}")
+    }*/
 
 }
 

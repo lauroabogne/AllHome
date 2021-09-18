@@ -20,6 +20,7 @@ class ImageUtil {
         const val STORAGE_IMAGES_FINAL_LOCATION = "storage_images"
         const val STORAGE_ITEM_IMAGES_FINAL_LOCATION = "storage_item_images"
         const val RECIPE_IMAGES_FINAL_LOCATION = "recipe_images"
+        const val BILL_PAYMENT_IMAGES_FINAL_LOCATION = "bill_payments"
         const val TEMPORARY_IMAGES_LOCATION = "temporary_images"
         const val IMAGE_TEMP_NAME = "temp_image"
         const val IMAGE_NAME_SUFFIX = "jpg"
@@ -156,7 +157,6 @@ class ImageUtil {
                 storageDir.deleteRecursively()
             }
         }
-
 
     }
 

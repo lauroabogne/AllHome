@@ -22,5 +22,7 @@ interface BillPaymentDAO {
             " WHERE ${BillPaymentEntity.COLUMN_UNIQUE_ID} = :uniqueId")
     suspend fun updatePayment(uniqueId: String,paymentAmount:Double,paymentDate:String,paymentNote:String,imageName:String,modified:String):Int
 
-
+    @Query("UPDATE ${BillPaymentEntity.TABLE_NAME} SET ${BillPaymentEntity.COLUMN_STATUS} = ${BillPaymentEntity.DELETED_STATUS}" +
+            " WHERE ${BillPaymentEntity.COLUMN_UNIQUE_ID} = :uniqueId")
+    suspend fun updatePaymentAsDeleted(uniqueId:String):Int
 }

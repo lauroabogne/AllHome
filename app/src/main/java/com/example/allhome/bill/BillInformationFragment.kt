@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.databinding.DataBindingUtil
 import com.example.allhome.R
 import com.example.allhome.data.entities.BillEntityWithTotalPayment
+import com.example.allhome.data.entities.setBillStatusIndicator
 import com.example.allhome.databinding.FragmentBillInformationBinding
 
 
@@ -36,14 +37,19 @@ class BillInformationFragment : Fragment() {
             mBillEntityWithTotalPayment = it.getParcelable(ARG_BILL_ENTITY)!!
             param2 = it.getString(ARG_PARAM2)
         }
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mFragmentBillInformationBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_bill_information,null,false)
-        mFragmentBillInformationBinding.billEntityWithTotalPayment = mBillEntityWithTotalPayment
+        setBillEntity(mBillEntityWithTotalPayment)
         return mFragmentBillInformationBinding.root
     }
+    fun setBillEntity(billEntityWithTotalPayment:BillEntityWithTotalPayment){
+        mBillEntityWithTotalPayment = billEntityWithTotalPayment
+        mFragmentBillInformationBinding.billEntityWithTotalPayment = mBillEntityWithTotalPayment
 
+    }
 
 }

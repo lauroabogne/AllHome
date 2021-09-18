@@ -11,6 +11,9 @@
         <variable
             name="billPaymentEntity"
             type="com.example.allhome.data.entities.BillPaymentEntity" />
+        <variable
+            name="imageUri"
+            type="android.net.Uri" />
 
     </data>
 
@@ -50,7 +53,8 @@
             android:layout_height="70dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_image_24"
+            app:billPaymentImage="@{imageUri}"
+            app:noImageDrawable="@{@drawable/ic_baseline_image_24}"
             tools:srcCompat="@tools:sample/avatars" />
 
         <TextView

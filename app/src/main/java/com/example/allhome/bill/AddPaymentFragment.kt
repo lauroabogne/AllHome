@@ -4,6 +4,7 @@ import android.app.Activity
 import android.app.DatePickerDialog
 import android.content.ComponentName
 import android.content.Intent
+import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
@@ -11,6 +12,7 @@ import android.provider.MediaStore
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -23,6 +25,7 @@ import com.example.allhome.data.entities.BillEntityWithTotalPayment
 import com.example.allhome.data.entities.BillPaymentEntity
 import com.example.allhome.databinding.FragmentAddPaymentBinding
 import com.example.allhome.storage.StorageAddItemActivity
+import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -30,6 +33,8 @@ import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
+import java.io.FileOutputStream
+import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -50,7 +55,7 @@ class AddPaymentFragment : Fragment() {
     var mTotalPayment:Double = 0.0
     var mTempPhotoFileForAddingImage: File? = null
 
-    var mPreviousImageUri: Uri? = null
+    var mOldImageUri: Uri? = null
     var mNewImageUri: Uri? = null
 
 
@@ -64,8 +69,10 @@ class AddPaymentFragment : Fragment() {
             mBillPaymentEntity = it.getParcelable<BillPaymentEntity>(ARG_PAYMENT_ENTITY)
             mAction = it.getInt(ARG_ACTION, ADD_ACTION)
 
-
         }
+
+        val toolbar: Toolbar = requireActivity().findViewById<View>(R.id.toolbar) as Toolbar
+        toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
 
 
     }
@@ -84,8 +91,6 @@ class AddPaymentFragment : Fragment() {
     }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.save_bill_payment_menu, menu)
-
-        Log.e("ACTION","${mAction}")
 
         if(mAction == ADD_ACTION){
             menu.findItem(R.id.updateBilPaymentMenu).setVisible(false)
@@ -125,7 +130,6 @@ class AddPaymentFragment : Fragment() {
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
 
-            Toast.makeText(requireContext(),"Croped",Toast.LENGTH_SHORT).show()
             val result = CropImage.getActivityResult(data)
             mNewImageUri= result.uri
             mFragmentAddPaymentBinding.itemImageView.setImageURI(result.uri)
@@ -147,6 +151,12 @@ class AddPaymentFragment : Fragment() {
             val paymentDateString = SimpleDateFormat("MMMM dd,yyyy").format(mSelectedPaymentDateCalendar.time)
             mFragmentAddPaymentBinding.paymentDateTextInputEditText.setText(paymentDateString)
 
+            val imageURI = ImageUtil.getImageUriFromPath(requireContext(), ImageUtil.BILL_PAYMENT_IMAGES_FINAL_LOCATION, mBillPaymentEntity!!.imageName)
+            mOldImageUri = imageURI
+
+            mFragmentAddPaymentBinding.oldImageURI = mOldImageUri
+            mFragmentAddPaymentBinding.newImageURI = mNewImageUri
+
         }
 
     }
@@ -164,6 +174,9 @@ class AddPaymentFragment : Fragment() {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
+        var imageName = UUID.randomUUID().toString()+"_"+SimpleDateFormat("yyyyMMddHHmmss").format(Date())+"."+ImageUtil.IMAGE_NAME_SUFFIX
+
+
         mBillEntityWithTotalPayment?.let {billEntityWithTotalPayment->
             val billEntity = BillPaymentEntity(
                 uniqueId = paymentUniqueId,
@@ -172,7 +185,7 @@ class AddPaymentFragment : Fragment() {
                 paymentAmount = paymentDouble,
                 paymentDate = SimpleDateFormat("yyyy-MM-dd").format(mSelectedPaymentDateCalendar.time),
                 paymentNote = paymentNoteString,
-                imageName = "",
+                imageName = imageName,
                 status = BillPaymentEntity.NOT_DELETED_STATUS,
                 uploaded = BillPaymentEntity.NOT_UPLOADED,
                 created = currentDatetime,
@@ -180,10 +193,17 @@ class AddPaymentFragment : Fragment() {
             )
             mBillViewModel.mCoroutineScope.launch {
                 val id = mBillViewModel.saveBillPayment(requireContext(),billEntity)
+                mNewImageUri?.let{
+                    saveImage(it,imageName)
+                }
 
                 withContext(Main){
                     Toast.makeText(requireContext(),"Payment save successfully",Toast.LENGTH_SHORT).show()
-                    activity?.finish()
+                    val intent = Intent()
+                    intent.putExtra(BillsFragment.RESULT_TAG,mBillEntityWithTotalPayment)
+                    requireActivity().setResult(Activity.RESULT_OK,intent)
+                    requireActivity().finish()
+
                 }
             }
         }
@@ -204,8 +224,23 @@ class AddPaymentFragment : Fragment() {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
         val paymentDate = SimpleDateFormat("yyyy-MM-dd").format(mSelectedPaymentDateCalendar.time)
+
+
+        var imageName = mNewImageUri?.let {
+            UUID.randomUUID().toString()+"_"+SimpleDateFormat("yyyyMMddHHmmss").format(Date())+"."+ImageUtil.IMAGE_NAME_SUFFIX
+        }?:run {
+            mBillPaymentEntity!!.imageName
+        }
+
         mBillViewModel.mCoroutineScope.launch {
-            val id = mBillViewModel.updatePayment(requireContext(),mBillPaymentEntity!!.uniqueId,paymentDouble,paymentDate,paymentNoteString,"",currentDatetime)
+            val id = mBillViewModel.updatePayment(requireContext(),mBillPaymentEntity!!.uniqueId,paymentDouble,paymentDate,paymentNoteString,imageName,currentDatetime)
+
+            mNewImageUri?.let {
+                mOldImageUri?.let {
+                    ImageUtil.deleteImageFile(it)
+                }
+                saveImage(it,imageName)
+            }
             withContext(Main){
                 Toast.makeText(requireContext(),"Payment update successfully",Toast.LENGTH_SHORT).show()
                 activity?.finish()
@@ -283,6 +318,29 @@ class AddPaymentFragment : Fragment() {
 
 
     }
+
+    private fun saveImage(imageUri: Uri, imageName: String):Boolean{
+        val imageBitmap = ImageUtil.uriToBitmap(imageUri, requireContext())
+        val resizedImageBitmap = ImageUtil.resizeImage(imageBitmap,1000)
+        val storageDir: File = requireContext().getExternalFilesDir(ImageUtil.BILL_PAYMENT_IMAGES_FINAL_LOCATION)!!
+        if(!storageDir.exists()){
+            storageDir.mkdir()
+        }
+
+        val file  = File(storageDir, imageName)
+        var fos: FileOutputStream? = null
+        try {
+            fos = FileOutputStream(file)
+            resizedImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos)
+            fos.flush()
+            fos.close()
+            return true
+        } catch (e: IOException) {
+            e.printStackTrace()
+            return false
+        }
+    }
+
     private fun lauchImageCropper(uri: Uri){
 
         CropImage.activity(uri)
@@ -311,11 +369,19 @@ class AddPaymentFragment : Fragment() {
     }
     val addPaymentImageOnClickListener = object:View.OnClickListener{
         override fun onClick(view: View?) {
+
+            ImageUtil.deleteAllTemporaryImages(requireContext())
             showIntentChooser()
         }
 
     }
+    val toolbarNavigationClickListener= object: View.OnClickListener{
+        override fun onClick(v: View?) {
 
+            requireActivity().finish()
+        }
+
+    }
     companion object {
         const val REQUEST_PICK_IMAGE = 4
         const val ARG_BILL_ENTITY = "ARG_BILL_ENTITY"

@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -21,6 +22,8 @@ import com.example.allhome.data.entities.BillPaymentEntity
 import com.example.allhome.databinding.BillItemBinding
 import com.example.allhome.databinding.BillPaymentItemBinding
 import com.example.allhome.databinding.FragmentBillPaymentsBinding
+import com.example.allhome.global_ui.CustomConfirmationDialog
+import com.example.allhome.utils.ImageUtil
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -95,7 +98,37 @@ class BillPaymentsFragment : Fragment() {
 
     }
 
-    class BillPaymentsRecyclerviewViewAdapater(var billPaymentEntities:List<BillPaymentEntity>,val billPaymentsFragment:BillPaymentsFragment): RecyclerView.Adapter<BillPaymentsRecyclerviewViewAdapater.ItemViewHolder>() {
+    fun deletePayment(billPaymentEntity:BillPaymentEntity){
+
+        val customeComfirmationDialog = CustomConfirmationDialog(requireContext())
+        customeComfirmationDialog.setMessage("Are you sure to delete payment?")
+        customeComfirmationDialog.createPositiveButton("Yes")
+        customeComfirmationDialog.createNegativeButton("No")
+        customeComfirmationDialog.setButtonClickListener(View.OnClickListener {
+            customeComfirmationDialog.mAlertDialog.dismiss()
+            when(it.id){
+                CustomConfirmationDialog.POSITIVE_BUTTON_ID->{
+
+                    mBillViewModel.mCoroutineScope.launch {
+                        mBillViewModel.updatePaymentAsDeleted(requireContext(),billPaymentEntity.uniqueId)
+                        mBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(),mBillEntityWithTotalPayment.billEntity.uniqueId)
+
+                        withContext(Main){
+                            (parentFragment as BillFragmentCommunicator).updateBillInformationFragment(mBillEntityWithTotalPayment)
+                            getBillPayments()
+                        }
+
+
+                    }
+
+                }
+            }
+        })
+        customeComfirmationDialog.show()
+
+    }
+
+    inner class BillPaymentsRecyclerviewViewAdapater(var billPaymentEntities:List<BillPaymentEntity>,val billPaymentsFragment:BillPaymentsFragment): RecyclerView.Adapter<BillPaymentsRecyclerviewViewAdapater.ItemViewHolder>() {
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val billPaymentItemBinding = BillPaymentItemBinding.inflate(layoutInflater, parent, false)
@@ -109,12 +142,15 @@ class BillPaymentsFragment : Fragment() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
             val billPaymentEntity = billPaymentEntities[position]
+            val imageURI = ImageUtil.getImageUriFromPath(billPaymentsFragment.requireContext(), ImageUtil.BILL_PAYMENT_IMAGES_FINAL_LOCATION, billPaymentEntity.imageName)
+
             holder.billItemBinding.billPaymentEntity = billPaymentEntity
+            holder.billItemBinding.imageUri = imageURI
             holder.billItemBinding.executePendingBindings()
         }
 
         override fun getItemCount(): Int {
-            Log.e("THE_SIZE",billPaymentEntities.size.toString())
+
             return billPaymentEntities.size
         }
         inner class  ItemViewHolder(var billItemBinding: BillPaymentItemBinding, var billPaymentsRecyclerviewViewAdapater:BillPaymentsRecyclerviewViewAdapater): RecyclerView.ViewHolder(billItemBinding.root),View.OnClickListener{
@@ -144,6 +180,8 @@ class BillPaymentsFragment : Fragment() {
                                 view.context.startActivity(intent)
                             }
                             R.id.deleteBillMenu->{
+
+                                deletePayment(billPaymentEntity)
 
                                 /*val intent = Intent(view.context, BillActivity::class.java)
                                 intent.putExtra(BillActivity.TITLE_TAG,"Bill Informations")

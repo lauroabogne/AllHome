@@ -16,6 +16,12 @@
         <variable
             name="action"
             type="Integer" />
+        <variable
+            name="oldImageURI"
+            type="android.net.Uri" />
+        <variable
+            name="newImageURI"
+            type="android.net.Uri" />
 
     </data>
 <ScrollView
@@ -186,6 +192,8 @@
         android:layout_height="wrap_content"
         android:adjustViewBounds="true"
         android:contentDescription="Bill payment image"
+        app:paymentOldImageUri="@{oldImageURI}"
+        app:paymentNewImageUri="@{newImageURI}"
         app:layout_constraintTop_toBottomOf="@+id/textView17" />
 </androidx.constraintlayout.widget.ConstraintLayout>
 </ScrollView>

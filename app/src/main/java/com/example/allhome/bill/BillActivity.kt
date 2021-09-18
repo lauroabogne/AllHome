@@ -1,5 +1,6 @@
 package com.example.allhome.bill
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -32,7 +33,7 @@ class BillActivity : AppCompatActivity() {
         getSupportActionBar()?.setDisplayHomeAsUpEnabled(true)
         getSupportActionBar()?.setDisplayShowHomeEnabled(true)
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-        toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
+        //toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
 
         val whatFragment = intent.getIntExtra(WHAT_FRAGMENT, ADD_BILL_FRAGMENT)
 
@@ -67,7 +68,11 @@ class BillActivity : AppCompatActivity() {
     }
     val toolbarNavigationClickListener= object: View.OnClickListener{
         override fun onClick(v: View?) {
-            this@BillActivity.finish()
+            val intent = Intent()
+            setResult(1986,intent)
+            finish()
+
+            //this@BillActivity.finish()
         }
 
     }

@@ -167,10 +167,12 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                 }
 
                 mGroceryListViewModel.coroutineScope.launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity.id, groceryItemEntity.itemName)
-
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
+
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity.id, groceryItemEntity.itemName,currentDatetime)
+
+
                     mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
 
                     withContext(Main) {
@@ -208,10 +210,13 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                 }
 
                 mGroceryListViewModel.coroutineScope.launch {
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity.id, groceryItemEntity.itemName)
 
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
+
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity.id, groceryItemEntity.itemName,currentDatetime)
+
+
                     mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
 
                     withContext(Main) {
