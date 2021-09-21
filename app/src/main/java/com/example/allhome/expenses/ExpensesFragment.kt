@@ -1,6 +1,7 @@
 package com.example.allhome.expenses
 
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.fragment.app.Fragment
@@ -10,9 +11,13 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.bill.BillCustomDateRangeDialogFragment
-import com.example.allhome.bill.viewmodel.BillViewModel
+import com.example.allhome.data.entities.ExpensesEntity
+import com.example.allhome.databinding.ExpensesMonthlyItemBinding
 import com.example.allhome.databinding.FragmentExpensesBinding
 import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -41,11 +46,13 @@ class ExpensesFragment : Fragment() {
         }
 
         mExpensesFragmentViewModel = ViewModelProvider(this).get(ExpensesFragmentViewModel::class.java)
+        requireActivity().title = "Expenses"
 
 
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+
 
         mFragmentExpensesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_expenses,null,false)
         mFragmentExpensesBinding.expensesFragmentViewModel = mExpensesFragmentViewModel
@@ -54,21 +61,30 @@ class ExpensesFragment : Fragment() {
 
         mFragmentExpensesBinding.toDateCalendarImageView.setOnClickListener(toDateOnClick)
         mFragmentExpensesBinding.toDateTextInputEditText.setOnClickListener(toDateOnClick)
-
         mFragmentExpensesBinding.filterButton.setOnClickListener(filterBtnOnClick)
-        getExpenses()
+
+
+        val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+        mFragmentExpensesBinding.monthlyExpensesRecyclerview.addItemDecoration(decorator)
+
+        val monthlyExpensesRecyclerviewViewAdapter = MonthlyExpensesRecyclerviewViewAdapter(arrayListOf())
+        mFragmentExpensesBinding.monthlyExpensesRecyclerview.adapter = monthlyExpensesRecyclerviewViewAdapter
+
+        getFilteredExpenses()
+        getExpensePerMonthAndCurrentYear()
         return mFragmentExpensesBinding.root
     }
 
-    fun getExpenses(){
+    fun getFilteredExpenses(){
 
         mExpensesFragmentViewModel.mCoroutineScope.launch {
+
             mExpensesFragmentViewModel.getExpenses(requireContext(),SimpleDateFormat("yyyy-MM-dd").format(mExpensesFragmentViewModel.mDateFromFilter.time),SimpleDateFormat("yyyy-MM-dd").format(mExpensesFragmentViewModel.mDateToFilter.time))
 
             withContext(Main){
 
-                val fromDateReadable = SimpleDateFormat("MMMM dd,yyyy").format(mExpensesFragmentViewModel.mDateFromFilter.time)
-                val toDateReadable = SimpleDateFormat("MMMM dd,yyyy").format(mExpensesFragmentViewModel.mDateToFilter.time)
+                val fromDateReadable = SimpleDateFormat("MMMM d,yyyy").format(mExpensesFragmentViewModel.mDateFromFilter.time)
+                val toDateReadable = SimpleDateFormat("MMMM d,yyyy").format(mExpensesFragmentViewModel.mDateToFilter.time)
 
                 mFragmentExpensesBinding.fromDateTextInputEditText.setText(fromDateReadable)
                 mFragmentExpensesBinding.toDateTextInputEditText.setText(toDateReadable)
@@ -76,7 +92,50 @@ class ExpensesFragment : Fragment() {
             }
         }
     }
+    fun getExpensePerMonthAndCurrentYear(){
 
+        val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+
+
+        val fromDate = "${currentYear}-01-01"
+        val toDate = "${currentYear}-12-31"
+
+        mExpensesFragmentViewModel.mCoroutineScope.launch {
+
+            val calendar = Calendar.getInstance()
+
+
+            repeat(12){index->
+                calendar.set(Calendar.MONTH,index)
+                val month = SimpleDateFormat("yyyy-MM").format(calendar.time)
+
+                val expensesEntity = mExpensesFragmentViewModel.getExpensesByMonth(requireContext(),month)
+
+                Log.e("exp",expensesEntity.toString())
+
+                if(expensesEntity !=null){
+                    mExpensesFragmentViewModel.mExpensesPerMonth.add(expensesEntity)
+                }else{
+                    mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity(month,0.0))
+                }
+            }
+            mExpensesFragmentViewModel.getCurrentYearExpenses(requireContext(),fromDate,toDate)
+
+
+            withContext(Main){
+
+                val monthlyExpensesRecyclerviewViewAdapter = mFragmentExpensesBinding.monthlyExpensesRecyclerview.adapter as MonthlyExpensesRecyclerviewViewAdapter
+                monthlyExpensesRecyclerviewViewAdapter.monthlyExpenses =mExpensesFragmentViewModel.mExpensesPerMonth
+                monthlyExpensesRecyclerviewViewAdapter.notifyDataSetChanged()
+                mFragmentExpensesBinding.invalidateAll()
+
+
+            }
+        }
+    }
+    fun generateMonths(){
+
+    }
     fun showCalendar(dateTypeRequest:Int){
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -130,13 +189,69 @@ class ExpensesFragment : Fragment() {
     val filterBtnOnClick = object :View.OnClickListener{
         override fun onClick(v: View?) {
 
-            Log.e("DATA","XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXDDDD")
             Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
-            getExpenses()
+            getFilteredExpenses()
         }
 
     }
 
+    inner class MonthlyExpensesRecyclerviewViewAdapter(var monthlyExpenses:ArrayList<ExpensesEntity>): RecyclerView.Adapter<MonthlyExpensesRecyclerviewViewAdapter.ItemViewHolder>() {
+        val calendar = Calendar.getInstance()
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val expensesMonthlyItemBinding = ExpensesMonthlyItemBinding.inflate(layoutInflater, parent, false)
+            val itemHolder = ItemViewHolder(expensesMonthlyItemBinding)
+
+            return itemHolder
+        }
+
+        override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+            holder.setIsRecyclable(false);
+            calendar.set(Calendar.MONTH,position)
+
+            val readableDate = SimpleDateFormat("MMMM").format(calendar.time)
+            val expensesEntity = monthlyExpenses[position]
+
+            holder.expensesMonthlyItemBinding.month = readableDate
+            holder.expensesMonthlyItemBinding.expensesEntity = expensesEntity
+            holder.expensesMonthlyItemBinding.root.tag = expensesEntity.expenseDate
+            holder.expensesMonthlyItemBinding.root.setOnClickListener(holder)
+            holder.expensesMonthlyItemBinding.executePendingBindings()
+        }
+
+        override fun getItemCount(): Int {
+            return monthlyExpenses.size
+        }
+        inner class  ItemViewHolder(var expensesMonthlyItemBinding: ExpensesMonthlyItemBinding, ): RecyclerView.ViewHolder(expensesMonthlyItemBinding.root),View.OnClickListener{
+            override fun onClick(v: View?) {
+
+                val month = v!!.tag as String
+                val splitted = month.split("-")
+                val yearInt = splitted[0].toInt()
+                val monthInt = splitted[1].toInt()
+
+
+                val startDateCalendar = Calendar.getInstance()
+                startDateCalendar.set(Calendar.YEAR,yearInt)
+                startDateCalendar.set(Calendar.MONTH,monthInt - 1)// MONTH START AT 0 as JANUARY
+                startDateCalendar.set(Calendar.DAY_OF_MONTH,1)
+
+
+                val endDateCalendar = startDateCalendar.clone() as Calendar
+                endDateCalendar.set(Calendar.DAY_OF_MONTH,startDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+
+
+                val intent = Intent(requireContext(), ExpensesItemSummaryActivity::class.java)
+                intent.putExtra(ExpensesItemSummaryActivity.DATE_FROM_TAG,startDateCalendar)
+                intent.putExtra(ExpensesItemSummaryActivity.DATE_TO_TAG, endDateCalendar)
+                requireContext().startActivity(intent)
+
+            }
+
+
+        }
+    }
     companion object {
 
         const val FROM_DATE_REQUEST = 0

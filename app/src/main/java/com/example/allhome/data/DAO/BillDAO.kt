@@ -55,18 +55,57 @@ interface BillDAO {
             " AND ${BillPaymentEntity.TABLE_NAME}.${BillPaymentEntity.COLUMN_STATUS} = ${BillPaymentEntity.NOT_DELETED_STATUS}" +
             " WHERE ${BillEntity.COLUMN_DUE_DATE} >=:startDate AND ${BillEntity.COLUMN_DUE_DATE} <= :endDate  AND ${BillEntity.TABLE_NAME}.${BillEntity.COLUMN_STATUS} = ${BillEntity.NOT_DELETED_STATUS} ")
     suspend fun getTotalPaymentAmount(startDate:String,endDate:String):Double
-    @Query("" +
-            " SELECT TOTAL(total_amount) AS total_amount FROM ( " +
-            "    SELECT TOTAL((quantity*price_per_unit)) as total_amount FROM grocery_items " +
-            "    WHERE bought = 1 AND datetime_modified >= :fromDate AND  datetime_modified <= :toDate AND grocery_items.item_status = 0 " +
+    @Query(" SELECT TOTAL(total_amount) AS total_amount,expense_date FROM ( " +
+            "    SELECT TOTAL((quantity*price_per_unit)) as total_amount,strftime('%Y-%m',datetime_modified) as expense_date FROM grocery_items " +
+            "    WHERE bought = 1 AND strftime('%Y-%m-%d',datetime_modified) >= :fromDate AND  strftime('%Y-%m-%d',datetime_modified) <= :toDate AND grocery_items.item_status = 0 " +
             "    GROUP BY item_name " +
             "    UNION " +
-            "    SELECT  TOTAL(payment_amount)  as total_amount FROM bill_payments " +
+            "    SELECT  TOTAL(payment_amount)  as total_amount,strftime('%Y-%m',payment_date) as expense_date FROM bill_payments " +
             "    LEFT JOIN bills ON bills.unique_id = bill_payments.bill_unique_id " +
-            "    WHERE payment_date >= :fromDate AND  payment_date <= :toDate AND  bill_payments.status = 0 " +
+            "    WHERE strftime('%Y-%m-%d',payment_date) >= :fromDate AND  strftime('%Y-%m-%d',payment_date) <= :toDate AND  bill_payments.status = 0 AND bills.status = 0" +
             "    GROUP BY name " +
             " ) ")
     suspend fun getExpenses(fromDate:String,toDate:String): ExpensesEntity
+
+    @Query("SELECT TOTAL(total_amount) AS total_amount,expense_date FROM " +
+            "(SELECT  strftime('%Y-%m',datetime_modified) AS expense_date,TOTAL(price_per_unit * quantity) total_amount FROM grocery_items " +
+            "   WHERE bought = 1 AND datetime_modified >= :fromDate AND  datetime_modified <= :toDate AND grocery_items.item_status = 0  " +
+            "   GROUP BY strftime('%Y-%m',datetime_modified) " +
+            "   UNION " +
+            "   SELECT  strftime('%Y-%m',payment_date) AS expense_date,TOTAL(payment_amount) as total_amount  FROM bill_payments " +
+            "       LEFT JOIN bills ON bills.unique_id = bill_payments.bill_unique_id " +
+            "       WHERE payment_date >= :fromDate AND  payment_date <= :toDate AND  bill_payments.status = 0 AND bills.status = 0 " +
+            "       GROUP BY strftime('%Y-%m',payment_date) " +
+            "      ) " +
+            "      GROUP BY  strftime('%Y-%m',expense_date) ORDER BY expense_date ASC")
+    suspend fun getExpensesPerMonth(fromDate:String,toDate:String):List<ExpensesEntity>
+
+    @Query("SELECT  expense_date, TOTAL(total_amount) AS total_amount FROM " +
+            "(SELECT  strftime('%Y-%m',datetime_modified) AS expense_date,TOTAL(price_per_unit * quantity) total_amount FROM grocery_items " +
+            "   WHERE bought = 1 AND strftime('%Y-%m',datetime_modified) = :month AND grocery_items.item_status = 0  " +
+            "   GROUP BY strftime('%Y-%m',datetime_modified) " +
+            "   UNION " +
+            "   SELECT  strftime('%Y-%m',payment_date) AS expense_date,TOTAL(payment_amount) as total_amount  FROM bill_payments " +
+            "       LEFT JOIN bills ON bills.unique_id = bill_payments.bill_unique_id " +
+            "       WHERE strftime('%Y-%m',payment_date) = :month  AND bills.status = 0 AND bill_payments.status = 0 " +
+            "       GROUP BY strftime('%Y-%m',payment_date) " +
+            "      ) " +
+            "      GROUP BY  strftime('%Y-%m',expense_date) ORDER BY expense_date ASC")
+    suspend fun getExpensesInMonth(month:String):ExpensesEntity
+
+
+    @Query(" SELECT * FROM " +
+            " (SELECT  'grocery item' as expense_type,item_name as item_name ,strftime('%Y-%m-%d',datetime_modified) as expense_date, total(quantity * price_per_unit)  as total_amount FROM grocery_items " +
+            "  WHERE bought = 1 AND datetime_modified >=  :fromDate AND  datetime_modified <=  :toDate  AND grocery_items.item_status = 0  " +
+            "  AND quantity > 0 AND price_per_unit > 0 " +
+            "  GROUP BY item_name " +
+            "  UNION  " +
+            "  SELECT  'bill payment' as expense_type,name as item_name,strftime('%Y-%m-%d',payment_date) AS expense_date, TOTAL(payment_amount) AS total_amount  FROM bill_payments " +
+            "  LEFT JOIN bills ON bills.unique_id = bill_payments.bill_unique_id  " +
+            "  WHERE payment_date >= :fromDate AND  payment_date <= :toDate AND  bill_payments.status = 0 AND bills.status = 0 " +
+            "  GROUP BY name)" +
+            " ORDER BY total_amount DESC")
+    suspend fun getExpensesWithItemNameAndType(fromDate:String,toDate:String): List<ExpensesEntityWithItemNameAndType>
 
 
 }
