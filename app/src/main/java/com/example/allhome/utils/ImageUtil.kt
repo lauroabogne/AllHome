@@ -7,11 +7,13 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import com.example.allhome.grocerylist.GroceryUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 
 
 class ImageUtil {
@@ -156,6 +158,29 @@ class ImageUtil {
             storageDir.exists().apply {
                 storageDir.deleteRecursively()
             }
+        }
+
+         fun saveImage(context:Context,image: Bitmap, storageDir:String,imageName:String): String? {
+            var savedImagePath: String? = null
+            val storageDir: File = context.getExternalFilesDir(storageDir)!!
+            var success = true
+            if (!storageDir.exists()) {
+                success = storageDir.mkdirs()
+            }
+            if (success) {
+                val imageFile = File(storageDir, imageName)
+                savedImagePath = imageFile.getAbsolutePath()
+                try {
+                    val fOut: OutputStream = FileOutputStream(imageFile)
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
+                    fOut.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+
+            }
+            return savedImagePath
         }
 
     }

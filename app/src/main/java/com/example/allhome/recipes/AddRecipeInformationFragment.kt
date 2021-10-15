@@ -11,6 +11,7 @@ import android.os.Parcelable
 import android.provider.MediaStore
 import android.text.InputFilter
 import android.text.Spanned
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -52,7 +53,8 @@ class AddRecipeInformationFragment : Fragment() {
 
     companion object{
         const val ADD_ACTION = 0
-        const val EDIT_ACTION = 1
+        const val ADD_FROM_BROWSER_ACTION =1
+        const val EDIT_ACTION = 2
         val REQUEST_PICK_IMAGE = 3
          val DIFICULTY_OPTIONS = arrayOf(
             "",
@@ -71,6 +73,17 @@ class AddRecipeInformationFragment : Fragment() {
                 }
 
             }
+        @JvmStatic fun newInstanceForAddingRecipeFromBrowser(recipeEntity: RecipeEntity) =
+            AddRecipeInformationFragment().apply {
+                mAction = ADD_FROM_BROWSER_ACTION
+                arguments = Bundle().apply {
+                    putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+
+
+
+                }
+
+            }
         @JvmStatic fun newInstanceForAdd() =
             AddRecipeInformationFragment().apply {
 
@@ -81,13 +94,14 @@ class AddRecipeInformationFragment : Fragment() {
         mAddRecipeInformationFragmentViewModel = ViewModelProvider(this).get(AddRecipeInformationFragmentViewModel::class.java)
 
         arguments?.let {
-            if(mAction == EDIT_ACTION){
+            if(mAction == EDIT_ACTION || mAction == ADD_FROM_BROWSER_ACTION){
                 mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)!!
                 mRecipeEntity?.let{
                     mAddRecipeInformationFragmentViewModel.mTempCookTimeHour = it.cookingHours
                     mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes = it.cookingMinutes
                     mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = it.preparationHour
-                    mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = it.preparationHour
+                    mAddRecipeInformationFragmentViewModel.mTempPrepaTimeMinutes = it.preparationMinutes
+
                 }
 
             }
@@ -114,7 +128,28 @@ class AddRecipeInformationFragment : Fragment() {
         mDataBinding.recipeAddImageBtn.setOnClickListener{
 
             ImageUtil.deleteAllTemporaryImages(requireContext())
-         showIntentChooser()
+            showIntentChooser()
+        }
+
+        Log.e("THE_IMAGE_NAME","${mAction}")
+        if(mAction == ADD_FROM_BROWSER_ACTION ){
+            Log.e("THE_IMAGE_NAME","${mRecipeEntity?.imageName} ----")
+            mRecipeEntity?.imageName?.let {
+
+
+                if(it.trim().length <=0){
+                    return@let
+                }
+
+                val imageUri = ImageUtil.getImageUriFromPath(requireContext(),ImageUtil.TEMPORARY_IMAGES_LOCATION,"${ImageUtil.IMAGE_TEMP_NAME}.${ImageUtil.IMAGE_NAME_SUFFIX}")
+
+                imageUri?.let{
+                    mAddRecipeInformationFragmentViewModel.newImageUri = it
+                    mDataBinding.itemImageView.setImageURI(it)
+                }
+            }
+
+
         }
 
         return mDataBinding.root
@@ -138,12 +173,6 @@ class AddRecipeInformationFragment : Fragment() {
             mAddRecipeInformationFragmentViewModel.newImageUri = result.uri
             mDataBinding.itemImageView.setImageURI(result.uri)
 
-
-           /* mStorageAddItemViewModel.newImageUri = result.uri
-            mActivityPantryAddItemBinding.itemImageView.setImageURI(result.uri)*/
-            //itemImageView
-            //mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
-            //dataBindingUtil.itemImageview.setImageURI(result.uri)
 
 
         }

@@ -37,25 +37,23 @@
             android:id="@+id/textView31"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
             android:text="Description : "
             android:textColor="#000"
+            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView30" />
+            app:layout_constraintTop_toBottomOf="@+id/textView51" />
 
         <TextView
             android:id="@+id/textView33"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginLeft="8dp"
             android:text="@{recipeEntity.description}"
-            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
             android:textColor="#000"
             android:textSize="18sp"
+            android:visibility="@{recipeEntity.description.length() == 0 ? View.GONE:View.VISIBLE}"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView31" />
+            app:layout_constraintStart_toEndOf="@+id/textView31"
+            app:layout_constraintTop_toBottomOf="@+id/textView51" />
 
         <TextView
             android:id="@+id/textView40"
@@ -81,7 +79,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toEndOf="@+id/textView40"
-            app:layout_constraintTop_toBottomOf="@+id/textView33" />
+            app:layout_constraintTop_toBottomOf="@+id/textView30" />
 
         <TextView
             android:id="@+id/textView42"

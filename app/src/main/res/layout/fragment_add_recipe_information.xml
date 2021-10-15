@@ -216,7 +216,6 @@
             android:id="@+id/itemImageView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@drawable/fridge"
             android:adjustViewBounds="true"
             android:contentDescription="Recipe image"
             app:layout_constraintTop_toBottomOf="@+id/textView17" />

@@ -42,13 +42,23 @@ class AddRecipeStepsFragment : Fragment() {
 
     companion object{
         const val ADD_ACTION = 0
-        const val EDIT_ACTION = 1
+        const val ADD_ACTION_FROM_BROWSER = 1
+        const val EDIT_ACTION = 2
         val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+        val RECIPE_STEPS_INTENT_TAG = "RECIPE_STEPS_INTENT_TAG"
         @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
             AddRecipeStepsFragment().apply {
                 arguments = Bundle().apply {
                     putParcelable(RECIPE_INTENT_TAG, recipeEntity)
                     mAction  = EDIT_ACTION
+                }
+            }
+
+        @JvmStatic fun newInstanceForForAddingRecipeFromBrowser(recipeStepEntities: ArrayList<RecipeStepEntity>) =
+            AddRecipeStepsFragment().apply {
+                arguments = Bundle().apply {
+                    putParcelableArrayList(RECIPE_STEPS_INTENT_TAG, recipeStepEntities)
+                    mAction  = ADD_ACTION_FROM_BROWSER
                 }
             }
         @JvmStatic fun newInstanceForAdd() =
@@ -58,11 +68,21 @@ class AddRecipeStepsFragment : Fragment() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            mRecipeEntity = it.getParcelable(AddRecipeIngredientsFragment.RECIPE_INTENT_TAG)
-        }
 
         mAddRecipeStepsFragmentViewModel = ViewModelProvider(this).get(AddRecipeStepsFragmentViewModel::class.java)
+
+        arguments?.let {
+            if(mAction == EDIT_ACTION){
+
+                mRecipeEntity = it.getParcelable(AddRecipeIngredientsFragment.RECIPE_INTENT_TAG)
+
+            }else if(mAction == ADD_ACTION_FROM_BROWSER){
+                mAddRecipeStepsFragmentViewModel.mRecipeStepEntities = it.getParcelableArrayList(RECIPE_STEPS_INTENT_TAG)!!
+            }
+
+        }
+
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -86,6 +106,9 @@ class AddRecipeStepsFragment : Fragment() {
                     addStepRecyclerviewViewAdapater.notifyDataSetChanged()
                 }
             }
+        }else if(mAction == ADD_ACTION_FROM_BROWSER){
+            addStepRecyclerviewViewAdapater.mRecipeStepEntities = mAddRecipeStepsFragmentViewModel.mRecipeStepEntities
+            addStepRecyclerviewViewAdapater.notifyDataSetChanged()
         }
 
         return mDataBindingUtil.root

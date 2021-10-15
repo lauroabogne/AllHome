@@ -1,0 +1,31 @@
+<html>
+<head>
+<script type="text/javascript">
+
+// (function() {
+//   alert();
+// })()
+ 
+ function clickEvent(){
+  
+ // window.JavascriptBridge.showData("I'm from javascript");
+ //var markup = document.documentElement.innerHTML;
+ //console.log(document)
+ console.log(JSON.stringify(document.html))
+ console.log(JSON.stringify(document.getElementsByTagName("html")))
+  
+ }
+ 
+ function callFromJava(data){
+  
+  document.getElementById('label').innerHTML = data;
+  
+ }
+</script>
+</head>
+<body>
+<button onClick="clickEvent()">Html Btn.. Click Me!</button>
+<br/>
+<label id="label"></label>
+</body>
+</html>

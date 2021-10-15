@@ -47,7 +47,7 @@ object NumberUtils {
 
         val splitedNumber = numberDouble.toString().split(".")
         val wholeNumber = Integer.parseInt(splitedNumber[0])
-        val decimalNumber = Integer.parseInt(splitedNumber[1])
+        val decimalNumber = if(splitedNumber[1].length>4) splitedNumber[1].substring(0,3).toInt() else splitedNumber[1].toInt()
 
         if(wholeNumber ==0 && decimalNumber == 0){
             return ""

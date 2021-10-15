@@ -62,6 +62,29 @@ class ExpensesFragment : Fragment() {
         mFragmentExpensesBinding.toDateCalendarImageView.setOnClickListener(toDateOnClick)
         mFragmentExpensesBinding.toDateTextInputEditText.setOnClickListener(toDateOnClick)
         mFragmentExpensesBinding.filterButton.setOnClickListener(filterBtnOnClick)
+        mFragmentExpensesBinding.filterAmountTextView.setOnClickListener {
+            val intent = Intent(requireContext(), ExpensesItemSummaryActivity::class.java)
+            intent.putExtra(ExpensesItemSummaryActivity.DATE_FROM_TAG, mExpensesFragmentViewModel.mDateFromFilter)
+            intent.putExtra(ExpensesItemSummaryActivity.DATE_TO_TAG, mExpensesFragmentViewModel.mDateToFilter)
+            requireContext().startActivity(intent)
+        }
+        mFragmentExpensesBinding.currentYearExpensesTextView.setOnClickListener {
+            val currentYear = Calendar.getInstance().get(Calendar.YEAR)
+            val fromCalendar = Calendar.getInstance()
+            fromCalendar.set(Calendar.YEAR, currentYear)
+            fromCalendar.set(Calendar.MONTH, 0)
+            fromCalendar.set(Calendar.DAY_OF_MONTH, 1)
+
+            val toCalendar = Calendar.getInstance()
+            toCalendar.set(Calendar.YEAR, currentYear)
+            toCalendar.set(Calendar.MONTH, 11)
+            toCalendar.set(Calendar.DAY_OF_MONTH, 31)
+
+            val intent = Intent(requireContext(), ExpensesItemSummaryActivity::class.java)
+            intent.putExtra(ExpensesItemSummaryActivity.DATE_FROM_TAG, fromCalendar)
+            intent.putExtra(ExpensesItemSummaryActivity.DATE_TO_TAG, toCalendar)
+            requireContext().startActivity(intent)
+        }
 
 
         val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)

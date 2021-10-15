@@ -17,15 +17,15 @@ public class IngredientEvaluator {
         IngredientEntity ingredientEntity = new IngredientEntity("","",0.0,"","",0,0,"","");
 
         String[] units ={
-             "teaspoon","t","tsp","tablespoon","tbl","tbsp","oz","gill","cup","pint","p","pt","quart","q","qt",
+             "teaspoon","teaspoons","t","tsp","tablespoon","tablespoons","tbl","tbsp","oz","gill","cup","cups","pint","p","pt","quart","q","qt",
              "gallon","g","gal","ml","milliliter","millilitre","cc","l","liter","litre","dl","deciliter","decilitre",
-              "pound","lb","ounce","oz","mg","milligram","milligramme","g","gram","gramme","kg","kilo","kilogram","kilogramme",
+              "pound","pounds","lb","ounce","ounces","oz","mg","milligram","milligramme","g","gram","gramme","kg","kilo","kilogram","kilogramme",
               "mm","millimeter","millimetre","cm","centimeter","centimetre","m","meter","metre","inch","in",
                "pcs","pc","piece","pieces"
         };
 
 
-        String[] splitedIngredient = ingredientString.split("\\s+");
+        String[] splitedIngredient = ingredientString.trim().split("\\s+");
 
         if(splitedIngredient.length <= 1){
 
@@ -91,6 +91,7 @@ public class IngredientEvaluator {
                 Log.e(TAG,"Contain string. It unit");
             }else{
 
+                Log.e(TAG,"===============");
                 boolean possibleOtherQuantityOrUnitStringIsFraction = isValidFractionForRecipeQuantity(possibleOtherQuantityOrUnitString);
                 boolean possibleOtherQuantityOrUnitStringIsUnit = Arrays.asList(units).contains(possibleOtherQuantityOrUnitString);
                 boolean possibleUnitIsUnit =  Arrays.asList(units).contains(possibleUnit);
@@ -101,6 +102,10 @@ public class IngredientEvaluator {
                 }
                 if(!possibleOtherQuantityOrUnitStringIsFraction && possibleOtherQuantityOrUnitStringIsUnit){
                     ingredientEntity.setUnit(possibleOtherQuantityOrUnitString);
+                    ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(1,splitedIngredient.length)));
+                }
+                if(!possibleOtherQuantityOrUnitStringIsFraction && !possibleOtherQuantityOrUnitStringIsUnit){
+
                     ingredientEntity.setName(listToString(Arrays.asList(splitedIngredient).subList(1,splitedIngredient.length)));
                 }
                 if(possibleOtherQuantityOrUnitStringIsFraction && possibleUnitIsUnit){

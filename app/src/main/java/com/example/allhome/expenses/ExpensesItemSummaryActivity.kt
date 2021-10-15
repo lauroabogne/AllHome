@@ -1,12 +1,15 @@
 package com.example.allhome.expenses
 
+import android.app.DatePickerDialog
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.example.allhome.R
+import com.example.allhome.bill.BillCustomDateRangeDialogFragment
 import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.databinding.ExpensesItemSummaryActivityBinding
 import com.google.android.material.tabs.TabLayout
@@ -22,6 +25,8 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
     companion object{
         const val DATE_FROM_TAG = "DATE_FROM_TAG"
         const val DATE_TO_TAG = "DATE_TO_TAG"
+        const val FROM_DATE_REQUEST = 0
+        const val TO_DATE_REQUEST = 1
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,13 +37,23 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
         mDateFromFilter = intent.getSerializableExtra(DATE_FROM_TAG) as Calendar
         mDateToFilter = intent.getSerializableExtra(DATE_TO_TAG) as Calendar
+
+
+        mExpensesItemSummaryActivityBinding.fromTextInputEditText.setOnClickListener({showCalendar(FROM_DATE_REQUEST)})
+        mExpensesItemSummaryActivityBinding.toDateTextInputEditText.setOnClickListener({showCalendar(TO_DATE_REQUEST)})
+        mExpensesItemSummaryActivityBinding.filterButton.setOnClickListener({
+            displayDate()
+            fragmentProcessor(ExpensesSummaryViewByItemsFragment.newInstance(mDateFromFilter,mDateToFilter))
+        })
+
         displayDate()
         fragmentProcessor(ExpensesSummaryViewByItemsFragment.newInstance(mDateFromFilter,mDateToFilter))
 
+
     }
     fun displayDate(){
-        val readableFromDate = SimpleDateFormat("MMMM d,yyyy").format(mDateFromFilter.time)
-        val readableToDate = SimpleDateFormat("MMMM d,yyyy").format(mDateToFilter.time)
+        val readableFromDate = SimpleDateFormat("MMM d,yyyy").format(mDateFromFilter.time)
+        val readableToDate = SimpleDateFormat("MMM d,yyyy").format(mDateToFilter.time)
         mExpensesItemSummaryActivityBinding.fromTextInputEditText.setText(readableFromDate)
         mExpensesItemSummaryActivityBinding.toDateTextInputEditText.setText(readableToDate)
 
@@ -70,5 +85,37 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
         override fun onTabReselected(tab: TabLayout.Tab?) {
         }
     }
+    fun showCalendar(dateTypeRequest:Int){
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            val pattern = "yyyy-M-d"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val date: Date = simpleDateFormat.parse(year.toString() + "-" + (monthOfYear + 1) + "-" + dayOfMonth)
+
+            if(dateTypeRequest == FROM_DATE_REQUEST){
+
+
+                mDateFromFilter.time =  date
+                displayDate()
+
+
+            }else if(dateTypeRequest == BillCustomDateRangeDialogFragment.END_DATE_REQUEST){
+
+
+                mDateToFilter.time = date
+                displayDate()
+
+
+            }
+        }
+
+        val datePickerDialog = DatePickerDialog(this, dateSetListener, year, month, day)
+        datePickerDialog.show()
+
+    }
+
 
 }

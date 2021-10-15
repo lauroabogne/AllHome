@@ -24,6 +24,7 @@ import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
 import com.example.allhome.meal_planner.MealPlannerFragment
 import com.example.allhome.meal_planner.calendar.CalendarFragment
+import com.example.allhome.recipes.BrowseRecipeFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.utils.IngredientEvaluator
@@ -88,6 +89,11 @@ class MainActivity : AppCompatActivity() {
                 }
                 R.id.nav_expenses_summary->{
                     fragmentProcessor(ExpensesFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_todo->{
+
+                    fragmentProcessor(BrowseRecipeFragment.newInstance("",""))
                     drawerLayout.closeDrawer(GravityCompat.START)
                 }
             }

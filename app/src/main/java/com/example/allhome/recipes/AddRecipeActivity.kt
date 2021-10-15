@@ -47,6 +47,7 @@ class AddRecipeActivity : AppCompatActivity() {
         const val TAG = "AddRecipeActivity"
         const val ADD_ACTION = 0
         const val EDIT_ACTION = 1
+        const val ADD_FROM_BROWSER_ACTION = 2
         const val ACTION_TAG = "ACTION_TAG"
         const val RECIPE_TAG = "RECIPE_TAG"
         const val INGREDIENTS_TAG = "INGREDIENTS_TAG"
@@ -66,12 +67,27 @@ class AddRecipeActivity : AppCompatActivity() {
 
             title = "Editing recipe"
             intent.getParcelableExtra<RecipeEntity>(RECIPE_TAG)?.let {
+
                 mFragmentList.add( AddRecipeInformationFragment.newInstanceForEditing(it))
                 mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForEditing(it))
                 mFragmentList.add( AddRecipeStepsFragment.newInstanceForEditing(it))
             }
 
 
+        }else if(mAction == ADD_FROM_BROWSER_ACTION){
+            intent.getParcelableExtra<RecipeEntity>(RECIPE_TAG)?.let {
+
+                mFragmentList.add( AddRecipeInformationFragment.newInstanceForAddingRecipeFromBrowser(it))
+
+
+            }
+            intent.getParcelableArrayListExtra<IngredientEntity>(INGREDIENTS_TAG)?.let{
+
+                mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForAddingRecipeFromBrowser(it))
+            }
+            intent.getParcelableArrayListExtra<RecipeStepEntity>(STEPS_TAG)?.let{
+                mFragmentList.add( AddRecipeStepsFragment.newInstanceForForAddingRecipeFromBrowser(it))
+            }
         }else{
             mFragmentList.add( AddRecipeInformationFragment.newInstanceForAdd())
             mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForAdd())
@@ -141,7 +157,6 @@ class AddRecipeActivity : AppCompatActivity() {
 
         val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
         val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
-
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
         recipeEntity?.let{
