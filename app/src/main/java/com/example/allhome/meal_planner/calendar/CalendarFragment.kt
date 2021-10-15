@@ -163,17 +163,14 @@ class CalendarFragment : Fragment() {
          override fun onBindViewHolder(holder: FragmentViewHolder, position: Int, payloads: MutableList<Any>) {
             super.onBindViewHolder(holder, position, payloads)
 
-
         }
         override fun getItemCount(): Int {
 
             return fragmentList.size
         }
-
         override fun createFragment(position: Int): Calendar {
             val fragment = fragmentList[position]
             return fragment
         }
-
     }
 }

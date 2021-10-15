@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET"/>
 
     <application
         android:allowBackup="false"
@@ -19,9 +20,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
+        <activity android:name=".expenses.ExpensesItemSummaryActivity"></activity>
+        <activity
+            android:name=".bill.BillActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".meal_planner.ViewerActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar" ></activity>
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".meal_planner.ViewMealOfTheDayActivity"
             android:theme="@style/Theme.AllHome.NoActionBar" />

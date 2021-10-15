@@ -32,6 +32,9 @@ data class RecipeEntity(
     @ColumnInfo(name= COLUMN_CREATED, defaultValue = "CURRENT_TIMESTAMP" ) var created:String,
     @ColumnInfo(name= COLUMN_MODIFIED, defaultValue = "CURRENT_TIMESTAMP" ) var modified:String
 ):Parcelable{
+
+    var imageUrl:String? = null
+
     companion object{
         const val TABLE_NAME = "recipes"
         const val COLUMN_UNIQUE_ID= "unique_id"

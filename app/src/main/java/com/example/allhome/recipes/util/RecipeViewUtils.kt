@@ -61,13 +61,8 @@ fun setRecipeImage(view: ImageView, imageName:String){
     val context = view.context
 
     val imageUri = ImageUtil.getImageUriFromPath(context,ImageUtil.RECIPE_IMAGES_FINAL_LOCATION,"${imageName}.${ImageUtil.IMAGE_NAME_SUFFIX}")
-    imageUri?.let {
-        Glide.with(context)
-            .load(imageUri)
-            .into(view)
-    }?:run{
+    Glide.with(context).load(imageUri).error(R.drawable.ic_baseline_image_24).into(view)
 
-    }
 
 }
 @BindingAdapter("android:setServingText")
@@ -143,7 +138,12 @@ fun setPreparationTime(textInputEditText: TextInputEditText, recipeEntity: Recip
         val hourText = if(recipeEntity.preparationHour == 1) "${recipeEntity.preparationHour} hour" else "${recipeEntity.preparationHour} hours"
         textInputEditText.setText(hourText)
 
+    }else if(recipeEntity.preparationHour > 0 && recipeEntity.preparationMinutes <= 0){
+        val hourText =  "${recipeEntity.preparationHour} hour"
+        textInputEditText.setText(hourText)
+
     }
+
 }
 
 
@@ -161,6 +161,10 @@ fun setCookingTime(textview:TextView,recipeEntity: RecipeEntity){
 
     }else if(recipeEntity.cookingHours > 0 && recipeEntity.cookingHours <= 0){
         val hourText = if(recipeEntity.cookingHours == 1) "${recipeEntity.cookingHours} hour" else "${recipeEntity.cookingHours} hours"
+        textview.text = hourText
+
+    }else if(recipeEntity.cookingHours > 0 && recipeEntity.cookingMinutes <= 0){
+        val hourText =  "${recipeEntity.cookingHours} hour"
         textview.text = hourText
 
     }
@@ -181,6 +185,10 @@ fun setCookingTime(textInputEditText:TextInputEditText,recipeEntity: RecipeEntit
 
     }else if(recipeEntity.cookingHours > 0 && recipeEntity.cookingHours <= 0){
         val hourText = if(recipeEntity.cookingHours == 1) "${recipeEntity.cookingHours} hour" else "${recipeEntity.cookingHours} hours"
+        textInputEditText.setText(hourText)
+
+    }else if(recipeEntity.cookingHours > 0 && recipeEntity.cookingMinutes <= 0){
+        val hourText = "${recipeEntity.cookingHours} hour"
         textInputEditText.setText(hourText)
 
     }
@@ -237,13 +245,13 @@ fun setIngredient(editText:EditText,ingredient:IngredientEntity){
 
     if(quantity <=0 && unit.trim().length <=0){
         editText.setText(name)
-        ingredient.name = name
+        //ingredient.name = name
     }else if(quantity > 0 && unit.trim().length <=0){
         editText.setText("${NumberUtils.fraction(quantity)} ${name}")
-        ingredient.name = "${NumberUtils.fraction(quantity)} ${name}"
+        //ingredient.name = "${NumberUtils.fraction(quantity)} ${name}"
     }else if(quantity > 0 && unit.trim().length > 0){
         editText.setText("${NumberUtils.fraction(quantity)} ${unit} ${name}")
-        ingredient.name = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
+        //ingredient.name = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
     }
 }
 @BindingAdapter("android:setIngredentToGroceryQuantityAndUnit")

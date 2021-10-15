@@ -7,11 +7,13 @@ import android.graphics.Matrix
 import android.media.ExifInterface
 import android.net.Uri
 import android.os.Build
+import android.os.Environment
 import android.provider.MediaStore
 import com.example.allhome.grocerylist.GroceryUtil
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.OutputStream
 
 
 class ImageUtil {
@@ -20,6 +22,7 @@ class ImageUtil {
         const val STORAGE_IMAGES_FINAL_LOCATION = "storage_images"
         const val STORAGE_ITEM_IMAGES_FINAL_LOCATION = "storage_item_images"
         const val RECIPE_IMAGES_FINAL_LOCATION = "recipe_images"
+        const val BILL_PAYMENT_IMAGES_FINAL_LOCATION = "bill_payments"
         const val TEMPORARY_IMAGES_LOCATION = "temporary_images"
         const val IMAGE_TEMP_NAME = "temp_image"
         const val IMAGE_NAME_SUFFIX = "jpg"
@@ -157,6 +160,28 @@ class ImageUtil {
             }
         }
 
+         fun saveImage(context:Context,image: Bitmap, storageDir:String,imageName:String): String? {
+            var savedImagePath: String? = null
+            val storageDir: File = context.getExternalFilesDir(storageDir)!!
+            var success = true
+            if (!storageDir.exists()) {
+                success = storageDir.mkdirs()
+            }
+            if (success) {
+                val imageFile = File(storageDir, imageName)
+                savedImagePath = imageFile.getAbsolutePath()
+                try {
+                    val fOut: OutputStream = FileOutputStream(imageFile)
+                    image.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
+                    fOut.close()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+
+
+            }
+            return savedImagePath
+        }
 
     }
 

@@ -18,7 +18,7 @@ class CustomConfirmationDialog(context: Context) : AlertDialog.Builder(context) 
     }
 
     //var mMessageTextView: TextView;
-    var mOnClickListener: View.OnClickListener? = null
+    private var mOnClickListener: View.OnClickListener? = null
     lateinit var mAlertDialog: AlertDialog
 
     init {

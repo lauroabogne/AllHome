@@ -1,0 +1,4 @@
+getData();
+function getData(){
+    alert();
+}

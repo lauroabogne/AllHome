@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="com.example.allhome.utils.NumberUtils" />
+        <import type="com.example.allhome.utils.DateUtil" />
+
+        <variable
+            name="billPaymentEntity"
+            type="com.example.allhome.data.entities.BillPaymentEntity" />
+        <variable
+            name="imageUri"
+            type="android.net.Uri" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="12dp">
+
+        <TextView
+            android:id="@+id/amountTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@{`Amount : `+NumberUtils.INSTANCE.formatNumber(billPaymentEntity.paymentAmount)}"
+            android:textColor="#000"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/moreActionImageBtn"
+            app:layout_constraintStart_toEndOf="@+id/storageImageView"
+            app:layout_constraintTop_toTopOf="@+id/storageImageView"
+            tools:text="Amount : 4,200" />
+
+        <ImageButton
+            android:id="@+id/moreActionImageBtn"
+            android:layout_width="40dp"
+            android:layout_height="0dp"
+            android:background="?selectableItemBackgroundBorderless"
+            app:layout_constraintBottom_toBottomOf="@+id/storageImageView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/amountTextView"
+            app:srcCompat="@drawable/ic_baseline_more_vert_24" />
+
+        <ImageView
+            android:id="@+id/storageImageView"
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:billPaymentImage="@{imageUri}"
+            app:noImageDrawable="@{@drawable/ic_baseline_image_24}"
+            tools:srcCompat="@tools:sample/avatars" />
+
+        <TextView
+            android:id="@+id/textView112"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="8dp"
+            android:text="@{DateUtil.INSTANCE.formatDateString(billPaymentEntity.paymentDate,`MMMM dd, yyyy`)}"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="@+id/amountTextView"
+            app:layout_constraintStart_toEndOf="@+id/storageImageView"
+            app:layout_constraintTop_toBottomOf="@+id/amountTextView" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

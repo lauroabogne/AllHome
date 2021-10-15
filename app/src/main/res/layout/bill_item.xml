@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.example.allhome.utils.NumberUtils" />
+        <variable
+            name="billEntityWithTotalPayment"
+            type="com.example.allhome.data.entities.BillEntityWithTotalPayment" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/parent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackground">
+
+        <TextView
+            android:id="@+id/textView67"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/overdue_bill_status_bg"
+            android:padding="4dp"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            android:setBillStatusIndicator="@{billEntityWithTotalPayment}"
+            app:layout_constraintBottom_toBottomOf="@+id/billNameTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/billNameTextView" />
+
+        <TextView
+            android:id="@+id/billNameTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingTop="8dp"
+            android:paddingBottom="8dp"
+            android:text="@{billEntityWithTotalPayment.billEntity.name}"
+            android:textSize="24sp"
+            app:layout_constraintEnd_toStartOf="@+id/moreActionImageView"
+            app:layout_constraintStart_toEndOf="@+id/textView67"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Internet payment" />
+
+
+        <TextView
+            android:id="@+id/dueDateTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:setDueDateWithNumberOfDays ="@{billEntityWithTotalPayment.billEntity.dueDate}"
+            app:layout_constraintBottom_toBottomOf="@+id/billDueAmountTextView"
+            app:layout_constraintEnd_toStartOf="@+id/billDueAmountTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/billDueAmountTextView"
+            tools:text="Due Date" />
+
+        <TextView
+            android:id="@+id/billDueAmountTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="8dp"
+            android:text="@{NumberUtils.INSTANCE.formatNumber(billEntityWithTotalPayment.billEntity.amount)}"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/billNameTextView"
+            tools:text="2500" />
+
+        <ImageView
+            android:id="@+id/moreActionImageView"
+            android:layout_width="50dp"
+            android:layout_height="0dp"
+            android:layout_weight="0"
+            android:background="?selectableItemBackgroundBorderless"
+            android:scaleType="center"
+            app:layout_constraintBottom_toBottomOf="@+id/billNameTextView"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/billNameTextView"
+            app:srcCompat="@drawable/ic_baseline_more_vert_24"
+            tools:ignore="VectorDrawableCompat" />
+
+        <TextView
+            android:id="@+id/textView70"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:text="Total Payment"
+            app:layout_constraintBottom_toBottomOf="@+id/billTotalPaymentTextView"
+            app:layout_constraintEnd_toStartOf="@+id/billTotalPaymentTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/billTotalPaymentTextView" />
+
+        <TextView
+            android:id="@+id/billTotalPaymentTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="8dp"
+            android:text="@{NumberUtils.INSTANCE.formatNumber(billEntityWithTotalPayment.totalPayment)}"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/billDueAmountTextView" />
+
+        <TextView
+            android:id="@+id/textView72"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:text="Balance"
+            app:layout_constraintBottom_toBottomOf="@+id/billBalanceTextView"
+            app:layout_constraintEnd_toStartOf="@+id/billBalanceTextView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/billBalanceTextView" />
+
+        <TextView
+            android:id="@+id/billBalanceTextView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingRight="8sp"
+            android:text="@{NumberUtils.INSTANCE.formatNumber((billEntityWithTotalPayment.billEntity.amount - billEntityWithTotalPayment.totalPayment))}"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/billTotalPaymentTextView" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

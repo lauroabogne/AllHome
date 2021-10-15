@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        app:showAsAction="always"
+        android:id="@+id/addBillMenuItem"
+        android:icon="@drawable/ic_add"
+        android:title="Add" />
+    <item
+        app:showAsAction="always"
+        android:id="@+id/filterBillMenuItem"
+        android:icon="@drawable/ic_baseline_filter_alt_24"
+        android:title="Filter"
+        />
+    <item
+        app:showAsAction="always"
+        android:id="@+id/dateRangeMenuItem"
+        android:icon="@drawable/ic_baseline_date_range_24"
+        android:title="Date Range"
+        >
+        <menu>
+            <item
+                android:id="@+id/billViewByWeekMenu"
+                android:title="View by week" />
+            <item
+                android:id="@+id/billViewByMonthMenu"
+                android:title="View by month" />
+            <item
+                android:id="@+id/billViewByYearMenu"
+                android:title="View by year" />
+            <item
+                android:id="@+id/billViewByCustomDate"
+                android:title="Custom date" />
+        </menu>
+    </item>
+</menu>

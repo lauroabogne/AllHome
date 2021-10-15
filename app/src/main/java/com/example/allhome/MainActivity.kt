@@ -15,12 +15,16 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import com.example.allhome.bill.AddBillFragment
+import com.example.allhome.bill.BillsFragment
+import com.example.allhome.expenses.ExpensesFragment
 import com.example.allhome.grocerylist.AddGroceryListItemActivity
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
 import com.example.allhome.meal_planner.MealPlannerFragment
 import com.example.allhome.meal_planner.calendar.CalendarFragment
+import com.example.allhome.recipes.BrowseRecipeFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.utils.IngredientEvaluator
@@ -78,11 +82,19 @@ class MainActivity : AppCompatActivity() {
 
                     fragmentProcessor(MealPlannerFragment.newInstance("",""))
                     drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_bills->{
+                    fragmentProcessor(BillsFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_expenses_summary->{
+                    fragmentProcessor(ExpensesFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
+                }
+                R.id.nav_todo->{
 
-
-                    /*fragmentProcessor(CalendarFragment.newInstance("",""))
-                    drawerLayout.closeDrawer(GravityCompat.START)*/
-                    //Log.e("ingredient",ingredient.toString())
+                    fragmentProcessor(BrowseRecipeFragment.newInstance("",""))
+                    drawerLayout.closeDrawer(GravityCompat.START)
                 }
             }
             true

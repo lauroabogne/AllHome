@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="com.example.allhome.utils.NumberUtils" />
+        <variable
+            name="expensesEntity"
+            type="com.example.allhome.data.entities.ExpensesEntity" />
+        <variable
+            name="month"
+            type="String" />
+    </data>
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:clickable="true"
+    android:foreground="?attr/selectableItemBackground"
+    android:padding="12dp">
+
+    <TextView
+        android:id="@+id/monthNameTextView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="@{month}"
+        app:layout_constraintEnd_toStartOf="@+id/expensesTextView"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="January"/>
+
+    <TextView
+        android:id="@+id/expensesTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@{NumberUtils.INSTANCE.formatNumber(expensesEntity.totalAmount)}"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="0.0"
+        app:layout_constraintBottom_toBottomOf="@+id/monthNameTextView"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/monthNameTextView" />
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

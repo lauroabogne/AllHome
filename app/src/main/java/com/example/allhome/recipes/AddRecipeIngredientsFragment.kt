@@ -51,8 +51,11 @@ class AddRecipeIngredientsFragment : Fragment() {
     companion object {
         val TAG = "ViewRecipeFragment"
         const val ADD_ACTION = 0
-        const val EDIT_ACTION = 1
+        const val ADD_ACTION_FROM_BROWSER = 1
+        const val EDIT_ACTION = 2
+
         val RECIPE_INTENT_TAG = "RECIPE_INTENT_TAG"
+        val INGREDIENT_INTENT_TAG = "INGREDIENT_INTENT_TAG"
 
         @JvmStatic fun newInstanceForEditing(recipeEntity: RecipeEntity) =
             AddRecipeIngredientsFragment().apply {
@@ -60,6 +63,14 @@ class AddRecipeIngredientsFragment : Fragment() {
                 mAction = EDIT_ACTION
                 arguments = Bundle().apply {
                     putParcelable(RECIPE_INTENT_TAG, recipeEntity)
+                }
+            }
+        @JvmStatic fun newInstanceForAddingRecipeFromBrowser(ingredientEntities: ArrayList<IngredientEntity>) =
+            AddRecipeIngredientsFragment().apply {
+
+                mAction = ADD_ACTION_FROM_BROWSER
+                arguments = Bundle().apply {
+                    putParcelableArrayList(INGREDIENT_INTENT_TAG, ingredientEntities)
                 }
             }
         @JvmStatic fun newInstanceForAdd() =
@@ -71,13 +82,21 @@ class AddRecipeIngredientsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        mAddRecipeIngredientsFragmentModel = ViewModelProvider(this).get(AddRecipeIngredientsFragmentModel::class.java)
+
         arguments?.let {
 
-            mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)
+            if(mAction == ADD_ACTION_FROM_BROWSER ){
+                mAddRecipeIngredientsFragmentModel.mIngredients = it.getParcelableArrayList(INGREDIENT_INTENT_TAG)!!
+            }else{
+                mRecipeEntity = it.getParcelable(RECIPE_INTENT_TAG)
+            }
+
 
         }
 
-        mAddRecipeIngredientsFragmentModel = ViewModelProvider(this).get(AddRecipeIngredientsFragmentModel::class.java)
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -102,7 +121,9 @@ class AddRecipeIngredientsFragment : Fragment() {
 
             }
 
-
+        }else if(mAction == ADD_ACTION_FROM_BROWSER){
+            addIngredientRecyclerviewViewAdapater.mIngredients = mAddRecipeIngredientsFragmentModel.mIngredients
+            addIngredientRecyclerviewViewAdapater.notifyDataSetChanged()
         }
 
 
@@ -323,14 +344,16 @@ class AddIngredientRecyclerviewViewAdapater( var mIngredients:ArrayList<Ingredie
                 true
             }
         }
-        fun setText(text:String){
-            addIngredientItemBinding.ingredientEditTextText.setText(text)
-        }
         fun setTextWatcher(){
             addIngredientItemBinding.ingredientEditTextText.addTextChangedListener{
-                val ingredient =  addIngredientRecyclerviewViewAdapater.mIngredients[adapterPosition]
-                ingredient.name = it.toString()
-                addIngredientRecyclerviewViewAdapater.mIngredients.set(adapterPosition,ingredient)
+
+                if(addIngredientItemBinding.ingredientEditTextText.hasFocus()){
+                    val ingredient =  addIngredientRecyclerviewViewAdapater.mIngredients[adapterPosition]
+                    ingredient.name = it.toString()
+                    addIngredientRecyclerviewViewAdapater.mIngredients.set(adapterPosition,ingredient)
+                }
+
+
             }
         }
         override fun onClick(view: View?) {

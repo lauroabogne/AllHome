@@ -17,6 +17,11 @@ object NumberUtils {
         return if(anyNumber % 1 == 0.0 ) withCommaAndWithoutDecimalFormater.format(anyNumber) else withCommaAndWithDecimalFormater.format(anyNumber)
 
     }
+    fun formatNumberWithout(anyNumber: Double) : String{
+
+        return if(anyNumber % 1 == 0.0 ) withoutCommaAndWithoutDecimalFormater.format(anyNumber) else withoutCommaAndWithDecimalFormater.format(anyNumber)
+
+    }
         fun bigDecimalToString(bigDecimal: BigDecimal):String{
             if(bigDecimal == null){
                 return ""
@@ -42,7 +47,7 @@ object NumberUtils {
 
         val splitedNumber = numberDouble.toString().split(".")
         val wholeNumber = Integer.parseInt(splitedNumber[0])
-        val decimalNumber = Integer.parseInt(splitedNumber[1])
+        val decimalNumber = if(splitedNumber[1].length>4) splitedNumber[1].substring(0,3).toInt() else splitedNumber[1].toInt()
 
         if(wholeNumber ==0 && decimalNumber == 0){
             return ""
