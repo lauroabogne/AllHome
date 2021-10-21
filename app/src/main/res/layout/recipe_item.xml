@@ -30,6 +30,7 @@
                 android:layout_width="100dp"
                 android:layout_height="100dp"
                 android:padding="4dp"
+                android:scaleType="centerCrop"
                 app:srcCompat="@drawable/ic_baseline_image_24"
                 android:setRecipeImage="@{recipeEntityWithTotalIngredient.recipeEntity.uniqueId}"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -83,8 +84,7 @@
                     android:paddingBottom="2dp"
                     app:totalIngredient="@{recipeEntityWithTotalIngredient.totalIngredientCount}"
                     app:totalIngredientMatch="@{recipeEntityWithTotalIngredient.totalIngredientMatchCount}"
-                    android:textColor="#000"
-                    tools:text="test"/>
+                    android:textColor="#000"/>
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

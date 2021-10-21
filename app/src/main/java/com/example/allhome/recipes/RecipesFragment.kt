@@ -187,6 +187,12 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                 filterByIngredientsDialogFragment.setRecipeIngredientFilterListener(recipeIngredientFilterListener)
                 filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
             }
+            R.id.browseRecipe->{
+                Toast.makeText(requireContext(),"test",Toast.LENGTH_SHORT).show()
+
+                val webBrowseRecipeActivity = Intent(view?.context, WebBrowseRecipeActivity::class.java)
+                view?.context?.startActivity(webBrowseRecipeActivity)
+            }
 
         }
 

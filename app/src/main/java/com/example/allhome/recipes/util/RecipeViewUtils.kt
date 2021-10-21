@@ -7,6 +7,7 @@ import android.text.SpannableStringBuilder
 import android.text.TextPaint
 import android.text.style.ClickableSpan
 import android.text.style.StyleSpan
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.ImageView
@@ -20,6 +21,7 @@ import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.example.allhome.utils.ImageUtil
+import com.example.allhome.utils.IngredientEvaluator
 import com.example.allhome.utils.NumberUtils
 import com.google.android.material.textfield.TextInputEditText
 
@@ -41,17 +43,20 @@ fun setCost(textView:TextView,cost:Double){
 }
 @BindingAdapter("android:setRecipeIngredientText")
 fun setRecipeIngredientText(textView:TextView,ingredient: IngredientEntity){
-
-    val quantityWithUom = "${NumberUtils.fraction(ingredient.quantity)} ${ingredient.unit}"
-    var ingredientText: SpannableStringBuilder
-
-    if(ingredient.quantity > 0){
-        ingredientText = SpannableStringBuilder("${quantityWithUom} ${ingredient.name}")
-        ingredientText.setSpan(StyleSpan(Typeface.BOLD), 0, quantityWithUom.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
-    }else{
-        ingredientText= SpannableStringBuilder("${ingredient.name}")
+    val quantity = IngredientEvaluator.getQuantity(ingredient.name)
+    val unit = IngredientEvaluator.getUnit(quantity,ingredient.name)
+    var quantityAndUnit:String=""
+    if(quantity.length > 0 && unit.length > 0){
+        quantityAndUnit = "${quantity} ${unit}"
+    }else if(quantity.length > 0 && unit.length <= 0){
+        quantityAndUnit = "${quantity}"
+    }else if(quantity.length <= 0 && unit.length > 0){
+        quantityAndUnit = "${unit}"
     }
 
+    var ingredientText: SpannableStringBuilder
+    ingredientText = SpannableStringBuilder("${ingredient.name}")
+    ingredientText.setSpan(StyleSpan(Typeface.BOLD), 0, quantity.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
     textView.text = ingredientText
 }
@@ -223,47 +228,23 @@ fun setDifficulty(textInputEditText:TextInputEditText,difficulty:Int){
 
 @BindingAdapter("android:setIngredient")
 fun setIngredient(textView:TextView,ingredient:IngredientEntity){
-    val quantity = ingredient.quantity
-    val unit = ingredient.unit
-    val name = ingredient.name
 
-    if(quantity <=0 && unit.trim().length <=0){
-        textView.text = name
-    }else if(quantity > 0 && unit.trim().length <=0){
-        textView.text = "${NumberUtils.fraction(quantity)} ${name}"
-    }else if(quantity > 0 && unit.trim().length > 0){
-        textView.text = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
-    }
+    val name = ingredient.name
+    textView.text = name
+
 
 
 }
 @BindingAdapter("android:setIngredient")
 fun setIngredient(editText:EditText,ingredient:IngredientEntity){
-    val quantity = ingredient.quantity
-    val unit = ingredient.unit
-    val name = ingredient.name
 
-    if(quantity <=0 && unit.trim().length <=0){
-        editText.setText(name)
-        //ingredient.name = name
-    }else if(quantity > 0 && unit.trim().length <=0){
-        editText.setText("${NumberUtils.fraction(quantity)} ${name}")
-        //ingredient.name = "${NumberUtils.fraction(quantity)} ${name}"
-    }else if(quantity > 0 && unit.trim().length > 0){
-        editText.setText("${NumberUtils.fraction(quantity)} ${unit} ${name}")
-        //ingredient.name = "${NumberUtils.fraction(quantity)} ${unit} ${name}"
-    }
+    val name = ingredient.name
+    editText.setText(name)
+
 }
 @BindingAdapter("android:setIngredentToGroceryQuantityAndUnit")
 fun setIngredentToGroceryQuantityAndUnit(textView:TextView,ingredent:IngredientEntity){
-    val quantity = Math.ceil(ingredent.quantity).toInt()
-    val unit = ingredent.unit
-    if(quantity > 0){
 
-        textView.setText("${quantity} ${unit}")
-    }else{
-        textView.visibility = View.GONE
-    }
 
 }
 

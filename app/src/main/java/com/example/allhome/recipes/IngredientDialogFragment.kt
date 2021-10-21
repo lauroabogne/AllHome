@@ -68,11 +68,7 @@ class IngredientDialogFragment(var title:String ): DialogFragment() {
                 mIngredientEntityTransferringToGroceryList = mRecipesFragmentViewModel.getIngredientsForTransferringInGroceryList(requireContext(),recipe.uniqueId) as ArrayList<IngredientEntityTransferringToGroceryList>
             }?:run{
                 mIngredientEntityTransferringToGroceryList = mRecipesFragmentViewModel.getIngredientsForTransferringInGroceryListByIds(requireContext(),mRecipeUniqueIds) as ArrayList<IngredientEntityTransferringToGroceryList>
-                mIngredientEntityTransferringToGroceryList.forEachIndexed{index,ingredient->
-                    val recipeUniqueId = ingredient.ingredientEntity.recipeUniqueId
-                    val recipeCount = mRecipeUniqueIds.filter { it.equals(recipeUniqueId) }.size
-                    mIngredientEntityTransferringToGroceryList[index].ingredientEntity.quantity *= recipeCount
-                }
+
 
             }
 

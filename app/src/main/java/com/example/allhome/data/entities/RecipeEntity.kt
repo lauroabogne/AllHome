@@ -27,6 +27,7 @@ data class RecipeEntity(
     @ColumnInfo(name= COLUMN_ESTIMATED_COST) var estimatedCost:Double,
     @ColumnInfo(name= COLUMN_DESCRIPTION) var description:String,
     @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:String,
+    @ColumnInfo(name= COLUMN_SOURCE_URL) var sourceUrl:String,
     @ColumnInfo(name= COLUMN_STATUS,defaultValue = NOT_DELETED_STATUS.toString()) var status:Int,
     @ColumnInfo(name= COLUMN_UPLOADED,defaultValue = NOT_UPLOADED.toString()) var uploaded:Int,
     @ColumnInfo(name= COLUMN_CREATED, defaultValue = "CURRENT_TIMESTAMP" ) var created:String,
@@ -49,6 +50,7 @@ data class RecipeEntity(
         const val COLUMN_ESTIMATED_COST= "estimated_cost"
         const val COLUMN_DESCRIPTION= "description"
         const val COLUMN_IMAGE_NAME= "image_name"
+        const val COLUMN_SOURCE_URL= "source_url"
         const val COLUMN_STATUS= "status"
         const val COLUMN_UPLOADED= "uploaded"
         const val COLUMN_CREATED= "created"

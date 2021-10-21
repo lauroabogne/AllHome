@@ -13,8 +13,8 @@ data class IngredientEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name=COLUMN_UNIQUE_ID) var uniqueId:String,
     @ColumnInfo(name=COLUMN_RECIPE_UNIQUE_ID) var recipeUniqueId:String,
-    @ColumnInfo(name=COLUMN_QUANTITY,defaultValue = 0.toString()) var quantity:Double,
-    @ColumnInfo(name=COLUMN_UNIT) var unit:String,
+    //@ColumnInfo(name=COLUMN_QUANTITY,defaultValue = 0.toString()) var quantity:Double,
+    //@ColumnInfo(name=COLUMN_UNIT) var unit:String,
     @ColumnInfo(name=COLUMN_NAME) var name:String,
     @ColumnInfo(name=COLUMN_STATUS,defaultValue = NOT_DELETED_STATUS.toString()) var status:Int,
     @ColumnInfo(name=COLUMN_UPLOADED,defaultValue = NOT_UPLOADED.toString()) var uploaded:Int,
@@ -30,8 +30,8 @@ data class IngredientEntity(
         const val TABLE_NAME ="ingredients"
         const val COLUMN_UNIQUE_ID ="unique_id"
         const val COLUMN_RECIPE_UNIQUE_ID ="recipe_unique_id"
-        const val COLUMN_QUANTITY ="quantity"
-        const val COLUMN_UNIT ="unit"
+        //const val COLUMN_QUANTITY ="quantity"
+        //const val COLUMN_UNIT ="unit"
         const val COLUMN_NAME ="name"
         const val COLUMN_STATUS ="status"
         const val COLUMN_UPLOADED ="uploaded"

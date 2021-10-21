@@ -12,7 +12,6 @@
         android:id="@+id/text_style"
         app:showAsAction="always|withText"
         android:icon="@drawable/ic_baseline_filter_alt_24"
-        android:orderInCategory="1"
         android:title="">
         <!-- text style menu's sub menu start from here -->
         <menu>
@@ -41,4 +40,9 @@
 
         </menu>
     </item>
+    <item
+        android:id="@+id/browseRecipe"
+        android:title="Update"
+        android:icon="@drawable/ic_browse_24"
+        app:showAsAction="always" />
 </menu>

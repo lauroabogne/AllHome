@@ -1,30 +1,30 @@
 package com.example.allhome.recipes
 
-import android.animation.ObjectAnimator
+import android.app.DownloadManager
+import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.net.http.SslError
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Html
 import android.util.Log
 import android.view.*
 import android.webkit.*
+import android.webkit.WebView.HitTestResult
 import android.webkit.WebView.RENDERER_PRIORITY_BOUND
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.core.graphics.drawable.toBitmap
+import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import com.bumptech.glide.Glide
 import com.example.allhome.R
 import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeStepEntity
 import com.example.allhome.databinding.FragmentBrowseRecipeBinding
-import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.global_ui.ProgressDialogFragment
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.utils.ImageUtil
@@ -37,7 +37,6 @@ import org.json.JSONObject
 import org.json.JSONTokener
 import org.jsoup.Jsoup
 import org.jsoup.nodes.Element
-import java.io.File
 import java.io.InputStream
 import java.text.SimpleDateFormat
 import java.util.*
@@ -78,44 +77,25 @@ class BrowseRecipeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
+
+
         mFragmentBrowseRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_browse_recipe, container, false)
-
         mFragmentBrowseRecipeBinding.progressBar.max = 100
-
-
-
         mFragmentBrowseRecipeBinding.parseButton.setOnClickListener {
-
             mFragmentBrowseRecipeBinding.webview.loadUrl("javascript:(function(){let doc = \"<html>\"+(document.documentElement.innerHTML)+\"<html>\";window.JavascriptBridge.getHtmlAsString(doc)})()")
-
+        }
+        val toolBar = mFragmentBrowseRecipeBinding.toolbar
+        toolBar.title = "Browse recipe"
+        toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolBar.setNavigationOnClickListener {
+            activity?.finish()
         }
 
-
-
-        setupViewView()
-        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(),object: OnBackPressedCallback(true){
-            override fun handleOnBackPressed() {
-
-                if(mFragmentBrowseRecipeBinding.webview.canGoBack()){
-                    mFragmentBrowseRecipeBinding.webview.goBack()
-                }
-
-                Toast.makeText(requireContext(),"Backed",Toast.LENGTH_SHORT).show()
-            }
-
-        })
-
-        return mFragmentBrowseRecipeBinding.root
-    }
-
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.search_recipe_online_menu, menu)
-        val menutItem = menu.findItem(R.id.appBarSearch)
-        mSearchView = menutItem.actionView as SearchView
+        toolBar.inflateMenu(R.menu.search_recipe_online_menu)
+        val menu = toolBar.getMenu()
+        mSearchView = menu.findItem(R.id.appBarSearch).actionView as SearchView
         mSearchView.setOnQueryTextListener(object:SearchView.OnQueryTextListener{
             override fun onQueryTextSubmit(query: String?): Boolean {
-
                 mFragmentBrowseRecipeBinding.webview.loadUrl("https://www.google.com/search?q=${query}")
                 return true
             }
@@ -126,7 +106,71 @@ class BrowseRecipeFragment : Fragment() {
 
         })
 
+        setupViewView()
+        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(),object: OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+
+                if(mFragmentBrowseRecipeBinding.webview.canGoBack()){
+                    mFragmentBrowseRecipeBinding.webview.goBack()
+                    return
+                }
+                activity?.finish()
+
+            }
+
+        })
+
+        registerForContextMenu(mFragmentBrowseRecipeBinding.webview)
+
+        return mFragmentBrowseRecipeBinding.root
     }
+
+    override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
+        super.onCreateContextMenu(menu, v, menuInfo)
+
+        val webViewHitTestResult: HitTestResult = mFragmentBrowseRecipeBinding.webview.getHitTestResult()
+
+        if (webViewHitTestResult.type == HitTestResult.IMAGE_TYPE || webViewHitTestResult.type == HitTestResult.SRC_IMAGE_ANCHOR_TYPE) {
+            menu.setHeaderTitle("Download Image...")
+
+            menu.add(0, 1, 0, "Click to download")
+                .setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener{
+                    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
+                        val DownloadImageURL = webViewHitTestResult.extra
+                        if (URLUtil.isValidUrl(DownloadImageURL)) {
+//                            val mRequest = DownloadManager.Request(Uri.parse(DownloadImageURL))
+//                            mRequest.allowScanningByMediaScanner()
+//                            mRequest.setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+
+                            Toast.makeText(requireContext(), "Image Downloaded Successfully...", Toast.LENGTH_LONG).show()
+                        } else {
+                            Toast.makeText(requireContext(), "Sorry.. Something Went Wrong...", Toast.LENGTH_LONG).show()
+                        }
+                        return false
+                    }
+                })
+        }
+    }
+
+
+//    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+//        inflater.inflate(R.menu.search_recipe_online_menu, menu)
+//        val menutItem = menu.findItem(R.id.appBarSearch)
+//        mSearchView = menutItem.actionView as SearchView
+//        mSearchView.setOnQueryTextListener(object:SearchView.OnQueryTextListener{
+//            override fun onQueryTextSubmit(query: String?): Boolean {
+//
+//                mFragmentBrowseRecipeBinding.webview.loadUrl("https://www.google.com/search?q=${query}")
+//                return true
+//            }
+//
+//            override fun onQueryTextChange(newText: String?): Boolean {
+//                return true
+//            }
+//
+//        })
+//
+//    }
 
      val webChromeClint = object: WebChromeClient() {
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
@@ -149,8 +193,6 @@ class BrowseRecipeFragment : Fragment() {
 
             override fun onPageFinished(view: WebView?, url: String?) {
                 Log.e("loaded","${url}")
-               // mFragmentBrowseRecipeBinding.webview.loadUrl("javascript:(function() {alert()})()");
-                //mSearchView.setQuery(url,false)
                 super.onPageFinished(view, url)
             }
 
@@ -351,6 +393,7 @@ class BrowseRecipeFragment : Fragment() {
             estimatedCost = 0.0,
             description = description,
             imageName="",
+            "",
             status = RecipeEntity.NOT_DELETED_STATUS,
             uploaded = RecipeEntity.NOT_UPLOADED,
             created = currentDatetime,
@@ -368,8 +411,6 @@ class BrowseRecipeFragment : Fragment() {
                 val ingredientEntity = IngredientEntity(
                     uniqueId =itemUniqueID,
                     recipeUniqueId="",
-                    quantity=0.0,
-                    unit="",
                     name=it.text(),
                     status = IngredientEntity.NOT_DELETED_STATUS,
                     uploaded = IngredientEntity.NOT_UPLOADED,
@@ -411,13 +452,7 @@ class BrowseRecipeFragment : Fragment() {
     suspend fun parseDataForMicroData(microDataFormatElement: Element){
 
         createRecipeEntityFromMicroDataFormat(microDataFormatElement)
-//        val ingredientElements = microDataFormatElement.select("[itemprop=recipeIngredient]")
-//        ingredientElements.forEachIndexed{index,element->
-//            val ingredient = element.attr("content")
-//            //Log.e("NAME","${element.attr("content")}")
-//            //Log.e("============","===========")
-//        }
-        //microDataFormatElement.select()
+
 
 
     }
@@ -494,6 +529,7 @@ class BrowseRecipeFragment : Fragment() {
             estimatedCost = 0.0,
             description = description,
             imageName="",
+            "",
             status = RecipeEntity.NOT_DELETED_STATUS,
             uploaded = RecipeEntity.NOT_UPLOADED,
             created = currentDatetime,
@@ -521,8 +557,7 @@ class BrowseRecipeFragment : Fragment() {
                 val ingredientEntity = IngredientEntity(
                     uniqueId =itemUniqueID,
                     recipeUniqueId="",
-                    quantity=0.0,
-                    unit="",
+
                     name=if(it.text().trim().length >0) it.text() else it.attr("content"),
                     status = IngredientEntity.NOT_DELETED_STATUS,
                     uploaded = IngredientEntity.NOT_UPLOADED,
@@ -792,6 +827,7 @@ class BrowseRecipeFragment : Fragment() {
             estimatedCost = 0.0,
             description = description,
             imageName="",
+            "",
             status = RecipeEntity.NOT_DELETED_STATUS,
             uploaded = RecipeEntity.NOT_UPLOADED,
             created = currentDatetime,
@@ -935,8 +971,6 @@ class BrowseRecipeFragment : Fragment() {
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
-                quantity=0.0,
-                unit="",
                 name=jsonObjectRecipe.getString("recipeIngredient"),
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,
@@ -958,8 +992,6 @@ class BrowseRecipeFragment : Fragment() {
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
-                quantity=0.0,
-                unit="",
                 name=ingredient,
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,

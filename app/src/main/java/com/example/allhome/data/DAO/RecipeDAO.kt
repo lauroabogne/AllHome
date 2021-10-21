@@ -11,7 +11,7 @@ interface RecipeDAO {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun addOrUpdateItem(recipeEntity: RecipeEntity):Long
 
-    @Query("SELECT *,0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT},0 AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT} FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_NAME} LIKE '%'||:searchTerm||'%' AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}")
+    @Query("SELECT *,0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT},0 AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT} FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_NAME} LIKE '%'||:searchTerm||'%' AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} ORDER BY ${RecipeEntity.COLUMN_NAME}")
     suspend fun getRecipes(searchTerm:String):List<RecipeEntityWithTotalIngredient>
     @Query("UPDATE recipes SET status=${RecipeEntity.DELETED_STATUS} WHERE unique_id=:uniqueId ")
     suspend fun updateRecipeByUniqueIdAsDeleted(uniqueId:String):Int

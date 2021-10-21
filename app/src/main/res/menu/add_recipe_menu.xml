@@ -11,9 +11,5 @@
         android:visible="false"
         android:title="Update"
         app:showAsAction="always" />
-    <item
-        android:id="@+id/browseRecipe"
-        android:title="Update"
-        android:icon="@drawable/ic_browse_24"
-        app:showAsAction="always" />
+
 </menu>

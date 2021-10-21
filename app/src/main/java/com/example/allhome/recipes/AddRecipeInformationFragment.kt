@@ -131,9 +131,8 @@ class AddRecipeInformationFragment : Fragment() {
             showIntentChooser()
         }
 
-        Log.e("THE_IMAGE_NAME","${mAction}")
         if(mAction == ADD_FROM_BROWSER_ACTION ){
-            Log.e("THE_IMAGE_NAME","${mRecipeEntity?.imageName} ----")
+
             mRecipeEntity?.imageName?.let {
 
 
@@ -157,7 +156,6 @@ class AddRecipeInformationFragment : Fragment() {
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-        Toast.makeText(requireContext(),"Recieced",Toast.LENGTH_SHORT).show()
         if(requestCode == REQUEST_PICK_IMAGE){
             data?.data?.let{
                 lauchImageCropper(it)
@@ -319,6 +317,7 @@ class AddRecipeInformationFragment : Fragment() {
                 estimatedCost = estimatedCost.toDouble(),
                 description = description,
                 imageName = "",
+                "",
                 status = RecipeEntity.NOT_DELETED_STATUS,
                 uploaded = RecipeEntity.NOT_UPLOADED,
                 created = mRecipeEntity!!.created,
@@ -342,6 +341,7 @@ class AddRecipeInformationFragment : Fragment() {
                 estimatedCost = estimatedCost.toDouble(),
                 description = description,
                 imageName = "",
+                "",
                 status = RecipeEntity.NOT_DELETED_STATUS,
                 uploaded = RecipeEntity.NOT_UPLOADED,
                 created = currentDatetime,

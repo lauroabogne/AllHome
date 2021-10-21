@@ -4,15 +4,10 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
-import android.os.Handler
-import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.widget.addTextChangedListener
 import androidx.databinding.DataBindingUtil
@@ -20,24 +15,20 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
 import com.example.allhome.R
-import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.AddIngredientItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeIngredientsBinding
-import com.example.allhome.grocerylist.GroceryItemRecyclerViewAdapter
-import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.recipes.viewmodel.AddRecipeIngredientsFragmentModel
 import com.example.allhome.utils.IngredientEvaluator
-import kotlinx.coroutines.*
-import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.collections.ArrayList
 
 
 class AddRecipeIngredientsFragment : Fragment() {
@@ -210,31 +201,23 @@ class AddRecipeIngredientsFragment : Fragment() {
 
         if(mAction == EDIT_ACTION){
             mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
-                val evaluatedIngredient = IngredientEvaluator.evaluate(it.name)
 
-                evaluatedIngredient.uniqueId = it.uniqueId
-                evaluatedIngredient.recipeUniqueId = it.recipeUniqueId
-                evaluatedIngredient.status = IngredientEntity.NOT_DELETED_STATUS
-                evaluatedIngredient.uploaded = IngredientEntity.NOT_UPLOADED
-                evaluatedIngredient.created = it.created
-                evaluatedIngredient.modified = currentDatetime
+                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId, it.name,
+                    IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, it.created, currentDatetime)
 
-                evaluatedIngredients.add(evaluatedIngredient)
+
+                evaluatedIngredients.add(ingredientEntity)
             }
 
             return evaluatedIngredients
 
         }else{
             mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
-                val evaluatedIngredient = IngredientEvaluator.evaluate(it.name)
 
-                evaluatedIngredient.uniqueId = it.uniqueId
-                evaluatedIngredient.status = IngredientEntity.NOT_DELETED_STATUS
-                evaluatedIngredient.uploaded = IngredientEntity.NOT_UPLOADED
-                evaluatedIngredient.created = currentDatetime
-                evaluatedIngredient.modified = currentDatetime
+                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId, it.name,
+                    IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, currentDatetime, currentDatetime)
 
-                evaluatedIngredients.add(evaluatedIngredient)
+                evaluatedIngredients.add(ingredientEntity)
             }
 
             return evaluatedIngredients
@@ -254,8 +237,6 @@ class AddRecipeIngredientsFragment : Fragment() {
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
-                quantity=0.0,
-                unit="",
                 name="",
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,
