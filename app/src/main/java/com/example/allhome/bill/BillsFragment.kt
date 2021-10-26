@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -42,11 +43,11 @@ class BillsFragment : Fragment() {
 
 
 
-
     companion object {
         const val RESULT_TAG = "RESULT_TAG"
         const val VIEW_INFORMATION_REQUEST = 1986
         const val ADD_PAYMENT_REQUEST = 1987
+        const val CREATE_BILL_REQUEST = 1988
         const val WEEK_VIEWING = 0
         const val MONTH_VIEWING = 1
         const val YEAR_VIEWING = 2
@@ -60,6 +61,39 @@ class BillsFragment : Fragment() {
                 }
             }
     }
+    private val createBillResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){activityResult->
+
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            getBills(mBillViewModel.mStartingCalendar,mBillViewModel.mEndingCalendar)
+        }
+    }
+
+    private val viewBillOrAddPaymentResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            val billEntityWithTotalPayment = activityResult.data?.getParcelableExtra<BillEntityWithTotalPayment>(RESULT_TAG)
+            mBillViewModel.mCoroutineScope.launch {
+                val startDateString = SimpleDateFormat("yyyy-MM-dd").format(mBillViewModel.mStartingCalendar.time)
+                val endDateString = SimpleDateFormat("yyyy-MM-dd").format(mBillViewModel.mEndingCalendar.time)
+                mBillViewModel.mTotalAmountDue = mBillViewModel.getTotalAmountDue(requireContext(),startDateString,endDateString)
+                mBillViewModel.mTotalAmountPaid = mBillViewModel.getTotalPaymentAmount(requireContext(),startDateString,endDateString)
+                val newBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(), billEntityWithTotalPayment?.billEntity!!.uniqueId)
+                withContext(Main){
+                    val adapter = mFragmentBillsBinding.recyclerView.adapter as BillRecyclerviewViewAdapater
+                    val index = adapter.bills.indexOfFirst {
+                        it.billEntity.uniqueId == newBillEntityWithTotalPayment.billEntity.uniqueId
+                    }
+                    adapter.bills.set(index,newBillEntityWithTotalPayment)
+                    adapter.notifyItemChanged(index)
+                    mFragmentBillsBinding.invalidateAll()
+                }
+            }
+
+
+        }
+
+
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -72,6 +106,7 @@ class BillsFragment : Fragment() {
         }
 
         requireActivity().title = "Bills"
+
 
     }
 
@@ -136,16 +171,15 @@ class BillsFragment : Fragment() {
         when(item.itemId){
             R.id.addBillMenuItem->{
                 val intent = Intent(requireContext(), BillActivity::class.java)
-                intent.putExtra(BillActivity.TITLE_TAG,"Create bill payment")
+                intent.putExtra(BillActivity.TITLE_TAG,"Create bill")
                 intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.ADD_BILL_FRAGMENT)
-                requireContext().startActivity(intent)
+                createBillResultContract.launch(intent)
             }
             R.id.billViewByWeekMenu->{
                 Toast.makeText(requireContext(),"billViewByWeekMenu",Toast.LENGTH_SHORT).show()
                 mBillViewModel.mVIEWING = WEEK_VIEWING
                 generateWeek()
                 getBills(mBillViewModel.mStartingCalendar,mBillViewModel.mEndingCalendar)
-
 
             }
             R.id.billViewByMonthMenu->{
@@ -185,44 +219,6 @@ class BillsFragment : Fragment() {
         }
         return true
     }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-
-        if(resultCode == Activity.RESULT_OK){
-            when(requestCode){
-                VIEW_INFORMATION_REQUEST, ADD_PAYMENT_REQUEST->{
-
-                    val billEntityWithTotalPayment = data?.getParcelableExtra<BillEntityWithTotalPayment>(RESULT_TAG)
-
-                    mBillViewModel.mCoroutineScope.launch {
-
-                        val startDateString = SimpleDateFormat("yyyy-MM-dd").format(mBillViewModel.mStartingCalendar.time)
-                        val endDateString = SimpleDateFormat("yyyy-MM-dd").format(mBillViewModel.mEndingCalendar.time)
-
-                         mBillViewModel.mTotalAmountDue = mBillViewModel.getTotalAmountDue(requireContext(),startDateString,endDateString)
-                        mBillViewModel.mTotalAmountPaid = mBillViewModel.getTotalPaymentAmount(requireContext(),startDateString,endDateString)
-
-                        val newBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(), billEntityWithTotalPayment?.billEntity!!.uniqueId)
-
-                        withContext(Main){
-                            val adapter = mFragmentBillsBinding.recyclerView.adapter as BillRecyclerviewViewAdapater
-                            val index = adapter.bills.indexOfFirst {
-                                it.billEntity.uniqueId == newBillEntityWithTotalPayment.billEntity.uniqueId
-                            }
-                            adapter.bills.set(index,newBillEntityWithTotalPayment)
-                            adapter.notifyItemChanged(index)
-                            mFragmentBillsBinding.invalidateAll()
-                        }
-                    }
-                }
-            }
-
-        }
-
-    }
-
 
     fun getBills(startCalendar:Calendar,endCalendar:Calendar){
 
@@ -270,7 +266,8 @@ class BillsFragment : Fragment() {
         intent.putExtra(BillActivity.TITLE_TAG,"Bill Informations")
         intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.BILL_INFORMATIONS_VIEWING)
         intent.putExtra(BillInformationViewingFragment.ARG_BILL_ENTITY,billEntity)
-        startActivityForResult(intent,VIEW_INFORMATION_REQUEST)
+        viewBillOrAddPaymentResultContract.launch(intent)
+        //startActivityForResult(intent,VIEW_INFORMATION_REQUEST)
     }
     fun openActivityToAddPayment(billEntity:BillEntityWithTotalPayment){
 
@@ -279,7 +276,8 @@ class BillsFragment : Fragment() {
         intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.ADD_BILL_PAYMENT_FRAGMENT)
         intent.putExtra(AddPaymentFragment.ARG_ACTION,AddPaymentFragment.ADD_ACTION)
         intent.putExtra(AddPaymentFragment.ARG_BILL_ENTITY,billEntity)
-        startActivityForResult(intent,ADD_PAYMENT_REQUEST)
+        //startActivityForResult(intent,ADD_PAYMENT_REQUEST)
+        viewBillOrAddPaymentResultContract.launch(intent)
 
     }
 

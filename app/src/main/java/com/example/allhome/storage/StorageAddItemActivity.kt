@@ -165,7 +165,7 @@ class StorageAddItemActivity : AppCompatActivity() {
 
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.pantry_add_item_menu, menu)
         if(mAction == ADD_NEW_RECORD_ACTION){
 
@@ -177,8 +177,10 @@ class StorageAddItemActivity : AppCompatActivity() {
             menu?.findItem(R.id.save_pantry_item_menu)?.isVisible = false
         }
 
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+    
+
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){

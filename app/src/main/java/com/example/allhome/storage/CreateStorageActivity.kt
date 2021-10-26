@@ -92,10 +92,15 @@ class CreateStorageActivity : AppCompatActivity() {
 
         return super.onPrepareOptionsMenu(menu)
     }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.create_storage_menu, menu)
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.create_storage_menu, menu)
+//        return true
+//    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == StorageAddItemActivity.REQUEST_PICK_IMAGE){

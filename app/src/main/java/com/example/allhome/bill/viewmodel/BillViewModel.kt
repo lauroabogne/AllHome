@@ -98,6 +98,15 @@ class BillViewModel: ViewModel() {
 
         return billDAO.getTotalPaymentAmount(startDate,endDate)
     }
+    suspend fun getCategory(context:Context,name:String):BillCategoryEntity{
+        val billCategoryDAO = AllHomeDatabase.getDatabase(context).getBillCategoryDAO()
+        return billCategoryDAO.getCategory(name)
+
+    }
+    suspend fun saveBillCategory(context: Context,billCategory:BillCategoryEntity){
+        val billCategoryDAO = AllHomeDatabase.getDatabase(context).getBillCategoryDAO()
+        billCategoryDAO.saveCategory(billCategory)
+    }
 
 
 }
