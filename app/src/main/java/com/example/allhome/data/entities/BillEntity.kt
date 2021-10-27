@@ -36,6 +36,7 @@ data class BillEntity(
     @ColumnInfo(name= COLUMN_GROUP_UNIQUE_ID) var groupUniqueId:String,
     @ColumnInfo(name= COLUMN_AMOUNT) var amount:Double,
     @ColumnInfo(name= COLUMN_NAME) var name:String,
+    @ColumnInfo(name= COLUMN_CATEGORY) var category:String,
     @ColumnInfo(name= COLUMN_DUE_DATE) var dueDate:String,
     @ColumnInfo(name= COLUMN_IS_RECURRING) var isRecurring:Int,
     @ColumnInfo(name= COLUMN_REPEAT_EVERY) var repeatEvery:Int,
@@ -61,6 +62,7 @@ data class BillEntity(
         const val COLUMN_UNIQUE_ID ="unique_id"
         const val COLUMN_AMOUNT ="amount"
         const val COLUMN_NAME ="name"
+        const val COLUMN_CATEGORY ="category"
         const val COLUMN_DUE_DATE ="due_date"
         const val COLUMN_IS_RECURRING ="is_recurring"
         const val COLUMN_REPEAT_EVERY ="repeat_every"

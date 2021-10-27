@@ -121,15 +121,25 @@ class AddRecipeActivity : AppCompatActivity() {
         mActivityAddRecipeBinding.viewPager2.isUserInputEnabled = false
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-        menuInflater.inflate(R.menu.add_recipe_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+       menuInflater.inflate(R.menu.add_recipe_menu, menu)
         if(mAction == EDIT_ACTION){
             menu?.findItem(R.id.saveRecipe)?.isVisible = false
             menu?.findItem(R.id.browseRecipe)?.isVisible = false
             menu?.findItem(R.id.updateRecipe)?.isVisible = true
         }
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.add_recipe_menu, menu)
+//        if(mAction == EDIT_ACTION){
+//            menu?.findItem(R.id.saveRecipe)?.isVisible = false
+//            menu?.findItem(R.id.browseRecipe)?.isVisible = false
+//            menu?.findItem(R.id.updateRecipe)?.isVisible = true
+//        }
+//        return true
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 

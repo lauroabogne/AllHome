@@ -545,7 +545,9 @@ class StorageActivity : AppCompatActivity() {
 
 
     }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+
+
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.storage_item_activity_menu, menu)
 
         when(mFilter){
@@ -630,9 +632,9 @@ class StorageActivity : AppCompatActivity() {
                 }
             })
         }
-
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+
     fun showCalendarForLastUpdateFilter(){
 
         val calendar = Calendar.getInstance()

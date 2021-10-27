@@ -459,13 +459,20 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
 
     }
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
 
-        menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
+       menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
         mMenu = menu
-
-        return true
+        return super.onCreateOptionsMenu(menu)
     }
+
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//
+//        menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
+//        mMenu = menu
+//
+//        return true
+//    }
 
     override fun onBackPressed() {
         val returnIntent = Intent()

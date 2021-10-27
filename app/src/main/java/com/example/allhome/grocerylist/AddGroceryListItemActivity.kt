@@ -77,6 +77,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         setContentView(R.layout.activity_add_grocery_list_item)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
+
         intent.getStringExtra(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
@@ -483,7 +484,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
     }
 
-    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+    override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.add_grocery_item, menu)
         if(action == ADD_NEW_RECORD_ACTION){
             menu?.findItem(R.id.add_item)?.isVisible = true
@@ -493,6 +494,17 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
         return super.onCreateOptionsMenu(menu)
     }
+
+//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+//        menuInflater.inflate(R.menu.add_grocery_item, menu)
+//        if(action == ADD_NEW_RECORD_ACTION){
+//            menu?.findItem(R.id.add_item)?.isVisible = true
+//
+//        }else if(action == UPDATE_RECORD_ACTION){
+//            menu?.findItem(R.id.update_item)?.isVisible = true
+//        }
+//        return super.onCreateOptionsMenu(menu)
+//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
 

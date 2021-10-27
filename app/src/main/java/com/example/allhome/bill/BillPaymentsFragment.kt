@@ -1,5 +1,6 @@
 package com.example.allhome.bill
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -9,6 +10,7 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.PopupMenu
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -41,7 +43,13 @@ class BillPaymentsFragment : Fragment() {
     lateinit var mFragmentBillPaymentsBinding:FragmentBillPaymentsBinding
     lateinit var mBillViewModel:BillViewModel
 
+    private val editBillPaymentResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            getBillPayments()
+            (parentFragment as BillFragmentCommunicator).updateBillInformationFragment(mBillEntityWithTotalPayment)
 
+        }
+    }
 
     companion object {
         const val ARG_BILL_ENTITY = "ARG_BILL_ENTITY"
@@ -83,6 +91,7 @@ class BillPaymentsFragment : Fragment() {
 
     fun getBillPayments(){
         mBillViewModel.mCoroutineScope.launch {
+
 
             val payments = mBillViewModel.getPayments(requireContext(),mBillEntityWithTotalPayment.billEntity.uniqueId)
 
@@ -176,8 +185,8 @@ class BillPaymentsFragment : Fragment() {
                                 intent.putExtra(AddPaymentFragment.ARG_BILL_ENTITY,billPaymentsFragment.mBillEntityWithTotalPayment)
                                 intent.putExtra(AddPaymentFragment.ARG_ACTION,AddPaymentFragment.EDIT_ACTION)
                                 intent.putExtra(AddPaymentFragment.ARG_PAYMENT_ENTITY,billPaymentEntity)
+                                editBillPaymentResultContract.launch(intent)
 
-                                view.context.startActivity(intent)
                             }
                             R.id.deleteBillMenu->{
 

@@ -1,31 +1,30 @@
 package com.example.allhome.bill
 
+import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import androidx.fragment.app.Fragment
-import android.widget.*
+import android.widget.AdapterView
+import android.widget.RadioGroup
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.room.ColumnInfo
 import com.example.allhome.R
 import com.example.allhome.bill.viewmodel.BillViewModel
+import com.example.allhome.data.entities.BillCategoryEntity
 import com.example.allhome.data.entities.BillEntity
-import com.example.allhome.data.entities.StorageItemEntityValues
-import com.example.allhome.data.entities.StorageItemExpirationEntity
 import com.example.allhome.databinding.FragmentAddBillBinding
-import com.example.allhome.global_ui.CustomMessageDialogFragment
-import com.example.allhome.meal_planner.AddMealDialogFragment
-import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
-import com.example.allhome.storage.PantryItemRecyclerViewAdapter
 import com.example.allhome.utils.MinMaxInputFilter
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
+
 
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -42,6 +41,7 @@ class AddBillFragment : Fragment() {
     var mRepeatUntilDate:String? = null
 
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -49,13 +49,34 @@ class AddBillFragment : Fragment() {
             param2 = it.getString(ARG_PARAM2)
         }
         setHasOptionsMenu(true)
-
         mBillViewModel = ViewModelProvider(this).get(BillViewModel::class.java)
 
+        val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
+        toolbar?.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolbar?.title = "Create bill"
+        toolbar?.inflateMenu(R.menu.create_bill_menu)
+        toolbar?.setNavigationOnClickListener {
+
+           activity?.finish()
+        }
+        toolbar?.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.saveBillMenu->{
+                    when(mFragmentAddBillBinding.oneTimeOrRecurringRadioGroup.checkedRadioButtonId){
+                        R.id.recurringRadioButton->{
+                            saveRecurring()
+                        }
+                        R.id.onetimeRadioButton->{
+                            saveOnetimeBill()
+                        }
+                    }
+                }
+            }
+            true
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
 
         mFragmentAddBillBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_bill,null,false)
         mFragmentAddBillBinding.oneTimeOrRecurringRadioGroup.setOnCheckedChangeListener(oneTimeOrRecurringRadioGroupOnChangeCheckedListener)
@@ -71,37 +92,6 @@ class AddBillFragment : Fragment() {
 
         return mFragmentAddBillBinding.root
     }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.create_bill_menu, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when(item.itemId){
-            R.id.saveBillMenu->{
-                when(mFragmentAddBillBinding.oneTimeOrRecurringRadioGroup.checkedRadioButtonId){
-                    R.id.recurringRadioButton->{
-
-                        saveRecurring()
-                    }
-                    R.id.onetimeRadioButton->{
-
-                        saveOnetimeBill()
-
-                    }
-                }
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    fun clickCalendar(view:View){
-
-
-    }
     private fun saveRecurring(){
 
         when(mFragmentAddBillBinding.recurringBillIncludeLayout.recurringConditionRadioGroup.checkedRadioButtonId){
@@ -113,7 +103,6 @@ class AddBillFragment : Fragment() {
             }
         }
 
-        Toast.makeText(requireContext(),"Recurring",Toast.LENGTH_SHORT).show()
 
     }
     private fun saveBillWithEndDate(){
@@ -123,6 +112,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
+        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
 
         val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
         val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
@@ -167,6 +157,30 @@ class AddBillFragment : Fragment() {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
+        val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        var billUniqueId = UUID.randomUUID().toString()
+
+        val billEntity = BillEntity(
+            groupUniqueId =  billsGroupUniqueId,
+            uniqueId = billUniqueId,
+            amount = billAmountDouble,
+            name = billName,
+            category = category,
+            dueDate = formatedDate,
+            isRecurring = BillEntity.RECURRING,
+            repeatEvery = repeatEveryInt,
+            repeatBy = repeatEvery,
+            repeatUntil= mRepeatUntilDate!!,
+            repeatCount = 0,
+            imageName = "",
+            status = BillEntity.NOT_DELETED_STATUS,
+            uploaded = BillEntity.NOT_UPLOADED,
+            created = currentDatetime,
+            modified = currentDatetime
+        )
+        //add first bill
+        billEntities.add(billEntity)
+
         when(repeatEvery){
             requireContext().getString(R.string.day)->{
 
@@ -181,6 +195,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -211,6 +226,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -243,6 +259,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -275,6 +292,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -314,6 +332,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -346,6 +365,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -366,9 +386,22 @@ class AddBillFragment : Fragment() {
         }
 
         mBillViewModel.mCoroutineScope.launch {
-            mBillViewModel.addBills(requireContext(),billEntities)
-            withContext(Main){
+            val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
+            if(category.isNotEmpty() && billCategoryEntity == null){
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
+            }
 
+            val id =  mBillViewModel.addBills(requireContext(),billEntities)
+
+            withContext(Main){
+                if(id.size > 0){
+                    val intent = Intent()
+                    requireActivity().setResult(Activity.RESULT_OK,intent)
+                    requireActivity().finish()
+                }else{
+                    Toast.makeText(requireContext(),"Failed to save bill. Please try again.",Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -380,6 +413,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
+        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
 
         val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
         val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
@@ -407,8 +441,7 @@ class AddBillFragment : Fragment() {
         }
 
 
-        val repeatTimesString = mFragmentAddBillBinding.recurringBillIncludeLayout.timesTextInputEditText.text.toString().trim()
-        val repeatTimesInt = if(repeatTimesString.isEmpty()) 0 else repeatTimesString.toInt()
+
 
         val dueDateCalendar = Calendar.getInstance()
         dueDateCalendar.time = SimpleDateFormat("yyyy-MM-dd").parse(mDueDate)
@@ -419,8 +452,36 @@ class AddBillFragment : Fragment() {
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
+        val formatedDate = SimpleDateFormat("yyyy-MM-dd").format(dueDateCalendar.time)
+        var billUniqueId = UUID.randomUUID().toString()
+
+        val repeatTimesString = mFragmentAddBillBinding.recurringBillIncludeLayout.timesTextInputEditText.text.toString().trim()
+        // repeatTimesInt - 1 because first bill added outside repeat function. See code below
+        val repeatTimesInt = if(repeatTimesString.isEmpty()) 0 else repeatTimesString.toInt() - 1
+
+        val billEntity = BillEntity(
+            groupUniqueId =  billsGroupUniqueId,
+            uniqueId = billUniqueId,
+            amount = billAmountDouble,
+            name = billName,
+            category = category,
+            dueDate = formatedDate,
+            isRecurring = BillEntity.RECURRING,
+            repeatEvery = repeatEveryInt,
+            repeatBy = repeatEvery,
+            repeatUntil= "",
+            repeatCount = 0,
+            imageName = "",
+            status = BillEntity.NOT_DELETED_STATUS,
+            uploaded = BillEntity.NOT_UPLOADED,
+            created = currentDatetime,
+            modified = currentDatetime
+        )
+
+        billEntities.add(billEntity)
 
         repeat(repeatTimesInt){
+
             when(repeatEvery){
                 requireContext().getString(R.string.day)->{
 
@@ -434,6 +495,7 @@ class AddBillFragment : Fragment() {
                             uniqueId = billUniqueId,
                             amount = billAmountDouble,
                             name = billName,
+                            category = category,
                             dueDate = formatedDate,
                             isRecurring = BillEntity.RECURRING,
                             repeatEvery = repeatEveryInt,
@@ -460,6 +522,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -485,6 +548,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -512,6 +576,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -546,6 +611,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -571,6 +637,7 @@ class AddBillFragment : Fragment() {
                         uniqueId = billUniqueId,
                         amount = billAmountDouble,
                         name = billName,
+                        category = category,
                         dueDate = formatedDate,
                         isRecurring = BillEntity.RECURRING,
                         repeatEvery = repeatEveryInt,
@@ -589,11 +656,22 @@ class AddBillFragment : Fragment() {
             }
         }
 
-        Log.e("BILLS",billEntities.toString())
         mBillViewModel.mCoroutineScope.launch {
-            mBillViewModel.addBills(requireContext(),billEntities)
-            withContext(Main){
+            val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
+            if(category.isNotEmpty() && billCategoryEntity == null){
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
 
+            }
+            val ids = mBillViewModel.addBills(requireContext(),billEntities)
+            withContext(Main){
+                if(ids.size > 0){
+                    val intent = Intent()
+                    requireActivity().setResult(Activity.RESULT_OK,intent)
+                    requireActivity().finish()
+                }else{
+                    Toast.makeText(requireContext(),"Failed to save bill. Please try again.",Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }
@@ -603,6 +681,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
+        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
         if(billAmountDouble <=0){
             Toast.makeText(requireContext(),"Please input bill amount.",Toast.LENGTH_SHORT).show()
             return
@@ -630,6 +709,7 @@ class AddBillFragment : Fragment() {
             uniqueId = billUniqueId,
             amount = billAmountDouble,
             name = billName,
+            category = category,
             dueDate = mDueDate!!,
             isRecurring = BillEntity.NOT_RECURRING,
             repeatEvery = BillEntity.NOT_RECURRING,
@@ -644,9 +724,25 @@ class AddBillFragment : Fragment() {
         )
 
         mBillViewModel.mCoroutineScope.launch {
-            val id = mBillViewModel.addBill(requireContext(),billEntity)
-            withContext(Main){
 
+
+            val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
+            if(category.isNotEmpty() && billCategoryEntity == null){
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
+
+            }
+
+            val id = mBillViewModel.addBill(requireContext(),billEntity)
+
+            withContext(Main){
+                if(id > 0){
+                    val intent = Intent()
+                    requireActivity().setResult(Activity.RESULT_OK,intent)
+                    requireActivity().finish()
+                }else{
+                    Toast.makeText(requireContext(),"Failed to save bill. Please try again.",Toast.LENGTH_SHORT).show()
+                }
             }
         }
 
@@ -775,7 +871,7 @@ class AddBillFragment : Fragment() {
     }
     private val dateInMonthDialogFragmentDateSelectedListener = object:DateInMonthDialogFragment.DateSelectedListener{
         override fun dateSelected(date: String) {
-            Toast.makeText(requireContext(),"date selected ${date}",Toast.LENGTH_SHORT).show()
+
             mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.setText(date)
         }
 

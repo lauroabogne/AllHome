@@ -3,8 +3,10 @@ package com.example.allhome.bill
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -33,6 +35,12 @@ class BillInformationViewingFragment : Fragment(),BillFragmentCommunicator {
     lateinit var mFragmentBillInformationViewingBinding:FragmentBillInformationViewingBinding
     lateinit var mBillViewModel: BillViewModel
 
+    private val addBillPaymentResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            initFragments(mBillEntityWithTotalPayment)
+        }
+    }
+
     companion object {
         const val ARG_BILL_ENTITY = "ARG_BILL_ENTITY"
         @JvmStatic fun newInstance(billEntity: BillEntityWithTotalPayment, param2: String) =
@@ -52,14 +60,26 @@ class BillInformationViewingFragment : Fragment(),BillFragmentCommunicator {
         }
 
         setHasOptionsMenu(true)
-        val toolbar: Toolbar = requireActivity().findViewById<View>(R.id.toolbar) as Toolbar
-        toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
-
         mBillViewModel = ViewModelProvider(this).get(BillViewModel::class.java)
+
+        val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
+        toolbar?.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolbar?.title = "Bill Informations"
+        toolbar?.inflateMenu(R.menu.bill_information_menu)
+        toolbar?.setNavigationOnClickListener(toolbarNavigationClickListener)
+        toolbar?.setOnMenuItemClickListener {
+            when (it.itemId) {
+                R.id.addBillPaymentMenu -> {
+                    openActivityToAddPayment(mBillEntityWithTotalPayment)
+                }
+            }
+            true
+        }
+
+
+
     }
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.bill_information_menu, menu)
-    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentBillInformationViewingBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_bill_information_viewing,null,false)
 
@@ -67,38 +87,24 @@ class BillInformationViewingFragment : Fragment(),BillFragmentCommunicator {
         return mFragmentBillInformationViewingBinding.root
     }
     fun initFragments(billEntityWithTotalPayment:BillEntityWithTotalPayment){
-        childFragmentManager.beginTransaction().replace(R.id.billInformationFragmentContainer,BillInformationFragment.newInstance(billEntityWithTotalPayment,"")).commit()
-        childFragmentManager.beginTransaction().replace(R.id.billPaymentFragmentContainer,BillPaymentsFragment.newInstance(billEntityWithTotalPayment,"")).commit()
+
+        mBillViewModel.mCoroutineScope.launch {
+            mBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(),billEntityWithTotalPayment.billEntity.uniqueId)
+            withContext(Main){
+                childFragmentManager.beginTransaction().replace(R.id.billInformationFragmentContainer,BillInformationFragment.newInstance(mBillEntityWithTotalPayment,"")).commit()
+                childFragmentManager.beginTransaction().replace(R.id.billPaymentFragmentContainer,BillPaymentsFragment.newInstance(billEntityWithTotalPayment,"")).commit()
+            }
+        }
+
 
     }
     override fun updateBillInformationFragment(billEntityWithTotalPayment:BillEntityWithTotalPayment) {
 
-        mBillEntityWithTotalPayment = billEntityWithTotalPayment
-        childFragmentManager.beginTransaction().replace(R.id.billInformationFragmentContainer,BillInformationFragment.newInstance(mBillEntityWithTotalPayment,"")).commit()
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-            R.id.addBillPaymentMenu -> {
-                openActivityToAddPayment(mBillEntityWithTotalPayment)
-            }
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if(resultCode == Activity.RESULT_OK && requestCode == BillsFragment.ADD_PAYMENT_REQUEST){
-
-            mBillViewModel.mCoroutineScope.launch {
-                mBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(),mBillEntityWithTotalPayment.billEntity.uniqueId)
-                withContext(Main){
-                    initFragments(mBillEntityWithTotalPayment)
-                }
-            }
-        }
+        initFragments(billEntityWithTotalPayment)
 
     }
+
+
     fun openActivityToAddPayment(billEntity:BillEntityWithTotalPayment){
 
         val intent = Intent(requireContext(), BillActivity::class.java)
@@ -106,7 +112,8 @@ class BillInformationViewingFragment : Fragment(),BillFragmentCommunicator {
         intent.putExtra(BillActivity.WHAT_FRAGMENT,BillActivity.ADD_BILL_PAYMENT_FRAGMENT)
         intent.putExtra(AddPaymentFragment.ARG_ACTION,AddPaymentFragment.ADD_ACTION)
         intent.putExtra(AddPaymentFragment.ARG_BILL_ENTITY,billEntity)
-        startActivityForResult(intent, BillsFragment.ADD_PAYMENT_REQUEST)
+        addBillPaymentResultContract.launch(intent)
+
 
     }
     val toolbarNavigationClickListener= object: View.OnClickListener{

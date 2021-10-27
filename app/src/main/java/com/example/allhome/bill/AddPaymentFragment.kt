@@ -71,8 +71,32 @@ class AddPaymentFragment : Fragment() {
 
         }
 
-        val toolbar: Toolbar = requireActivity().findViewById<View>(R.id.toolbar) as Toolbar
-        toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
+        val toolbar = activity?.findViewById<Toolbar>(R.id.toolbar)
+        toolbar?.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolbar?.title = "Add bill payment"
+        toolbar?.inflateMenu(R.menu.save_bill_payment_menu)
+        toolbar?.setNavigationOnClickListener(toolbarNavigationClickListener)
+        toolbar?.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.saveBillPaymentMenu->{
+                    savePayment()
+                }
+                R.id.updateBilPaymentMenu->{
+                    updatePayment()
+                }
+            }
+            true
+        }
+
+
+        if(mAction == ADD_ACTION){
+
+            toolbar?.menu?.findItem(R.id.updateBilPaymentMenu)?.setVisible(false)
+            toolbar?.menu?.findItem(R.id.saveBillPaymentMenu)?.setVisible(true)
+        }else{
+            toolbar?.menu?.findItem(R.id.updateBilPaymentMenu)?.setVisible(true)
+            toolbar?.menu?.findItem(R.id.saveBillPaymentMenu)?.setVisible(false)
+        }
 
 
     }
@@ -243,7 +267,9 @@ class AddPaymentFragment : Fragment() {
             }
             withContext(Main){
                 Toast.makeText(requireContext(),"Payment update successfully",Toast.LENGTH_SHORT).show()
-                activity?.finish()
+                val intent = Intent()
+                requireActivity().setResult(Activity.RESULT_OK,intent)
+                requireActivity().finish()
             }
         }
 
