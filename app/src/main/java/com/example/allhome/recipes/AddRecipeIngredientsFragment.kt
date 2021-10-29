@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -202,11 +203,16 @@ class AddRecipeIngredientsFragment : Fragment() {
         if(mAction == EDIT_ACTION){
             mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
 
-                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId, it.name,
-                    IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, it.created, currentDatetime)
+                val ingredient = "${it.quantity} ${it.unit} ${it.name}".trim()
+                val quantity = IngredientEvaluator.getQuantity(ingredient)
+                val unit = IngredientEvaluator.getUnit(quantity,ingredient)
+                val name = ingredient.replace(quantity,"").replace(unit,"").trim()
 
+                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId,quantity,unit, name,
+                    IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, currentDatetime, currentDatetime)
 
                 evaluatedIngredients.add(ingredientEntity)
+
             }
 
             return evaluatedIngredients
@@ -214,7 +220,11 @@ class AddRecipeIngredientsFragment : Fragment() {
         }else{
             mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
 
-                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId, it.name,
+                val quantity = IngredientEvaluator.getQuantity(it.name)
+                val unit = IngredientEvaluator.getUnit(quantity,it.name)
+                val name = it.name.replace(quantity,"").replace(unit,"").trim()
+
+                val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId,quantity,unit, name,
                     IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, currentDatetime, currentDatetime)
 
                 evaluatedIngredients.add(ingredientEntity)
@@ -234,9 +244,12 @@ class AddRecipeIngredientsFragment : Fragment() {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
 
+
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
+                quantity="",
+                unit="",
                 name="",
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,

@@ -43,8 +43,8 @@ fun setCost(textView:TextView,cost:Double){
 }
 @BindingAdapter("android:setRecipeIngredientText")
 fun setRecipeIngredientText(textView:TextView,ingredient: IngredientEntity){
-    val quantity = IngredientEvaluator.getQuantity(ingredient.name)
-    val unit = IngredientEvaluator.getUnit(quantity,ingredient.name)
+    val quantity =  ingredient.quantity
+    val unit = ingredient.unit
     var quantityAndUnit:String=""
     if(quantity.length > 0 && unit.length > 0){
         quantityAndUnit = "${quantity} ${unit}"
@@ -54,9 +54,14 @@ fun setRecipeIngredientText(textView:TextView,ingredient: IngredientEntity){
         quantityAndUnit = "${unit}"
     }
 
+    if(ingredient.name.equals("onion (sliced)")){
+        Log.e("FOUND","${ingredient}")
+    }
+
+
     var ingredientText: SpannableStringBuilder
-    ingredientText = SpannableStringBuilder("${ingredient.name}")
-    ingredientText.setSpan(StyleSpan(Typeface.BOLD), 0, quantity.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+    ingredientText = SpannableStringBuilder("${quantityAndUnit} ${ingredient.name}")
+    ingredientText.setSpan(StyleSpan(Typeface.BOLD), 0, quantityAndUnit.length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
 
     textView.text = ingredientText
 }
@@ -238,13 +243,24 @@ fun setIngredient(textView:TextView,ingredient:IngredientEntity){
 @BindingAdapter("android:setIngredient")
 fun setIngredient(editText:EditText,ingredient:IngredientEntity){
 
-    val name = ingredient.name
-    editText.setText(name)
+    val ingredient = "${ingredient.quantity} ${ingredient.unit} ${ingredient.name}".trim()
+    editText.setText(ingredient)
 
 }
 @BindingAdapter("android:setIngredentToGroceryQuantityAndUnit")
 fun setIngredentToGroceryQuantityAndUnit(textView:TextView,ingredent:IngredientEntity){
+    val quantity =  ingredent.quantity
+    val unit = ingredent.unit
+    var quantityAndUnit:String=""
+    if(quantity.length > 0 && unit.length > 0){
+        quantityAndUnit = "${quantity} ${unit}"
+    }else if(quantity.length > 0 && unit.length <= 0){
+        quantityAndUnit = "${quantity}"
+    }else if(quantity.length <= 0 && unit.length > 0){
+        quantityAndUnit = "${unit}"
+    }
 
+    textView.setText(quantityAndUnit)
 
 }
 

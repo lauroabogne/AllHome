@@ -161,6 +161,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
     fun checkDataForSaving(){
 
+
        val addRecipeInformationFragment =  mFragmentList[0] as AddRecipeInformationFragment
        val addRecipeIngredientsFragment =  mFragmentList[1] as AddRecipeIngredientsFragment
        val addRecipeStepsFragment =  mFragmentList[2] as AddRecipeStepsFragment
@@ -169,6 +170,11 @@ class AddRecipeActivity : AppCompatActivity() {
         val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
+
+//        Log.e("ingredients",ingredients.toString())
+//        if(true){
+//            return;
+//        }
         recipeEntity?.let{
             assignedSomeValueToIngredients(recipeEntity,ingredients)
             assignedSomeValueToSteps(recipeEntity,steps)
