@@ -1,5 +1,7 @@
 package com.example.allhome.recipes
 
+import android.app.Activity
+import android.content.Intent
 import android.media.Image
 import android.os.Bundle
 import android.util.Log
@@ -16,6 +18,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.allhome.R
+import com.example.allhome.bill.BillsFragment
 import com.example.allhome.data.entities.IngredientEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeStepEntity
@@ -152,6 +155,7 @@ class AddRecipeActivity : AppCompatActivity() {
                 checkDataForSaving()
             }
             R.id.updateRecipe->{
+
                 checkingForUpdate()
             }
         }
@@ -171,10 +175,6 @@ class AddRecipeActivity : AppCompatActivity() {
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
 
-//        Log.e("ingredients",ingredients.toString())
-//        if(true){
-//            return;
-//        }
         recipeEntity?.let{
             assignedSomeValueToIngredients(recipeEntity,ingredients)
             assignedSomeValueToSteps(recipeEntity,steps)
@@ -218,8 +218,9 @@ class AddRecipeActivity : AppCompatActivity() {
                     ImageUtil.saveImage(this@AddRecipeActivity,recipeImageUri,"${recipeEntity.uniqueId}.${ImageUtil.IMAGE_NAME_SUFFIX}",ImageUtil.RECIPE_IMAGES_FINAL_LOCATION)
                 }
                 withContext(Main){
-                    Toast.makeText(this@AddRecipeActivity,"Recipe updated successfully",Toast.LENGTH_SHORT).show()
-                    this@AddRecipeActivity.finish()
+
+                    setResult(Activity.RESULT_OK)
+                    finish()
                 }
             }
         }

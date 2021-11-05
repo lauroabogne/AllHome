@@ -243,7 +243,7 @@ fun setIngredient(textView:TextView,ingredient:IngredientEntity){
 @BindingAdapter("android:setIngredient")
 fun setIngredient(editText:EditText,ingredient:IngredientEntity){
 
-    val ingredient = "${ingredient.quantity} ${ingredient.unit} ${ingredient.name}".trim()
+    val ingredient = "${ingredient.name}".trim()
     editText.setText(ingredient)
 
 }

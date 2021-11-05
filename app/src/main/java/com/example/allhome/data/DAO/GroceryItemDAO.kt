@@ -11,7 +11,7 @@ import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 @Dao
 interface GroceryItemDAO {
     @Insert
-    suspend fun addItem(groceryItemEntity: GroceryItemEntity):Long
+    suspend fun insert(groceryItemEntity: GroceryItemEntity):Long
 
     @Query("SELECT * FROM grocery_items ORDER BY id ASC")
     fun readAllGroceryItem(): LiveData<List<GroceryItemEntity>>

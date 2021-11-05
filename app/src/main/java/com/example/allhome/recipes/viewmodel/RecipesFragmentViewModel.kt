@@ -1,7 +1,6 @@
 package com.example.allhome.recipes.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.allhome.data.AllHomeDatabase
@@ -37,14 +36,15 @@ class RecipesFragmentViewModel:ViewModel() {
     suspend fun getRecipes(context: Context,searchTerm:String): List<RecipeEntityWithTotalIngredient> {
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(searchTerm)
     }
+    suspend fun getRecipe(context: Context,uniqueId:String): RecipeEntityWithTotalIngredient {
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipe(uniqueId)
+    }
     suspend fun getIngredients(context:Context,recipeUniqueId:String):List<IngredientEntity>{
         return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueId(recipeUniqueId)
     }
     suspend fun getRecipesByIngredients(context: Context,searchTerm:String,ingredients:List<String>):List<RecipeEntityWithTotalIngredient>{
 
-        val query = createQuery(ingredients)
 
-        Log.e("QUERY",query+" xxxx")
 
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipesByIngredients(searchTerm,ingredients)
     }
@@ -94,7 +94,7 @@ class RecipesFragmentViewModel:ViewModel() {
 
     }
     suspend fun addGroceryListItem(context:Context,groceryItemEntity:GroceryItemEntity){
-        AllHomeDatabase.getDatabase(context).groceryItemDAO().addItem(groceryItemEntity)
+        AllHomeDatabase.getDatabase(context).groceryItemDAO().insert(groceryItemEntity)
     }
 
     suspend fun updateItemQuantityDatetimeModified(context: Context,id:Int,datetimeModified:String):Int{

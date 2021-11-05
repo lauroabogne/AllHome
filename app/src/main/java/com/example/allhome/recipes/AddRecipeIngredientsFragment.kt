@@ -102,7 +102,7 @@ class AddRecipeIngredientsFragment : Fragment() {
         if(mAction == EDIT_ACTION){
 
             mAddRecipeIngredientsFragmentModel.mCoroutineScope.launch {
-                val ingredientEntities = mAddRecipeIngredientsFragmentModel.getIngredients(requireContext(),mRecipeEntity!!.uniqueId)
+                val ingredientEntities = mAddRecipeIngredientsFragmentModel.getIngredientsForEditing(requireContext(),mRecipeEntity!!.uniqueId)
                 mAddRecipeIngredientsFragmentModel.mIngredients = ingredientEntities as ArrayList<IngredientEntity>
 
                 withContext(Main){
@@ -200,13 +200,20 @@ class AddRecipeIngredientsFragment : Fragment() {
         val currentDatetime: String = simpleDateFormat.format(Date())
 
 
+
         if(mAction == EDIT_ACTION){
+
+//            mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
+//                Log.e("NAME ","${it.name}")
+//            }
+//            return evaluatedIngredients
+
             mAddRecipeIngredientsFragmentModel.mIngredients.forEach {
 
-                val ingredient = "${it.quantity} ${it.unit} ${it.name}".trim()
-                val quantity = IngredientEvaluator.getQuantity(ingredient)
-                val unit = IngredientEvaluator.getUnit(quantity,ingredient)
-                val name = ingredient.replace(quantity,"").replace(unit,"").trim()
+
+                val quantity = IngredientEvaluator.getQuantity(it.name)
+                val unit = IngredientEvaluator.getUnit(quantity,it.name)
+                val name = it.name.replace(quantity,"").replace(unit,"").trim()
 
                 val ingredientEntity = IngredientEntity(it.uniqueId, it.recipeUniqueId,quantity,unit, name,
                     IngredientEntity.NOT_DELETED_STATUS, IngredientEntity.NOT_UPLOADED, currentDatetime, currentDatetime)
@@ -340,7 +347,7 @@ class AddIngredientRecyclerviewViewAdapater( var mIngredients:ArrayList<Ingredie
         }
         fun setTextWatcher(){
             addIngredientItemBinding.ingredientEditTextText.addTextChangedListener{
-
+                Log.e("changed","chnaged")
                 if(addIngredientItemBinding.ingredientEditTextText.hasFocus()){
                     val ingredient =  addIngredientRecyclerviewViewAdapater.mIngredients[adapterPosition]
                     ingredient.name = it.toString()
