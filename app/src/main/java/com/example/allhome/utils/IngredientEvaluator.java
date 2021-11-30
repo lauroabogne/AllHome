@@ -59,9 +59,8 @@ public class IngredientEvaluator {
     }
     public static IngredientEntity evaluate(String ingredientString){
 
-        IngredientEntity ingredientEntity = new IngredientEntity("","","",0,0,"","");
-
-
+        IngredientEntity ingredientEntity = new IngredientEntity(
+                "","","","","",0,0,"","");
 
 
         String[] splitedIngredient = ingredientString.trim().split("\\s+");
@@ -168,6 +167,24 @@ public class IngredientEvaluator {
         return ingredientEntity;
     }
 
+    public static Double convertStringQuantityToDouble(String quantity){
+        String splitedQuantity[] = quantity.split(" ");
+
+        if(splitedQuantity.length <=0){
+            return 0.0;
+        }
+        double  quantityDouble = isValidNumberForRecipeQuantity(splitedQuantity[0]) ? Double.parseDouble(splitedQuantity[0]) : 0;
+
+
+        if(splitedQuantity.length == 2){
+            if(isValidFractionForRecipeQuantity(splitedQuantity[1])){
+                double decimalValue = Math.ceil(convertFractionToDecimal(splitedQuantity[1]));
+                quantityDouble = quantityDouble + decimalValue;
+            }
+
+        }
+        return quantityDouble;
+    }
     /**
      * it accept whole and decimal number
      * @param stringToCheck

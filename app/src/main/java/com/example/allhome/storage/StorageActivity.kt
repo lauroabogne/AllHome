@@ -1169,9 +1169,6 @@ interface OnItemRemovedListener{
             }
             R.id.pantryAddToGroceryListMenu -> {
 
-                Toast.makeText(context,"working here",Toast.LENGTH_SHORT).show()
-
-
                 val storageGroceryListActivity = Intent(context, StorageGroceryListActivity::class.java)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ACTION_TAG, StorageGroceryListActivity.ADD_SINGLE_PRODUCT_ACTION)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ITEM_NAME_TAG, storageItemEntity.name)

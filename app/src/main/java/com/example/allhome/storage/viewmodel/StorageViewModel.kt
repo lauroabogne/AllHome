@@ -440,7 +440,7 @@ class StorageViewModel: ViewModel() {
 
     }
     suspend fun addGroceryListItem(context:Context,groceryItemEntity:GroceryItemEntity):Long{
-        return AllHomeDatabase.getDatabase(context).groceryItemDAO().addItem(groceryItemEntity)
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().insert(groceryItemEntity)
     }
     suspend fun getExpiredItemByStorage(context:Context,storage:String,currentDate:String): List<StorageItemDAO.SimpleGroceryLisItem> {
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItems(storage,currentDate)

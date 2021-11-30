@@ -2,6 +2,7 @@ package com.example.allhome.data.entities
 
 import android.net.Uri
 import android.os.Parcelable
+import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
@@ -9,6 +10,7 @@ import androidx.databinding.BindingAdapter
 import androidx.room.*
 import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.NumberUtils
+import com.google.android.material.textfield.TextInputEditText
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
@@ -92,5 +94,13 @@ data class RecipeEntityWithTotalIngredient(
     }
 }
 
+@BindingAdapter("android:setCategories")
+fun setCategories(view: View, categories:ArrayList<RecipeCategoryEntity>){
+
+    val textInputEditText = view as TextInputEditText
+    val categoriesString = categories.map { it.name }
+    textInputEditText.setText(categoriesString.joinToString())
+
+}
 
 

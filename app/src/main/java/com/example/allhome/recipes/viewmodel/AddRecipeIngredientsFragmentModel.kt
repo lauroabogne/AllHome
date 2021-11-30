@@ -17,4 +17,9 @@ class AddRecipeIngredientsFragmentModel:ViewModel() {
         return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueId(recipeUniqueId)
     }
 
+    suspend fun getIngredientsForEditing(context: Context,recipeUniqueId:String):List<IngredientEntity>{
+
+        return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientsByRecipeUniqueIdForEditing(recipeUniqueId)
+    }
+
 }

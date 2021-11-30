@@ -262,7 +262,10 @@ class BrowseRecipeFragment : Fragment() {
             //loadUrl("https://www.allrecipes.com/recipe/21014/good-old-fashioned-pancakes/?fbclid=IwAR3qclwSSbUT90qk8edUEdHmNSKAtGEWNvSsntZASTalf0oBeWpPzNaJ4Ow")
             //loadUrl("https://www.knorr.com/ph/recipe-ideas/chicken-adobo.html?gclsrc=aw.ds&gclid=EAIaIQobChMIsJ72y96f8wIVVplmAh22fA0yEAAYASAAEgLTS_D_BwE")//metadata
             //loadUrl("https://www.tasteofhome.com/recipes/filipino-chicken-adobo/")//metadata
-            loadUrl("https://www.filipinochow.com/recipes/adobong-manok-chicken-adobo/")//metadata
+            //loadUrl("https://www.filipinochow.com/recipes/adobong-manok-chicken-adobo/")//metadata ERROR SAVING
+
+            loadUrl("https://panlasangpinoy.com/tinolang-tahong/")//metadata ERROR SAVING
+
 
 
 
@@ -411,6 +414,8 @@ class BrowseRecipeFragment : Fragment() {
                 val ingredientEntity = IngredientEntity(
                     uniqueId =itemUniqueID,
                     recipeUniqueId="",
+                    quantity="",
+                    unit="",
                     name=it.text(),
                     status = IngredientEntity.NOT_DELETED_STATUS,
                     uploaded = IngredientEntity.NOT_UPLOADED,
@@ -557,7 +562,8 @@ class BrowseRecipeFragment : Fragment() {
                 val ingredientEntity = IngredientEntity(
                     uniqueId =itemUniqueID,
                     recipeUniqueId="",
-
+                    quantity="",
+                    unit="",
                     name=if(it.text().trim().length >0) it.text() else it.attr("content"),
                     status = IngredientEntity.NOT_DELETED_STATUS,
                     uploaded = IngredientEntity.NOT_UPLOADED,
@@ -971,6 +977,8 @@ class BrowseRecipeFragment : Fragment() {
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
+                quantity="",
+                unit="",
                 name=jsonObjectRecipe.getString("recipeIngredient"),
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,
@@ -992,6 +1000,8 @@ class BrowseRecipeFragment : Fragment() {
             val ingredientEntity = IngredientEntity(
                 uniqueId =itemUniqueID,
                 recipeUniqueId="",
+                quantity="",
+                unit="",
                 name=ingredient,
                 status = IngredientEntity.NOT_DELETED_STATUS,
                 uploaded = IngredientEntity.NOT_UPLOADED,

@@ -1,13 +1,18 @@
 package com.example.allhome.recipes
 
+import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.view.animation.Animation
+import android.view.animation.AnimationUtils
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -33,6 +38,12 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
     var mSearchJob = Job()
 
 
+    lateinit var mShowButtonAnimation:Animation
+    lateinit var mHideButtonAnimation:Animation
+
+    lateinit var mShowButtonLayoutAnimation:Animation
+    lateinit var mHideButtonLayoutAnimation:Animation
+
     companion object{
         const val NO_FILTER = 0
         const val FILTER_BY_INFORMATION = 1
@@ -40,6 +51,43 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         const val NORMAL_RECIPE_VIEWING = 1
         const val ADDING_MEAL_VIEWING = 2
     }
+
+    private val openRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
+        Toast.makeText(requireContext(),"RecipesFragment result received",Toast.LENGTH_SHORT).show()
+        if(activityResult.resultCode == Activity.RESULT_OK){
+
+            activityResult.data?.let {
+               it.getParcelableExtra<RecipeEntity>(ViewRecipeFragment.RECIPE_INTENT_TAG)?.let{recipeEntity->
+
+                   val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                   val recipeEntitiesWithTotalIngredient = adapter.mRecipeStepEntities
+
+                   mRecipesFragmentViewModel.mCoroutineScope.launch {
+                       val recipeEntityWithTotalIngredient = mRecipesFragmentViewModel.getRecipe(requireContext(),recipeEntity.uniqueId)
+                       val index = recipeEntitiesWithTotalIngredient.indexOfFirst {
+                           it.recipeEntity.uniqueId == recipeEntityWithTotalIngredient.recipeEntity.uniqueId
+                        }
+                        if(index >=0){
+                          recipeEntitiesWithTotalIngredient.set(index,recipeEntityWithTotalIngredient)
+                        }
+                       withContext(Main){
+                           adapter.notifyItemChanged(index)
+                       }
+
+                   }
+               }
+
+
+            }
+
+//            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+//            adapter.mRecipeStepEntities.indexOfFirst {
+//                it.recipeEntity.uniqueId == recipeEntity.uniqueId
+//            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -47,6 +95,12 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         arguments?.let {
 
         }
+
+        mShowButtonAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_show_button)
+        mHideButtonAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_hide_button)
+
+        mShowButtonLayoutAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_show_layout)
+        mHideButtonLayoutAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_hide_layout)
 
         mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
     }
@@ -91,6 +145,30 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         }
 
 
+        mFragmentRecipesBinding.floatingViewMoreButton.setOnClickListener {
+            if(mFragmentRecipesBinding.viewByFab.isVisible){
+                //callLinearLayout.visibility = View.GONE
+                mFragmentRecipesBinding.viewByFab.visibility = View.GONE
+                mFragmentRecipesBinding.categoryFab.visibility = View.GONE
+                mFragmentRecipesBinding.viewByFab.startAnimation(mHideButtonLayoutAnimation)
+                mFragmentRecipesBinding.categoryFab.startAnimation(mHideButtonLayoutAnimation)
+
+            }else{
+                mFragmentRecipesBinding.viewByFab.visibility = View.VISIBLE
+                mFragmentRecipesBinding.categoryFab.visibility = View.VISIBLE
+
+
+                mFragmentRecipesBinding.viewByFab.startAnimation(mShowButtonLayoutAnimation)
+                mFragmentRecipesBinding.categoryFab.startAnimation(mShowButtonLayoutAnimation)
+            }
+        }
+
+        mFragmentRecipesBinding.categoryFab.setOnClickListener {
+
+
+            val recipeCategoryDialogFragment  = RecipeCategoryDialogFragment()
+            recipeCategoryDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryDialogFragment")
+        }
         return mFragmentRecipesBinding.root
     }
 
@@ -428,10 +506,10 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                     mRecipesFragment.recipeSelectedListener?.onSelect(recipeEntity.recipeEntity)
                     return
                 }
-
                 val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
                 viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
-                view?.context?.startActivity(viewRecipeActivity)
+                mRecipesFragment.openRecipeContract.launch(viewRecipeActivity)
+
             }
 
 

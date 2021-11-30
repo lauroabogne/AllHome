@@ -39,22 +39,22 @@ interface BillDAO {
     fun getBillWithTotalPayment(uniqueId:String):BillEntityWithTotalPayment
     @Query("SELECT COUNT(${BillEntity.COLUMN_GROUP_UNIQUE_ID}) FROM ${BillEntity.TABLE_NAME} WHERE ${BillEntity.COLUMN_STATUS} = ${BillEntity.NOT_DELETED_STATUS} AND " +
             " ${BillEntity.COLUMN_GROUP_UNIQUE_ID} =:groupUniqueId")
-    suspend fun getRecordCountByGroupId(groupUniqueId:String):Int
+     fun getRecordCountByGroupId(groupUniqueId:String):Int
     @Query("UPDATE ${BillEntity.TABLE_NAME} SET ${BillEntity.COLUMN_STATUS} = ${BillEntity.DELETED_STATUS}," +
             " ${BillEntity.COLUMN_UPLOADED} = ${BillEntity.NOT_UPLOADED} WHERE ${BillEntity.COLUMN_GROUP_UNIQUE_ID} =:groupUniqueId" +
             " AND ${BillEntity.COLUMN_DUE_DATE} >= :selectedBillDueDate ")
-    suspend fun updateSelectedAndFutureBillAsDeleted(groupUniqueId:String,selectedBillDueDate:String):Int
+     fun updateSelectedAndFutureBillAsDeleted(groupUniqueId:String,selectedBillDueDate:String):Int
     @Query("UPDATE ${BillEntity.TABLE_NAME} SET ${BillEntity.COLUMN_STATUS} = ${BillEntity.DELETED_STATUS}," +
             " ${BillEntity.COLUMN_UPLOADED} = ${BillEntity.NOT_UPLOADED} WHERE ${BillEntity.COLUMN_UNIQUE_ID} =:billUniqueId")
-    suspend fun updateSelectedBillAsDeleted(billUniqueId:String):Int
+     fun updateSelectedBillAsDeleted(billUniqueId:String):Int
     @Query("SELECT TOTAL(${BillEntity.COLUMN_AMOUNT})  FROM ${BillEntity.TABLE_NAME} WHERE ${BillEntity.COLUMN_DUE_DATE} >=:startDate AND ${BillEntity.COLUMN_DUE_DATE} <=:endDate  AND ${BillEntity.COLUMN_STATUS} = ${BillEntity.NOT_DELETED_STATUS}")
-    suspend fun getTotalAmountDue(startDate:String,endDate:String):Double
+     fun getTotalAmountDue(startDate:String,endDate:String):Double
     @Query("SELECT TOTAL(${BillPaymentEntity.COLUMN_PAYMENT_AMOUNT})  FROM ${BillEntity.TABLE_NAME} " +
             " LEFT JOIN ${BillPaymentEntity.TABLE_NAME} " +
             " ON ${BillEntity.TABLE_NAME}.${BillEntity.COLUMN_UNIQUE_ID} = ${BillPaymentEntity.TABLE_NAME}.${BillPaymentEntity.COLUMN_BILL_UNIQUE_ID}" +
             " AND ${BillPaymentEntity.TABLE_NAME}.${BillPaymentEntity.COLUMN_STATUS} = ${BillPaymentEntity.NOT_DELETED_STATUS}" +
             " WHERE ${BillEntity.COLUMN_DUE_DATE} >=:startDate AND ${BillEntity.COLUMN_DUE_DATE} <= :endDate  AND ${BillEntity.TABLE_NAME}.${BillEntity.COLUMN_STATUS} = ${BillEntity.NOT_DELETED_STATUS} ")
-    suspend fun getTotalPaymentAmount(startDate:String,endDate:String):Double
+     fun getTotalPaymentAmount(startDate:String,endDate:String):Double
     @Query(" SELECT TOTAL(total_amount) AS total_amount,expense_date FROM ( " +
             "    SELECT TOTAL((quantity*price_per_unit)) as total_amount,strftime('%Y-%m',datetime_modified) as expense_date FROM grocery_items " +
             "    WHERE bought = 1 AND strftime('%Y-%m-%d',datetime_modified) >= :fromDate AND  strftime('%Y-%m-%d',datetime_modified) <= :toDate AND grocery_items.item_status = 0 " +
@@ -65,7 +65,7 @@ interface BillDAO {
             "    WHERE strftime('%Y-%m-%d',payment_date) >= :fromDate AND  strftime('%Y-%m-%d',payment_date) <= :toDate AND  bill_payments.status = 0 AND bills.status = 0" +
             "    GROUP BY name " +
             " ) ")
-    suspend fun getExpenses(fromDate:String,toDate:String): ExpensesEntity
+     fun getExpenses(fromDate:String,toDate:String): ExpensesEntity
 
     @Query("SELECT TOTAL(total_amount) AS total_amount,expense_date FROM " +
             "(SELECT  strftime('%Y-%m',datetime_modified) AS expense_date,TOTAL(price_per_unit * quantity) total_amount FROM grocery_items " +
@@ -78,7 +78,7 @@ interface BillDAO {
             "       GROUP BY strftime('%Y-%m',payment_date) " +
             "      ) " +
             "      GROUP BY  strftime('%Y-%m',expense_date) ORDER BY expense_date ASC")
-    suspend fun getExpensesPerMonth(fromDate:String,toDate:String):List<ExpensesEntity>
+     fun getExpensesPerMonth(fromDate:String,toDate:String):List<ExpensesEntity>
 
     @Query("SELECT  expense_date, TOTAL(total_amount) AS total_amount FROM " +
             "(SELECT  strftime('%Y-%m',datetime_modified) AS expense_date,TOTAL(price_per_unit * quantity) total_amount FROM grocery_items " +
@@ -91,7 +91,7 @@ interface BillDAO {
             "       GROUP BY strftime('%Y-%m',payment_date) " +
             "      ) " +
             "      GROUP BY  strftime('%Y-%m',expense_date) ORDER BY expense_date ASC")
-    suspend fun getExpensesInMonth(month:String):ExpensesEntity
+     fun getExpensesInMonth(month:String):ExpensesEntity
 
 
     @Query(" SELECT * FROM " +
@@ -105,7 +105,7 @@ interface BillDAO {
             "  WHERE payment_date >= :fromDate AND  payment_date <= :toDate AND  bill_payments.status = 0 AND bills.status = 0 " +
             "  GROUP BY name)" +
             " ORDER BY total_amount DESC")
-    suspend fun getExpensesWithItemNameAndType(fromDate:String,toDate:String): List<ExpensesEntityWithItemNameAndType>
+     fun getExpensesWithItemNameAndType(fromDate:String,toDate:String): List<ExpensesEntityWithItemNameAndType>
 
 
 }
