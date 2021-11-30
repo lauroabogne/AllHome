@@ -7,19 +7,19 @@ import com.example.allhome.data.entities.*
 @Dao
 interface RecipeDAO {
     @Insert
-    suspend fun addItem(recipeEntity: RecipeEntity):Long
+     fun addItem(recipeEntity: RecipeEntity):Long
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun addOrUpdateItem(recipeEntity: RecipeEntity):Long
+     fun addOrUpdateItem(recipeEntity: RecipeEntity):Long
 
     @Query("SELECT *,0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT},0 AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT} FROM ${RecipeEntity.TABLE_NAME} WHERE ${RecipeEntity.COLUMN_NAME} LIKE '%'||:searchTerm||'%' AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} ORDER BY ${RecipeEntity.COLUMN_NAME}")
-    suspend fun getRecipes(searchTerm:String):List<RecipeEntityWithTotalIngredient>
+     fun getRecipes(searchTerm:String):List<RecipeEntityWithTotalIngredient>
 
     @Query("SELECT *,0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT},0 AS ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT} FROM ${RecipeEntity.TABLE_NAME} " +
             " WHERE ${RecipeEntity.COLUMN_UNIQUE_ID} =:uniqueId AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}")
-    suspend fun getRecipe(uniqueId:String):RecipeEntityWithTotalIngredient
+     fun getRecipe(uniqueId:String):RecipeEntityWithTotalIngredient
 
     @Query("UPDATE recipes SET status=${RecipeEntity.DELETED_STATUS} WHERE unique_id=:uniqueId ")
-    suspend fun updateRecipeByUniqueIdAsDeleted(uniqueId:String):Int
+     fun updateRecipeByUniqueIdAsDeleted(uniqueId:String):Int
 
     @Query("SELECT ${RecipeEntity.TABLE_NAME}.*," +
             " (" +
@@ -53,14 +53,14 @@ interface RecipeDAO {
             " GROUP BY ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID}" +
             " ORDER BY ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT_LESS_TOTAL_INGREDIENT_MATCH_COUNT} ASC," +
             " ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_NAME}")
-    suspend fun getRecipesByIngredients(searchTerm:String,ingredients:List<String>):List<RecipeEntityWithTotalIngredient>
+     fun getRecipesByIngredients(searchTerm:String,ingredients:List<String>):List<RecipeEntityWithTotalIngredient>
     /*@Query("SELECT * FROM recipes where estimated_cost :costCondition :cost  AND status = ${RecipeEntity.NOT_DELETED_STATUS}")
     suspend fun getRecipes(costCondition:String,cost:Double,servingCondition:String,serving:Int,totalPrepAndCookTimeInMinutesCondtion:String,
                            preparationPlusCookTime:Int):List<RecipeEntity>*/
 
     @RawQuery
-    suspend fun getRecipes(query:SupportSQLiteQuery):List<RecipeEntityWithTotalIngredient>
+     fun getRecipes(query:SupportSQLiteQuery):List<RecipeEntityWithTotalIngredient>
 
     @Query("SELECT *  FROM  ${RecipeEntity.TABLE_NAME} WHERE unique_id=:uniqueId  AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} LIMIT 1")
-    suspend fun getRecipeByUniqueId(uniqueId:String):RecipeEntity
+     fun getRecipeByUniqueId(uniqueId:String):RecipeEntity
 }

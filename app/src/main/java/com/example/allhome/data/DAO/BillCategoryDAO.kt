@@ -11,5 +11,5 @@ interface BillCategoryDAO {
     @Insert
     fun saveCategory(bill:BillCategoryEntity):Long
     @Query("Select * from ${BillCategoryEntity.TABLE_NAME} WHERE ${BillCategoryEntity.COLUMN_NAME} = :name LIMIT 1")
-    suspend fun getCategory(name:String):BillCategoryEntity
+     fun getCategory(name:String):BillCategoryEntity
 }

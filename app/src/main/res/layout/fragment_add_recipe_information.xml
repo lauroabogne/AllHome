@@ -7,9 +7,12 @@
 
     <data>
         <import type="com.example.allhome.utils.NumberUtils"/>
+
         <variable
             name="recipeEntity"
             type="com.example.allhome.data.entities.RecipeEntity" />
+
+
 
     </data>
 
@@ -163,8 +166,13 @@
                 android:id="@+id/categoryTimeTextInputEditText"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Category"
-                android:text="@{recipeEntity.category}"/>
+                android:cursorVisible="false"
+                android:focusable="false"
+                android:inputType="none"
+                android:longClickable="false"
+                android:drawableRight="@drawable/ic_baseline_arrow_drop_down_24"
+                android:hint="Category"/>
+
         </com.google.android.material.textfield.TextInputLayout>
 
 

@@ -167,8 +167,6 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
 
             val recipeCategoryDialogFragment  = RecipeCategoryDialogFragment()
-
-            //filterByInformationDialogFragment.setRecipeInformationFilterListener(recipeInformationFilterListener)
             recipeCategoryDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryDialogFragment")
         }
         return mFragmentRecipesBinding.root

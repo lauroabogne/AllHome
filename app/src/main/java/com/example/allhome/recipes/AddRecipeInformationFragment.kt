@@ -23,28 +23,36 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.ColumnInfo
 import com.example.allhome.R
+import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentAddRecipeInformationBinding
 import com.example.allhome.databinding.HourAndTimeInputBinding
 import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
+import com.example.allhome.recipes.viewmodel.RecipeCategoryViewModel
 import com.example.allhome.storage.StorageAddItemActivity
 import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.ImageUtil
 import com.example.allhome.utils.MinMaxInputFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.textfield.TextInputEditText
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
+import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AddRecipeInformationFragment : Fragment() {
 
 
     private lateinit var mAddRecipeInformationFragmentViewModel: AddRecipeInformationFragmentViewModel
+    private lateinit var mRecipeCategoryViewModel : RecipeCategoryViewModel
 
     lateinit var mDataBinding:FragmentAddRecipeInformationBinding
     var mRecipeEntity:RecipeEntity? = null
@@ -92,6 +100,7 @@ class AddRecipeInformationFragment : Fragment() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         mAddRecipeInformationFragmentViewModel = ViewModelProvider(this).get(AddRecipeInformationFragmentViewModel::class.java)
+        mRecipeCategoryViewModel = ViewModelProvider(this).get(RecipeCategoryViewModel::class.java)
 
         arguments?.let {
             if(mAction == EDIT_ACTION || mAction == ADD_FROM_BROWSER_ACTION){
@@ -101,6 +110,10 @@ class AddRecipeInformationFragment : Fragment() {
                     mAddRecipeInformationFragmentViewModel.mTempCookTimeMinutes = it.cookingMinutes
                     mAddRecipeInformationFragmentViewModel.mTempPrepaTimeHour = it.preparationHour
                     mAddRecipeInformationFragmentViewModel.mTempPrepaTimeMinutes = it.preparationMinutes
+
+                    mAddRecipeInformationFragmentViewModel.mCoroutineScope.launch {
+                        mAddRecipeInformationFragmentViewModel.mRecipeCategoryEntities = mAddRecipeInformationFragmentViewModel.getRecipeCategories(requireContext(),it.uniqueId) as ArrayList<RecipeCategoryEntity>
+                    }
 
                 }
 
@@ -115,6 +128,7 @@ class AddRecipeInformationFragment : Fragment() {
         // Inflate the layout for this fragment
         mDataBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_recipe_information, container, false)
         mDataBinding.recipeEntity = mRecipeEntity
+
 
         mDataBinding.difficultyTextInputEditText.setOnClickListener {
            showDifficultyPopup()
@@ -131,25 +145,24 @@ class AddRecipeInformationFragment : Fragment() {
             showIntentChooser()
         }
 
+        mDataBinding.categoryTimeTextInputEditText.setOnClickListener {
+            showCategoryDialog()
+        }
         if(mAction == ADD_FROM_BROWSER_ACTION ){
 
             mRecipeEntity?.imageName?.let {
-
-
-                if(it.trim().length <=0){
+                if(it.trim().isEmpty()){
                     return@let
                 }
-
                 val imageUri = ImageUtil.getImageUriFromPath(requireContext(),ImageUtil.TEMPORARY_IMAGES_LOCATION,"${ImageUtil.IMAGE_TEMP_NAME}.${ImageUtil.IMAGE_NAME_SUFFIX}")
-
                 imageUri?.let{
                     mAddRecipeInformationFragmentViewModel.newImageUri = it
                     mDataBinding.itemImageView.setImageURI(it)
                 }
             }
-
-
         }
+
+        setCategories(mDataBinding.categoryTimeTextInputEditText, mAddRecipeInformationFragmentViewModel.mRecipeCategoryEntities)
 
         return mDataBinding.root
     }
@@ -170,9 +183,6 @@ class AddRecipeInformationFragment : Fragment() {
             val result = CropImage.getActivityResult(data)
             mAddRecipeInformationFragmentViewModel.newImageUri = result.uri
             mDataBinding.itemImageView.setImageURI(result.uri)
-
-
-
         }
     }
     private fun lauchImageCropper(uri: Uri){
@@ -279,6 +289,31 @@ class AddRecipeInformationFragment : Fragment() {
             alertDialog.dismiss()
         }
     }
+    val onRecipeCategoriesSelected = object:RecipeCategoryMultipleSelectDialogFragment.SelectRecipeCategoriesListener{
+        override fun onSelect(recipeCategories: ArrayList<RecipeCategoryEntity>) {
+            mAddRecipeInformationFragmentViewModel.mRecipeCategoryEntities = recipeCategories
+            setCategories(mDataBinding.categoryTimeTextInputEditText,recipeCategories)
+
+        }
+    }
+
+    fun setCategories(textInputEditText: TextInputEditText, categories:ArrayList<RecipeCategoryEntity>){
+        val categoriesString = categories.map { it.name }
+        textInputEditText.setText(categoriesString.joinToString())
+
+    }
+
+
+    fun showCategoryDialog(){
+
+
+        val recipeCategories = mAddRecipeInformationFragmentViewModel.mRecipeCategoryEntities
+        val recipeCategoryMultipleSelectDialogFragment  = RecipeCategoryMultipleSelectDialogFragment(recipeCategories,onRecipeCategoriesSelected)
+        recipeCategoryMultipleSelectDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryMultipleSelectDialogFragment")
+
+
+
+    }
     fun getRecipeInformation():RecipeEntity?{
 
         val name = mDataBinding.recipeNameTextInputEditText.text.toString()
@@ -352,6 +387,9 @@ class AddRecipeInformationFragment : Fragment() {
         }
 
 
+    }
+    fun getRecipeCategories(): ArrayList<RecipeCategoryEntity> {
+        return mAddRecipeInformationFragmentViewModel.mRecipeCategoryEntities
     }
     fun getRecipeImageURI():Uri?{
         return mAddRecipeInformationFragmentViewModel.newImageUri

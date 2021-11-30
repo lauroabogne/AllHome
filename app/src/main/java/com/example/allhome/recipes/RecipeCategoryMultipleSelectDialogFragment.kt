@@ -11,13 +11,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
-import android.widget.FrameLayout
+import android.widget.*
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.findFragment
 
-import android.widget.EditText
-import android.widget.Toast
 import androidx.annotation.Nullable
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.lifecycle.ViewModelProvider
@@ -26,10 +24,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
-import com.example.allhome.databinding.FilterByInformationDialogFragmentBinding
-import com.example.allhome.databinding.RecipeCategoryDialogFragmentLayoutBinding
-import com.example.allhome.databinding.RecipeCategoryItemBinding
-import com.example.allhome.databinding.RecipeItemBinding
+import com.example.allhome.databinding.*
 import com.example.allhome.recipes.viewmodel.RecipeCategoryViewModel
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -37,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class RecipeCategoryDialogFragment : DialogFragment() {
+class RecipeCategoryMultipleSelectDialogFragment(val mRecipeCurrentCategoryEntities:ArrayList<RecipeCategoryEntity>, val mSelectRecipeCategoriesListener:SelectRecipeCategoriesListener) : DialogFragment() {
 
 
     lateinit var mRecipeCategoryDialogFragmentLayoutBinding: RecipeCategoryDialogFragmentLayoutBinding
@@ -80,8 +75,12 @@ class RecipeCategoryDialogFragment : DialogFragment() {
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(activity)
         alertDialogBuilder.setView(mRecipeCategoryDialogFragmentLayoutBinding.root)
 
-        alertDialogBuilder.setNegativeButton("Close", DialogInterface.OnClickListener { dialog, which ->
+        alertDialogBuilder.setNegativeButton("Close", { dialog, which ->
             this.dismiss()
+        })
+        alertDialogBuilder.setPositiveButton("Done",{dialog,which->
+            val recipeCategoryRecyclerviewViewAdapater = mRecipeCategoryDialogFragmentLayoutBinding.recipesRecyclerview.adapter as RecipeCategoryRecyclerviewViewAdapater
+            mSelectRecipeCategoriesListener.onSelect(mRecipeCurrentCategoryEntities)
         })
 
         val alertDialog = alertDialogBuilder.create()
@@ -102,7 +101,6 @@ class RecipeCategoryDialogFragment : DialogFragment() {
         mRecipeCategoryViewModel.mCoroutineScope.launch {
             val recipeCategoryEntities = mRecipeCategoryViewModel.getRecipeCategories(requireContext()) as ArrayList<RecipeCategoryEntity>
 
-            recipeCategoryEntities.add(0,RecipeCategoryEntity("1","All Recipe",0,0,"",""))
             withContext(Main){
                 val recipeCategoryRecyclerviewViewAdapater = mRecipeCategoryDialogFragmentLayoutBinding.recipesRecyclerview.adapter as RecipeCategoryRecyclerviewViewAdapater
                 recipeCategoryRecyclerviewViewAdapater.mRecipeCategoryEntities = recipeCategoryEntities
@@ -112,41 +110,61 @@ class RecipeCategoryDialogFragment : DialogFragment() {
     }
 
 
-    class RecipeCategoryRecyclerviewViewAdapater(var mRecipeCategoryEntities:ArrayList<RecipeCategoryEntity>, val mRecipeCategoryDialogFragment: RecipeCategoryDialogFragment):
+    inner class RecipeCategoryRecyclerviewViewAdapater(var mRecipeCategoryEntities:ArrayList<RecipeCategoryEntity>, val mRecipeCategoryDialogFragment: RecipeCategoryMultipleSelectDialogFragment):
         RecyclerView.Adapter<RecipeCategoryRecyclerviewViewAdapater.ItemViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
             val layoutInflater = LayoutInflater.from(parent.context)
-            val recipeItemBinding =  RecipeCategoryItemBinding.inflate(layoutInflater, parent, false)
+            val recipeItemBinding =  RecipeCategoryItemCheckboxBinding.inflate(layoutInflater, parent, false)
             val itemViewHolder = ItemViewHolder(recipeItemBinding, this)
+
 
             return itemViewHolder
         }
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
-            val recipeEntity = mRecipeCategoryEntities[position]
 
-            holder.recipeCategoryItemBinding.recipeCategory = recipeEntity
-            holder.recipeCategoryItemBinding.executePendingBindings()
+            val categoryEntity = mRecipeCategoryEntities[position]
+            holder.recipeCategoryItemCheckboxBinding.recipeCategory = categoryEntity
+
+            if(doCategorySelected(categoryEntity.name,mRecipeCurrentCategoryEntities)){
+                holder.recipeCategoryItemCheckboxBinding.recipeCategoryCheckBox.isChecked = true
+            }else{
+                holder.recipeCategoryItemCheckboxBinding.recipeCategoryCheckBox.isChecked = false
+            }
+            holder.recipeCategoryItemCheckboxBinding.executePendingBindings()
 
         }
 
         override fun getItemCount(): Int {
             return mRecipeCategoryEntities.size
         }
+        fun doCategorySelected( stringCategory:String,  categoriesEntity:ArrayList<RecipeCategoryEntity>):Boolean {
 
+            return categoriesEntity.indexOfFirst { it.name == stringCategory } >= 0
 
-        inner class  ItemViewHolder(var recipeCategoryItemBinding: RecipeCategoryItemBinding, val recipesRecyclerviewViewAdapater: RecipeCategoryRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeCategoryItemBinding.root),
-        View.OnClickListener{
+        }
+
+        inner class  ItemViewHolder(var recipeCategoryItemCheckboxBinding: RecipeCategoryItemCheckboxBinding, val recipesRecyclerviewViewAdapater: RecipeCategoryRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeCategoryItemCheckboxBinding.root),
+            View.OnClickListener{
 
             init {
-                recipeCategoryItemBinding.root.setOnClickListener(this)
+                recipeCategoryItemCheckboxBinding.recipeCategoryCheckBox.setOnClickListener(this)
             }
+
+
             override fun onClick(view: View?) {
+                val checkBox = view as CheckBox
                 val recipeCategory = recipesRecyclerviewViewAdapater.mRecipeCategoryEntities[adapterPosition]
-                Toast.makeText(recipesRecyclerviewViewAdapater.mRecipeCategoryDialogFragment.requireContext(),"${recipeCategory.name}",Toast.LENGTH_SHORT).show()
+                if(checkBox.isChecked){
+                    checkBox.isChecked = true
+                    mRecipeCurrentCategoryEntities.add(recipeCategory)
+                }else{
+                    checkBox.isChecked = false
+                    mRecipeCurrentCategoryEntities.remove(recipeCategory)
+                }
             }
 
 
@@ -156,6 +174,7 @@ class RecipeCategoryDialogFragment : DialogFragment() {
     }
 
 
-
-
+    interface SelectRecipeCategoriesListener{
+        fun onSelect(recipeCategories: ArrayList<RecipeCategoryEntity>)
+    }
 }

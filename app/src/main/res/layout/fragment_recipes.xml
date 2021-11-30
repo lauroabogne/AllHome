@@ -51,25 +51,27 @@
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/viewByFab"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin_1"
+            android:gravity="center"
+            android:text="View Option"
             android:visibility="invisible"
-            android:text="View By"
-            app:layout_constraintBottom_toTopOf="@+id/categoryFab"
+            app:layout_constraintBottom_toTopOf="@+id/floatingViewMoreButton"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/categoryFab"
-            android:layout_width="wrap_content"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="@dimen/fab_margin_1"
-            android:visibility="invisible"
+            android:gravity="center"
             android:text="Category"
-            app:layout_constraintBottom_toTopOf="@+id/floatingViewMoreButton"
-            app:layout_constraintEnd_toEndOf="parent"/>
+            android:visibility="invisible"
+            app:layout_constraintBottom_toTopOf="@+id/viewByFab"
+            app:layout_constraintEnd_toEndOf="parent" />
 
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton

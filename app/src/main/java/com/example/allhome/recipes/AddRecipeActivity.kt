@@ -15,13 +15,13 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
+import androidx.room.ColumnInfo
+import androidx.room.PrimaryKey
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
 import com.example.allhome.R
 import com.example.allhome.bill.BillsFragment
-import com.example.allhome.data.entities.IngredientEntity
-import com.example.allhome.data.entities.RecipeEntity
-import com.example.allhome.data.entities.RecipeStepEntity
+import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityAddRecipeBinding
 import com.example.allhome.recipes.viewmodel.AddRecipeActivityViewModel
 import com.example.allhome.recipes.viewmodel.AddRecipeInformationFragmentViewModel
@@ -30,6 +30,9 @@ import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class AddRecipeActivity : AppCompatActivity() {
@@ -165,23 +168,27 @@ class AddRecipeActivity : AppCompatActivity() {
 
     fun checkDataForSaving(){
 
-
-       val addRecipeInformationFragment =  mFragmentList[0] as AddRecipeInformationFragment
-       val addRecipeIngredientsFragment =  mFragmentList[1] as AddRecipeIngredientsFragment
-       val addRecipeStepsFragment =  mFragmentList[2] as AddRecipeStepsFragment
+        val addRecipeInformationFragment =  mFragmentList[0] as AddRecipeInformationFragment
+        val addRecipeIngredientsFragment =  mFragmentList[1] as AddRecipeIngredientsFragment
+        val addRecipeStepsFragment =  mFragmentList[2] as AddRecipeStepsFragment
 
         val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
+        val recipeCategories = addRecipeInformationFragment.getRecipeCategories()
+
         val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
 
         recipeEntity?.let{
+
+            val recipeCategoryAssignmentEntities = createRecipeCategoryAssignmentEntities(it.uniqueId,recipeCategories)
+
             assignedSomeValueToIngredients(recipeEntity,ingredients)
             assignedSomeValueToSteps(recipeEntity,steps)
 
             mAddRecipeActivityViewModel.mCoroutineScope.launch {
 
-                    mAddRecipeActivityViewModel.saveRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps)
+                    mAddRecipeActivityViewModel.saveRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps,recipeCategoryAssignmentEntities)
                     recipeImageUri?.let {
                         ImageUtil.saveImage(this@AddRecipeActivity,recipeImageUri,"${recipeEntity.uniqueId}.${ImageUtil.IMAGE_NAME_SUFFIX}",ImageUtil.RECIPE_IMAGES_FINAL_LOCATION)
                     }
@@ -202,6 +209,7 @@ class AddRecipeActivity : AppCompatActivity() {
 
 
         val recipeEntity: RecipeEntity? = addRecipeInformationFragment.getRecipeInformation()
+        val recipeCategories = addRecipeInformationFragment.getRecipeCategories()
         val recipeImageUri =addRecipeInformationFragment.getRecipeImageURI()
         val ingredients = addRecipeIngredientsFragment.getIngredents()
         val steps = addRecipeStepsFragment.getSteps()
@@ -209,11 +217,12 @@ class AddRecipeActivity : AppCompatActivity() {
 
         recipeEntity?.let {
 
+            val recipeCategoryAssignmentEntities = createRecipeCategoryAssignmentEntities(it.uniqueId,recipeCategories)
             assignedSomeValueToIngredients(recipeEntity,ingredients)
             assignedSomeValueToSteps(recipeEntity,steps)
 
             mAddRecipeActivityViewModel.mCoroutineScope.launch {
-                mAddRecipeActivityViewModel.updateRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps)
+                mAddRecipeActivityViewModel.updateRecipe(this@AddRecipeActivity,recipeEntity,ingredients,steps,recipeCategoryAssignmentEntities)
                 recipeImageUri?.let {
                     ImageUtil.saveImage(this@AddRecipeActivity,recipeImageUri,"${recipeEntity.uniqueId}.${ImageUtil.IMAGE_NAME_SUFFIX}",ImageUtil.RECIPE_IMAGES_FINAL_LOCATION)
                 }
@@ -228,16 +237,42 @@ class AddRecipeActivity : AppCompatActivity() {
 
     }
     fun assignedSomeValueToIngredients(recipeEntity:RecipeEntity,ingredients:ArrayList<IngredientEntity>){
-
         ingredients.forEach {
             it.recipeUniqueId = recipeEntity.uniqueId
         }
     }
-
     fun assignedSomeValueToSteps(recipeEntity:RecipeEntity,steps:ArrayList<RecipeStepEntity>){
         steps.forEach {
             it.recipeUniqueId = recipeEntity.uniqueId
         }
+
+    }
+
+    fun createRecipeCategoryAssignmentEntities(recipeUniqueId:String,selectedCategories:ArrayList<RecipeCategoryEntity>): ArrayList<RecipeCategoryAssignmentEntity> {
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+        val recipeCategoryAssignmentEntities = arrayListOf<RecipeCategoryAssignmentEntity>()
+            selectedCategories.forEach {
+
+                var itemUniqueID = UUID.randomUUID().toString()
+
+                val recipeCategoryAssignmentEntity = RecipeCategoryAssignmentEntity(
+                    uniqueId = itemUniqueID,
+                    recipeCategoryUniqueId = it.uniqueId,
+                    recipeUniqueId = recipeUniqueId,
+                    status = RecipeCategoryAssignmentEntity.NOT_DELETED_STATUS,
+                    uploaded = RecipeCategoryAssignmentEntity.NOT_UPLOADED,
+                    created = currentDatetime,
+                    modified = currentDatetime
+                )
+
+                recipeCategoryAssignmentEntities.add(recipeCategoryAssignmentEntity)
+            }
+
+        return recipeCategoryAssignmentEntities
+
+
 
     }
 }
