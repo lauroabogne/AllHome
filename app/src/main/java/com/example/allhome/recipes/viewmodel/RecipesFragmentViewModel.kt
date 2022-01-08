@@ -44,9 +44,12 @@ class RecipesFragmentViewModel:ViewModel() {
     }
     suspend fun getRecipesByIngredients(context: Context,searchTerm:String,ingredients:List<String>):List<RecipeEntityWithTotalIngredient>{
 
-
-
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipesByIngredients(searchTerm,ingredients)
+    }
+    suspend fun getRecipeCategories(context:Context,recipeUniqueId: String):List<RecipeCategoryEntity>{
+
+        return AllHomeDatabase.getDatabase(context).getRecipeCategoryAssignmentDAO().getRecipeCategories(recipeUniqueId)
+
     }
 
     fun createQuery(ingredients:List<String>):String{

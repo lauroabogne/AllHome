@@ -25,7 +25,7 @@ data class RecipeEntity(
     @ColumnInfo(name= COLUMN_PREPARATION_MINUTES) var preparationMinutes:Int,
     @ColumnInfo(name= COLUMN_COOKING_HOUR) var cookingHours:Int,
     @ColumnInfo(name= COLUMN_COOKING_MINUTES) var cookingMinutes:Int,
-    @ColumnInfo(name= COLUMN_CATEGORY) var category:String,
+   // @ColumnInfo(name= COLUMN_CATEGORY) var category:String,
     @ColumnInfo(name= COLUMN_ESTIMATED_COST) var estimatedCost:Double,
     @ColumnInfo(name= COLUMN_DESCRIPTION) var description:String,
     @ColumnInfo(name= COLUMN_IMAGE_NAME) var imageName:String,
