@@ -37,11 +37,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class RecipeCategoryDialogFragment : DialogFragment() {
+class RecipeCategoryDialogFragment() : DialogFragment() {
 
 
     lateinit var mRecipeCategoryDialogFragmentLayoutBinding: RecipeCategoryDialogFragmentLayoutBinding
     lateinit var mRecipeCategoryViewModel:RecipeCategoryViewModel
+    var mOnSelectCategoryListener:OnSelectCategoryListener? = null
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -110,7 +111,9 @@ class RecipeCategoryDialogFragment : DialogFragment() {
             }
         }
     }
-
+    fun setCategoryOnSelectListener( onSelectCategoryListener:OnSelectCategoryListener){
+        mOnSelectCategoryListener = onSelectCategoryListener
+    }
 
     class RecipeCategoryRecyclerviewViewAdapater(var mRecipeCategoryEntities:ArrayList<RecipeCategoryEntity>, val mRecipeCategoryDialogFragment: RecipeCategoryDialogFragment):
         RecyclerView.Adapter<RecipeCategoryRecyclerviewViewAdapater.ItemViewHolder>() {
@@ -146,16 +149,13 @@ class RecipeCategoryDialogFragment : DialogFragment() {
             }
             override fun onClick(view: View?) {
                 val recipeCategory = recipesRecyclerviewViewAdapater.mRecipeCategoryEntities[adapterPosition]
-                Toast.makeText(recipesRecyclerviewViewAdapater.mRecipeCategoryDialogFragment.requireContext(),"${recipeCategory.name}",Toast.LENGTH_SHORT).show()
+                mRecipeCategoryDialogFragment.mOnSelectCategoryListener?.selected(recipeCategory)
+
             }
-
-
         }
-
-
     }
 
-
-
-
+    interface OnSelectCategoryListener{
+        fun selected(recipeCategory:RecipeCategoryEntity)
+    }
 }

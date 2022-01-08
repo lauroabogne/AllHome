@@ -17,6 +17,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.R
+import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
 import com.example.allhome.databinding.FragmentRecipesBinding
@@ -167,6 +168,13 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
 
             val recipeCategoryDialogFragment  = RecipeCategoryDialogFragment()
+            recipeCategoryDialogFragment.setCategoryOnSelectListener(object:RecipeCategoryDialogFragment.OnSelectCategoryListener{
+                override fun selected(recipeCategory: RecipeCategoryEntity) {
+                    recipeCategoryDialogFragment.dismiss()
+                    Toast.makeText(requireContext(),"${recipeCategory.name} from other",Toast.LENGTH_SHORT).show()
+                }
+
+            })
             recipeCategoryDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryDialogFragment")
         }
         return mFragmentRecipesBinding.root

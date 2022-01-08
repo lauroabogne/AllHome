@@ -84,9 +84,6 @@ class ViewRecipeFragment : Fragment() {
             mFragmentList.add( ViewRecipeInformationFragment.newInstance(mRecipeEntity))
             mFragmentList.add(ViewRecipeIngredientsFragment.newInstance(mRecipeEntity))
             mFragmentList.add( ViewRecipeStepsFragment.newInstance(mRecipeEntity))
-
-
-
         }
 
         mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
