@@ -16,7 +16,9 @@ import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
+import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.allhome.R
+import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
@@ -166,14 +168,30 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
         mFragmentRecipesBinding.categoryFab.setOnClickListener {
 
-
             val recipeCategoryDialogFragment  = RecipeCategoryDialogFragment()
             recipeCategoryDialogFragment.setCategoryOnSelectListener(object:RecipeCategoryDialogFragment.OnSelectCategoryListener{
                 override fun selected(recipeCategory: RecipeCategoryEntity) {
                     recipeCategoryDialogFragment.dismiss()
+                    mRecipesFragmentViewModel.mSelectedCategory = recipeCategory
+                    mFragmentRecipesBinding.searchIndicatorTextView.text = recipeCategory.name
+                    //reset as no filter
+                    mRecipesFragmentViewModel.mFilter = NO_FILTER
+                    mSelectedMenuItem?.isChecked = true
+
+                    mRecipesFragmentViewModel.mCoroutineScope.launch {
+
+                        val searchResult = getSearchItems("")
+                        withContext(Main){
+                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                            adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                            adapter.notifyDataSetChanged()
+                            mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
+                        }
+                    }
+
+
                     Toast.makeText(requireContext(),"${recipeCategory.name} from other",Toast.LENGTH_SHORT).show()
                 }
-
             })
             recipeCategoryDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryDialogFragment")
         }
@@ -192,48 +210,55 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
     }
 
-    val toolbarMenuItemClickListener = object:Toolbar.OnMenuItemClickListener{
-        override fun onMenuItemClick(item: MenuItem?): Boolean {
-            mSelectedMenuItem = item
-            when (item?.itemId) {
+    private val toolbarMenuItemClickListener = Toolbar.OnMenuItemClickListener { item ->
+        mSelectedMenuItem = item
+        when (item?.itemId) {
 
-                R.id.noFilterMenu -> {
-                    mRecipesFragmentViewModel.mFilter = NO_FILTER
-                    mSelectedMenuItem?.isChecked = true
+            R.id.noFilterMenu -> {
+                mRecipesFragmentViewModel.mFilter = NO_FILTER
+                mSelectedMenuItem?.isChecked = true
 
-                    mRecipesFragmentViewModel.mCoroutineScope.launch {
-                        val searchResult = getSearchItems()
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val searchResult = getSearchItems()
 
-                        withContext(Main){
-                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                            adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                            adapter.notifyDataSetChanged()
-                        }
+                    withContext(Main){
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
+                        adapter.notifyDataSetChanged()
                     }
                 }
-                R.id.recipeInformationFilterMenu -> {
-                    val filterByInformationDialogFragment  = FilterByInformationDialogFragment(mRecipesFragmentViewModel)
-                    filterByInformationDialogFragment.isCancelable = false
-                    filterByInformationDialogFragment.setRecipeInformationFilterListener(recipeInformationFilterListener)
-                    filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
-                }
-                R.id.recipeIngredientFilterMenu -> {
-                    val filterByIngredientsDialogFragment  =  FilterByIngredientsDialogFragment(mRecipesFragmentViewModel)
-                    filterByIngredientsDialogFragment.isCancelable = false
-                    filterByIngredientsDialogFragment.setRecipeIngredientFilterListener(recipeIngredientFilterListener)
-                    filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
-                }
-
             }
-            return true
-        }
+            R.id.recipeInformationFilterMenu -> {
+                val filterByInformationDialogFragment  = FilterByInformationDialogFragment(mRecipesFragmentViewModel)
+                filterByInformationDialogFragment.isCancelable = false
+                filterByInformationDialogFragment.setRecipeInformationFilterListener(recipeInformationFilterListener)
+                filterByInformationDialogFragment.show(requireActivity().supportFragmentManager,"IngredientDialogFragment")
+            }
+            R.id.recipeIngredientFilterMenu -> {
+                val filterByIngredientsDialogFragment  =  FilterByIngredientsDialogFragment(mRecipesFragmentViewModel)
+                filterByIngredientsDialogFragment.isCancelable = false
+                filterByIngredientsDialogFragment.setRecipeIngredientFilterListener(recipeIngredientFilterListener)
+                filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
+            }
 
+        }
+        true
     }
     private suspend fun loadAll(searchTerm: String): List<RecipeEntityWithTotalIngredient> {
+
+        if(mRecipesFragmentViewModel.mSelectedCategory != null ){
+            val categoryUniqueId = mRecipesFragmentViewModel.mSelectedCategory!!.uniqueId
+            if(categoryUniqueId != "1"){
+                val queryString = mRecipesFragmentViewModel.createQueryForAllProductWithCategorySelected()
+                val simpleSqliteQuery = SimpleSQLiteQuery(queryString,arrayOf("%${searchTerm}%",categoryUniqueId))
+                return AllHomeDatabase.getDatabase(requireContext()).getRecipeDAO().getRecipes(simpleSqliteQuery)
+            }
+        }
 
         return mRecipesFragmentViewModel.getRecipes(requireContext(), searchTerm)
 
     }
+
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.view_all_recipe_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -292,17 +317,32 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         val hasServingInput = mRecipesFragmentViewModel.mHasServingInput
         val  hasHourOrMinuteInput = mRecipesFragmentViewModel.mHasHourOrMinuteInput
 
-        if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
+        if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ) {
             //filter by cost, serving and total preparation and cook time
-            val cost =mRecipesFragmentViewModel.mCostString.toDouble()
+            val cost = mRecipesFragmentViewModel.mCostString.toDouble()
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
-             val recipes = mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTime(requireContext(),searchQuery,
-                    mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving,
-                    mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
 
-                    return recipes
+            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString, mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val allRecipeCategoryUniqueId = "1"
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTimeWithCategory(
+                        requireContext(), searchQuery,
+                        mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mServingCondition, serving,
+                        mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes,categoryUniqueId
+                    )
+                }
+            }
+
+            return mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTime(
+                requireContext(), searchQuery,
+                mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mServingCondition, serving,
+                mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes
+            )
 
 
         }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
@@ -330,11 +370,18 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
             return recipes
 
-        }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ){
+        }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ) {
             // filter by cost
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
-            val recipes = mRecipesFragmentViewModel.filterByCost(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition,cost)
-            return recipes
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val allRecipeCategoryUniqueId = "1"
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByCostAndCategory(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, categoryUniqueId)
+                }
+            }
+            return mRecipesFragmentViewModel.filterByCost(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost)
 
         }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
             // filter by serving
