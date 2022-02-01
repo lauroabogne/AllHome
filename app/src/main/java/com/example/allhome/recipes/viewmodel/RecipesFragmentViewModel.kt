@@ -55,7 +55,9 @@ class RecipesFragmentViewModel : ViewModel() {
 
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipesByIngredients(searchTerm, ingredients)
     }
-
+    suspend fun getRecipesByIngredientsWithCategorySelected(context: Context, searchTerm: String, ingredients: List<String>,categoryUniqueId: String): List<RecipeEntityWithTotalIngredient> {
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipesByIngredientsWithCategorySelected(searchTerm, ingredients,categoryUniqueId)
+    }
     suspend fun getRecipeCategories(context: Context, recipeUniqueId: String): List<RecipeCategoryEntity> {
 
         return AllHomeDatabase.getDatabase(context).getRecipeCategoryAssignmentDAO().getRecipeCategories(recipeUniqueId)
@@ -181,6 +183,25 @@ class RecipesFragmentViewModel : ViewModel() {
 
     }
 
+    suspend fun filterByCostAndServingWithCategorySelected(
+        context: Context, searchQuery: String, costCondition: String, cost: Double, servingCondition: String, serving: Int,categoryUniqueId:String): List<RecipeEntityWithTotalIngredient> {
+
+        val query = "SELECT *," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
+                " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ?" +
+                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} $costCondition ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} $servingCondition ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}" +
+                " AND ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
+                 " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+
+        val simpleSqliteQuery = SimpleSQLiteQuery(query, arrayOf("%${searchQuery}%", cost, serving,categoryUniqueId))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+
     private fun createForFilterByCostAndServing(costCondition: String, servingCondition: String): String {
 
         val query = "SELECT *," +
@@ -198,6 +219,25 @@ class RecipesFragmentViewModel : ViewModel() {
     suspend fun filterByCostAndTotalPrepAndCookTime(context: Context, searchQuery: String, costCondition: String, cost: Double, totalPrepAndCookTimeInMinutesCondtion: String, totalPrepAndCookTimeInMinutes: Int): List<RecipeEntityWithTotalIngredient> {
         val queryString = createForFilterByCostAndTotalPrepAndCookTime(costCondition, totalPrepAndCookTimeInMinutesCondtion)
         val simpleSqliteQuery = SimpleSQLiteQuery(queryString, arrayOf("%${searchQuery}%", cost, totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+
+    suspend fun filterByCostAndTotalPrepAndCookTimeWithCategorySelected(context: Context, searchQuery: String, costCondition: String, cost: Double,
+                                                                        totalPrepAndCookTimeInMinutesCondtion: String, totalPrepAndCookTimeInMinutes: Int,categoryUniqueId:String): List<RecipeEntityWithTotalIngredient> {
+
+        val query = "SELECT *," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
+                " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ?" +
+                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
+                " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} " +
+                " AND ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
+                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+
+        val simpleSqliteQuery = SimpleSQLiteQuery(query, arrayOf("%${searchQuery}%", cost, totalPrepAndCookTimeInMinutes,categoryUniqueId))
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
 
     }
@@ -223,15 +263,32 @@ class RecipesFragmentViewModel : ViewModel() {
 
     }
 
-    private fun createForFilterByServingAndTotalPrepAndCookTime(costCondition: String, servingCondition: String): String {
+    suspend fun filterByServingAndTotalPrepAndCookTimeWithCategorySelected(context: Context, searchQuery: String, servingCondition: String, serving: Int, totalPrepAndCookTimeInMinutesCondition: String, totalPrepAndCookTimeInMinutes: Int,categoryUniqueId: String): List<RecipeEntityWithTotalIngredient> {
+        val query = "SELECT *," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
+                " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ?" +
+                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} ${totalPrepAndCookTimeInMinutesCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}" +
+                " AND ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
+                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+
+        val simpleSqliteQuery = SimpleSQLiteQuery(query, arrayOf("%${searchQuery}%", serving, totalPrepAndCookTimeInMinutes,categoryUniqueId))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+
+    private fun createForFilterByServingAndTotalPrepAndCookTime(servingCondition: String, totalPrepAndCookTimeInMinutesCondition: String): String {
 
         val query = "SELECT *," +
                 " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
                 " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
                 " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
                 " ${RecipeEntity.COLUMN_NAME} LIKE ?" +
-                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} ${costCondition} ? " +
-                " AND ${RecipeEntity.COLUMN_SERVING} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_ESTIMATED_COST} ${servingCondition} ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} ${totalPrepAndCookTimeInMinutesCondition} ? " +
                 " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS}"
 
         return query
@@ -280,6 +337,21 @@ class RecipesFragmentViewModel : ViewModel() {
 
     }
 
+    suspend fun filterByServingWithCategorySelected(context: Context, searchQuery: String, servingCondition: String, serving: Int,categoryUniqueId: String): List<RecipeEntityWithTotalIngredient> {
+        val query = "SELECT *," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
+                " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ? " +
+                " AND ${RecipeEntity.COLUMN_SERVING} $servingCondition ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} AND " +
+                " ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
+                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+        val simpleSqliteQuery = SimpleSQLiteQuery(query, arrayOf("%${searchQuery}%", serving,categoryUniqueId))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+
     private fun createForFilterByServing(servingCondition: String): String {
 
         val query = "SELECT *," +
@@ -296,6 +368,22 @@ class RecipesFragmentViewModel : ViewModel() {
     suspend fun filterByTotalPrepAndCookTime(context: Context, searchQuery: String, totalPrepAndCookTimeInMinutesCondtion: String, totalPrepAndCookTimeInMinutes: Int): List<RecipeEntityWithTotalIngredient> {
         val queryString = createForFilterByTotalPrepAndCookTime(totalPrepAndCookTimeInMinutesCondtion)
         val simpleSqliteQuery = SimpleSQLiteQuery(queryString, arrayOf("%${searchQuery}%", totalPrepAndCookTimeInMinutes))
+        return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
+
+    }
+    suspend fun filterByTotalPrepAndCookTimeWithCategorySelected(context: Context, searchQuery: String, totalPrepAndCookTimeInMinutesCondtion: String, totalPrepAndCookTimeInMinutes: Int,categoryUniqueId: String): List<RecipeEntityWithTotalIngredient> {
+
+        val query = "SELECT *," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_COUNT}," +
+                " 0 as ${RecipeEntityWithTotalIngredient.TOTAL_INGREDIENT_MATCH_COUNT}" +
+                " FROM ${RecipeEntity.TABLE_NAME} WHERE " +
+                " ${RecipeEntity.COLUMN_NAME} LIKE ? " +
+                " AND ((${RecipeEntity.COLUMN_PREPARATION_HOUR} * 60) +  (${RecipeEntity.COLUMN_COOKING_HOUR} * 60) + ${RecipeEntity.COLUMN_PREPARATION_MINUTES} + ${RecipeEntity.COLUMN_COOKING_MINUTES}) ${totalPrepAndCookTimeInMinutesCondtion} ? " +
+                " AND ${RecipeEntity.COLUMN_STATUS} = ${RecipeEntity.NOT_DELETED_STATUS} AND "+
+                " ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
+                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+
+        val simpleSqliteQuery = SimpleSQLiteQuery(query, arrayOf("%${searchQuery}%", totalPrepAndCookTimeInMinutes,categoryUniqueId))
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(simpleSqliteQuery)
 
     }

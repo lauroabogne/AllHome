@@ -15,6 +15,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.sqlite.db.SimpleSQLiteQuery
 import com.example.allhome.R
@@ -24,6 +25,7 @@ import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
+import com.example.allhome.databinding.RecipeItemGridBinding
 import com.example.allhome.meal_planner.AddMealDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import kotlinx.coroutines.*
@@ -118,6 +120,8 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             startActivity(intent)
         }
 
+        mFragmentRecipesBinding.recipesRecyclerview.layoutManager  =GridLayoutManager(requireContext(),3)
+
         mFragmentRecipesBinding.swipeRefresh.setOnRefreshListener {
             val searchQuery = mSearchView?.query.toString()
             mRecipesFragmentViewModel.mCoroutineScope.launch {
@@ -149,21 +153,21 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
 
         mFragmentRecipesBinding.floatingViewMoreButton.setOnClickListener {
-            if(mFragmentRecipesBinding.viewByFab.isVisible){
-                //callLinearLayout.visibility = View.GONE
-                mFragmentRecipesBinding.viewByFab.visibility = View.GONE
-                mFragmentRecipesBinding.categoryFab.visibility = View.GONE
-                mFragmentRecipesBinding.viewByFab.startAnimation(mHideButtonLayoutAnimation)
-                mFragmentRecipesBinding.categoryFab.startAnimation(mHideButtonLayoutAnimation)
-
-            }else{
-                mFragmentRecipesBinding.viewByFab.visibility = View.VISIBLE
-                mFragmentRecipesBinding.categoryFab.visibility = View.VISIBLE
-
-
-                mFragmentRecipesBinding.viewByFab.startAnimation(mShowButtonLayoutAnimation)
-                mFragmentRecipesBinding.categoryFab.startAnimation(mShowButtonLayoutAnimation)
-            }
+//            if(mFragmentRecipesBinding.viewByFab.isVisible){
+//                //callLinearLayout.visibility = View.GONE
+//                mFragmentRecipesBinding.viewByFab.visibility = View.GONE
+//                mFragmentRecipesBinding.categoryFab.visibility = View.GONE
+//                mFragmentRecipesBinding.viewByFab.startAnimation(mHideButtonLayoutAnimation)
+//                mFragmentRecipesBinding.categoryFab.startAnimation(mHideButtonLayoutAnimation)
+//
+//            }else{
+//                mFragmentRecipesBinding.viewByFab.visibility = View.VISIBLE
+//                mFragmentRecipesBinding.categoryFab.visibility = View.VISIBLE
+//
+//
+//                mFragmentRecipesBinding.viewByFab.startAnimation(mShowButtonLayoutAnimation)
+//                mFragmentRecipesBinding.categoryFab.startAnimation(mShowButtonLayoutAnimation)
+//            }
         }
 
         mFragmentRecipesBinding.categoryFab.setOnClickListener {
@@ -316,6 +320,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         val hasCostInput = mRecipesFragmentViewModel.mHasCostInput
         val hasServingInput = mRecipesFragmentViewModel.mHasServingInput
         val  hasHourOrMinuteInput = mRecipesFragmentViewModel.mHasHourOrMinuteInput
+        val allRecipeCategoryUniqueId = "1"
 
         if(hasCostInput && hasServingInput &&  hasHourOrMinuteInput ) {
             //filter by cost, serving and total preparation and cook time
@@ -327,7 +332,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
             mRecipesFragmentViewModel.mSelectedCategory?.let {
 
-                val allRecipeCategoryUniqueId = "1"
+
                 val categoryUniqueId = it.uniqueId;
                 if (categoryUniqueId != allRecipeCategoryUniqueId) {
                     return mRecipesFragmentViewModel.filterByCostServingAndTotalPrepAndCookTimeWithCategory(
@@ -345,37 +350,58 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             )
 
 
-        }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
+        }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ) {
             // filter by cost and serving
-            val cost =mRecipesFragmentViewModel.mCostString.toDouble()
+            val cost = mRecipesFragmentViewModel.mCostString.toDouble()
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val recipes = mRecipesFragmentViewModel.filterByCostAndServing(requireContext(), searchQuery,mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mServingCondition,serving)
 
-            return recipes
-        }else if(hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByCostAndServingWithCategorySelected(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mServingCondition, serving, categoryUniqueId)
+                }
+            }
+
+            return mRecipesFragmentViewModel.filterByCostAndServing(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mServingCondition, serving)
+        }else if(hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ) {
             // filter by cost and total preparation + cook time
 
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
-            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
-            val recipes = mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition,cost,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
-            return recipes
+            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString, mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
-        }else if(!hasCostInput && hasServingInput &&  hasHourOrMinuteInput ){
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTimeWithCategorySelected(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes, categoryUniqueId)
+                }
+            }
+
+            return mRecipesFragmentViewModel.filterByCostAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes)
+
+        }else if(!hasCostInput && hasServingInput &&  hasHourOrMinuteInput ) {
             // filter by serving and total preparation and cook time
 
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
+            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString, mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
-            val recipes = mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition,serving,mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes,)
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
 
-            return recipes
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTimeWithCategorySelected(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition, serving, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes, categoryUniqueId)
+                }
+            }
+
+            return mRecipesFragmentViewModel.filterByServingAndTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition, serving, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes,)
 
         }else if(hasCostInput && !hasServingInput &&  !hasHourOrMinuteInput ) {
             // filter by cost
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
             mRecipesFragmentViewModel.mSelectedCategory?.let {
 
-                val allRecipeCategoryUniqueId = "1"
+
                 val categoryUniqueId = it.uniqueId;
                 if (categoryUniqueId != allRecipeCategoryUniqueId) {
                     return mRecipesFragmentViewModel.filterByCostAndCategory(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost, categoryUniqueId)
@@ -383,24 +409,47 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             }
             return mRecipesFragmentViewModel.filterByCost(requireContext(), searchQuery, mRecipesFragmentViewModel.mCostCondition, cost)
 
-        }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ){
+        }else if(!hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ) {
             // filter by serving
 
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-            val recipes = mRecipesFragmentViewModel.filterByServing(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition,serving)
-            return recipes
 
-        }else if(!hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ){
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByServingWithCategorySelected(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition, serving, categoryUniqueId)
+                }
+            }
+            return mRecipesFragmentViewModel.filterByServing(requireContext(), searchQuery, mRecipesFragmentViewModel.mServingCondition, serving)
+
+        }else if(!hasCostInput && !hasServingInput &&  hasHourOrMinuteInput ) {
             // filter by total preparation and cook time
-            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString,mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
-            val recipes = mRecipesFragmentViewModel.filterByTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition,totalPrepAndCookTimeInMinutes)
+            val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString, mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
-            return recipes
+            mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+                val categoryUniqueId = it.uniqueId;
+                if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                    return mRecipesFragmentViewModel.filterByTotalPrepAndCookTimeWithCategorySelected(requireContext(), searchQuery, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes, categoryUniqueId)
+                }
+            }
+
+            return mRecipesFragmentViewModel.filterByTotalPrepAndCookTime(requireContext(), searchQuery, mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes)
         }
-        return arrayListOf<RecipeEntityWithTotalIngredient>()
+        return arrayListOf()
     }
 
     suspend fun filterByRecipeIngredients(searchTerm: String = "",ingredients:List<String>):List<RecipeEntityWithTotalIngredient>{
+
+        val allRecipeCategoryUniqueId = "1"
+        mRecipesFragmentViewModel.mSelectedCategory?.let {
+
+            val categoryUniqueId = it.uniqueId;
+            if (categoryUniqueId != allRecipeCategoryUniqueId) {
+                return mRecipesFragmentViewModel.getRecipesByIngredientsWithCategorySelected(requireContext(),searchTerm,ingredients,categoryUniqueId)
+            }
+        }
 
         return mRecipesFragmentViewModel.getRecipesByIngredients(requireContext(),searchTerm,ingredients)
     }
@@ -527,8 +576,9 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
 
+
             val layoutInflater = LayoutInflater.from(parent.context)
-            val recipeItemBinding =  RecipeItemBinding.inflate(layoutInflater, parent, false)
+            val recipeItemBinding =  RecipeItemGridBinding.inflate(layoutInflater, parent, false)
             val itemViewHolder = ItemViewHolder(recipeItemBinding, this)
 
             return itemViewHolder
@@ -549,7 +599,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         }
 
 
-        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
+        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemGridBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
 
             init {
                 recipeItemBinding.root.setOnClickListener(this)

@@ -85,11 +85,12 @@ fun setServingText(textViwe: TextView, serving:Int){
 }
 @BindingAdapter("android:setRecipeCost")
 fun setRecipeCost(textView: TextView, cost:Double){
+    Log.e("COST",cost.toString())
     if(cost <=0.0){
         textView.visibility = View.GONE
         return
     }
-
+    textView.visibility = View.VISIBLE
 
     textView.text = "Cost: ${ NumberUtils.formatNumber(cost)}"
 }
