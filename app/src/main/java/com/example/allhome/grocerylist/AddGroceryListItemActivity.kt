@@ -15,6 +15,7 @@ import android.view.*
 import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
@@ -22,13 +23,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
-import com.example.allhome.data.entities.GroceryItemEntity
-import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
-import com.example.allhome.data.entities.GroceryItemEntityValues
-import com.example.allhome.data.entities.GroceryListEntityValues
+import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
+import com.example.allhome.recipes.RecipesFragment
+import com.example.allhome.recipes.ViewRecipeActivity
+import com.example.allhome.recipes.ViewRecipeFragment
 import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -72,6 +73,13 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
     }
 
+    private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
+        if(activityResult.resultCode == Activity.RESULT_OK){
+
+
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_grocery_list_item)
@@ -144,6 +152,16 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             dataBindingUtil.invalidateAll()
         }
 
+        dataBindingUtil.browseItemImageBtn.setOnClickListener{
+
+            val browseItemActivity = Intent(this@AddGroceryListItemActivity,BrowserItemImageActivity::class.java)
+//            val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
+//            viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
+//            mRecipesFragment.openRecipeContract.launch(viewRecipeActivity)
+            openBrowseImageContract.launch(browseItemActivity)
+
+
+        }
 
         dataBindingUtil.addImgBtn.setOnClickListener{
 
@@ -189,7 +207,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         dataBindingUtil.itemCategoryTextinput.setAdapter(itemCategoryAutoSuggestCustomAdapter)
     }
 
-   fun showIntentChooser(){
+   private fun showIntentChooser(){
        // Determine Uri of camera image to save.
 
        // create temporary file
@@ -336,7 +354,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
 
     }
-    fun updateRecord(){
+    private fun updateRecord(){
         val itemName: String = dataBindingUtil.itemNameTextinput.text.toString().trim()
         val quantityString = dataBindingUtil.itemQuantityTextinput.text.toString()
         val unit: String = dataBindingUtil.unitTextinput.text.toString().trim()

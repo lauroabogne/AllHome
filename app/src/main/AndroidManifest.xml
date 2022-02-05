@@ -22,8 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
         <activity
+            android:name=".grocerylist.BrowserItemImageActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar"
+            android:exported="false" />
+        <activity
             android:name=".recipes.WebBrowseRecipeActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar"></activity>
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity android:name=".expenses.ExpensesItemSummaryActivity" />
         <activity
             android:name=".bill.BillActivity"

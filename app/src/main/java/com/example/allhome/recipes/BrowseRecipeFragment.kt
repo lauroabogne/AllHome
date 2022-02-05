@@ -120,6 +120,7 @@ class BrowseRecipeFragment : Fragment() {
 
         })
 
+
         registerForContextMenu(mFragmentBrowseRecipeBinding.webview)
 
         return mFragmentBrowseRecipeBinding.root
