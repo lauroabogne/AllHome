@@ -50,7 +50,7 @@ class RecipeCategoryDialogFragment() : DialogFragment() {
         mRecipeCategoryViewModel = ViewModelProvider(this).get(RecipeCategoryViewModel::class.java)
 
        val inflater = LayoutInflater.from(requireContext())
-        mRecipeCategoryDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.recipe_category_dialog_fragment_layout,null,false)
+        mRecipeCategoryDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.recipe_category_dialog_fragment_layout,null,true)
 
         mRecipeCategoryDialogFragmentLayoutBinding.toolbar.title = "Categories"
         mRecipeCategoryDialogFragmentLayoutBinding.toolbar.inflateMenu(R.menu.add_category_menu)
@@ -96,6 +96,13 @@ class RecipeCategoryDialogFragment() : DialogFragment() {
 
         return alertDialog
     }
+//    override fun onResume() {
+//        super.onResume()
+//        dialog!!.window!!.setLayout(
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            ViewGroup.LayoutParams.WRAP_CONTENT
+//        )
+//    }
 
     fun loadCategories(){
         val recipeCategoryRecyclerviewViewAdapater = RecipeCategoryRecyclerviewViewAdapater(arrayListOf(),this)
@@ -108,6 +115,7 @@ class RecipeCategoryDialogFragment() : DialogFragment() {
                 val recipeCategoryRecyclerviewViewAdapater = mRecipeCategoryDialogFragmentLayoutBinding.recipesRecyclerview.adapter as RecipeCategoryRecyclerviewViewAdapater
                 recipeCategoryRecyclerviewViewAdapater.mRecipeCategoryEntities = recipeCategoryEntities
                 recipeCategoryRecyclerviewViewAdapater.notifyDataSetChanged()
+
             }
         }
     }

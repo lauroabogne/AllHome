@@ -76,7 +76,7 @@
             android:layout_marginLeft="@dimen/fab_margin_left"
             android:text="Categories"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/floatingViewMoreButton"
+            app:layout_constraintEnd_toStartOf="@+id/toggleViewMoreButton"
             app:srcCompat="@android:drawable/ic_input_add" />
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/viewByFab"
@@ -90,7 +90,7 @@
             android:gravity="center"
             android:text="View Option"
             android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/floatingViewMoreButton"
+            app:layout_constraintBottom_toTopOf="@+id/toggleViewMoreButton"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -107,7 +107,7 @@
 
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/floatingViewMoreButton"
+            android:id="@+id/toggleViewMoreButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/fab_margin"

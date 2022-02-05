@@ -33,6 +33,7 @@ class RecipesFragmentViewModel : ViewModel() {
     var mHasServingInput: Boolean = false
     var mHasHourOrMinuteInput: Boolean = false
     var mFilterIngredients = arrayListOf<String>()
+    var mRecipeViewing = AppSettingEntity.RECIPE_LIST_VIEWING
 
     suspend fun getRecipes(context: Context, searchTerm: String): List<RecipeEntityWithTotalIngredient> {
         return AllHomeDatabase.getDatabase(context).getRecipeDAO().getRecipes(searchTerm)
@@ -405,5 +406,20 @@ class RecipesFragmentViewModel : ViewModel() {
 
         return AllHomeDatabase.getDatabase(context).getIngredientDAO().getIngredientForAutousuggest(searchTerm)
     }
+    suspend fun setRecipeViewingAppSetting(context: Context,appSettingEntity: AppSettingEntity):Long{
+        return AllHomeDatabase.getDatabase(context).getAppSettingDAO().insert(appSettingEntity)
+    }
+    suspend fun updateRecipeViewingAppSetting(context:Context,recipeViewing:String,currentDate:String){
+        AllHomeDatabase.getDatabase(context).getAppSettingDAO().updateRecipeViewingSetting(recipeViewing,currentDate)
+    }
+    suspend fun getRecipeViewingSetting(context: Context):String{
+        val recipeViewing:String?  = AllHomeDatabase.getDatabase(context).getAppSettingDAO().getRecipeViewing()
+        mRecipeViewing = recipeViewing ?:AppSettingEntity.RECIPE_GRID_VIEWING
+        return mRecipeViewing
+    }
+    suspend fun getRecipeViewingSettingEntity(context: Context):AppSettingEntity?{
+        return AllHomeDatabase.getDatabase(context).getAppSettingDAO().getRecipeViewingAppSettingEntity()
+    }
+
 }
 

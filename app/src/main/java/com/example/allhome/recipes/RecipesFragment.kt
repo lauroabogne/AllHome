@@ -12,14 +12,17 @@ import androidx.fragment.app.Fragment
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
-import androidx.core.view.isVisible
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.ColumnInfo
 import androidx.sqlite.db.SimpleSQLiteQuery
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.entities.AppSettingEntity
 import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
@@ -28,8 +31,12 @@ import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.databinding.RecipeItemGridBinding
 import com.example.allhome.meal_planner.AddMealDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 
 class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedListener: AddMealDialogFragment.RecipeSelectedListener? = null) : Fragment() {
@@ -43,11 +50,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
     var mSearchJob = Job()
 
 
-    lateinit var mShowButtonAnimation:Animation
-    lateinit var mHideButtonAnimation:Animation
 
-    lateinit var mShowButtonLayoutAnimation:Animation
-    lateinit var mHideButtonLayoutAnimation:Animation
 
     companion object{
         const val NO_FILTER = 0
@@ -59,13 +62,12 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
     private val openRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
-        Toast.makeText(requireContext(),"RecipesFragment result received",Toast.LENGTH_SHORT).show()
         if(activityResult.resultCode == Activity.RESULT_OK){
 
             activityResult.data?.let {
                it.getParcelableExtra<RecipeEntity>(ViewRecipeFragment.RECIPE_INTENT_TAG)?.let{recipeEntity->
 
-                   val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                   val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapter
                    val recipeEntitiesWithTotalIngredient = adapter.mRecipeStepEntities
 
                    mRecipesFragmentViewModel.mCoroutineScope.launch {
@@ -83,13 +85,8 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                    }
                }
 
-
             }
 
-//            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-//            adapter.mRecipeStepEntities.indexOfFirst {
-//                it.recipeEntity.uniqueId == recipeEntity.uniqueId
-//            }
         }
     }
 
@@ -101,11 +98,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
 
         }
 
-        mShowButtonAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_show_button)
-        mHideButtonAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_hide_button)
 
-        mShowButtonLayoutAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_show_layout)
-        mHideButtonLayoutAnimation = AnimationUtils.loadAnimation(requireContext(),R.anim.fab_hide_layout)
 
         mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)
     }
@@ -114,64 +107,84 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,savedInstanceState: Bundle?): View {
         mFragmentRecipesBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_recipes, container, false)
 
+        mRecipesFragmentViewModel.mCoroutineScope.launch {
+            // initialized recipe viewing
+            mRecipesFragmentViewModel.getRecipeViewingSetting(requireContext())
+
+            val searchResult = getSearchItems()
+            withContext(Main){
+                setUpRecyclierView(searchResult)
+                setRecipeViewingIcon(mRecipesFragmentViewModel.mRecipeViewing,mFragmentRecipesBinding.toggleViewMoreButton)
+            }
+        }
+
         mFragmentRecipesBinding.fab.setOnClickListener {
 
             val intent = Intent(requireContext(),AddRecipeActivity::class.java)
             startActivity(intent)
         }
 
-        mFragmentRecipesBinding.recipesRecyclerview.layoutManager  =GridLayoutManager(requireContext(),3)
+
 
         mFragmentRecipesBinding.swipeRefresh.setOnRefreshListener {
             val searchQuery = mSearchView?.query.toString()
             mRecipesFragmentViewModel.mCoroutineScope.launch {
                 val searchResult = getSearchItems(searchQuery)
                 withContext(Main){
-                    val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                    adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                    adapter.notifyDataSetChanged()
+                    setUpRecyclierView(searchResult)
+
                     mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
                 }
             }
         }
 
-        val recipesRecyclerviewViewAdapater = RecipesRecyclerviewViewAdapater(arrayListOf(),this)
-        mFragmentRecipesBinding.recipesRecyclerview.adapter = recipesRecyclerviewViewAdapater
-
-
-        mRecipesFragmentViewModel.mCoroutineScope.launch {
-            val searchResult = getSearchItems()
-            withContext(Main){
-                val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                adapter.notifyDataSetChanged()
-            }
-        }
         if(action == ADDING_MEAL_VIEWING){
             mFragmentRecipesBinding.fab.visibility = View.GONE
         }
 
+        mFragmentRecipesBinding.toggleViewMoreButton.setOnClickListener {
 
-        mFragmentRecipesBinding.floatingViewMoreButton.setOnClickListener {
-//            if(mFragmentRecipesBinding.viewByFab.isVisible){
-//                //callLinearLayout.visibility = View.GONE
-//                mFragmentRecipesBinding.viewByFab.visibility = View.GONE
-//                mFragmentRecipesBinding.categoryFab.visibility = View.GONE
-//                mFragmentRecipesBinding.viewByFab.startAnimation(mHideButtonLayoutAnimation)
-//                mFragmentRecipesBinding.categoryFab.startAnimation(mHideButtonLayoutAnimation)
-//
-//            }else{
-//                mFragmentRecipesBinding.viewByFab.visibility = View.VISIBLE
-//                mFragmentRecipesBinding.categoryFab.visibility = View.VISIBLE
-//
-//
-//                mFragmentRecipesBinding.viewByFab.startAnimation(mShowButtonLayoutAnimation)
-//                mFragmentRecipesBinding.categoryFab.startAnimation(mShowButtonLayoutAnimation)
-//            }
+
+            val searchQuery = mSearchView?.query.toString()
+            val recipeViewing = if(mRecipesFragmentViewModel.mRecipeViewing == AppSettingEntity.RECIPE_LIST_VIEWING)  AppSettingEntity.RECIPE_GRID_VIEWING else AppSettingEntity.RECIPE_LIST_VIEWING
+
+            mRecipesFragmentViewModel.mCoroutineScope.launch {
+
+                val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                val currentDatetime: String = simpleDateFormat.format(Date())
+
+                val appSettingEntity = mRecipesFragmentViewModel.getRecipeViewingSettingEntity(requireContext())
+
+                appSettingEntity?.let {
+                    //update
+                    mRecipesFragmentViewModel.updateRecipeViewingAppSetting(requireContext(),recipeViewing,currentDatetime)
+
+                }?:run{
+                    //insert
+                    var autoGeneratedUniqueId = UUID.randomUUID().toString()
+                    val appSettingEntity = AppSettingEntity(
+                        autoGeneratedUniqueId,
+                        AppSettingEntity.RECIPE_COLUMN_NAME,
+                        recipeViewing,
+                        AppSettingEntity.NOT_DELETED_STATUS,
+                        AppSettingEntity.NOT_UPLOADED,
+                        currentDatetime,
+                        currentDatetime
+                    )
+                    mRecipesFragmentViewModel.setRecipeViewingAppSetting(requireContext(),appSettingEntity)
+                }
+                mRecipesFragmentViewModel.getRecipeViewingSetting(requireContext())
+                val searchResult = getSearchItems(searchQuery)
+                withContext(Main){
+
+                    setRecipeViewingIcon(recipeViewing,it)
+                    setUpRecyclierView(searchResult)
+                }
+            }
+
         }
 
         mFragmentRecipesBinding.categoryFab.setOnClickListener {
-
             val recipeCategoryDialogFragment  = RecipeCategoryDialogFragment()
             recipeCategoryDialogFragment.setCategoryOnSelectListener(object:RecipeCategoryDialogFragment.OnSelectCategoryListener{
                 override fun selected(recipeCategory: RecipeCategoryEntity) {
@@ -181,27 +194,54 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                     //reset as no filter
                     mRecipesFragmentViewModel.mFilter = NO_FILTER
                     mSelectedMenuItem?.isChecked = true
-
                     mRecipesFragmentViewModel.mCoroutineScope.launch {
 
                         val searchResult = getSearchItems("")
                         withContext(Main){
-                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                            adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                            adapter.notifyDataSetChanged()
+                            setUpRecyclierView(searchResult)
                             mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
                         }
                     }
-
-
-                    Toast.makeText(requireContext(),"${recipeCategory.name} from other",Toast.LENGTH_SHORT).show()
                 }
             })
             recipeCategoryDialogFragment.show(requireActivity().supportFragmentManager,"RecipeCategoryDialogFragment")
         }
         return mFragmentRecipesBinding.root
     }
+    fun setRecipeViewingIcon(recipeViewing:String,extendedFloatingActionButton:View){
+        if(recipeViewing == AppSettingEntity.RECIPE_LIST_VIEWING){
+            (extendedFloatingActionButton as ExtendedFloatingActionButton).setIconResource(R.drawable.ic_baseline_grid_on_24)
+        }else{
 
+            (extendedFloatingActionButton as ExtendedFloatingActionButton).setIconResource(R.drawable.ic_baseline_view_list_24)
+        }
+    }
+    fun setUpRecyclierView(recipeEntityWithTotalIngredients:List<RecipeEntityWithTotalIngredient>){
+        val recipeViewing = mRecipesFragmentViewModel.mRecipeViewing
+
+        if(recipeViewing == AppSettingEntity.RECIPE_GRID_VIEWING){
+            val recipesRecyclerviewViewAdapter = RecipesRecyclerviewViewGridAdapter(arrayListOf(),this@RecipesFragment)
+            mFragmentRecipesBinding.recipesRecyclerview.adapter = recipesRecyclerviewViewAdapter
+            mFragmentRecipesBinding.recipesRecyclerview.layoutManager  = GridLayoutManager(requireContext(),2)
+        }else{
+            val recipesRecyclerviewViewAdapter = RecipesRecyclerviewViewAdapter(arrayListOf(),this@RecipesFragment)
+            mFragmentRecipesBinding.recipesRecyclerview.adapter = recipesRecyclerviewViewAdapter
+            mFragmentRecipesBinding.recipesRecyclerview.layoutManager  = LinearLayoutManager(requireContext())
+
+        }
+
+        if(mFragmentRecipesBinding.recipesRecyclerview.adapter is RecipesRecyclerviewViewAdapter){
+            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapter
+            adapter.mRecipeStepEntities = recipeEntityWithTotalIngredients as ArrayList<RecipeEntityWithTotalIngredient>
+            adapter.notifyDataSetChanged()
+
+        }else{
+
+            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewGridAdapter
+            adapter.mRecipeStepEntities = recipeEntityWithTotalIngredients as ArrayList<RecipeEntityWithTotalIngredient>
+            adapter.notifyDataSetChanged()
+        }
+    }
 
     fun setUpToolbar(toolbar: Toolbar){
 
@@ -226,7 +266,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                     val searchResult = getSearchItems()
 
                     withContext(Main){
-                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
+                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapter
                         adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
                         adapter.notifyDataSetChanged()
                     }
@@ -284,9 +324,8 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                     val searchResult = getSearchItems()
 
                     withContext(Main){
-                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                        adapter.notifyDataSetChanged()
+                        setUpRecyclierView(searchResult)
+
                     }
                 }
             }
@@ -303,7 +342,6 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                 filterByIngredientsDialogFragment.show(requireActivity().supportFragmentManager,"FilterByIngredientsDialogFragment")
             }
             R.id.browseRecipe->{
-                Toast.makeText(requireContext(),"test",Toast.LENGTH_SHORT).show()
 
                 val webBrowseRecipeActivity = Intent(view?.context, WebBrowseRecipeActivity::class.java)
                 view?.context?.startActivity(webBrowseRecipeActivity)
@@ -326,12 +364,9 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             //filter by cost, serving and total preparation and cook time
             val cost = mRecipesFragmentViewModel.mCostString.toDouble()
             val serving = mRecipesFragmentViewModel.mServingString.toInt()
-
-
             val totalPrepAndCookTimeInMinutes = totalPrepAndCookTimeInMinutes(mRecipesFragmentViewModel.mPrepPlusCookHourString, mRecipesFragmentViewModel.mPrepPlusCookMinutesString)
 
             mRecipesFragmentViewModel.mSelectedCategory?.let {
-
 
                 val categoryUniqueId = it.uniqueId;
                 if (categoryUniqueId != allRecipeCategoryUniqueId) {
@@ -348,7 +383,6 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                 mRecipesFragmentViewModel.mCostCondition, cost, mRecipesFragmentViewModel.mServingCondition, serving,
                 mRecipesFragmentViewModel.mPrepPlusCookTimeCondition, totalPrepAndCookTimeInMinutes
             )
-
 
         }else if(hasCostInput && hasServingInput &&  !hasHourOrMinuteInput ) {
             // filter by cost and serving
@@ -489,9 +523,9 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             mRecipesFragmentViewModel.mCoroutineScope.launch {
                 val recipes =  filterByInformations()
                 withContext(Main){
-                    val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                    adapter.mRecipeStepEntities = recipes as ArrayList<RecipeEntityWithTotalIngredient>
-                    adapter.notifyDataSetChanged()
+
+                    setUpRecyclierView(recipes)
+
                 }
             }
 
@@ -507,11 +541,10 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
             mRecipesFragmentViewModel.mCoroutineScope.launch {
                 val searchResult = getSearchItems("")
 
-                Log.e("RECIPE",searchResult.toString())
+
                 withContext(Main){
-                    val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                    adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                    adapter.notifyDataSetChanged()
+                    setUpRecyclierView(searchResult)
+
                 }
             }
         }
@@ -531,18 +564,13 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                     mSearchJob.cancel()
                     mSearchJob = Job()
                 }
-
                 CoroutineScope(Dispatchers.IO +mSearchJob).launch {
                     val searchResult = getSearchItems(it)
                     withContext(Main){
-                        val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapater
-                        adapter.mRecipeStepEntities = searchResult as ArrayList<RecipeEntityWithTotalIngredient>
-                        adapter.notifyDataSetChanged()
+                        setUpRecyclierView(searchResult)
                     }
                 }
-
             }
-
             return true
         }
     }
@@ -571,35 +599,27 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
         fun onIngredientFilterSet(ingredients:ArrayList<String>)
     }
 
-    class RecipesRecyclerviewViewAdapater(var mRecipeStepEntities:ArrayList<RecipeEntityWithTotalIngredient>, val mRecipesFragment: RecipesFragment):
-        RecyclerView.Adapter<RecipesRecyclerviewViewAdapater.ItemViewHolder>() {
+    class RecipesRecyclerviewViewAdapter(var mRecipeStepEntities:ArrayList<RecipeEntityWithTotalIngredient>, val mRecipesFragment: RecipesFragment):
+        RecyclerView.Adapter<RecipesRecyclerviewViewAdapter.ItemViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
-
-
             val layoutInflater = LayoutInflater.from(parent.context)
-            val recipeItemBinding =  RecipeItemGridBinding.inflate(layoutInflater, parent, false)
-            val itemViewHolder = ItemViewHolder(recipeItemBinding, this)
-
-            return itemViewHolder
+            val recipeItemBinding = RecipeItemBinding.inflate(layoutInflater, parent, false)
+            return ItemViewHolder(recipeItemBinding, this)
         }
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-
             val recipeEntity = mRecipeStepEntities[position]
-
             holder.recipeItemBinding.recipeEntityWithTotalIngredient = recipeEntity
             holder.recipeItemBinding.executePendingBindings()
 
         }
-
         override fun getItemCount(): Int {
 
             return mRecipeStepEntities.size
         }
 
-
-        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemGridBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapater): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
+        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewAdapter): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
 
             init {
                 recipeItemBinding.root.setOnClickListener(this)
@@ -614,14 +634,47 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedL
                 val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
                 viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
                 mRecipesFragment.openRecipeContract.launch(viewRecipeActivity)
-
             }
-
-
         }
-
-
     }
 
+    class RecipesRecyclerviewViewGridAdapter(var mRecipeStepEntities:ArrayList<RecipeEntityWithTotalIngredient>, val mRecipesFragment: RecipesFragment):
+        RecyclerView.Adapter<RecipesRecyclerviewViewGridAdapter.ItemViewHolder>() {
+
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val recipeItemBinding = RecipeItemGridBinding.inflate(layoutInflater, parent, false)
+            return ItemViewHolder(recipeItemBinding, this)
+        }
+
+        override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+            val recipeEntity = mRecipeStepEntities[position]
+            holder.recipeItemBinding.recipeEntityWithTotalIngredient = recipeEntity
+            holder.recipeItemBinding.executePendingBindings()
+
+        }
+        override fun getItemCount(): Int {
+
+            return mRecipeStepEntities.size
+        }
+
+        inner class  ItemViewHolder(var recipeItemBinding: RecipeItemGridBinding, val recipesRecyclerviewViewAdapater: RecipesRecyclerviewViewGridAdapter): RecyclerView.ViewHolder(recipeItemBinding.root),View.OnClickListener{
+
+            init {
+                recipeItemBinding.root.setOnClickListener(this)
+            }
+            override fun onClick(view: View?) {
+                val recipeEntity = recipesRecyclerviewViewAdapater.mRecipeStepEntities[adapterPosition]
+
+                if(mRecipesFragment.mAction == ADDING_MEAL_VIEWING){
+                    mRecipesFragment.recipeSelectedListener?.onSelect(recipeEntity.recipeEntity)
+                    return
+                }
+                val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
+                viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
+                mRecipesFragment.openRecipeContract.launch(viewRecipeActivity)
+            }
+        }
+    }
 }
 
