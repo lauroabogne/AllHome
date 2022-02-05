@@ -37,11 +37,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-class RecipeCategoryDialogFragment : DialogFragment() {
+class RecipeCategoryDialogFragment() : DialogFragment() {
 
 
     lateinit var mRecipeCategoryDialogFragmentLayoutBinding: RecipeCategoryDialogFragmentLayoutBinding
     lateinit var mRecipeCategoryViewModel:RecipeCategoryViewModel
+    var mOnSelectCategoryListener:OnSelectCategoryListener? = null
 
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
@@ -49,7 +50,7 @@ class RecipeCategoryDialogFragment : DialogFragment() {
         mRecipeCategoryViewModel = ViewModelProvider(this).get(RecipeCategoryViewModel::class.java)
 
        val inflater = LayoutInflater.from(requireContext())
-        mRecipeCategoryDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.recipe_category_dialog_fragment_layout,null,false)
+        mRecipeCategoryDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, R.layout.recipe_category_dialog_fragment_layout,null,true)
 
         mRecipeCategoryDialogFragmentLayoutBinding.toolbar.title = "Categories"
         mRecipeCategoryDialogFragmentLayoutBinding.toolbar.inflateMenu(R.menu.add_category_menu)
@@ -95,6 +96,13 @@ class RecipeCategoryDialogFragment : DialogFragment() {
 
         return alertDialog
     }
+//    override fun onResume() {
+//        super.onResume()
+//        dialog!!.window!!.setLayout(
+//            ViewGroup.LayoutParams.MATCH_PARENT,
+//            ViewGroup.LayoutParams.WRAP_CONTENT
+//        )
+//    }
 
     fun loadCategories(){
         val recipeCategoryRecyclerviewViewAdapater = RecipeCategoryRecyclerviewViewAdapater(arrayListOf(),this)
@@ -107,10 +115,13 @@ class RecipeCategoryDialogFragment : DialogFragment() {
                 val recipeCategoryRecyclerviewViewAdapater = mRecipeCategoryDialogFragmentLayoutBinding.recipesRecyclerview.adapter as RecipeCategoryRecyclerviewViewAdapater
                 recipeCategoryRecyclerviewViewAdapater.mRecipeCategoryEntities = recipeCategoryEntities
                 recipeCategoryRecyclerviewViewAdapater.notifyDataSetChanged()
+
             }
         }
     }
-
+    fun setCategoryOnSelectListener( onSelectCategoryListener:OnSelectCategoryListener){
+        mOnSelectCategoryListener = onSelectCategoryListener
+    }
 
     class RecipeCategoryRecyclerviewViewAdapater(var mRecipeCategoryEntities:ArrayList<RecipeCategoryEntity>, val mRecipeCategoryDialogFragment: RecipeCategoryDialogFragment):
         RecyclerView.Adapter<RecipeCategoryRecyclerviewViewAdapater.ItemViewHolder>() {
@@ -146,16 +157,13 @@ class RecipeCategoryDialogFragment : DialogFragment() {
             }
             override fun onClick(view: View?) {
                 val recipeCategory = recipesRecyclerviewViewAdapater.mRecipeCategoryEntities[adapterPosition]
-                Toast.makeText(recipesRecyclerviewViewAdapater.mRecipeCategoryDialogFragment.requireContext(),"${recipeCategory.name}",Toast.LENGTH_SHORT).show()
+                mRecipeCategoryDialogFragment.mOnSelectCategoryListener?.selected(recipeCategory)
+
             }
-
-
         }
-
-
     }
 
-
-
-
+    interface OnSelectCategoryListener{
+        fun selected(recipeCategory:RecipeCategoryEntity)
+    }
 }

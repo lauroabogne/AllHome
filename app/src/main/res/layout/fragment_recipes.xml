@@ -9,6 +9,17 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <TextView
+            android:id="@+id/searchIndicatorTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:paddingLeft="12dp"
+            android:text="All recipe"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
         <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:id="@+id/swipeRefresh"
             android:layout_width="match_parent"
@@ -16,7 +27,7 @@
             app:layout_constraintBottom_toTopOf="@+id/fab"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/expanded_image">
+            app:layout_constraintTop_toBottomOf="@+id/searchIndicatorTextView">
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/recipesRecyclerview"
@@ -27,42 +38,63 @@
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                 tools:listitem="@layout/recipe_item" />
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
         <ImageView
             android:id="@+id/expanded_image"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="invisible"
             android:background="#80000000"
             android:contentDescription="The zoom"
+            android:elevation="6dp"
+            android:visibility="invisible"
             app:elevation="6dp"
-            android:elevation="6dp"/>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin_right"
+            android:layout_marginLeft="@dimen/fab_margin_left"
             android:text="Add recipe"
             app:icon="@android:drawable/ic_input_add"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/floatingViewMoreButton"
+            app:layout_constraintEnd_toStartOf="@+id/categoryFab"
             app:srcCompat="@android:drawable/ic_input_add" />
 
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
+            android:id="@+id/categoryFab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin_right"
+            android:layout_marginLeft="@dimen/fab_margin_left"
+            android:text="Categories"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/toggleViewMoreButton"
+            app:srcCompat="@android:drawable/ic_input_add" />
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/viewByFab"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_margin="@dimen/fab_margin_1"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin_right"
+            android:layout_marginLeft="@dimen/fab_margin_left"
             android:gravity="center"
             android:text="View Option"
             android:visibility="invisible"
-            app:layout_constraintBottom_toTopOf="@+id/floatingViewMoreButton"
+            app:layout_constraintBottom_toTopOf="@+id/toggleViewMoreButton"
             app:layout_constraintEnd_toEndOf="parent" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/categoryFab"
+            android:id="@+id/categoryFab_1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
@@ -75,12 +107,15 @@
 
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
-            android:id="@+id/floatingViewMoreButton"
+            android:id="@+id/toggleViewMoreButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="@dimen/fab_margin"
+            android:layout_marginTop="@dimen/fab_margin"
+            android:layout_marginBottom="@dimen/fab_margin"
+            android:layout_marginRight="@dimen/fab_margin_right"
+            android:layout_marginLeft="@dimen/fab_margin_left"
             android:clickable="true"
-            app:icon="@drawable/ic_baseline_more_vert_24"
+            app:icon="@drawable/ic_baseline_grid_on_24"
             app:layout_constraintBottom_toBottomOf="@+id/fab"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="@+id/fab" />

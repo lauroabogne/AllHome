@@ -15,6 +15,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
+import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentViewRecipeBinding
 import com.example.allhome.global_ui.CustomMessageDialogFragment
@@ -31,6 +32,8 @@ private const val ARG_PARAM2 = "param2"
 class ViewRecipeFragment : Fragment() {
 
     private lateinit var mRecipeEntity:RecipeEntity
+    private lateinit var mRecipeCategories:List<RecipeCategoryEntity>
+
     private lateinit var mFragmentViewRecipeBinding:FragmentViewRecipeBinding
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
 
@@ -41,6 +44,7 @@ class ViewRecipeFragment : Fragment() {
 
         if(activityResult.resultCode == Activity.RESULT_OK){
             mRecipesFragmentViewModel.mCoroutineScope.launch {
+                mRecipeCategories = mRecipesFragmentViewModel.getRecipeCategories(requireContext(),mRecipeEntity.uniqueId)
                mRecipeEntity = mRecipesFragmentViewModel.getRecipe(requireContext(),mRecipeEntity.uniqueId).recipeEntity
                 withContext(Main){
                     mFragmentList.clear()
@@ -80,9 +84,6 @@ class ViewRecipeFragment : Fragment() {
             mFragmentList.add( ViewRecipeInformationFragment.newInstance(mRecipeEntity))
             mFragmentList.add(ViewRecipeIngredientsFragment.newInstance(mRecipeEntity))
             mFragmentList.add( ViewRecipeStepsFragment.newInstance(mRecipeEntity))
-
-
-
         }
 
         mRecipesFragmentViewModel = ViewModelProvider(this).get(RecipesFragmentViewModel::class.java)

@@ -18,7 +18,7 @@
         android:foreground="?android:attr/selectableItemBackground"
         android:minHeight="80dp"
         app:cardCornerRadius="0dp"
-        app:cardElevation="2dp">
+        app:cardElevation="0dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
 
@@ -27,25 +27,26 @@
 
             <ImageView
                 android:id="@+id/imageView4"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
                 android:padding="4dp"
                 android:scaleType="centerCrop"
-                app:srcCompat="@drawable/ic_baseline_image_24"
                 android:setRecipeImage="@{recipeEntityWithTotalIngredient.recipeEntity.uniqueId}"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/linearLayout4"
+                app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
+                app:srcCompat="@drawable/ic_baseline_image_24"
                 tools:srcCompat="@drawable/ic_baseline_image_24" />
 
             <LinearLayout
+                android:id="@+id/linearLayout4"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                app:layout_constraintBottom_toBottomOf="@+id/imageView4"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/imageView4"
-                app:layout_constraintTop_toTopOf="@+id/imageView4">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <TextView
                     android:id="@+id/textView26"
@@ -53,9 +54,9 @@
                     android:layout_height="wrap_content"
                     android:padding="5dp"
                     android:text="@{recipeEntityWithTotalIngredient.recipeEntity.name}"
-                    tools:text="Sample Recipe"
                     android:textColor="#000"
-                    android:textSize="18sp" />
+                    android:textSize="16sp"
+                    tools:text="Sample Recipe" />
 
                 <TextView
                     android:id="@+id/textView29"
@@ -65,8 +66,8 @@
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
                     android:setServingText="@{recipeEntityWithTotalIngredient.recipeEntity.serving}"
-                    tools:text="Serving: 5"
-                    android:textColor="#000" />
+                    android:textColor="#000"
+                    tools:text="Serving: 5" />
 
                 <TextView
                     android:id="@+id/textView28"
@@ -76,8 +77,9 @@
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
                     android:setRecipeCost="@{recipeEntityWithTotalIngredient.recipeEntity.estimatedCost}"
-                    tools:text="Estimated cost : 107"
-                    android:textColor="#000" />
+                    android:textColor="#000"
+                    tools:text="Estimated cost : 107" />
+
                 <TextView
                     android:id="@+id/textView30"
                     android:layout_width="match_parent"
@@ -85,10 +87,10 @@
                     android:paddingLeft="10dp"
                     android:paddingTop="2dp"
                     android:paddingBottom="2dp"
+                    android:textColor="#000"
                     app:totalIngredient="@{recipeEntityWithTotalIngredient.totalIngredientCount}"
                     app:totalIngredientMatch="@{recipeEntityWithTotalIngredient.totalIngredientMatchCount}"
-                    tools:text="2 0f 5 ingredients found"
-                    android:textColor="#000"/>
+                    tools:text="2 0f 5 ingredients found" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

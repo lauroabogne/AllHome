@@ -11,6 +11,9 @@
             name="recipeEntity"
             type="com.example.allhome.data.entities.RecipeEntity" />
 
+        <variable
+            name="category"
+            type="java.lang.String" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -193,7 +196,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Category :"
-            android:visibility="@{recipeEntity.category.length() == 0 ? View.GONE:View.VISIBLE}"
+            android:visibility="@{category.length() &lt;=0 ? View.GONE:View.VISIBLE}"
             android:textColor="#000"
             app:layout_constraintBottom_toBottomOf="@+id/textView51"
             app:layout_constraintStart_toStartOf="parent"
@@ -203,12 +206,12 @@
             android:id="@+id/textView51"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:visibility="@{category.length() &lt;=0 ? View.GONE:View.VISIBLE}"
             android:gravity="center_vertical"
             android:paddingLeft="5dp"
             android:paddingTop="5dp"
             android:paddingBottom="5dp"
-            android:text="@{recipeEntity.category}"
-            android:visibility="@{recipeEntity.category.length() == 0 ? View.GONE:View.VISIBLE}"
+            android:text="@{category}"
             android:textColor="#000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
