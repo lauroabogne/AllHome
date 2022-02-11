@@ -58,6 +58,7 @@
                     android:orientation="vertical">
 
                     <TextView
+                        tools:text="TO EXPENSE(0)"
                         android:id="@+id/textView4"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -65,10 +66,12 @@
                         android:text="@{GroceryUtil.INSTANCE.totalItemsToBuyCount(groceryListViewModel.totalItemCountToBuy)}" />
 
                     <TextView
+                        android:textColor="#000"
                         android:id="@+id/textView6"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
+                        tools:text="000.00"
                         android:gravity="center"
                         android:text="@{GroceryUtil.INSTANCE.formatNumberToStringForMoneyWithCommanAndDecimal(groceryListViewModel.moneySign,groceryListViewModel.totalItemToBuyAmount)}"
                         android:textSize="18sp" />
@@ -84,14 +87,17 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:gravity="center_horizontal"
+                        tools:text="IN CART (0)"
                         android:text="@{GroceryUtil.INSTANCE.totalItemsBoughtCount(groceryListViewModel.totalItemCountBought)}" />
                          />
 
                     <TextView
+                        android:textColor="#000"
                         android:id="@+id/textView7"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
+                        tools:text="000.00"
                         android:gravity="center"
                         android:text="@{GroceryUtil.INSTANCE.formatNumberToStringForMoneyWithCommanAndDecimal(groceryListViewModel.moneySign,groceryListViewModel.totalItemBoughtAmount)}"
                         android:textSize="18sp" />

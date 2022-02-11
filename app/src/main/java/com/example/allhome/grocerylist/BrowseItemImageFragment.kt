@@ -1,5 +1,7 @@
 package com.example.allhome.grocerylist
 
+import android.app.Activity.RESULT_OK
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
@@ -17,6 +19,7 @@ import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.executor.GlideExecutor.UncaughtThrowableStrategy.LOG
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentBrowseItemImageBinding
+import com.example.allhome.global_ui.ProgressDialogFragment
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 import okhttp3.OkHttpClient
@@ -36,24 +39,26 @@ class BrowseItemImageFragment : Fragment() {
 
     private var param1: String? = null
     private var param2: String? = null
+    private lateinit var mItemName:String
+    private var mProgressDialogFragment: ProgressDialogFragment = ProgressDialogFragment()
 
     lateinit var mFragmentBrowseItemImageBinding:FragmentBrowseItemImageBinding
 
     companion object {
         const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png"
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        const val ARG_ITEM_NAME = "item_name"
+        @JvmStatic fun newInstance(itemName: String) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putString(ARG_ITEM_NAME, itemName)
                 }
             }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+            mItemName = it.getString(ARG_ITEM_NAME).toString()
+
         }
     }
 
@@ -65,6 +70,8 @@ class BrowseItemImageFragment : Fragment() {
     }
 
     private fun saveImage(imageUrl:String){
+        mProgressDialogFragment.show(requireActivity().supportFragmentManager,"ProgressDialogFragment")
+        mProgressDialogFragment.isCancelable = false;
 
         val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("GroceryListFragmentViewModel"))
         coroutineScope.launch {
@@ -106,7 +113,7 @@ class BrowseItemImageFragment : Fragment() {
                     output.close()
 
                     withContext(Main){
-                        doneSavingImage(actualImageFile.name)
+                        doneSavingImage(actualImageFile.absolutePath)
                     }
 
 
@@ -118,6 +125,9 @@ class BrowseItemImageFragment : Fragment() {
     }
 
     fun saveBitmap(itemImageBitmap:Bitmap){
+        mProgressDialogFragment.show(requireActivity().supportFragmentManager,"ProgressDialogFragment")
+        mProgressDialogFragment.isCancelable = false;
+
         try {
             val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
             if(!storageDir.exists()){
@@ -128,13 +138,19 @@ class BrowseItemImageFragment : Fragment() {
             itemImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
             fileOutputStream.flush()
             fileOutputStream.close()
-            doneSavingImage(imageFile.name)
+            doneSavingImage(imageFile.absolutePath)
         } catch (e: java.lang.Exception) {
             e.printStackTrace()
         }
     }
     private fun doneSavingImage(fileName:String){
-        Toast.makeText(requireContext(),"Done saving image",Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(),"Done saving image ${fileName}",Toast.LENGTH_SHORT).show()
+
+        val intent = Intent()
+        intent.putExtra(TEMP_IMAGE_NAME, fileName)
+        requireActivity().setResult(RESULT_OK, intent)
+        requireActivity().finish()
+
 
     }
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
@@ -212,9 +228,7 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.webView.settings.javaScriptEnabled = true// disable the default zoom controls on the page
         mFragmentBrowseItemImageBinding.webView.apply {
             settings.javaScriptEnabled = true
-
-
-            loadUrl("https://www.google.com/search?q=sprite(drink)")//metadata ERROR SAVING
+            loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
 
 
         }

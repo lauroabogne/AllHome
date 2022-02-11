@@ -402,12 +402,12 @@ class GroceryListRecyclerViewAdapter(val groceryListFragment: GroceryListFragmen
                                         val customDialog = builder.create()
                                         customDialog.show()
 
-                                        customView.findViewById<View>(R.id.message_dialog_btn).setOnClickListener({
+                                        customView.findViewById<View>(R.id.message_dialog_btn).setOnClickListener {
 
                                             (groceryListFragment as OnItemAdded).onItemDuplicatedSuccessully(0)
 
                                             customDialog.dismiss()
-                                        })
+                                        }
                                     }
                                 }
                             })

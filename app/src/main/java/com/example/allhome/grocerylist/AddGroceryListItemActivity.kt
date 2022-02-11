@@ -75,9 +75,16 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
-        if(activityResult.resultCode == Activity.RESULT_OK){
+        activityResult.data?.let {
+            it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)?.let {imagePath->
+                Toast.makeText(this@AddGroceryListItemActivity,"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
+                val imageUri = Uri.fromFile(File(imagePath))
+                mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
+                dataBindingUtil.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
+                dataBindingUtil.itemImageview.setImageURI(imageUri)
 
 
+            }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -154,10 +161,19 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         dataBindingUtil.browseItemImageBtn.setOnClickListener{
 
-            val browseItemActivity = Intent(this@AddGroceryListItemActivity,BrowserItemImageActivity::class.java)
+
 //            val viewRecipeActivity = Intent(view?.context, ViewRecipeActivity::class.java)
 //            viewRecipeActivity.putExtra(ViewRecipeFragment.RECIPE_INTENT_TAG,recipeEntity.recipeEntity)
 //            mRecipesFragment.openRecipeContract.launch(viewRecipeActivity)
+
+
+            val itemName = dataBindingUtil.itemNameTextinput.text.toString()
+            if(itemName.trim().isEmpty()){
+                Toast.makeText(this@AddGroceryListItemActivity,"Input item name first.",Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val browseItemActivity = Intent(this@AddGroceryListItemActivity,BrowserItemImageActivity::class.java)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ARG_ITEM_NAME,itemName)
             openBrowseImageContract.launch(browseItemActivity)
 
 
@@ -293,7 +309,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         }
     }
-    fun addRecord() {
+    private fun addRecord() {
 
 
         val itemName: String = dataBindingUtil.itemNameTextinput.text.toString().trim()
@@ -337,8 +353,6 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         imm.hideSoftInputFromWindow(view.windowToken, 0)
 
         CoroutineScope(IO).launch {
-
-
 
              mGroceryListViewModel.addGroceryListItem(this@AddGroceryListItemActivity,groceryItemEntity)
              mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
@@ -428,7 +442,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         CropImage.activity(uri)
             .setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(500, 500)
+            //.setAspectRatio(500, 500)
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(this)
     }
@@ -469,12 +483,25 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
         val imageBitmap = uriToBitmap(imageUri, this)
-        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, 500, 500, false)
+
+        val imageWidth = imageBitmap.width
+        val imageHeight = imageBitmap.height
+        val targetMaxWidthOrHeight = 800
+
+        val imageWidthAndHeight = getProportionImageSize(targetMaxWidthOrHeight, imageWidth,imageHeight)
+        Log.e("width and height", "$imageWidth  $imageHeight")
+        Log.e("proportion","$imageWidthAndHeight")
+
+        val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, imageWidthAndHeight["width"]!!, imageWidthAndHeight["height"]!!, false)
         val storageDir: File = getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+
+        Log.e("Test","Test data")
+//        if(true){
+//            return false
+//        }
         if(!storageDir.exists()){
             storageDir.mkdir()
         }
-
         val file  = File(storageDir, imageName)
         var fos: FileOutputStream? = null
         try {
@@ -490,6 +517,23 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
     }
 
+    private fun getProportionImageSize(targetMaxWidhtOrHeight: Int, imageWidth:Int,imageHeight:Int): Map<String, Int> {
+        if(imageWidth < targetMaxWidhtOrHeight && imageHeight < targetMaxWidhtOrHeight){
+            return mapOf("width" to imageWidth,"height" to imageHeight)
+        }
+        if(imageWidth > imageHeight){
+            val height = (imageHeight * targetMaxWidhtOrHeight) / imageWidth
+            Log.e("HERE","HERE 1")
+            return mapOf("width" to targetMaxWidhtOrHeight,"height" to height)
+        }else{
+
+
+            val width = (imageWidth * targetMaxWidhtOrHeight) / imageHeight
+            Log.e("HERE","HERE 2")
+            return mapOf("width" to width,"height" to targetMaxWidhtOrHeight)
+        }
+
+    }
     private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
 
         if(Build.VERSION.SDK_INT < 28) {

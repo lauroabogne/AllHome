@@ -651,7 +651,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
             }
         }
     }
-    val productImageClickListener = View.OnClickListener {
+    private val productImageClickListener = View.OnClickListener {
 
 
         val groceryItemEntity:GroceryItemEntity = it.tag as GroceryItemEntity
