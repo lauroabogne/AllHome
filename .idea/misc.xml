@@ -24,6 +24,8 @@
         <entry key="app/src/main/res/layout/activity_create_storage.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_single_grocery_list.xml" value="0.27395833333333336" />
+        <entry key="app/src/main/res/layout/activity_storage.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/activity_storage_grocery_list.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/activity_view_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/activity_web_browse_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/add_edit_recipe_category_dialog_fragment_layout.xml" value="0.38177083333333334" />
@@ -47,6 +49,7 @@
         <entry key="app/src/main/res/layout/recipe_item.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/recipe_item_grid.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/storage_grocery_list_layout.xml" value="0.27395833333333336" />
+        <entry key="app/src/main/res/layout/storage_item_layout.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/view_ingredient_item.xml" value="0.25277777777777777" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.35625" />
         <entry key="app/src/main/res/menu/add_bill_menu.xml" value="0.38177083333333334" />

@@ -45,7 +45,6 @@ class StorageStorageListActivity : AppCompatActivity() {
 
             val storageFragment = StorageFragment()
             storageFragment.arguments = bundle
-
             fragmentProcessor(storageFragment)
 
         }else if(action == StorageFragment.STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION){

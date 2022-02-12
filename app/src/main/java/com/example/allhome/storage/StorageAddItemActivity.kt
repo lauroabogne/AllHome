@@ -246,7 +246,7 @@ class StorageAddItemActivity : AppCompatActivity() {
         val pantryItemStockWeightIntValue = StorageUtil.stockWeightIntegerIdToIntegerValue(storageItemStockWeightCheckedId)
         val quantityIntValue = if (storageItemQuantity.length <=0)  StorageItemEntityValues.NO_QUANTITY_INPUT.toDouble()  else storageItemQuantity.toDouble()
 
-        if(storageItem.length <=0){
+        if(storageItem.isEmpty()){
             Toast.makeText(this, "Please provide item name", Toast.LENGTH_SHORT).show()
             return
         }
@@ -274,20 +274,28 @@ class StorageAddItemActivity : AppCompatActivity() {
             created = currentDatetime,
             modified = currentDatetime
         )
-        val doRecordExists = doRecordExists(storageItem,storageItemUnit)
-        if(doRecordExists){
-            val alertDialog =  MaterialAlertDialogBuilder(this)
-                .setTitle("Error message")
-                .setMessage(storageItem+" already exists in this storage. Please just update the item.")
-                .setNegativeButton("Close", null)
-                .setCancelable(false)
-                .create()
-            alertDialog.show()
+        mStorageAddItemViewModel.coroutineScope.launch{
+            val doRecordExists = mStorageAddItemViewModel.doStoragetItemExistsInStorage(this@StorageAddItemActivity,storageItem,storageItemUnit,mStorageEntity!!.uniqueId)
 
-            return
+            if(doRecordExists){
+                withContext(Main){
+                    val alertDialog =  MaterialAlertDialogBuilder(this@StorageAddItemActivity)
+                        .setTitle("Error message")
+                        .setMessage("$storageItem already exists in this storage. Please just update the item.")
+                        .setNegativeButton("Close", null)
+                        .setCancelable(false)
+                        .create()
+                    alertDialog.show()
+
+                }
+            }else{
+                withContext(Main){
+                    saveNewData(storageItemEntity)
+                }
+            }
+
         }
 
-        saveNewData(storageItemEntity)
 
 
 

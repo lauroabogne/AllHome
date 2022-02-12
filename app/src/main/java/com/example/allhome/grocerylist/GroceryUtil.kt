@@ -20,10 +20,10 @@ import java.util.*
 
 
 object GroceryUtil {
-    val FINAL_IMAGES_LOCATION = "item_images"
-    val TEMPORARY_IMAGES_LOCATION = "temporary_images"
-    val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
-    val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
+    const val FINAL_IMAGES_LOCATION = "item_images"
+    const val TEMPORARY_IMAGES_LOCATION = "temporary_images"
+    private val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
+    private val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
     val withoutCommaAndWithDecimalFormater = DecimalFormat("####.00")
 

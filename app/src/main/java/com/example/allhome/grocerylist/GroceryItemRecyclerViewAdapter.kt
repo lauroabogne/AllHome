@@ -121,22 +121,19 @@ class GroceryItemRecyclerViewAdapter(private val contextParams: Context, private
                     // do nothing
                     val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
                     popupMenu.menuInflater.inflate(R.menu.add_to_storage_menu, popupMenu.menu)
-                    popupMenu.setOnMenuItemClickListener(object: PopupMenu.OnMenuItemClickListener{
-                        override fun onMenuItemClick(item: MenuItem?): Boolean {
-                            popupMenu.dismiss()
+                    popupMenu.setOnMenuItemClickListener { item ->
+                        popupMenu.dismiss()
 
-                            when (item!!.itemId) {
-                                R.id.addToStorageMenu->{
-                                    val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
-                                    storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION)
-                                    storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ITEM_ENTITY_TAG, groceryItemEntity)
-                                    context.startActivity(storageStorageListActiviy)
-                                }
+                        when (item!!.itemId) {
+                            R.id.addToStorageMenu -> {
+                                val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
+                                storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG, StorageFragment.STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION)
+                                storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ITEM_ENTITY_TAG, groceryItemEntity)
+                                context.startActivity(storageStorageListActiviy)
                             }
-                           return true
                         }
-
-                    })
+                        true
+                    }
                     popupMenu.show()
                     return
                 }else{

@@ -488,7 +488,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         val imageHeight = imageBitmap.height
         val targetMaxWidthOrHeight = 800
 
-        val imageWidthAndHeight = getProportionImageSize(targetMaxWidthOrHeight, imageWidth,imageHeight)
+        val imageWidthAndHeight = ImageUtil.getProportionImageSize(targetMaxWidthOrHeight, imageWidth,imageHeight)
         Log.e("width and height", "$imageWidth  $imageHeight")
         Log.e("proportion","$imageWidthAndHeight")
 
@@ -517,23 +517,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun getProportionImageSize(targetMaxWidhtOrHeight: Int, imageWidth:Int,imageHeight:Int): Map<String, Int> {
-        if(imageWidth < targetMaxWidhtOrHeight && imageHeight < targetMaxWidhtOrHeight){
-            return mapOf("width" to imageWidth,"height" to imageHeight)
-        }
-        if(imageWidth > imageHeight){
-            val height = (imageHeight * targetMaxWidhtOrHeight) / imageWidth
-            Log.e("HERE","HERE 1")
-            return mapOf("width" to targetMaxWidhtOrHeight,"height" to height)
-        }else{
 
-
-            val width = (imageWidth * targetMaxWidhtOrHeight) / imageHeight
-            Log.e("HERE","HERE 2")
-            return mapOf("width" to width,"height" to targetMaxWidhtOrHeight)
-        }
-
-    }
     private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
 
         if(Build.VERSION.SDK_INT < 28) {
