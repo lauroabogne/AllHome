@@ -14,6 +14,7 @@ import android.webkit.WebChromeClient
 import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.executor.GlideExecutor.UncaughtThrowableStrategy.LOG
@@ -56,6 +57,7 @@ class BrowseItemImageFragment : Fragment() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
             mItemName = it.getString(ARG_ITEM_NAME).toString()
 
@@ -64,7 +66,29 @@ class BrowseItemImageFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentBrowseItemImageBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_browse_item_image,container,false)
+        mFragmentBrowseItemImageBinding.progressBar.max = 100
+
+        val toolBar = mFragmentBrowseItemImageBinding.toolbar
+        toolBar.title = "Browse item image"
+        toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolBar.setNavigationOnClickListener {
+            activity?.finish()
+        }
+
+
         setupViewView()
+        requireActivity().onBackPressedDispatcher.addCallback(requireActivity(),object: OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+
+                if(mFragmentBrowseItemImageBinding.webView.canGoBack()){
+                    mFragmentBrowseItemImageBinding.webView.goBack()
+                    return
+                }
+                activity?.finish()
+
+            }
+
+        })
 
         return mFragmentBrowseItemImageBinding.root
     }
@@ -196,6 +220,7 @@ class BrowseItemImageFragment : Fragment() {
     private val webChromeClient = object: WebChromeClient() {
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
             Log.e("PROGRESS","${newProgress}")
+            mFragmentBrowseItemImageBinding.progressBar.progress = newProgress
            // mFragmentBrowseRecipeBinding.progressBar.progress = newProgress
 
             super.onProgressChanged(view, newProgress)
