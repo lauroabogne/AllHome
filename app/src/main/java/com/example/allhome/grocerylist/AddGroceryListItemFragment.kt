@@ -29,7 +29,6 @@ import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.data.entities.GroceryListEntityValues
-import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.databinding.FragmentAddGroceryListItemBinding
 import com.example.allhome.databinding.FragmentAddRecipeStepsBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
@@ -108,6 +107,7 @@ class AddGroceryListItemFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
@@ -124,6 +124,8 @@ class AddGroceryListItemFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
+
+        setHasOptionsMenu(true)
         val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "",
             "", "", 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
             datetimeCreated = "",datetimeModified = "")
@@ -136,6 +138,36 @@ class AddGroceryListItemFragment : Fragment() {
             this.groceryListViewModel = mGroceryListViewModel
         }
 
+        val toolBar = mDataBinding.toolbar
+        toolBar.title = "New item"
+        toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        toolBar.setNavigationOnClickListener {
+            activity?.finish()
+        }
+        toolBar.menu.let { menu->
+            if(action == AddGroceryListItemActivity.ADD_NEW_RECORD_ACTION){
+                menu?.findItem(R.id.add_item)?.isVisible = true
+
+            }else if(action == AddGroceryListItemActivity.UPDATE_RECORD_ACTION){
+                menu?.findItem(R.id.update_item)?.isVisible = true
+            }
+        }
+        toolBar.setOnMenuItemClickListener {item->
+            when (item.itemId) {
+                android.R.id.home -> {
+                    activity?.finish()
+                }
+                R.id.add_item -> {
+                    addRecord()
+                }
+                R.id.update_item -> {
+
+
+                    updateRecord()
+                }
+            }
+            true
+        }
 
 
         if(action == AddGroceryListItemActivity.UPDATE_RECORD_ACTION){
@@ -191,11 +223,11 @@ class AddGroceryListItemFragment : Fragment() {
         mDataBinding.addImgBtn.setOnClickListener{
             showIntentChooser()
         }
-        val itemUnitAutoSuggestCustomAdapter = AddGroceryListItemActivity.UnitAutoSuggestCustomAdapter(requireContext(), arrayListOf())
+        val itemUnitAutoSuggestCustomAdapter = UnitAutoSuggestCustomAdapter(requireContext(), arrayListOf())
         mDataBinding.unitTextinput.threshold = 0
         mDataBinding.unitTextinput.setAdapter(itemUnitAutoSuggestCustomAdapter)
 
-        val itemCategoryAutoSuggestCustomAdapter = AddGroceryListItemActivity.CategoryAutoSuggestCustomAdapter(requireContext(), arrayListOf())
+        val itemCategoryAutoSuggestCustomAdapter = CategoryAutoSuggestCustomAdapter(requireContext(), arrayListOf())
         mDataBinding.itemCategoryTextinput.threshold = 0
         mDataBinding.itemCategoryTextinput.setAdapter(itemCategoryAutoSuggestCustomAdapter)
 
@@ -225,36 +257,6 @@ class AddGroceryListItemFragment : Fragment() {
 
 
         }
-    }
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//        menuInflater.inflate(R.menu.add_grocery_item, menu)
-//        if(action == AddGroceryListItemActivity.ADD_NEW_RECORD_ACTION){
-//            menu?.findItem(R.id.add_item)?.isVisible = true
-//
-//        }else if(action == AddGroceryListItemActivity.UPDATE_RECORD_ACTION){
-//            menu?.findItem(R.id.update_item)?.isVisible = true
-//        }
-//        return super.onCreateOptionsMenu(menu)
-//    }
-
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-
-        when (item.itemId) {
-            android.R.id.home -> {
-                activity?.finish()
-            }
-            R.id.add_item -> {
-                addRecord()
-            }
-            R.id.update_item -> {
-
-
-                updateRecord()
-            }
-        }
-
-        return super.onOptionsItemSelected(item)
     }
     private fun addRecord() {
 

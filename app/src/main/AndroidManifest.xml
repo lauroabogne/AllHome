@@ -67,7 +67,8 @@
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".grocerylist.AddGroceryListItemActivity"
-            android:label="@string/new_grocery_item" />
+            android:theme="@style/Theme.AllHome.NoActionBar"
+            />
         <activity
             android:name=".grocerylist.GroceryListActivity"
             android:label="@string/title_activity_grocery_list_activity"

@@ -24,7 +24,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.*
-import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
+import com.example.allhome.databinding.ActivityAddGroceryListItemBackupBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
 import com.example.allhome.recipes.RecipesFragment
@@ -46,7 +46,7 @@ import kotlin.collections.ArrayList
 
 class AddGroceryListItemActivity_backup : AppCompatActivity() {
 
-    private lateinit var dataBindingUtil: ActivityAddGroceryListItemBinding
+    private lateinit var dataBindingUtil: ActivityAddGroceryListItemBackupBinding
     private lateinit var mGroceryListViewModel: GroceryListViewModel
     var groceryListUniqueId: String = ""
     var action = ADD_NEW_RECORD_ACTION
@@ -116,7 +116,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
             }
         }
         //Bind data
-        dataBindingUtil = DataBindingUtil.setContentView<ActivityAddGroceryListItemBinding>(this, R.layout.activity_add_grocery_list_item).apply {
+        dataBindingUtil = DataBindingUtil.setContentView<ActivityAddGroceryListItemBackupBinding>(this, R.layout.activity_add_grocery_list_item).apply {
             this.lifecycleOwner = this@AddGroceryListItemActivity_backup
             this.groceryListViewModel = mGroceryListViewModel
 
