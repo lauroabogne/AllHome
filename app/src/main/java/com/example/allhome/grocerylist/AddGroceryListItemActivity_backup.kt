@@ -44,7 +44,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class AddGroceryListItemActivity : AppCompatActivity() {
+class AddGroceryListItemActivity_backup : AppCompatActivity() {
 
     private lateinit var dataBindingUtil: ActivityAddGroceryListItemBinding
     private lateinit var mGroceryListViewModel: GroceryListViewModel
@@ -61,7 +61,10 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         val IMAGE_NAME_SUFFIX = "jpg"
         val ADD_NEW_RECORD_ACTION = 1
         val UPDATE_RECORD_ACTION = 2
+
         val REQUEST_PICK_IMAGE = 4
+
+
 
         val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
         val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
@@ -73,7 +76,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         activityResult.data?.let {
             it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)?.let {imagePath->
-                Toast.makeText(this@AddGroceryListItemActivity,"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddGroceryListItemActivity_backup,"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
                 val imageUri = Uri.fromFile(File(imagePath))
                 mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
                 dataBindingUtil.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
@@ -106,15 +109,15 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         if(action == UPDATE_RECORD_ACTION){
             CoroutineScope(IO).launch {
-                mGroceryListViewModel.getGroceryListItem(this@AddGroceryListItemActivity, groceryListItemId, groceryListUniqueId)
+                mGroceryListViewModel.getGroceryListItem(this@AddGroceryListItemActivity_backup, groceryListItemId, groceryListUniqueId)
 
-                mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri = GroceryUtil.getImageFromPath(this@AddGroceryListItemActivity, mGroceryListViewModel.selectedGroceryItem!!.imageName)
+                mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri = GroceryUtil.getImageFromPath(this@AddGroceryListItemActivity_backup, mGroceryListViewModel.selectedGroceryItem!!.imageName)
 
             }
         }
         //Bind data
         dataBindingUtil = DataBindingUtil.setContentView<ActivityAddGroceryListItemBinding>(this, R.layout.activity_add_grocery_list_item).apply {
-            this.lifecycleOwner = this@AddGroceryListItemActivity
+            this.lifecycleOwner = this@AddGroceryListItemActivity_backup
             this.groceryListViewModel = mGroceryListViewModel
 
         }
@@ -152,10 +155,10 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
             val itemName = dataBindingUtil.itemNameTextinput.text.toString()
             if(itemName.trim().isEmpty()){
-                Toast.makeText(this@AddGroceryListItemActivity,"Input item name first.",Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddGroceryListItemActivity_backup,"Input item name first.",Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-            val browseItemActivity = Intent(this@AddGroceryListItemActivity,BrowserItemImageActivity::class.java)
+            val browseItemActivity = Intent(this@AddGroceryListItemActivity_backup,BrowserItemImageActivity::class.java)
             browseItemActivity.putExtra(BrowseItemImageFragment.ARG_ITEM_NAME,itemName)
             openBrowseImageContract.launch(browseItemActivity)
 
@@ -268,7 +271,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             imageName = groceryListUniqueId+"_"+itemName+"."+ IMAGE_NAME_SUFFIX
             val imageSavedSucessfully = saveImage(it, imageName)
             if(!imageSavedSucessfully){
-                Toast.makeText(this@AddGroceryListItemActivity, "Failed to save image.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddGroceryListItemActivity_backup, "Failed to save image.", Toast.LENGTH_SHORT).show()
                 return
             }
         }
@@ -288,8 +291,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         CoroutineScope(IO).launch {
 
-             mGroceryListViewModel.addGroceryListItem(this@AddGroceryListItemActivity,groceryItemEntity)
-             mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
+             mGroceryListViewModel.addGroceryListItem(this@AddGroceryListItemActivity_backup,groceryItemEntity)
+             mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity_backup,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
 
              withContext(Main){
 
@@ -330,7 +333,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             }
             val imageSavedSucessfully = saveImage(mGroceryListViewModel.selectedGroceryItemEntityNewImageUri!!, imageName)
             if(!imageSavedSucessfully){
-                Toast.makeText(this@AddGroceryListItemActivity, "Failed to save image 1.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddGroceryListItemActivity_backup, "Failed to save image 1.", Toast.LENGTH_SHORT).show()
                 return
             }
 
@@ -338,7 +341,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             //save image
             val imageSavedSucessfully = saveImage(mGroceryListViewModel.selectedGroceryItemEntityNewImageUri!!, imageName)
             if(!imageSavedSucessfully){
-                Toast.makeText(this@AddGroceryListItemActivity, "Failed to save image 2.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this@AddGroceryListItemActivity_backup, "Failed to save image 2.", Toast.LENGTH_SHORT).show()
                 return
             }
         }else if(mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri != null && mGroceryListViewModel.selectedGroceryItemEntityNewImageUri ==null ){
@@ -355,8 +358,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
-            mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
-            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime)
+            mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity_backup,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
+            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity_backup, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime)
 
 
             withContext(Main){
@@ -369,6 +372,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             }
         }
     }
+
     private fun lauchImageCropper(uri: Uri){
 
         CropImage.activity(uri)
@@ -377,6 +381,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(this)
     }
+
     @Throws(IOException::class)
     private fun createImageFile(): File {
         val storageDir: File = getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
@@ -422,6 +427,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             return false
         }
     }
+
+
     private fun uriToBitmap(uri: Uri, context: Context): Bitmap {
 
         if(Build.VERSION.SDK_INT < 28) {
@@ -433,6 +440,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
         }
     }
+
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         menuInflater.inflate(R.menu.add_grocery_item, menu)
         if(action == ADD_NEW_RECORD_ACTION){

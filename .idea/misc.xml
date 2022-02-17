@@ -30,6 +30,7 @@
         <entry key="app/src/main/res/layout/activity_web_browse_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/add_edit_recipe_category_dialog_fragment_layout.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/add_meal_dialog_fragment.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/layout/fragment_add_grocery_list_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_add_recipe_information.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_browse_item_image.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_browse_recipe.xml" value="0.29243266353142366" />
