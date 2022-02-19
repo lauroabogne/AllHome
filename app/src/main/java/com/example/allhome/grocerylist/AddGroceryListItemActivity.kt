@@ -43,33 +43,18 @@ import kotlin.collections.ArrayList
 
 class AddGroceryListItemActivity : AppCompatActivity() {
 
-    private lateinit var mGroceryListViewModel: GroceryListViewModel
-    var groceryListUniqueId: String = ""
-    var action = ADD_NEW_RECORD_ACTION
-    var groceryListItemId = 0
-    var groceryListItemIndex = -1
-    var tempPhotoFileForAddingImage: File? = null
-    var imageChanged = false
 
-    companion object {
 
-        val IMAGE_TEMP_NAME = "temp_image"
-        val IMAGE_NAME_SUFFIX = "jpg"
-        val ADD_NEW_RECORD_ACTION = 1
-        val UPDATE_RECORD_ACTION = 2
-        val REQUEST_PICK_IMAGE = 4
-
-        val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
-    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_grocery_list_item)
 
+        val groceryListUniqueId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)
+        val groceryListItemId = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
+        val action = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemFragment.ADD_NEW_RECORD_ACTION)
+        val groceryListItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+        val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance(groceryListUniqueId,groceryListItemId,action,groceryListItemIndex)
 
-        val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance("","")
         supportFragmentManager.beginTransaction()
             .replace(R.id.recipeFragmentContainer,addGroceryListItemFragment)
             .commit()

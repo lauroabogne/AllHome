@@ -1,9 +1,13 @@
 package com.example.allhome.grocerylist
 
 import android.app.Activity.RESULT_OK
+import android.content.ClipData
+import android.content.ClipboardManager
+import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.util.Base64
@@ -15,6 +19,7 @@ import android.webkit.WebView
 import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.core.text.isDigitsOnly
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.bumptech.glide.load.engine.executor.GlideExecutor.UncaughtThrowableStrategy.LOG
@@ -38,28 +43,62 @@ private const val ARG_PARAM2 = "param2"
 
 class BrowseItemImageFragment : Fragment() {
 
-    private var param1: String? = null
-    private var param2: String? = null
-    private lateinit var mItemName:String
     private var mProgressDialogFragment: ProgressDialogFragment = ProgressDialogFragment()
-
     lateinit var mFragmentBrowseItemImageBinding:FragmentBrowseItemImageBinding
 
+    private lateinit var mItemName:String
+    private var mItemUnit:String? = null
+    private var mPrice:Double = 0.0
+    private var mImageAbsolutePath:String? = null
     companion object {
         const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png"
-        const val ARG_ITEM_NAME = "item_name"
-        @JvmStatic fun newInstance(itemName: String) =
+        const val ITEM_NAME_TAG = "item_name"
+        const val ITEM_UNIT_TAG = "unit"
+        const val ITEM_PRICE_TAG = "price"
+
+        @JvmStatic fun newInstance(itemName: String,itemUnit:String,price:Double) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_ITEM_NAME, itemName)
+                    putString(ITEM_NAME_TAG, itemName)
+                    putString(ITEM_UNIT_TAG,itemUnit)
+                    putDouble(ITEM_PRICE_TAG,price)
                 }
             }
+    }
+    private val copyBtnOnClick = View.OnClickListener {
+
+        val clipboardManager = requireContext().getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+
+        when(it.id){
+
+            R.id.copyPriceBtn->{
+
+                val price = clipboardManager.primaryClip?.getItemAt(0)?.text.toString().replace("[^\\d.]".toRegex(), "");
+                try {
+                    mPrice = price.toDouble()
+                    Toast.makeText(requireContext(),"Price copy successfully.",Toast.LENGTH_SHORT).show()
+                }catch (exception:Exception){
+                    Toast.makeText(requireContext(),"Invalid price.",Toast.LENGTH_SHORT).show()
+                }
+            }
+            R.id.copyUnitBtn->{
+                mItemUnit = clipboardManager.primaryClip?.getItemAt(0)?.text.toString();
+                Toast.makeText(requireContext(),"Unit copy successfully.",Toast.LENGTH_SHORT).show()
+            }
+            R.id.copyNameBtn->{
+                mItemName = clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
+                Toast.makeText(requireContext(),"Item name copy successfully.",Toast.LENGTH_SHORT).show()
+            }
+        }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            mItemName = it.getString(ARG_ITEM_NAME).toString()
+            mItemName = it.getString(ITEM_NAME_TAG).toString()
+            mItemUnit = it.getString(ITEM_UNIT_TAG)
+            mPrice = it.getDouble(ITEM_PRICE_TAG)
+
 
         }
     }
@@ -69,10 +108,26 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.progressBar.max = 100
 
         val toolBar = mFragmentBrowseItemImageBinding.toolbar
-        toolBar.title = "Browse item image"
+        toolBar.title = "Search item"
         toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         toolBar.setNavigationOnClickListener {
             activity?.finish()
+        }
+        toolBar.inflateMenu(R.menu.search_grocery_item_online)
+        toolBar.setOnMenuItemClickListener {
+            Toast.makeText(requireContext(),"Next clicked",Toast.LENGTH_SHORT).show()
+
+            val intent = Intent()
+            intent.putExtra(TEMP_IMAGE_NAME, mImageAbsolutePath)
+            intent.putExtra(ITEM_NAME_TAG, mItemName)
+            intent.putExtra(ITEM_UNIT_TAG, mItemUnit)
+            intent.putExtra(ITEM_PRICE_TAG, mPrice)
+
+            requireActivity().setResult(RESULT_OK, intent)
+            requireActivity().finish()
+
+
+            true
         }
 
 
@@ -89,6 +144,10 @@ class BrowseItemImageFragment : Fragment() {
             }
 
         })
+
+        mFragmentBrowseItemImageBinding.copyPriceBtn.setOnClickListener(copyBtnOnClick)
+        mFragmentBrowseItemImageBinding.copyUnitBtn.setOnClickListener(copyBtnOnClick)
+        mFragmentBrowseItemImageBinding.copyNameBtn.setOnClickListener(copyBtnOnClick)
 
         return mFragmentBrowseItemImageBinding.root
     }
@@ -167,14 +226,21 @@ class BrowseItemImageFragment : Fragment() {
             e.printStackTrace()
         }
     }
-    private fun doneSavingImage(fileName:String){
-        Toast.makeText(requireContext(),"Done saving image ${fileName}",Toast.LENGTH_SHORT).show()
+    private fun doneSavingImage(fileNameAbsolutePath:String){
+        mProgressDialogFragment.dismiss()
 
-        val intent = Intent()
-        intent.putExtra(TEMP_IMAGE_NAME, fileName)
-        requireActivity().setResult(RESULT_OK, intent)
-        requireActivity().finish()
+        Toast.makeText(requireContext(),fileNameAbsolutePath,Toast.LENGTH_SHORT).show()
+//        val intent = Intent()
+//        intent.putExtra(TEMP_IMAGE_NAME, fileName)
+//        requireActivity().setResult(RESULT_OK, intent)
+//        requireActivity().finish()
 
+
+        mImageAbsolutePath = fileNameAbsolutePath
+
+        val imageUri = Uri.fromFile(File(fileNameAbsolutePath))
+        mFragmentBrowseItemImageBinding.itemImageView.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
+        mFragmentBrowseItemImageBinding.itemImageView.setImageURI(imageUri)
 
     }
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {

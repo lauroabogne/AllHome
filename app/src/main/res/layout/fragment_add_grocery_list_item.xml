@@ -47,28 +47,45 @@
                 android:orientation="vertical">
 
 
-                <com.google.android.material.textfield.TextInputLayout
-                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal">
 
-                    android:hint="Item name">
-
-                    <AutoCompleteTextView
-                        android:id="@+id/item_name_textinput"
-                        android:layout_width="match_parent"
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:dropDownHeight="wrap_content"
-                        android:imeOptions="actionNext"
-                        android:paddingLeft="10dp"
-                        android:paddingTop="15dp"
-                        android:paddingRight="10dp"
-                        android:paddingBottom="15dp"
-                        android:singleLine="true"
-                        android:text="@{groceryListViewModel.selectedGroceryItem.itemName}" />
+
+                        android:layout_weight="1"
+                        android:hint="Item name">
+
+                        <AutoCompleteTextView
+                            android:id="@+id/item_name_textinput"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:dropDownHeight="wrap_content"
+                            android:imeOptions="actionNext"
+                            android:paddingLeft="10dp"
+                            android:paddingTop="15dp"
+                            android:paddingRight="10dp"
+                            android:paddingBottom="15dp"
+                            android:singleLine="true"
+                            android:text="@{groceryListViewModel.selectedGroceryItem.itemName}" />
 
 
-                </com.google.android.material.textfield.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <ImageButton
+                        android:id="@+id/browseItemImageBtn"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:layout_weight="0"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"
+                        app:srcCompat="@drawable/ic_browse_24" />
+
+                </LinearLayout>
 
 
                 <LinearLayout
@@ -195,15 +212,6 @@
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="8dp"
                         app:srcCompat="@drawable/ic_menu_camera" />
-
-                    <ImageButton
-                        android:id="@+id/browseItemImageBtn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="0"
-                        android:background="?attr/selectableItemBackgroundBorderless"
-                        android:padding="8dp"
-                        app:srcCompat="@drawable/ic_browse_24" />
 
                 </LinearLayout>
 

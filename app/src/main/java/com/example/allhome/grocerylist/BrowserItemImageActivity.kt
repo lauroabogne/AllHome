@@ -1,5 +1,6 @@
 package com.example.allhome.grocerylist
 
+import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
@@ -14,14 +15,15 @@ class BrowserItemImageActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_browser_item_image)
         Log.e(TAG,"no data available")
-        intent.getStringExtra(BrowseItemImageFragment.ARG_ITEM_NAME)?.let {
-            val browseItemImageFragment = BrowseItemImageFragment.newInstance(it)
+
+        val itemName = intent.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
+        val price = intent.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
+        val unit = intent.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
+
+            val browseItemImageFragment = BrowseItemImageFragment.newInstance(itemName,unit,price)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer,browseItemImageFragment)
                 .commit()
-        }?:run{
-            Log.e(TAG,"no data available")
-        }
 
 
     }

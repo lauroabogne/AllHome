@@ -69,7 +69,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
 
-        intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+        intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
 
@@ -116,7 +116,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         dataBindingUtil.fab.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AddGroceryListItemActivity::class.java)
-            intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+            intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
             startActivityForResult(intent, ADD_ITEM_REQUEST)
 
         })
@@ -351,8 +351,8 @@ class SingleGroceryListActivity : AppCompatActivity() {
             }
         }
         else if (requestCode == UPDATE_ITEM_REQUEST && resultCode == RESULT_OK) {
-            val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
-            val oldItemIndex = data?.getIntExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+            val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+            val oldItemIndex = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
 
             CoroutineScope(IO).launch {

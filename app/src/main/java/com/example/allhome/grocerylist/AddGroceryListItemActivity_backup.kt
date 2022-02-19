@@ -159,7 +159,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
                 return@setOnClickListener
             }
             val browseItemActivity = Intent(this@AddGroceryListItemActivity_backup,BrowserItemImageActivity::class.java)
-            browseItemActivity.putExtra(BrowseItemImageFragment.ARG_ITEM_NAME,itemName)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
             openBrowseImageContract.launch(browseItemActivity)
 
 

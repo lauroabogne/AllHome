@@ -37,6 +37,7 @@ import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -70,53 +71,88 @@ class AddGroceryListItemFragment : Fragment() {
 
     companion object {
 
-        val IMAGE_TEMP_NAME = "temp_image"
-        val IMAGE_NAME_SUFFIX = "jpg"
-        val ADD_NEW_RECORD_ACTION = 1
-        val UPDATE_RECORD_ACTION = 2
-        val REQUEST_PICK_IMAGE = 4
+        const val IMAGE_TEMP_NAME = "temp_image"
+        const val IMAGE_NAME_SUFFIX = "jpg"
+        const val ADD_NEW_RECORD_ACTION = 1
+        const val UPDATE_RECORD_ACTION = 2
+        const val REQUEST_PICK_IMAGE = 4
+        const val ADD_NEW_RECORD_FROM_BROWSER = 5
 
-        val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
 
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        const val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
+
+        @JvmStatic fun newInstance(groceryListUniqueId: String?, groceryListItemId: Int,action:Int,groceryListItemIndex:Int) =
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    Log.e("THE_ACTION","${action} ${groceryListItemId}")
+                    putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
+                    putInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
+                    putInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG,action)
+                    putInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryListItemIndex)
                 }
             }
+
+
     }
 
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         activityResult.data?.let {
-            it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)?.let {imagePath->
-                Toast.makeText(requireContext(),"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
-                val imageUri = Uri.fromFile(File(imagePath))
+
+            val itemName = it.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
+            val itemUnit = it.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
+            val price = it.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
+            val tempImagePath = it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)
+
+            mGroceryListViewModel.selectedGroceryItem?.itemName = itemName
+            mGroceryListViewModel.selectedGroceryItem?.unit = itemUnit
+            mGroceryListViewModel.selectedGroceryItem?.pricePerUnit = price
+
+
+            if(tempImagePath != null){
+                val imageUri = Uri.fromFile(File(tempImagePath))
                 mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
                 mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
                 mDataBinding.itemImageview.setImageURI(imageUri)
-
-
             }
+            mDataBinding.invalidateAll()
+
+
+
+
+
+//            val intent = Intent()
+//            intent.putExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME, mImageAbsolutePath)
+//            intent.putExtra(, mItemName)
+//            intent.putExtra(BrowseItemImageFragment.ITEM_UNIT_TAG, mItemUnit)
+//            intent.putExtra(BrowseItemImageFragment.ITEM_PRICE_TAG, mPrice)
+//
+//            it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)?.let {imagePath->
+//
+//                Toast.makeText(requireContext(),"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
+//                val imageUri = Uri.fromFile(File(imagePath))
+//                mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
+//                mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
+//                mDataBinding.itemImageview.setImageURI(imageUri)
+//
+//            }
         }
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
 
-            groceryListItemId = it.getInt(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
-            action = it.getInt(AddGroceryListItemActivity.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemActivity.ADD_NEW_RECORD_ACTION)
-            groceryListItemIndex = it.getInt(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+            groceryListItemId = it.getInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
+            action = it.getInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_ACTION)
+            groceryListItemIndex = it.getInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
-            it.getString(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {groceryListUniqueIdParam->
+            it.getString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {groceryListUniqueIdParam->
                 groceryListUniqueId = groceryListUniqueIdParam
             }
         }
@@ -126,16 +162,28 @@ class AddGroceryListItemFragment : Fragment() {
 
 
         setHasOptionsMenu(true)
+
         val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "",
             "", "", 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
             datetimeCreated = "",datetimeModified = "")
         val addGroceryListItemActivityViewModelFactory = GroceryListViewModelFactory(null, initGroceryItemEntity)
         mGroceryListViewModel = ViewModelProvider(this, addGroceryListItemActivityViewModelFactory).get(GroceryListViewModel::class.java)
 
+
         //Bind data
         mDataBinding = DataBindingUtil.inflate<FragmentAddGroceryListItemBinding?>(inflater, R.layout.fragment_add_grocery_list_item, container, false).apply {
             this.lifecycleOwner = this@AddGroceryListItemFragment
             this.groceryListViewModel = mGroceryListViewModel
+        }
+
+        if(action == UPDATE_RECORD_ACTION){
+            CoroutineScope(Dispatchers.IO).launch {
+                mGroceryListViewModel.getGroceryListItem(requireContext(), groceryListItemId, groceryListUniqueId)
+                mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri = GroceryUtil.getImageFromPath(requireContext(), mGroceryListViewModel.selectedGroceryItem!!.imageName)
+                withContext(Main){
+                    mDataBinding.invalidateAll()
+                }
+            }
         }
 
         val toolBar = mDataBinding.toolbar
@@ -145,10 +193,10 @@ class AddGroceryListItemFragment : Fragment() {
             activity?.finish()
         }
         toolBar.menu.let { menu->
-            if(action == AddGroceryListItemActivity.ADD_NEW_RECORD_ACTION){
+            if(action == AddGroceryListItemFragment.ADD_NEW_RECORD_ACTION){
                 menu?.findItem(R.id.add_item)?.isVisible = true
 
-            }else if(action == AddGroceryListItemActivity.UPDATE_RECORD_ACTION){
+            }else if(action == AddGroceryListItemFragment.UPDATE_RECORD_ACTION){
                 menu?.findItem(R.id.update_item)?.isVisible = true
             }
         }
@@ -168,19 +216,6 @@ class AddGroceryListItemFragment : Fragment() {
             }
             true
         }
-
-
-        if(action == AddGroceryListItemActivity.UPDATE_RECORD_ACTION){
-            CoroutineScope(Dispatchers.IO).launch {
-                mGroceryListViewModel.getGroceryListItem(requireContext(), groceryListItemId, groceryListUniqueId)
-
-                mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri = GroceryUtil.getImageFromPath(requireContext(), mGroceryListViewModel.selectedGroceryItem!!.imageName)
-
-            }
-        }
-
-
-
 
         val itemNameAutoSuggestCustomAdapter = ItemNameAutoSuggestCustomAdapter(requireContext(), arrayListOf())
         mDataBinding.itemNameTextinput.threshold = 0
@@ -210,15 +245,15 @@ class AddGroceryListItemFragment : Fragment() {
         mDataBinding.browseItemImageBtn.setOnClickListener{
 
             val itemName = mDataBinding.itemNameTextinput.text.toString()
-            if(itemName.trim().isEmpty()){
-                Toast.makeText(requireContext(),"Input item name first.", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
+            val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
+            val unit = mDataBinding.pricePerUnitTextinput.text.toString()
+
             val browseItemActivity = Intent(requireContext(),BrowserItemImageActivity::class.java)
-            browseItemActivity.putExtra(BrowseItemImageFragment.ARG_ITEM_NAME,itemName)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,price)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_UNIT_TAG,unit)
+
             openBrowseImageContract.launch(browseItemActivity)
-
-
         }
         mDataBinding.addImgBtn.setOnClickListener{
             showIntentChooser()
@@ -236,7 +271,7 @@ class AddGroceryListItemFragment : Fragment() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if(requestCode == AddGroceryListItemActivity.REQUEST_PICK_IMAGE){
+        if(requestCode == REQUEST_PICK_IMAGE){
 
             data?.data?.let{
                 lauchImageCropper(it)
@@ -280,7 +315,7 @@ class AddGroceryListItemFragment : Fragment() {
         var imageName = ""
 
         mGroceryListViewModel.selectedGroceryItemEntityNewImageUri?.let{
-            imageName = groceryListUniqueId+"_"+itemName+"."+ AddGroceryListItemActivity.IMAGE_NAME_SUFFIX
+            imageName = groceryListUniqueId+"_"+itemName+"."+ AddGroceryListItemFragment.IMAGE_NAME_SUFFIX
             val imageSavedSucessfully = saveImage(it, imageName)
             if(!imageSavedSucessfully){
                 Toast.makeText(requireContext(), "Failed to save image.", Toast.LENGTH_SHORT).show()
@@ -309,8 +344,11 @@ class AddGroceryListItemFragment : Fragment() {
 
             withContext(Dispatchers.Main){
 
-//                setResult(AppCompatActivity.RESULT_OK)
-//                finish()
+
+                activity?.let{
+                    it.setResult(AppCompatActivity.RESULT_OK)
+                    it.finish()
+                }
             }
         }
 
@@ -337,7 +375,7 @@ class AddGroceryListItemFragment : Fragment() {
 //        val imm = getSystemService(AppCompatActivity.INPUT_METHOD_SERVICE) as InputMethodManager
 //        imm.hideSoftInputFromWindow(view.windowToken, 0)
 
-        val imageName =  groceryListUniqueId+"_"+itemName+"."+ AddGroceryListItemActivity.IMAGE_NAME_SUFFIX
+        val imageName =  groceryListUniqueId+"_"+itemName+"."+ AddGroceryListItemFragment.IMAGE_NAME_SUFFIX
 
         if(mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri != null && mGroceryListViewModel.selectedGroceryItemEntityNewImageUri !=null ){
             //delete old image and save new image
@@ -378,10 +416,13 @@ class AddGroceryListItemFragment : Fragment() {
             withContext(Dispatchers.Main){
 
                 val intent = Intent()
-                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
-                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
-                /*setResult(AppCompatActivity.RESULT_OK, intent)
-                finish()*/
+                intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
+                intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
+                activity?.let {
+                    it.setResult(AppCompatActivity.RESULT_OK, intent)
+                    it.finish()
+                }
+
             }
         }
     }
@@ -434,7 +475,7 @@ class AddGroceryListItemFragment : Fragment() {
         val chooserIntent = Intent.createChooser(finalIntent, "Select Source")
         // Add the camera options.
         chooserIntent.putExtra(Intent.EXTRA_INITIAL_INTENTS, imageIntents.toTypedArray<Parcelable>())
-        startActivityForResult(chooserIntent, AddGroceryListItemActivity.REQUEST_PICK_IMAGE)
+        startActivityForResult(chooserIntent, REQUEST_PICK_IMAGE)
 
     }
     private fun saveImage(imageUri: Uri, imageName: String):Boolean{
@@ -488,8 +529,8 @@ class AddGroceryListItemFragment : Fragment() {
         }
 
         return File.createTempFile(
-            AddGroceryListItemActivity.IMAGE_TEMP_NAME, /* prefix */
-            ".${AddGroceryListItemActivity.IMAGE_NAME_SUFFIX}", /* suffix */
+            IMAGE_TEMP_NAME, /* prefix */
+            ".${IMAGE_NAME_SUFFIX}", /* suffix */
             storageDir /* directory */
         )
     }

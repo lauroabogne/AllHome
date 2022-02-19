@@ -25,10 +25,7 @@ import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.databinding.ActivitySingleGroceryListBinding
 import com.example.allhome.databinding.ActivityTrashSingleGroceryListBinding
-import com.example.allhome.grocerylist.AddGroceryListItemActivity
-import com.example.allhome.grocerylist.GroceryItemRecyclerViewAdapter
-import com.example.allhome.grocerylist.GroceryListInformationActivity
-import com.example.allhome.grocerylist.GroceryUtil
+import com.example.allhome.grocerylist.*
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel.TrashGroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
@@ -57,7 +54,7 @@ class TrashSingleGroceryListActivity : AppCompatActivity() {
 
         title = "Items"
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+        intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
 

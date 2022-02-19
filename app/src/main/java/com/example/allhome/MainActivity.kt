@@ -19,6 +19,7 @@ import com.example.allhome.bill.AddBillFragment
 import com.example.allhome.bill.BillsFragment
 import com.example.allhome.expenses.ExpensesFragment
 import com.example.allhome.grocerylist.AddGroceryListItemActivity
+import com.example.allhome.grocerylist.AddGroceryListItemFragment
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
@@ -103,9 +104,9 @@ class MainActivity : AppCompatActivity() {
 
 
         intent?.action?.let{
-            intent?.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+            intent?.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
-                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
+                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
                 startActivity(intent)
             }
         }
@@ -143,9 +144,9 @@ class MainActivity : AppCompatActivity() {
         super.onNewIntent(intent)
 
         intent?.action?.let{
-            intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+            intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
-                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
+                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, it)
                 startActivity(intent)
             }
         }
