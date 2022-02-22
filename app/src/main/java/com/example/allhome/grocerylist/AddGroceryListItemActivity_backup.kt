@@ -75,7 +75,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         activityResult.data?.let {
-            it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)?.let {imagePath->
+            it.getStringExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG)?.let {imagePath->
                 Toast.makeText(this@AddGroceryListItemActivity_backup,"Has data ${imagePath}",Toast.LENGTH_SHORT).show()
                 val imageUri = Uri.fromFile(File(imagePath))
                 mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri

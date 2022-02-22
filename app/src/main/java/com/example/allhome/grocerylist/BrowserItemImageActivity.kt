@@ -19,8 +19,10 @@ class BrowserItemImageActivity : AppCompatActivity() {
         val itemName = intent.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
         val price = intent.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
         val unit = intent.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
+        val imageName = intent.getStringExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG)!!
 
-            val browseItemImageFragment = BrowseItemImageFragment.newInstance(itemName,unit,price)
+
+            val browseItemImageFragment = BrowseItemImageFragment.newInstance(itemName,unit,price,imageName)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer,browseItemImageFragment)
                 .commit()

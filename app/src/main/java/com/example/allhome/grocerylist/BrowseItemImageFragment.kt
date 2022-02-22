@@ -37,9 +37,6 @@ import java.io.InputStream
 import java.io.OutputStream
 
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
 
 class BrowseItemImageFragment : Fragment() {
 
@@ -50,18 +47,21 @@ class BrowseItemImageFragment : Fragment() {
     private var mItemUnit:String? = null
     private var mPrice:Double = 0.0
     private var mImageAbsolutePath:String? = null
+
     companion object {
-        const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png"
+        //const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png"
         const val ITEM_NAME_TAG = "item_name"
         const val ITEM_UNIT_TAG = "unit"
         const val ITEM_PRICE_TAG = "price"
+        const val ITEM_IMAGE_NAME_TAG = "image_path"
 
-        @JvmStatic fun newInstance(itemName: String,itemUnit:String,price:Double) =
+        @JvmStatic fun newInstance(itemName: String,itemUnit:String,price:Double,imageName:String) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
                     putString(ITEM_NAME_TAG, itemName)
                     putString(ITEM_UNIT_TAG,itemUnit)
                     putDouble(ITEM_PRICE_TAG,price)
+                    putString(ITEM_IMAGE_NAME_TAG,imageName)
                 }
             }
     }
@@ -99,6 +99,16 @@ class BrowseItemImageFragment : Fragment() {
             mItemUnit = it.getString(ITEM_UNIT_TAG)
             mPrice = it.getDouble(ITEM_PRICE_TAG)
 
+            it.getString(ITEM_IMAGE_NAME_TAG)?.let {imageName->
+                val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
+                //create directory if not exists
+                if(!storageDir.exists()){
+                    storageDir.mkdir()
+                }
+                mImageAbsolutePath = File(storageDir, imageName).absolutePath
+
+            }
+
 
         }
     }
@@ -115,10 +125,10 @@ class BrowseItemImageFragment : Fragment() {
         }
         toolBar.inflateMenu(R.menu.search_grocery_item_online)
         toolBar.setOnMenuItemClickListener {
-            Toast.makeText(requireContext(),"Next clicked",Toast.LENGTH_SHORT).show()
+
 
             val intent = Intent()
-            intent.putExtra(TEMP_IMAGE_NAME, mImageAbsolutePath)
+            intent.putExtra(ITEM_IMAGE_NAME_TAG, mImageAbsolutePath)
             intent.putExtra(ITEM_NAME_TAG, mItemName)
             intent.putExtra(ITEM_UNIT_TAG, mItemUnit)
             intent.putExtra(ITEM_PRICE_TAG, mPrice)
@@ -130,6 +140,9 @@ class BrowseItemImageFragment : Fragment() {
             true
         }
 
+        mImageAbsolutePath?.let {
+            displayImage(it)
+        }
 
         setupViewView()
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(),object: OnBackPressedCallback(true){
@@ -177,7 +190,13 @@ class BrowseItemImageFragment : Fragment() {
                         storageDir.mkdir()
                     }
 
-                    val actualImageFile = File(storageDir, TEMP_IMAGE_NAME)
+
+                    //val actualImageFile = File(storageDir, TEMP_IMAGE_NAME)
+                    val actualImageFile = File.createTempFile(
+                        AddGroceryListItemFragment.IMAGE_TEMP_NAME, /* prefix */
+                        ".${AddGroceryListItemFragment.IMAGE_NAME_SUFFIX}", /* suffix */
+                        storageDir /* directory */
+                    )
                     val output: OutputStream = FileOutputStream(actualImageFile)
 
                     while (target > downloaded) {
@@ -216,7 +235,13 @@ class BrowseItemImageFragment : Fragment() {
             if(!storageDir.exists()){
                 storageDir.mkdir()
             }
-            val imageFile =  File(storageDir,TEMP_IMAGE_NAME)
+
+           val imageFile = File.createTempFile(
+                AddGroceryListItemFragment.IMAGE_TEMP_NAME, /* prefix */
+                ".${AddGroceryListItemFragment.IMAGE_NAME_SUFFIX}", /* suffix */
+                storageDir /* directory */
+            )
+           // val imageFile =  File(storageDir,TEMP_IMAGE_NAME)
             val fileOutputStream = FileOutputStream(imageFile)
             itemImageBitmap.compress(Bitmap.CompressFormat.JPEG, 100, fileOutputStream)
             fileOutputStream.flush()
@@ -237,11 +262,14 @@ class BrowseItemImageFragment : Fragment() {
 
 
         mImageAbsolutePath = fileNameAbsolutePath
+        displayImage(fileNameAbsolutePath)
 
+
+    }
+    fun displayImage(fileNameAbsolutePath:String){
         val imageUri = Uri.fromFile(File(fileNameAbsolutePath))
         mFragmentBrowseItemImageBinding.itemImageView.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
         mFragmentBrowseItemImageBinding.itemImageView.setImageURI(imageUri)
-
     }
     override fun onCreateContextMenu(menu: ContextMenu, v: View, menuInfo: ContextMenu.ContextMenuInfo?) {
         super.onCreateContextMenu(menu, v, menuInfo)

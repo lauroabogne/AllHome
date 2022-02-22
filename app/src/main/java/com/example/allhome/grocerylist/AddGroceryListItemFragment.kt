@@ -41,24 +41,14 @@ import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [AddGroceryListItemFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class AddGroceryListItemFragment : Fragment() {
-    // TODO: Rename and change types of parameters
-    private var param1: String? = null
-    private var param2: String? = null
+
 
     lateinit var mDataBinding: FragmentAddGroceryListItemBinding
     private lateinit var mGroceryListViewModel: GroceryListViewModel
@@ -105,7 +95,7 @@ class AddGroceryListItemFragment : Fragment() {
             val itemName = it.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
             val itemUnit = it.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
             val price = it.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
-            val tempImagePath = it.getStringExtra(BrowseItemImageFragment.TEMP_IMAGE_NAME)
+            val tempImagePath = it.getStringExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG)
 
             mGroceryListViewModel.selectedGroceryItem?.itemName = itemName
             mGroceryListViewModel.selectedGroceryItem?.unit = itemUnit
@@ -114,6 +104,7 @@ class AddGroceryListItemFragment : Fragment() {
 
             if(tempImagePath != null){
                 val imageUri = Uri.fromFile(File(tempImagePath))
+
                 mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
                 mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
                 mDataBinding.itemImageview.setImageURI(imageUri)
@@ -247,11 +238,15 @@ class AddGroceryListItemFragment : Fragment() {
             val itemName = mDataBinding.itemNameTextinput.text.toString()
             val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
             val unit = mDataBinding.pricePerUnitTextinput.text.toString()
+            val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+            val imageName = if(path !=null) File(path).name else ""
+
 
             val browseItemActivity = Intent(requireContext(),BrowserItemImageActivity::class.java)
             browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
             browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,price)
             browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_UNIT_TAG,unit)
+            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG,imageName)
 
             openBrowseImageContract.launch(browseItemActivity)
         }
@@ -528,6 +523,7 @@ class AddGroceryListItemFragment : Fragment() {
             storageDir.mkdir()
         }
 
+        //return File(storageDir,BrowseItemImageFragment.TEMP_IMAGE_NAME)
         return File.createTempFile(
             IMAGE_TEMP_NAME, /* prefix */
             ".${IMAGE_NAME_SUFFIX}", /* suffix */
