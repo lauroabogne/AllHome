@@ -57,19 +57,18 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
 
     companion object {
 
-        val IMAGE_TEMP_NAME = "temp_image"
-        val IMAGE_NAME_SUFFIX = "jpg"
-        val ADD_NEW_RECORD_ACTION = 1
-        val UPDATE_RECORD_ACTION = 2
-
-        val REQUEST_PICK_IMAGE = 4
-
+        const val IMAGE_TEMP_NAME = "temp_image"
+        const val IMAGE_NAME_SUFFIX = "jpg"
+        const val ADD_NEW_RECORD_ACTION = 1
+        const val UPDATE_RECORD_ACTION = 2
+        const val REQUEST_PICK_IMAGE = 4
 
 
-        val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
-        val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
+
+        const val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
     }
 
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
@@ -159,8 +158,10 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
                 return@setOnClickListener
             }
             val browseItemActivity = Intent(this@AddGroceryListItemActivity_backup,BrowserItemImageActivity::class.java)
-            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
+            browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG,itemName)
             openBrowseImageContract.launch(browseItemActivity)
+
+
 
 
         }

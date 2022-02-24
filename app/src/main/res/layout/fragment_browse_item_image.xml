@@ -89,6 +89,14 @@
                 android:layout_margin="4dp"
                 android:layout_weight="1"
                 android:text="Price" />
+            <ImageButton
+                android:id="@+id/openAddItemFragmentImageBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                app:srcCompat="@drawable/ic_edit" />
         </LinearLayout>
     </HorizontalScrollView>
 

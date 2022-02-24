@@ -26,7 +26,7 @@ import java.util.*
     @ColumnInfo(name = "unit") var unit:String = "",
     @ColumnInfo(name = "price_per_unit") var pricePerUnit:Double= 0.0,
     @ColumnInfo(name="category") var category:String = "",
-    @ColumnInfo(name = "notes") val notes:String = "",
+    @ColumnInfo(name = "notes") var notes:String = "",
     @ColumnInfo(name = "image_name") var imageName:String = "",
     @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int = 0,
     @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int = 0,

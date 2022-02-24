@@ -15,6 +15,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
@@ -32,6 +33,7 @@ import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFac
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
+import java.io.File
 import java.util.*
 import kotlin.collections.HashSet
 
@@ -61,13 +63,66 @@ class SingleGroceryListActivity : AppCompatActivity() {
         val REQUEST_PICK_IMAGE = 4
     }
 
+    private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        activityResult.data?.let {
+
+//            val itemName = it.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
+//            val itemUnit = it.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
+//            val price = it.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
+//            val tempImagePath = it.getStringExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG)
+//
+//            mGroceryListViewModel.selectedGroceryItem?.itemName = itemName
+//            mGroceryListViewModel.selectedGroceryItem?.unit = itemUnit
+//            mGroceryListViewModel.selectedGroceryItem?.pricePerUnit = price
+//
+//
+//            if(tempImagePath != null){
+//                val imageUri = Uri.fromFile(File(tempImagePath))
+//
+//                mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
+//                mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
+//                mDataBinding.itemImageview.setImageURI(imageUri)
+//            }
+//            mDataBinding.invalidateAll()
+
+        }
+    }
+
+    private val openAddGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
+        if(activityResult.resultCode == RESULT_OK){
+            activityResult.data?.let {
+                val itemName = it.getStringExtra( AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
+                val itemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
+                val price = it.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
+                val quantity = it.getDoubleExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,0.0)
+                val category = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)
+                val note = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)
+                val tempImageName = it.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)
+
+
+
+                val browseItemActivity = Intent(this,BrowserItemImageActivity::class.java)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG,itemName)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,price)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,itemUnit)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME,tempImageName)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY,category)
+                browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_NOTES,note)
+
+                browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+
+                openBrowseImageContract.launch(browseItemActivity)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        Log.e("ACTION","onCreate")
         setContentView(R.layout.activity_single_grocery_list)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
 
         intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
@@ -95,7 +150,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
         mGroceryListViewModel.selectedGroceryList.observe(this, Observer {
             supportActionBar?.title = it.name
 
-
             if (it.viewingType == GroceryListViewModel.GROUP_BY_CATEGORY) {
 
                 mGroceryListViewModel.coroutineScope.launch {
@@ -109,15 +163,14 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 }
             }
 
-
         })
-
-
 
         dataBindingUtil.fab.setOnClickListener(View.OnClickListener {
             val intent = Intent(this, AddGroceryListItemActivity::class.java)
             intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
-            startActivityForResult(intent, ADD_ITEM_REQUEST)
+            intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.ADD_NEW_RECORD_ACTION)
+            openAddGroceryListItemContract.launch(intent)
+
 
         })
 
@@ -127,11 +180,9 @@ class SingleGroceryListActivity : AppCompatActivity() {
             dataBindingUtil.swipeRefresh.isRefreshing = false
         }
 
-
         iniItems()
 
     }
-
 
     private fun iniItems(){
         val groceryItemRecyclerViewAdapter = GroceryItemRecyclerViewAdapter(this, productImageClickListener)
@@ -272,6 +323,9 @@ class SingleGroceryListActivity : AppCompatActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
+        if(true){
+            return
+        }
         if (requestCode == ADD_ITEM_REQUEST && resultCode == RESULT_OK) {
 
             CoroutineScope(IO).launch {
