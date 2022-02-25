@@ -189,8 +189,6 @@ class GroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, g
             selectedGroceryListItemList.add(groceryListItemEntity)
             selectedGroceryListItemList.addAll(items.second)
         }
-        val a = selectedGroceryListItemList
-        val b =a
     }
     suspend fun sortAlpahetically(toBuyItems:ArrayList<GroceryItemEntity>,boughtItems:ArrayList<GroceryItemEntity>){
 

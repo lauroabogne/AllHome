@@ -94,7 +94,8 @@ class AddGroceryListItemFragment : Fragment() {
                 intent.putExtra(ITEM_QUANTITY_TAG, it.quantity)
                 intent.putExtra(ITEM_CATEGORY, it.category)
                 intent.putExtra(ITEM_NOTES, it.notes)
-                intent.putExtra(IMAGE_TEMP_NAME, it.imageName)
+                intent.putExtra(GROCERY_LIST_ITEM_IMAGE_NAME_TAG, it.imageName)
+                intent.putExtra(GROCERY_LIST_HAS_ADDED_ITEM_TAG, NO_ADDED_ITEM)
 
                 activity?.setResult(Activity.RESULT_OK, intent)
             }
@@ -111,10 +112,14 @@ class AddGroceryListItemFragment : Fragment() {
         const val ADD_NEW_RECORD_FROM_BROWSER = 5
 
 
+        const val NO_ADDED_ITEM = 0
+        const val ADDED_ITEM = 1
+
         const val GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG = "GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG"
         const val GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG"
         const val GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG = "GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG"
         const val GROCERY_LIST_ACTION_EXTRA_DATA_TAG = "GROCERY_LIST_ACTION_EXTRA_DATA_TAG"
+        const val GROCERY_LIST_HAS_ADDED_ITEM_TAG = "GROCERY_LIST_HAS_ADDED_ITEM_TAG"
 
         // user for adding item from browser
         const val GROCERY_LIST_ITEM_NAME_TAG = "item_name"
@@ -381,7 +386,9 @@ class AddGroceryListItemFragment : Fragment() {
             withContext(Main){
 
                 activity?.let{
-                    it.setResult(AppCompatActivity.RESULT_OK)
+                    val intent = Intent()
+                    intent.putExtra(GROCERY_LIST_HAS_ADDED_ITEM_TAG, ADDED_ITEM)
+                    it.setResult(AppCompatActivity.RESULT_OK,intent)
                     it.finish()
                 }
             }

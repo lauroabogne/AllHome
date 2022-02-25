@@ -53,6 +53,7 @@ class BrowseItemImageFragment : Fragment() {
     private lateinit var mCategory:String
     private lateinit var mNotes:String
     private var mImageAbsolutePath:String? = null
+    private var mHasAddedItem = AddGroceryListItemFragment.NO_ADDED_ITEM
 
 
 
@@ -82,13 +83,23 @@ class BrowseItemImageFragment : Fragment() {
         if(activityResult.resultCode == RESULT_OK){
 
             activityResult.data?.let {
-                mItemName = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
-                mItemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
-                mPrice = it.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
-                mQuantity = it.getDoubleExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,0.0)
-                mCategory = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)!!
-                mNotes = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
-                mImageAbsolutePath = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
+
+                mHasAddedItem = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_ADDED_ITEM_TAG,AddGroceryListItemFragment.NO_ADDED_ITEM)
+
+                if(mHasAddedItem == AddGroceryListItemFragment.ADDED_ITEM){
+                    //do nothing
+                }else{
+                    mItemName = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
+                    mItemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
+                    mPrice = it.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
+                    mQuantity = it.getDoubleExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,0.0)
+                    mCategory = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)!!
+                    mNotes = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
+                    mImageAbsolutePath = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
+                }
+
+
+
 
             }
         }
