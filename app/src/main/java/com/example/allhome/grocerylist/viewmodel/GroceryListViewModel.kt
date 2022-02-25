@@ -75,12 +75,12 @@ class GroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, g
 
 
         toBuyItems.sortBy {
-            it.itemName
+            it.itemName.lowercase()
         }
 
         boughtItems.sortBy {
 
-            it.itemName
+            it.itemName.lowercase()
         }
        // toBuyItems.addAll(boughtItems)
         selectedGroceryListItemList.clear()

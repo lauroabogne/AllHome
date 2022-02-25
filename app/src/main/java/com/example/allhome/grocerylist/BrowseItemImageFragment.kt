@@ -57,18 +57,22 @@ class BrowseItemImageFragment : Fragment() {
 
 
     companion object {
-        //const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png"
+        //const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png
         const val GROCERY_LIST_UNIQUE_ID_TAG = "unique_id"
         const val ITEM_IMAGE_NAME_TAG = "image_path"
 
-        @JvmStatic fun newInstance(groceryListUniqueId:String,itemName: String,itemUnit:String,price:Double,imageName:String) =
+        @JvmStatic fun newInstance(groceryListUniqueId:String,itemName:String,unit:String,price:Double,quantity:Double,category:String,note:String,imageName:String) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
                     putString(GROCERY_LIST_UNIQUE_ID_TAG, groceryListUniqueId)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, itemName)
-                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,itemUnit)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,unit)
                     putDouble(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
+                    putDouble(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
+                    putString(AddGroceryListItemFragment.ITEM_CATEGORY,category)
+                    putString(AddGroceryListItemFragment.ITEM_NOTES,note)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG,imageName)
+
                 }
             }
     }
@@ -76,7 +80,7 @@ class BrowseItemImageFragment : Fragment() {
     private val openAddGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         if(activityResult.resultCode == RESULT_OK){
-            Log.e("BrowseItemImageFragment","BrowseItemImageFragment test working here")
+
             activityResult.data?.let {
                 mItemName = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
                 mItemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
@@ -84,6 +88,7 @@ class BrowseItemImageFragment : Fragment() {
                 mQuantity = it.getDoubleExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,0.0)
                 mCategory = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)!!
                 mNotes = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
+                mImageAbsolutePath = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
 
             }
         }
@@ -395,9 +400,9 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.webView.settings.javaScriptEnabled = true// disable the default zoom controls on the page
         mFragmentBrowseItemImageBinding.webView.apply {
             settings.javaScriptEnabled = true
-            //loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
+            loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
 
-            loadUrl("https://shopwise.gorobinsons.ph/products/buy-1-downy-laundry-fabric-conditioner-antibac-refill-2l-get-1-free-ariel-laundry-liquid-detergent-sunrise-fresh-900ml-delivery-dates-february-22-to-25-only-order-limit-3-pieces-806-sw-grand-terminal-batangas")//metadata ERROR SAVING
+            //loadUrl("https://shopwise.gorobinsons.ph/products/buy-1-downy-laundry-fabric-conditioner-antibac-refill-2l-get-1-free-ariel-laundry-liquid-detergent-sunrise-fresh-900ml-delivery-dates-february-22-to-25-only-order-limit-3-pieces-806-sw-grand-terminal-batangas")//metadata ERROR SAVING
 
 
         }

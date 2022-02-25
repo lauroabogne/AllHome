@@ -210,13 +210,16 @@ class AddGroceryListItemFragment : Fragment() {
                 }
             }
         }
+        if(action == ADD_NEW_RECORD_FROM_BROWSER){
+            mDataBinding.browseItemImageBtn.visibility = View.GONE
+        }
 
         val toolBar = mDataBinding.toolbar
         toolBar.title = "New item"
         toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         toolBar.setNavigationOnClickListener(toolbarNavigationOnClickListener)
         toolBar.menu.let { menu->
-            if(action == ADD_NEW_RECORD_ACTION){
+            if(action == ADD_NEW_RECORD_ACTION || action == ADD_NEW_RECORD_FROM_BROWSER){
                 menu?.findItem(R.id.add_item)?.isVisible = true
             }else if(action == UPDATE_RECORD_ACTION){
                 menu?.findItem(R.id.update_item)?.isVisible = true
@@ -261,23 +264,26 @@ class AddGroceryListItemFragment : Fragment() {
 
         mDataBinding.browseItemImageBtn.setOnClickListener{
 
-//            val intent = Intent()
-//            intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
-//            intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
-
            if(action == ADD_NEW_RECORD_ACTION){
                val itemName = mDataBinding.itemNameTextinput.text.toString()
                val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
                val unit = mDataBinding.pricePerUnitTextinput.text.toString()
+               val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
+               val category =mDataBinding.itemCategoryTextinput.text.toString()
+               val note = mDataBinding.notesTextinput.text.toString()
                val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
                val imageName = if(path !=null) File(path).name else ""
 
 
                val intent = Intent()
-               intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG,itemName)
+               intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
                intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
                intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
                intent.putExtra(IMAGE_TEMP_NAME,imageName)
+               intent.putExtra(ITEM_QUANTITY_TAG,quantity)
+               intent.putExtra(ITEM_CATEGORY,category)
+               intent.putExtra(ITEM_NOTES,note)
+               intent.putExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_FROM_BROWSER)
 
                activity?.let {
                    it.setResult(AppCompatActivity.RESULT_OK, intent)
@@ -285,25 +291,6 @@ class AddGroceryListItemFragment : Fragment() {
                }
            }
 
-
-            //openBrowseImageContract.launch(browseItemActivity)
-
-
-
-//            val itemName = mDataBinding.itemNameTextinput.text.toString()
-//            val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
-//            val unit = mDataBinding.pricePerUnitTextinput.text.toString()
-//            val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
-//            val imageName = if(path !=null) File(path).name else ""
-//
-//
-//            val browseItemActivity = Intent(requireContext(),BrowserItemImageActivity::class.java)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,price)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_UNIT_TAG,unit)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG,imageName)
-//
-//            openBrowseImageContract.launch(browseItemActivity)
 
         }
         mDataBinding.addImgBtn.setOnClickListener{
@@ -391,8 +378,7 @@ class AddGroceryListItemFragment : Fragment() {
             mGroceryListViewModel.addGroceryListItem(requireContext(),groceryItemEntity)
             mGroceryListViewModel.updateGroceryListAsNotUploaded(requireContext(),groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
 
-            withContext(Dispatchers.Main){
-
+            withContext(Main){
 
                 activity?.let{
                     it.setResult(AppCompatActivity.RESULT_OK)
