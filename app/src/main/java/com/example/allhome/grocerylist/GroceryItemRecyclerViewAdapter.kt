@@ -262,10 +262,12 @@ class GroceryItemRecyclerViewAdapter(private val contextParams: Context, private
                     intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, adapterPosition)
                     intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemFragment.UPDATE_RECORD_ACTION)
 
-                    singleGroceryListActivity.startActivityForResult(
-                            intent,
-                            SingleGroceryListActivity.UPDATE_ITEM_REQUEST
-                    )
+//                    singleGroceryListActivity.startActivityForResult(
+//                            intent,
+//                            SingleGroceryListActivity.UPDATE_ITEM_REQUEST
+//                    )
+
+                    singleGroceryListActivity.openEditGroceryListItemContract.launch(intent)
 
 
                 }

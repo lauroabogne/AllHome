@@ -16,14 +16,6 @@ class BrowserItemImageActivity : AppCompatActivity() {
         setContentView(R.layout.activity_browser_item_image)
         Log.e(TAG,"no data available")
 
-//        val itemName = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
-//        val price = intent.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
-//        val unit = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
-//        val imageName = intent.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)!!
-
-
-
-
         val itemName = intent.getStringExtra( AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
         val unit = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
         val price = intent.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
@@ -35,24 +27,27 @@ class BrowserItemImageActivity : AppCompatActivity() {
 
 
 
-//        val browseItemActivity = Intent(this,BrowserItemImageActivity::class.java)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG,itemName)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,itemUnit)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME,tempImageName)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY,category)
-//        browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_NOTES,note)
 
+        val action = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1)
 
-
-
-
-
-        val browseItemImageFragment = BrowseItemImageFragment. newInstance(groceryListUniqueId,itemName,unit,price,quantity,category,note,imageName)
+        if(action == AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER){
+            val browseItemImageFragment = BrowseItemImageFragment. newInstance(groceryListUniqueId,itemName,unit,price,quantity,category,note,imageName)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.fragmentContainer,browseItemImageFragment)
                 .commit()
+
+        }else if(action == AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER){
+
+            val groceryListItemId = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,0)
+            val groceryListItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,0)
+
+            val browseItemImageFragment = BrowseItemImageFragment. newInstance(groceryListUniqueId,groceryListItemId,groceryListItemIndex,itemName,unit,price,quantity,category,note,imageName)
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer,browseItemImageFragment)
+                .commit()
+
+        }
+
 
 
     }

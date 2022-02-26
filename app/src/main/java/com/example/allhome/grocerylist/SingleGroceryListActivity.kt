@@ -65,30 +65,18 @@ class SingleGroceryListActivity : AppCompatActivity() {
     }
 
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
-        //manipulateListUIAfterAddedItemSuccessfullyAction()
-        manipulateListUIAfterAddedItemSuccessfullyAction()
-
         activityResult.data?.let {
+            if(it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_UPDATED_ITEM_TAG,-1) == AddGroceryListItemFragment.UPDATED_ITEM){
+                val updatedGroceryListId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+                val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+                manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
 
-//            val itemName = it.getStringExtra(BrowseItemImageFragment.ITEM_NAME_TAG)!!
-//            val itemUnit = it.getStringExtra(BrowseItemImageFragment.ITEM_UNIT_TAG)!!
-//            val price = it.getDoubleExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,0.0)
-//            val tempImagePath = it.getStringExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG)
-//
-//            mGroceryListViewModel.selectedGroceryItem?.itemName = itemName
-//            mGroceryListViewModel.selectedGroceryItem?.unit = itemUnit
-//            mGroceryListViewModel.selectedGroceryItem?.pricePerUnit = price
-//
-//
-//            if(tempImagePath != null){
-//                val imageUri = Uri.fromFile(File(tempImagePath))
-//
-//                mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
-//                mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
-//                mDataBinding.itemImageview.setImageURI(imageUri)
-//            }
-//            mDataBinding.invalidateAll()
+            }else{
+                manipulateListUIAfterAddedItemSuccessfullyAction()
+            }
 
+        }?:run{
+            manipulateListUIAfterAddedItemSuccessfullyAction()
         }
     }
 
@@ -117,6 +105,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
                     browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
                     browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY,category)
                     browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_NOTES,note)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER)
 
                     browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
 
@@ -130,6 +119,67 @@ class SingleGroceryListActivity : AppCompatActivity() {
             }
             Log.e("ACTION",intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1).toString())
 
+        }
+    }
+
+    val openEditGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
+        Log.e("==============","=====================")
+        if(activityResult.resultCode == RESULT_OK){
+
+//            activityResult.data?.let {
+//                val updatedGroceryListId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+//                val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+//
+//                manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
+//            }
+
+
+            activityResult.data?.let {
+                Log.e("TEST_HERE","TEST 1")
+                if(it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1) == AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER ){
+                    val itemName = it.getStringExtra( AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
+                    val itemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
+                    val price = it.getDoubleExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,0.0)
+                    val quantity = it.getDoubleExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,0.0)
+                    val category = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)
+                    val note = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)
+                    val tempImageName = it.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)
+                    val groceryListItemId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,-1)
+                    val groceryListItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,0)
+
+
+
+
+                    val browseItemActivity = Intent(this,BrowserItemImageActivity::class.java)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG,itemName)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,itemUnit)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME,tempImageName)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY,category)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.ITEM_NOTES,note)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
+
+
+                    browseItemActivity.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER)
+
+                    openBrowseImageContract.launch(browseItemActivity)
+                }else{
+
+                    Log.e("TEST_HERE","TEST 2")
+                    val updatedGroceryListId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+                    val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+
+                    manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
+                }
+            }?:run{
+                Log.e("TEST_HERE","TEST 3")
+                manipulateListUIAfterAddedItemSuccessfullyAction()
+            }
+            Log.e("ACTION",intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1).toString())
 
         }
     }
@@ -349,84 +399,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
             // transfer at openAddGroceryListItemContract
         }
         else if (requestCode == UPDATE_ITEM_REQUEST && resultCode == RESULT_OK) {
-            val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
-            val oldItemIndex = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
-
-            CoroutineScope(IO).launch {
-                val groceryItemEntityUpdated = mGroceryListViewModel.getGroceryListItem(this@SingleGroceryListActivity, updatedGroceryListId!!, groceryListUniqueId)
-
-                withContext(Main) {
-
-                    val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.toBuyGroceryItems.find { it.id == updatedGroceryListId }!!
-
-                    var itemNewIndex = 0
-
-                    if(groceryItemEntity.bought == 1){
-                       // val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.boughtGroceryItems.find { it.id == updatedGroceryListId }!!
-                        mGroceryListViewModel.boughtGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity), groceryItemEntityUpdated!!)
-                    }else{
-
-
-                        mGroceryListViewModel.toBuyGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity), groceryItemEntityUpdated!!)
-                        //Log.e("NEW_DATA",groceryItemEntity.itemName+" "+groceryItemEntity.category)
-
-                        //Log.e("found not bought",groceryItemEntity.itemName+" "+itemIndex )
-                    }
-
-                    mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
-
-                    if(mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY){
-
-                        itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
-                    }else{
-
-                        mGroceryListViewModel.groupByCategory()
-                        itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
-
-
-
-                    }
-
-                    val scrollListener = object : OnScrollListener() {
-                        var found = false
-                        override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
-                            val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(itemNewIndex)
-                            if (viewHolder != null && !found) {
-                                val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
-                                fadeInAnimation.duration = 500
-                                fadeInAnimation.fillAfter = true
-                                val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
-                                itemViewHolder.groceryListItemBinding.groceryItemParentLayout.startAnimation(fadeInAnimation)
-                                dataBindingUtil.groceryItemRecyclerview.removeOnScrollListener(this)
-
-
-                                found = true
-                            }
-
-
-                        }
-                    }
-
-                    val firstVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
-                    val lastVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
-
-                    if(itemNewIndex >= firstVisibleItemPosition && itemNewIndex <= lastVisibleItemPosition){
-
-                        val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(itemNewIndex)
-                        //animateItem(viewHolder!!)
-
-                    }else{
-
-                        dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
-                        dataBindingUtil.groceryItemRecyclerview.scrollToPosition(itemNewIndex)
-                    }
-
-                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemChanged(itemNewIndex)
-                }
-            }
 
 
         }else {
@@ -511,6 +484,86 @@ class SingleGroceryListActivity : AppCompatActivity() {
 //                }
 
 
+            }
+        }
+    }
+    private fun manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId:Int,oldItemIndex:Int){
+        /*val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+        val oldItemIndex = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)*/
+
+
+        CoroutineScope(IO).launch {
+            val groceryItemEntityUpdated = mGroceryListViewModel.getGroceryListItem(this@SingleGroceryListActivity, updatedGroceryListId!!, groceryListUniqueId)
+
+            withContext(Main) {
+
+                val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.toBuyGroceryItems.find { it.id == updatedGroceryListId }!!
+
+                var itemNewIndex = 0
+
+                if(groceryItemEntity.bought == 1){
+                    // val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.boughtGroceryItems.find { it.id == updatedGroceryListId }!!
+                    mGroceryListViewModel.boughtGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity), groceryItemEntityUpdated!!)
+                }else{
+
+
+                    mGroceryListViewModel.toBuyGroceryItems.set(mGroceryListViewModel.toBuyGroceryItems.indexOf(groceryItemEntity), groceryItemEntityUpdated!!)
+                    //Log.e("NEW_DATA",groceryItemEntity.itemName+" "+groceryItemEntity.category)
+
+                    //Log.e("found not bought",groceryItemEntity.itemName+" "+itemIndex )
+                }
+
+                mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
+
+                if(mGroceryListViewModel.sortingAndGrouping.value == GroceryListViewModel.SORT_ALPHABETICALLY){
+
+                    itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
+                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
+                }else{
+
+                    mGroceryListViewModel.groupByCategory()
+                    itemNewIndex = mGroceryListViewModel.selectedGroceryListItemList.indexOf(groceryItemEntityUpdated)
+                    dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemMoved(oldItemIndex!!, itemNewIndex)
+
+
+
+                }
+
+                val scrollListener = object : OnScrollListener() {
+                    var found = false
+                    override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                        val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(itemNewIndex)
+                        if (viewHolder != null && !found) {
+                            val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
+                            fadeInAnimation.duration = 500
+                            fadeInAnimation.fillAfter = true
+                            val itemViewHolder: GroceryItemRecyclerViewAdapter.ItemViewHolder = viewHolder as GroceryItemRecyclerViewAdapter.ItemViewHolder
+                            itemViewHolder.groceryListItemBinding.groceryItemParentLayout.startAnimation(fadeInAnimation)
+                            dataBindingUtil.groceryItemRecyclerview.removeOnScrollListener(this)
+
+
+                            found = true
+                        }
+
+
+                    }
+                }
+
+                val firstVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findFirstVisibleItemPosition()
+                val lastVisibleItemPosition = ( dataBindingUtil.groceryItemRecyclerview.layoutManager as LinearLayoutManager).findLastVisibleItemPosition()
+
+                if(itemNewIndex >= firstVisibleItemPosition && itemNewIndex <= lastVisibleItemPosition){
+
+                    val viewHolder = dataBindingUtil.groceryItemRecyclerview.findViewHolderForAdapterPosition(itemNewIndex)
+                    //animateItem(viewHolder!!)
+
+                }else{
+
+                    dataBindingUtil.groceryItemRecyclerview.addOnScrollListener(scrollListener)
+                    dataBindingUtil.groceryItemRecyclerview.scrollToPosition(itemNewIndex)
+                }
+
+                dataBindingUtil.groceryItemRecyclerview.adapter?.notifyItemChanged(itemNewIndex)
             }
         }
     }

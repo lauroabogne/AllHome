@@ -1,7 +1,6 @@
 package com.example.allhome.grocerylist
 
 import android.app.Activity.RESULT_OK
-import android.content.ClipData
 import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
@@ -20,11 +19,9 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.text.isDigitsOnly
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
-import androidx.room.ColumnInfo
-import com.bumptech.glide.load.engine.executor.GlideExecutor.UncaughtThrowableStrategy.LOG
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentBrowseItemImageBinding
 import com.example.allhome.global_ui.ProgressDialogFragment
@@ -45,6 +42,7 @@ class BrowseItemImageFragment : Fragment() {
     private var mProgressDialogFragment: ProgressDialogFragment = ProgressDialogFragment()
     lateinit var mFragmentBrowseItemImageBinding:FragmentBrowseItemImageBinding
 
+    private var mAction = AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER
     private var mGroceryListUniqueId = ""
     private lateinit var mItemName:String
     private lateinit var mItemUnit:String
@@ -55,6 +53,9 @@ class BrowseItemImageFragment : Fragment() {
     private var mImageAbsolutePath:String? = null
     private var mHasAddedItem = AddGroceryListItemFragment.NO_ADDED_ITEM
 
+
+    private var mGroceryItemId = 0
+    private var mGroceryItemIndex = -1
 
 
     companion object {
@@ -73,6 +74,32 @@ class BrowseItemImageFragment : Fragment() {
                     putString(AddGroceryListItemFragment.ITEM_CATEGORY,category)
                     putString(AddGroceryListItemFragment.ITEM_NOTES,note)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG,imageName)
+                    putInt(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER)
+
+
+
+                }
+            }
+
+        /**
+         * for updating existing record
+         */
+        @JvmStatic fun newInstance(groceryListUniqueId:String,groceryItemId:Int,groceryItemIndex:Int,itemName:String,unit:String,price:Double,quantity:Double,category:String,note:String,imageName:String) =
+            BrowseItemImageFragment().apply {
+                arguments = Bundle().apply {
+                    putString(GROCERY_LIST_UNIQUE_ID_TAG, groceryListUniqueId)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, itemName)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,unit)
+                    putDouble(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
+                    putDouble(AddGroceryListItemFragment.ITEM_QUANTITY_TAG,quantity)
+                    putString(AddGroceryListItemFragment.ITEM_CATEGORY,category)
+                    putString(AddGroceryListItemFragment.ITEM_NOTES,note)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG,imageName)
+
+                    putInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
+                    putInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryItemIndex)
+                    putInt(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER)
+
 
                 }
             }
@@ -85,9 +112,22 @@ class BrowseItemImageFragment : Fragment() {
             activityResult.data?.let {
 
                 mHasAddedItem = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_ADDED_ITEM_TAG,AddGroceryListItemFragment.NO_ADDED_ITEM)
+                val hasUpdatedItem = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_UPDATED_ITEM_TAG,AddGroceryListItemFragment.NO_ADDED_ITEM)
 
                 if(mHasAddedItem == AddGroceryListItemFragment.ADDED_ITEM){
                     //do nothing
+                }else if( hasUpdatedItem == AddGroceryListItemFragment.UPDATED_ITEM ){
+
+                    val intent = Intent()
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,mGroceryItemId)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,mGroceryItemIndex)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_UPDATED_ITEM_TAG,AddGroceryListItemFragment.UPDATED_ITEM)
+                    activity?.let {fragmentActivity->
+                        fragmentActivity.setResult(AppCompatActivity.RESULT_OK, intent)
+                        fragmentActivity.finish()
+                    }
+
+
                 }else{
                     mItemName = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
                     mItemUnit = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
@@ -96,6 +136,7 @@ class BrowseItemImageFragment : Fragment() {
                     mCategory = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)!!
                     mNotes = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
                     mImageAbsolutePath = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
+
                 }
 
 
@@ -118,39 +159,37 @@ class BrowseItemImageFragment : Fragment() {
             }
             R.id.copyUnitBtn->{
                 mItemUnit = clipboardManager.primaryClip?.getItemAt(0)?.text.toString();
-                Toast.makeText(requireContext(),"Unit copy successfully.",Toast.LENGTH_SHORT).show()
+
             }
             R.id.copyNameBtn->{
                 mItemName = clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
 
-                Toast.makeText(requireContext(),"Item name copy successfully.",Toast.LENGTH_SHORT).show()
             }
             R.id.openAddItemFragmentImageBtn->{
-                val intent = Intent(requireContext(), AddGroceryListItemActivity::class.java)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, mGroceryListUniqueId)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, mItemName)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG, mItemUnit)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG, mPrice)
-                intent.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG, mQuantity)
-                intent.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY, mCategory)
-                intent.putExtra(AddGroceryListItemFragment.ITEM_NOTES, mNotes)
-                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG, mImageAbsolutePath)
-                openAddGroceryListItemContract.launch(intent)
+
+                openAddItemActivity()
+
+
             }
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
+
+            mAction = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG)
             mGroceryListUniqueId = it.getString(GROCERY_LIST_UNIQUE_ID_TAG)!!
+            mGroceryItemId = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)
+            mGroceryItemIndex = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG)
+
             mItemName = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)?.let { name->name }?:run{""}
             mItemUnit = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)?.let { unit->unit }?:run{""}
             mPrice = it.getDouble(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG)
             mQuantity = it.getDouble(AddGroceryListItemFragment.ITEM_QUANTITY_TAG)
             mCategory = it.getString(AddGroceryListItemFragment.ITEM_CATEGORY)?.let { category->category }?:run{""}
             mNotes = it.getString(AddGroceryListItemFragment.ITEM_NOTES)?.let{note->note}?:run{""}
-            mImageAbsolutePath = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
+            //mImageAbsolutePath = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
+
 
             it.getString(ITEM_IMAGE_NAME_TAG)?.let {imageName->
                 val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
@@ -158,7 +197,26 @@ class BrowseItemImageFragment : Fragment() {
                 if(!storageDir.exists()){
                     storageDir.mkdir()
                 }
-                mImageAbsolutePath = File(storageDir, imageName).absolutePath
+                if(mAction == AddGroceryListItemFragment.ADD_NEW_RECORD_FROM_BROWSER){
+                    mImageAbsolutePath = File(storageDir, imageName).absolutePath
+                }else if(mAction == AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER){
+
+                    val imageFileFromTempStorage = File(storageDir, imageName)
+                    if(imageFileFromTempStorage.exists()){
+                        mImageAbsolutePath = imageFileFromTempStorage.absolutePath
+                        return
+                    }
+
+                    val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                    if(!finalStorageDir.exists()){
+                        storageDir.mkdir()
+                    }
+                    val imageFileFromFinalStorage = File(finalStorageDir, imageName)
+                    if(imageFileFromFinalStorage.exists()){
+                        mImageAbsolutePath = imageFileFromFinalStorage.absolutePath
+                    }
+                }
+
             }
         }
     }
@@ -175,38 +233,16 @@ class BrowseItemImageFragment : Fragment() {
         }
         toolBar.inflateMenu(R.menu.search_grocery_item_online)
         toolBar.setOnMenuItemClickListener {
+            openAddItemActivity()
 
-
-            Toast.makeText(requireContext(),"Finished",Toast.LENGTH_SHORT).show()
-            //val intent = Intent()
-            /*intent.putExtra(ITEM_IMAGE_NAME_TAG, mImageAbsolutePath)
-            intent.putExtra(ITEM_NAME_TAG, mItemName)
-            intent.putExtra(ITEM_UNIT_TAG, mItemUnit)
-            intent.putExtra(ITEM_PRICE_TAG, mPrice)
-
-            requireActivity().setResult(RESULT_OK, intent)
-            requireActivity().finish()*/
-
-            val intent = Intent(requireContext(), AddGroceryListItemActivity::class.java)
-            intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, mGroceryListUniqueId)
-            intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.ADD_NEW_RECORD_ACTION)
-//            startActivityForResult(intent, ADD_ITEM_REQUEST)
-//
-//            val browseItemActivity = Intent(requireContext(),BrowserItemImageActivity::class.java)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_NAME_TAG,itemName)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_PRICE_TAG,price)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_UNIT_TAG,unit)
-//            browseItemActivity.putExtra(BrowseItemImageFragment.ITEM_IMAGE_NAME_TAG,imageName)
-
-            openAddGroceryListItemContract.launch(intent)
             true
         }
+        setupViewView()
 
         mImageAbsolutePath?.let {
             displayImage(it)
         }
 
-        setupViewView()
         requireActivity().onBackPressedDispatcher.addCallback(requireActivity(),object: OnBackPressedCallback(true){
             override fun handleOnBackPressed() {
 
@@ -215,11 +251,8 @@ class BrowseItemImageFragment : Fragment() {
                     return
                 }
                 activity?.finish()
-
             }
-
         })
-
         mFragmentBrowseItemImageBinding.copyPriceBtn.setOnClickListener(copyBtnOnClick)
         mFragmentBrowseItemImageBinding.copyUnitBtn.setOnClickListener(copyBtnOnClick)
         mFragmentBrowseItemImageBinding.copyNameBtn.setOnClickListener(copyBtnOnClick)
@@ -290,6 +323,25 @@ class BrowseItemImageFragment : Fragment() {
         }
     }
 
+    private fun openAddItemActivity(){
+        val imageName = mImageAbsolutePath?.let { imagePath->
+            imagePath.substring(imagePath.lastIndexOf("/")+1,imagePath.length)
+        }?:run{""}
+
+        val intent = Intent(requireContext(), AddGroceryListItemActivity::class.java)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, mGroceryListUniqueId)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,mAction)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, mItemName)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG, mItemUnit)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG, mPrice)
+        intent.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG, mQuantity)
+        intent.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY, mCategory)
+        intent.putExtra(AddGroceryListItemFragment.ITEM_NOTES, mNotes)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,mGroceryItemId)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,mGroceryItemIndex)
+        intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG, imageName)
+        openAddGroceryListItemContract.launch(intent)
+    }
     fun saveBitmap(itemImageBitmap:Bitmap){
         mProgressDialogFragment.show(requireActivity().supportFragmentManager,"ProgressDialogFragment")
         mProgressDialogFragment.isCancelable = false;
@@ -330,7 +382,7 @@ class BrowseItemImageFragment : Fragment() {
 
 
     }
-    fun displayImage(fileNameAbsolutePath:String){
+    private fun displayImage(fileNameAbsolutePath:String){
         val imageUri = Uri.fromFile(File(fileNameAbsolutePath))
         mFragmentBrowseItemImageBinding.itemImageView.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
         mFragmentBrowseItemImageBinding.itemImageView.setImageURI(imageUri)
@@ -411,9 +463,9 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.webView.settings.javaScriptEnabled = true// disable the default zoom controls on the page
         mFragmentBrowseItemImageBinding.webView.apply {
             settings.javaScriptEnabled = true
-            loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
+            //loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
 
-            //loadUrl("https://shopwise.gorobinsons.ph/products/buy-1-downy-laundry-fabric-conditioner-antibac-refill-2l-get-1-free-ariel-laundry-liquid-detergent-sunrise-fresh-900ml-delivery-dates-february-22-to-25-only-order-limit-3-pieces-806-sw-grand-terminal-batangas")//metadata ERROR SAVING
+            loadUrl("https://www.watsons.com.ph/bundle-94ml/p/BP_50034200")//metadata ERROR SAVING
 
 
         }
