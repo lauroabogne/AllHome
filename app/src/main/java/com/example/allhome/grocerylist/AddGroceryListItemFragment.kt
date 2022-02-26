@@ -39,6 +39,8 @@ import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Paths
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -55,31 +57,6 @@ class AddGroceryListItemFragment : Fragment() {
     var groceryListItemIndex = -1
     var tempPhotoFileForAddingImage: File? = null
     var imageChanged = false
-
-    private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
-        activityResult.data?.let {
-
-            val itemName = it.getStringExtra(GROCERY_LIST_ITEM_NAME_TAG)!!
-            val itemUnit = it.getStringExtra(GROCERY_LIST_ITEM_UNIT_TAG)!!
-            val price = it.getDoubleExtra(GROCERY_LIST_ITEM_PRICE_TAG,0.0)
-            val tempImagePath = it.getStringExtra(GROCERY_LIST_ITEM_IMAGE_NAME_TAG)
-
-            mGroceryListViewModel.selectedGroceryItem?.itemName = itemName
-            mGroceryListViewModel.selectedGroceryItem?.unit = itemUnit
-            mGroceryListViewModel.selectedGroceryItem?.pricePerUnit = price
-
-
-            if(tempImagePath != null){
-                val imageUri = Uri.fromFile(File(tempImagePath))
-
-                mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  imageUri
-                mDataBinding.itemImageview.setImageURI(null)//set image url to null. The ImageView won't reload the image if you call setImageURI with the same URI
-                mDataBinding.itemImageview.setImageURI(imageUri)
-            }
-            mDataBinding.invalidateAll()
-
-        }
-    }
 
     private val toolbarNavigationOnClickListener = View.OnClickListener{
         if(action == ADD_NEW_RECORD_FROM_BROWSER){
@@ -146,8 +123,6 @@ class AddGroceryListItemFragment : Fragment() {
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
 
-
-
                     putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
                     putInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG,action)
                     putString(GROCERY_LIST_ITEM_NAME_TAG,itemName)
@@ -158,17 +133,11 @@ class AddGroceryListItemFragment : Fragment() {
                     putString(ITEM_NOTES,notes)
                     putString(GROCERY_LIST_ITEM_IMAGE_NAME_TAG,itemImageName)
 
-
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG, mQuantity)
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY, mCategory)
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_NOTES, mNotes)
                 }
             }
         @JvmStatic fun newInstance(groceryListUniqueId: String?,groceryItemId:Int,groceryItemIndex:Int, action:Int,itemName:String,itemUnit:String,itemPrice:Double,quantity:Double,category: String,notes:String,itemImageName:String) =
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
-
-
 
                     putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
                     putInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG,action)
@@ -182,11 +151,6 @@ class AddGroceryListItemFragment : Fragment() {
                     putInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
                     putInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryItemIndex)
 
-
-
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_QUANTITY_TAG, mQuantity)
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_CATEGORY, mCategory)
-//                    intent.putExtra(AddGroceryListItemFragment.ITEM_NOTES, mNotes)
                 }
             }
     }
@@ -249,9 +213,9 @@ class AddGroceryListItemFragment : Fragment() {
                 }
             }
         }else if(action == UPDATE_RECORD_FROM_BROWSER){
-
             mDataBinding.browseItemImageBtn.visibility = View.GONE
-            val uri = ImageUtil.getImageUriFromPath(requireContext(), GroceryUtil.TEMPORARY_IMAGES_LOCATION,mGroceryListViewModel.selectedGroceryItem!!.imageName)
+
+            val uri = getImageUriForUpdatingRecordFromBrowser(mGroceryListViewModel.selectedGroceryItem!!.imageName)
             mGroceryListViewModel.selectedGroceryItemEntityCurrentImageUri = uri
             mGroceryListViewModel.selectedGroceryItemEntityNewImageUri = uri
             mDataBinding.invalidateAll()
@@ -261,7 +225,6 @@ class AddGroceryListItemFragment : Fragment() {
             val uri = ImageUtil.getImageUriFromPath(requireContext(), GroceryUtil.TEMPORARY_IMAGES_LOCATION,mGroceryListViewModel.selectedGroceryItem!!.imageName)
             mGroceryListViewModel.selectedGroceryItemEntityNewImageUri = uri
             mDataBinding.invalidateAll()
-
 
         }
 
@@ -348,7 +311,13 @@ class AddGroceryListItemFragment : Fragment() {
                val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
                val category =mDataBinding.itemCategoryTextinput.text.toString()
                val note = mDataBinding.notesTextinput.text.toString()
-               val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+               //val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+
+               val path = mGroceryListViewModel?.selectedGroceryItemEntityNewImageUri?.let {
+                        it.path
+                    }?:run{
+                        mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+                    }
                val imageName = if(path !=null) File(path).name else ""
 
 
@@ -393,20 +362,26 @@ class AddGroceryListItemFragment : Fragment() {
         if(requestCode == REQUEST_PICK_IMAGE){
 
             data?.data?.let{
-                lauchImageCropper(it)
+                launchImageCropper(it)
             }
 
             tempPhotoFileForAddingImage?.let{
                 val fileUri = Uri.fromFile(tempPhotoFileForAddingImage) as Uri
-                lauchImageCropper(fileUri)
+                launchImageCropper(fileUri)
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
-
             val result = CropImage.getActivityResult(data)
+            val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
+            if(!storageDir.exists()){
+                storageDir.mkdir()
+            }
 
-            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
-
-            mDataBinding.itemImageview.setImageURI(result.uri)
+            val itemBitmap = ImageUtil.uriToBitmap(result.uri,requireContext())
+            val uri = ImageUtil.saveImage(requireContext(),itemBitmap,GroceryUtil.TEMPORARY_IMAGES_LOCATION,"$IMAGE_TEMP_NAME.$IMAGE_NAME_SUFFIX")?.let {
+                Uri.fromFile(File(it))
+            }
+            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  uri
+            mDataBinding.itemImageview.setImageURI(uri)
 
 
 
@@ -545,7 +520,34 @@ class AddGroceryListItemFragment : Fragment() {
             }
         }
     }
-    private fun lauchImageCropper(uri: Uri){
+    private fun getImageUriForUpdatingRecordFromBrowser(imageName:String):Uri?{
+        return imageName?.let { imageName->
+            var imageUri:Uri? = null
+            val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
+            //create directory if not exists
+            if(!storageDir.exists()){
+                storageDir.mkdir()
+            }
+            val imageFileFromTempStorage = File(storageDir, imageName)
+            if(imageFileFromTempStorage.exists()){
+                imageUri = ImageUtil.getImageUriFromPath(requireContext(), imageFileFromTempStorage.parentFile.name,mGroceryListViewModel.selectedGroceryItem!!.imageName)
+
+            }else{
+                val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                if(!finalStorageDir.exists()){
+                    storageDir.mkdir()
+                }
+                val imageFileFromFinalStorage = File(finalStorageDir, imageName)
+                if(imageFileFromFinalStorage.exists()){
+                    imageUri = ImageUtil.getImageUriFromPath(requireContext(), imageFileFromFinalStorage.parentFile.name,mGroceryListViewModel.selectedGroceryItem!!.imageName)
+                }
+            }
+
+            imageUri
+
+        }
+    }
+    private fun launchImageCropper(uri: Uri){
 
         CropImage.activity(uri)
             .setGuidelines(CropImageView.Guidelines.ON)
@@ -553,7 +555,6 @@ class AddGroceryListItemFragment : Fragment() {
             .setCropShape(CropImageView.CropShape.RECTANGLE)
             .start(requireContext(), this);
     }
-
     private fun showIntentChooser(){
         // Determine Uri of camera image to save.
 
