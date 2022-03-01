@@ -15,7 +15,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.*
 import android.view.animation.Animation
 import android.view.animation.DecelerateInterpolator
@@ -57,6 +56,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     internal lateinit var mStorageViewModel: StorageViewModel
     private lateinit var mDataBindingUtil: FragmentStorageBinding
 
+    private val TAG = "StorageFragment"
     // Hold a reference to the current animator,
     // so that it can be canceled mid-way.
     private var currentAnimator: Animator? = null
@@ -112,7 +112,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
 
@@ -193,8 +192,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }
 
         })
-
-
 
 
 
@@ -976,9 +973,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 val checkedItemPosition = alertDialog.listView.checkedItemPosition
                 if(checkedItemPosition == 0){
                     if(mAction == STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION){
-                        mergeStrorageItemFromGroceryList(storageEntity)
+                        mergeStorageItemFromGroceryList(storageEntity)
                     }else if(mAction == STORAGE_ADD_ALL_ITEM_FROM_GROCERY_LIST_ACTION){
-                        mergeStrorageItemFromAllGroceryListItems(storageEntity)
+                        mergeStorageItemFromAllGroceryListItems(storageEntity)
                     }else if(mAction == STORAGE_TRASFERING_ITEM_ACTION){
                         mergeStorageItem(storageEntity)
                     }
@@ -1002,7 +999,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         alertDialog.show()
 
     }
-    private fun mergeStrorageItemFromGroceryList(storageEntity: StorageEntity){
+    private fun mergeStorageItemFromGroceryList(storageEntity: StorageEntity){
         mStorageViewModel.coroutineScope.launch {
 
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext())
@@ -1038,7 +1035,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
                     }else{
                         //update
-
+                        val groceryItemImageName = if(mGroceryItemEntity != null && mGroceryItemEntity?.imageName != null) mGroceryItemEntity?.imageName else ""
+                        val storageImageItemName =  copyGroceryItemImageImage(groceryItemImageName!!,mGroceryItemEntity!!.itemName,storageItemEntity.uniqueId) ?: storageItemEntity.imageName
+                        storageItemEntity.imageName = storageImageItemName
                         storageItemEntity.quantity =  if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT) mGroceryItemEntity!!.quantity else storageItemEntity.quantity + mGroceryItemEntity!!.quantity
 
                         val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
@@ -1053,7 +1052,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 }
 
             }catch (ex: java.lang.Exception){
-                    movedSuccessfully = false
+                ex.printStackTrace()
+                movedSuccessfully = false
             }
 
 
@@ -1062,7 +1062,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                     Toast.makeText(requireContext(),"Item successfully added to storage",Toast.LENGTH_SHORT).show()
                     activity?.finish()
                 }else{
-                    Toast.makeText(requireContext(),"Failed to add items in storage",Toast.LENGTH_SHORT).show()
+                    Toast.makeText(requireContext(),"Failed to add items in storage.",Toast.LENGTH_SHORT).show()
 
                 }
 
@@ -1070,7 +1070,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         }
     }
-    private fun mergeStrorageItemFromAllGroceryListItems(storageEntity: StorageEntity){
+    private fun mergeStorageItemFromAllGroceryListItems(storageEntity: StorageEntity){
 
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
@@ -1084,16 +1084,18 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 try {
 
                     allHomeDatabase.withTransaction {
-                        boughtGroceryItemEntityies.forEach {
-                            val groceryItemName = it.itemName
-                            val groceryItemUnit  = it.unit
-                            val groceryItemQuantity = it.quantity
+                        boughtGroceryItemEntityies.forEach {groceryItemEntity->
+                            val groceryItemName = groceryItemEntity.itemName
+                            val groceryItemUnit  = groceryItemEntity.unit
+                            val groceryItemQuantity = groceryItemEntity.quantity
 
                             val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(this@StorageFragment.requireContext(), groceryItemName,groceryItemUnit,storageEntity.uniqueId)
 
                             storageItemEntity?.let{
                                 //update record
+                                val storageImageItemName = copyGroceryItemImageImage(groceryItemEntity.imageName,groceryItemName,it.uniqueId) ?: storageItemEntity.imageName
 
+                                storageItemEntity.imageName = storageImageItemName
                                 storageItemEntity.quantity =  if(storageItemEntity.quantity <= StorageItemEntityValues.NO_QUANTITY_INPUT) groceryItemQuantity else storageItemEntity.quantity + groceryItemQuantity
 
                                 val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
@@ -1104,10 +1106,14 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                                     val storageExpirationEntityId = mStorageViewModel.saveStorageItemExpirationEntity(this@StorageFragment.requireContext(), storageExpiration)
                                 }
 
+
+
                             }?:run{
                                 //insert record
 
                                 var itemUniqueID = UUID.randomUUID().toString()
+                                val storageImageItemName = copyGroceryItemImageImage(groceryItemEntity.imageName,groceryItemName,itemUniqueID) ?: ""
+
 
                                 val storageItemEntity = StorageItemEntity(
                                     uniqueId = itemUniqueID,
@@ -1118,7 +1124,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                                     category = "",
                                     storage = storageEntity.name,
                                     notes = "",
-                                    imageName = "",
+                                    imageName = storageImageItemName,
                                     itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
                                     created = currentDatetime,
                                     modified = currentDatetime
@@ -1130,6 +1136,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                         }
                     }
                 }catch (ex: java.lang.Exception){
+                    ex.printStackTrace()
                     movedSuccessfully = false
                 }
 
@@ -1159,16 +1166,18 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 try {
 
                     allHomeDatabase.withTransaction {
-                        boughtGroceryItemEntityies.forEach {
-                            val groceryItemName = it.itemName
-                            val groceryItemUnit  = it.unit
-                            val groceryItemQuantity = it.quantity
+                        boughtGroceryItemEntityies.forEach {groceryItemEntity->
+                            val groceryItemName = groceryItemEntity.itemName
+                            val groceryItemUnit  = groceryItemEntity.unit
+                            val groceryItemQuantity = groceryItemEntity.quantity
 
                             val storageItemEntity = mStorageViewModel.getSingleItemByNameAndUnitAndStorageUniqueId(this@StorageFragment.requireContext(), groceryItemName,groceryItemUnit,storageEntity.uniqueId)
 
                             storageItemEntity?.let{
                                 //update record
+                                val storageImageItemName = copyGroceryItemImageImage(groceryItemEntity.imageName,groceryItemName,it.uniqueId) ?: storageItemEntity.imageName
 
+                                storageItemEntity.imageName = storageImageItemName
                                 storageItemEntity.quantity =  groceryItemQuantity
 
                                 val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
@@ -1183,6 +1192,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                                 //insert record
 
                                 var itemUniqueID = UUID.randomUUID().toString()
+                                val storageImageItemName = copyGroceryItemImageImage(groceryItemEntity.imageName,groceryItemName,itemUniqueID) ?: ""
 
                                 val storageItemEntity = StorageItemEntity(
                                     uniqueId = itemUniqueID,
@@ -1193,7 +1203,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                                     category = "",
                                     storage = storageEntity.name,
                                     notes = "",
-                                    imageName = "",
+                                    imageName = storageImageItemName,
                                     itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
                                     created = currentDatetime,
                                     modified = currentDatetime
@@ -1229,6 +1239,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             if(storageItemEntity == null){
                 // insert
                 var itemUniqueID = UUID.randomUUID().toString()
+                val groceryItemImageName = if(mGroceryItemEntity != null && mGroceryItemEntity?.imageName != null) mGroceryItemEntity?.imageName else ""
+                val storageImageItemName = copyGroceryItemImageImage(groceryItemImageName!!,mGroceryItemEntity!!.itemName,itemUniqueID) ?: ""
 
                 val storageItemEntity = StorageItemEntity(
                     uniqueId = itemUniqueID,
@@ -1239,7 +1251,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                     category = "",
                     storage = storageEntity.name,
                     notes = "",
-                    imageName = "",
+                    imageName = storageImageItemName,
                     itemStatus = StorageItemEntityValues.NOT_DELETED_STATUS,
                     created = currentDatetime,
                     modified = currentDatetime
@@ -1249,6 +1261,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }else{
                 //update
 
+                val groceryItemImageName = if(mGroceryItemEntity != null && mGroceryItemEntity?.imageName != null) mGroceryItemEntity?.imageName else ""
+                val storageImageItemName =  copyGroceryItemImageImage(groceryItemImageName!!,mGroceryItemEntity!!.itemName,storageItemEntity.uniqueId) ?: storageItemEntity.imageName
+                storageItemEntity.imageName = storageImageItemName
                 storageItemEntity.quantity = mGroceryItemEntity!!.quantity
 
                 val updateItemAffectedRow = mStorageViewModel.updateStorageItemEntity(requireContext(),storageItemEntity)
@@ -1514,6 +1529,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
     private fun copyGroceryItemImageImage( groceryItemImageName:String,groceryItemName:String,storageItemUniqueId:String): String? {
 
+        if(groceryItemImageName == null || groceryItemImageName.isEmpty()){
+            return null
+        }
         val indexOfItemName = groceryItemImageName.indexOf(groceryItemName)
         val groceryItemName = groceryItemImageName.substring(indexOfItemName,groceryItemImageName.length)
         val storageDir: File? = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)

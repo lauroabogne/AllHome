@@ -92,6 +92,7 @@ class AddGroceryListItemActivity : AppCompatActivity() {
 
             Log.e("AddGroceryListItemActivity","ABSOLUTE_PATH:"+itemImageName);
             val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance(groceryListUniqueId,groceryItemId,groceryItemIndex, action,itemName,itemUnit,itemPrice,quantity,category,notes,itemImageName)
+
             supportFragmentManager.beginTransaction()
                 .replace(R.id.recipeFragmentContainer,addGroceryListItemFragment)
                 .commit()

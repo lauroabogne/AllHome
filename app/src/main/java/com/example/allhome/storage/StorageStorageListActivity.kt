@@ -54,7 +54,6 @@ class StorageStorageListActivity : AppCompatActivity() {
             val bundle = Bundle()
             bundle.putInt(StorageFragment.ACTION_TAG,action)
             bundle.putParcelable(StorageFragment.GROCERY_ENTITY_TAG,groceryListEntity)
-
             val storageFragment = StorageFragment()
             storageFragment.arguments = bundle
 

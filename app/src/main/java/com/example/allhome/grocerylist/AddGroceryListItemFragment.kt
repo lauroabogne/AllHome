@@ -29,6 +29,7 @@ import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
 import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.data.entities.GroceryListEntityValues
 import com.example.allhome.databinding.FragmentAddGroceryListItemBinding
+import com.example.allhome.global_ui.CustomConfirmationDialog
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
 import com.example.allhome.utils.ImageUtil
@@ -75,6 +76,68 @@ class AddGroceryListItemFragment : Fragment() {
             }
         }
         activity?.finish()
+    }
+    private val browseItemImageBtnOnClick = View.OnClickListener {
+        if(action == ADD_NEW_RECORD_ACTION){
+            val itemName = mDataBinding.itemNameTextinput.text.toString()
+            val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
+            val unit = mDataBinding.pricePerUnitTextinput.text.toString()
+            val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
+            val category =mDataBinding.itemCategoryTextinput.text.toString()
+            val note = mDataBinding.notesTextinput.text.toString()
+            val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+            val imageName = if(path !=null) File(path).name else ""
+
+            val intent = Intent()
+            intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
+            intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
+            intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
+            intent.putExtra(IMAGE_TEMP_NAME,imageName)
+            intent.putExtra(ITEM_QUANTITY_TAG,quantity)
+            intent.putExtra(ITEM_CATEGORY,category)
+            intent.putExtra(ITEM_NOTES,note)
+            intent.putExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_FROM_BROWSER)
+
+            activity?.let {fragmentActivity->
+                fragmentActivity.setResult(AppCompatActivity.RESULT_OK, intent)
+                fragmentActivity.finish()
+            }
+        }else if(action == UPDATE_RECORD_ACTION){
+
+            val itemName = mDataBinding.itemNameTextinput.text.toString()
+            val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
+            val unit = mDataBinding.unitTextinput.text.toString()
+            val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
+            val category =mDataBinding.itemCategoryTextinput.text.toString()
+            val note = mDataBinding.notesTextinput.text.toString()
+
+            val path = mGroceryListViewModel?.selectedGroceryItemEntityNewImageUri?.let {
+                it.path
+            }?:run{
+                mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
+            }
+            val imageName = if(path !=null) File(path).name else ""
+
+
+            val intent = Intent()
+            intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
+            intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryListItemIndex)
+            intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
+            intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
+            intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
+            intent.putExtra(IMAGE_TEMP_NAME,imageName)
+            intent.putExtra(ITEM_QUANTITY_TAG,quantity)
+            intent.putExtra(ITEM_CATEGORY,category)
+            intent.putExtra(ITEM_NOTES,note)
+            intent.putExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, UPDATE_RECORD_FROM_BROWSER)
+
+            activity?.let {fragmentActivity->
+                fragmentActivity.setResult(AppCompatActivity.RESULT_OK, intent)
+                fragmentActivity.finish()
+            }
+
+
+        }
     }
     companion object {
 
@@ -138,7 +201,6 @@ class AddGroceryListItemFragment : Fragment() {
         @JvmStatic fun newInstance(groceryListUniqueId: String?,groceryItemId:Int,groceryItemIndex:Int, action:Int,itemName:String,itemUnit:String,itemPrice:Double,quantity:Double,category: String,notes:String,itemImageName:String) =
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
-
                     putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
                     putInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG,action)
                     putString(GROCERY_LIST_ITEM_NAME_TAG,itemName)
@@ -150,7 +212,6 @@ class AddGroceryListItemFragment : Fragment() {
                     putString(GROCERY_LIST_ITEM_IMAGE_NAME_TAG,itemImageName)
                     putInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
                     putInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryItemIndex)
-
                 }
             }
     }
@@ -242,7 +303,9 @@ class AddGroceryListItemFragment : Fragment() {
         toolBar.setOnMenuItemClickListener {item->
             when (item.itemId) {
                 R.id.add_item -> {
-                    addRecord()
+
+                    checkIfItemExists()
+                    //addRecord()
                 }
                 R.id.update_item -> {
                     updateRecord()
@@ -268,81 +331,12 @@ class AddGroceryListItemFragment : Fragment() {
             if (imageUri != null) {
                 mDataBinding.groceryListViewModel?.selectedGroceryItemEntityCurrentImageUri = imageUri
                 mDataBinding.groceryListViewModel?.selectedGroceryItemEntityNewImageUri = imageUri
-                Log.e("IMAGE", "HAS IMAGE")
-            } else {
-                Log.e("IMAGE", "NO IMAGE")
-            }
 
+            }
             mDataBinding.invalidateAll()
         }
 
-        mDataBinding.browseItemImageBtn.setOnClickListener{
-
-           if(action == ADD_NEW_RECORD_ACTION){
-               val itemName = mDataBinding.itemNameTextinput.text.toString()
-               val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
-               val unit = mDataBinding.pricePerUnitTextinput.text.toString()
-               val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
-               val category =mDataBinding.itemCategoryTextinput.text.toString()
-               val note = mDataBinding.notesTextinput.text.toString()
-               val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
-               val imageName = if(path !=null) File(path).name else ""
-
-
-               val intent = Intent()
-               intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
-               intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
-               intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
-               intent.putExtra(IMAGE_TEMP_NAME,imageName)
-               intent.putExtra(ITEM_QUANTITY_TAG,quantity)
-               intent.putExtra(ITEM_CATEGORY,category)
-               intent.putExtra(ITEM_NOTES,note)
-               intent.putExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_FROM_BROWSER)
-
-               activity?.let {fragmentActivity->
-                   fragmentActivity.setResult(AppCompatActivity.RESULT_OK, intent)
-                   fragmentActivity.finish()
-               }
-           }else if(action == UPDATE_RECORD_ACTION){
-
-               val itemName = mDataBinding.itemNameTextinput.text.toString()
-               val price = if(mDataBinding.pricePerUnitTextinput.text.toString().trim().isEmpty())  0.0 else mDataBinding.pricePerUnitTextinput.text.toString().toDouble()
-               val unit = mDataBinding.pricePerUnitTextinput.text.toString()
-               val quantity: Double = mDataBinding.itemQuantityTextinput.text?.let{ quantity-> if(quantity.trim().isEmpty()) 0.0 else quantity.toString().toDouble() }?:run{0.0}
-               val category =mDataBinding.itemCategoryTextinput.text.toString()
-               val note = mDataBinding.notesTextinput.text.toString()
-               //val path = mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
-
-               val path = mGroceryListViewModel?.selectedGroceryItemEntityNewImageUri?.let {
-                        it.path
-                    }?:run{
-                        mGroceryListViewModel?.selectedGroceryItemEntityCurrentImageUri?.path
-                    }
-               val imageName = if(path !=null) File(path).name else ""
-
-
-               val intent = Intent()
-               intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
-               intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryListItemIndex)
-               intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
-               intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
-               intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
-               intent.putExtra(IMAGE_TEMP_NAME,imageName)
-               intent.putExtra(ITEM_QUANTITY_TAG,quantity)
-               intent.putExtra(ITEM_CATEGORY,category)
-               intent.putExtra(ITEM_NOTES,note)
-               intent.putExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, UPDATE_RECORD_FROM_BROWSER)
-
-               activity?.let {fragmentActivity->
-                   fragmentActivity.setResult(AppCompatActivity.RESULT_OK, intent)
-                   fragmentActivity.finish()
-               }
-
-
-           }
-
-
-        }
+        mDataBinding.browseItemImageBtn.setOnClickListener(browseItemImageBtnOnClick)
         mDataBinding.addImgBtn.setOnClickListener{
             showIntentChooser()
         }
@@ -358,13 +352,10 @@ class AddGroceryListItemFragment : Fragment() {
     }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
-
         if(requestCode == REQUEST_PICK_IMAGE){
-
             data?.data?.let{
                 launchImageCropper(it)
             }
-
             tempPhotoFileForAddingImage?.let{
                 val fileUri = Uri.fromFile(tempPhotoFileForAddingImage) as Uri
                 launchImageCropper(fileUri)
@@ -375,7 +366,6 @@ class AddGroceryListItemFragment : Fragment() {
             if(!storageDir.exists()){
                 storageDir.mkdir()
             }
-
             val itemBitmap = ImageUtil.uriToBitmap(result.uri,requireContext())
             val uri = ImageUtil.saveImage(requireContext(),itemBitmap,GroceryUtil.TEMPORARY_IMAGES_LOCATION,"$IMAGE_TEMP_NAME.$IMAGE_NAME_SUFFIX")?.let {
                 Uri.fromFile(File(it))
@@ -386,6 +376,44 @@ class AddGroceryListItemFragment : Fragment() {
 
 
         }
+    }
+    private fun checkIfItemExists(){
+        val itemName: String = mDataBinding.itemNameTextinput.text.toString().trim()
+        val unit: String = mDataBinding.unitTextinput.text.toString().trim()
+
+        if (itemName.trim().isEmpty()) {
+            val customConfirmationDialog =CustomConfirmationDialog(requireContext())
+            customConfirmationDialog.setCustomMessage("Please provide name.")
+            customConfirmationDialog.show()
+            return
+        }
+
+        CoroutineScope(Dispatchers.IO).launch {
+            val mGroceryItemEntity = mGroceryListViewModel.getGroceryItem(requireContext(),itemName,unit,GroceryItemEntityValues.ACTIVE_STATUS)
+            withContext(Main){
+                mGroceryItemEntity?.let {
+                    Toast.makeText(requireContext(),"Update",Toast.LENGTH_SHORT).show()
+
+                    val message = unit?.let {
+                        if(it.isEmpty()){
+                            "$itemName already exists."
+                        }else{
+                            "$unit of $itemName already exists."
+                        }
+                    }
+                    val customConfirmationDialog =CustomConfirmationDialog(requireContext())
+                    customConfirmationDialog.setCancelable(false)
+                    customConfirmationDialog.setCustomMessage("$message")
+                    customConfirmationDialog.createNegativeButton("Close")
+                    customConfirmationDialog.show()
+
+                }?:run{
+                    addRecord()
+                }
+            }
+        }
+
+
     }
     private fun addRecord() {
         val itemName: String = mDataBinding.itemNameTextinput.text.toString().trim()
@@ -402,7 +430,6 @@ class AddGroceryListItemFragment : Fragment() {
 
         val doubleQuantity = if(quantityString.trim().isNotEmpty()) quantityString.toDouble() else 0.0
         val doublePricePerUnit = if(pricePerUnitString.trim().isNotEmpty()) pricePerUnitString.toDouble() else 0.0
-
 
         var imageName = ""
 
@@ -444,7 +471,6 @@ class AddGroceryListItemFragment : Fragment() {
                 }
             }
         }
-
 
     }
     private fun updateRecord(){

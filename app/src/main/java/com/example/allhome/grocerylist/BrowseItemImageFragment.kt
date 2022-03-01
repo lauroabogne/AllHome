@@ -159,10 +159,11 @@ class BrowseItemImageFragment : Fragment() {
             }
             R.id.copyUnitBtn->{
                 mItemUnit = clipboardManager.primaryClip?.getItemAt(0)?.text.toString();
-
+                Toast.makeText(requireContext(),"Item unit copy successfully.",Toast.LENGTH_SHORT).show()
             }
             R.id.copyNameBtn->{
                 mItemName = clipboardManager.primaryClip?.getItemAt(0)?.text.toString()
+                Toast.makeText(requireContext(),"Item name copy successfully.",Toast.LENGTH_SHORT).show()
 
             }
             R.id.openAddItemFragmentImageBtn->{
@@ -220,7 +221,6 @@ class BrowseItemImageFragment : Fragment() {
             }
         }
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentBrowseItemImageBinding = DataBindingUtil.inflate(inflater,R.layout.fragment_browse_item_image,container,false)
         mFragmentBrowseItemImageBinding.progressBar.max = 100
@@ -261,7 +261,6 @@ class BrowseItemImageFragment : Fragment() {
 
         return mFragmentBrowseItemImageBinding.root
     }
-
     private fun saveImage(imageUrl:String){
         mProgressDialogFragment.show(requireActivity().supportFragmentManager,"ProgressDialogFragment")
         mProgressDialogFragment.isCancelable = false;
@@ -464,8 +463,9 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.webView.apply {
             settings.javaScriptEnabled = true
             //loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
+            loadUrl("https://shopwise.gorobinsons.ph/collections/canned-goods?_=pf&tag=SW%20GRAND%20TERMINAL%20BATANGAS")//metadata ERROR SAVING
 
-            loadUrl("https://www.watsons.com.ph/bundle-94ml/p/BP_50034200")//metadata ERROR SAVING
+            //loadUrl("https://www.watsons.com.ph/bundle-94ml/p/BP_50034200")//metadata ERROR SAVING
 
 
         }
