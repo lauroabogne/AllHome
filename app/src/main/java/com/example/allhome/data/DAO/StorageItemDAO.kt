@@ -119,6 +119,8 @@ interface StorageItemDAO {
      fun updateItem(name:String,quantity:Double,unit:String,category:String,stockWeight:Int,storage:String,notes:String,imageName:String,modified:String,uniqueId: String):Int
     @Query("UPDATE storage_items SET item_status=:deletedStatus,modified=:dateTimeModified WHERE unique_id=:uniqueId")
      fun updateItemAsDeleted(deletedStatus:Int,dateTimeModified:String,uniqueId: String):Int
+    @Query("UPDATE storage_items SET item_status=${StorageItemEntityValues.DELETED_STATUS},modified=:dateTimeModified WHERE storage_unique_id =:storageUniqueId  ")
+    fun updateItemsAsDeleted(dateTimeModified:String,storageUniqueId: String):Int
 
     @Query("SELECT COUNT(*) FROM storage_items WHERE item_status =:deletedStatus AND storage_unique_id =:storageUniqueId")
      fun getStorageItemCount(deletedStatus:Int,storageUniqueId:String):Int

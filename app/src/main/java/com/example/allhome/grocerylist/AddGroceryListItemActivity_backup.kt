@@ -16,7 +16,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.*
 import android.widget.AdapterView.OnItemClickListener
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
@@ -27,9 +26,6 @@ import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityAddGroceryListItemBackupBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
-import com.example.allhome.recipes.RecipesFragment
-import com.example.allhome.recipes.ViewRecipeActivity
-import com.example.allhome.recipes.ViewRecipeFragment
 import com.example.allhome.utils.ImageUtil
 import com.theartofdev.edmodo.cropper.CropImage
 import com.theartofdev.edmodo.cropper.CropImageView
@@ -50,7 +46,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
     private lateinit var mGroceryListViewModel: GroceryListViewModel
     var groceryListUniqueId: String = ""
     var action = ADD_NEW_RECORD_ACTION
-    var groceryListItemId = 0
+    var groceryListItemId = ""
     var groceryListItemIndex = -1
     var tempPhotoFileForAddingImage: File? = null
     var imageChanged = false
@@ -95,14 +91,14 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
             groceryListUniqueId = it
         }
 
-        groceryListItemId = intent.getIntExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
+        groceryListItemId = intent.getStringExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let{groceryListItemId->groceryListItemId}?:run{""}
         action = intent.getIntExtra(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_ACTION)
         groceryListItemIndex = intent.getIntExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
 
-        val initGroceryItemEntity = GroceryItemEntity("", 0, "", 0.0, "", 0.0, "",
-            "", "", 0,itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
-             datetimeCreated = "",datetimeModified = "")
+        val initGroceryItemEntity =  GroceryItemEntity(uniqueId = "",groceryListUniqueId="", sequence = 0, itemName = "", quantity = 0.0, unit = "", pricePerUnit = 0.0, category = "", notes = "", imageName = "", itemStatus = GroceryItemEntityValues.ACTIVE_STATUS,
+            datetimeCreated = "",datetimeModified = "" )
+
         val addGroceryListItemActivityViewModelFactory = GroceryListViewModelFactory(null, initGroceryItemEntity)
         mGroceryListViewModel = ViewModelProvider(this, addGroceryListItemActivityViewModelFactory).get(GroceryListViewModel::class.java)
 

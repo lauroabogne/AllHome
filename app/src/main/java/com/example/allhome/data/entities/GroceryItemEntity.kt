@@ -19,6 +19,8 @@ import java.util.*
 @Parcelize
 @Entity(tableName = "grocery_items")
  data class GroceryItemEntity constructor (
+    @PrimaryKey(autoGenerate = false)
+    @ColumnInfo(name= "unique_id") var uniqueId:String  = "",
     @ColumnInfo(name = "grocery_list_unique_id") var groceryListUniqueId:String,
     @ColumnInfo(name = "sequence") val sequence:Int = 0,
     @ColumnInfo(name = "item_name") var itemName:String = "",
@@ -33,7 +35,6 @@ import java.util.*
     @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String = "",
     @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String = ""
      ):Parcelable{
-    @PrimaryKey(autoGenerate = true) var id:Int  = 0
     @Ignore
     var index:Int = 0
     @Ignore

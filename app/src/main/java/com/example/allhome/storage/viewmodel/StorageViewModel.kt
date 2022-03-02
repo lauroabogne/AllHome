@@ -480,6 +480,11 @@ class StorageViewModel: ViewModel() {
        return AllHomeDatabase.getDatabase(context).getStorageDAO().updateStorageAsDeleted(storageUniqueId,currentDateTime,StorageEntityValues.DELETED_STATUS)
 
     }
+    suspend fun updateStorageItemAsDeleted(context:Context,storageUniqueId:String,currentDateTime:String):Int{
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemsAsDeleted(currentDateTime,storageUniqueId)
+
+    }
     suspend fun getStorageWithItem(context: Context,itemName:String,unit:String):List<StorageEntityWithStorageItemInformation>{
         return AllHomeDatabase.getDatabase(context).getStorageDAO().getStoragesWithItem(itemName,unit)
 

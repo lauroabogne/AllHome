@@ -1476,6 +1476,9 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
             val index = mStorageViewModel.storageEntitiesWithExtraInformation.indexOf(storageEntityWithExtraInformation)
             mStorageViewModel.updateStorageAsDeleted(requireContext(), storageEntity.uniqueId, currentDatetime)
+            mStorageViewModel.updateStorageItemAsDeleted(requireContext(), storageEntity.uniqueId,currentDatetime)
+
+
             mStorageViewModel.storageEntitiesWithExtraInformation.removeAt(index)
 
             withContext(Main){
@@ -1845,6 +1848,7 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
         fun setMoreActionImageBtnClickListener(){
             storageItemLayoutBinding.moreActionImageBtn.setOnClickListener {
                 val storageItemWithExpirationsAndStorages = mStorageEntitiesWithExpirationsAndStorages[adapterPosition]
+
                 val storage = storageItemWithExpirationsAndStorages.storages[0].storageEntity
                 val storageItemName = storageItemWithExpirationsAndStorages.storageItemEntity.name
                 val storageItemUnit = storageItemWithExpirationsAndStorages.storageItemEntity.unit

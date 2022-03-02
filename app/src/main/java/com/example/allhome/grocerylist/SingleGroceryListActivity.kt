@@ -18,7 +18,6 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -34,9 +33,7 @@ import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFac
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
-import java.io.File
 import java.util.*
-import kotlin.collections.HashSet
 
 
 class SingleGroceryListActivity : AppCompatActivity() {
@@ -67,7 +64,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
         activityResult.data?.let {
             if(it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_UPDATED_ITEM_TAG,-1) == AddGroceryListItemFragment.UPDATED_ITEM){
-                val updatedGroceryListId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+                val updatedGroceryListId = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { updatedGroceryListId->updatedGroceryListId }?:run{""}
                 val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
                 manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
 
@@ -170,7 +167,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
                 }else{
 
                     Log.e("TEST_HERE","TEST 2")
-                    val updatedGroceryListId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
+                    val updatedGroceryListId = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { updatedGroceryListId->updatedGroceryListId }?:run{""}
                     val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
                     manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
@@ -487,7 +484,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
             }
         }
     }
-    private fun manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId:Int,oldItemIndex:Int){
+    private fun manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId:String,oldItemIndex:Int){
         /*val updatedGroceryListId = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, -1)
         val oldItemIndex = data?.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)*/
 
@@ -497,7 +494,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
             withContext(Main) {
 
-                val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.toBuyGroceryItems.find { it.id == updatedGroceryListId }!!
+                val groceryItemEntity:GroceryItemEntity = mGroceryListViewModel.toBuyGroceryItems.find { it.uniqueId == updatedGroceryListId }!!
 
                 var itemNewIndex = 0
 
