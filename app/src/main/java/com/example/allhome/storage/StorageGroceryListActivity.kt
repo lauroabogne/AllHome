@@ -1,9 +1,10 @@
 package com.example.allhome.storage
 
 import android.content.Context
+import android.graphics.Bitmap
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.MenuItem
 import android.view.View
@@ -23,12 +24,19 @@ import com.example.allhome.data.entities.*
 import com.example.allhome.databinding.ActivityStorageGroceryListBinding
 import com.example.allhome.databinding.StorageGroceryListLayoutBinding
 import com.example.allhome.global_ui.CustomConfirmationDialog
+import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.viewmodel.StorageViewModel
+import com.example.allhome.utils.ImageUtil
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 import java.lang.Exception
+import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.collections.ArrayList
@@ -41,7 +49,6 @@ class StorageGroceryListActivity : AppCompatActivity() {
     var mAction = ADD_SINGLE_PRODUCT_ACTION
     lateinit var mStorageName:String
     lateinit var mStorageEntity:StorageEntity
-
 
     companion object{
         const val ACTION_TAG = "ACTION_TAG"
@@ -66,11 +73,8 @@ class StorageGroceryListActivity : AppCompatActivity() {
             Toast.makeText(this,"Storage is require",Toast.LENGTH_SHORT).show()
             finish()
         }
-
         intent.getIntExtra(ACTION_TAG, ADD_SINGLE_PRODUCT_ACTION).let { action->
-
             if(action == ADD_SINGLE_PRODUCT_ACTION){
-
                 mAction = action
                 val itemName = intent.getStringExtra(ITEM_NAME_TAG)
                 val itemUnit =  intent.getStringExtra(ITEM_UNIT_TAG)
@@ -85,7 +89,6 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 }
             }
             if(action == ADD_MULTIPLE_PRODUCT_ACTION){
-
                 mAction = action
                 mStorageName = intent.getStringExtra(STORAGE_NAME_TAG)!!
                 mStorageViewModel.addMultipleGroceryItemEntityCondition = intent.getIntegerArrayListExtra(ADD_MULTIPLE_PRODUCT_CONDITION_TAG)!!
@@ -100,7 +103,6 @@ class StorageGroceryListActivity : AppCompatActivity() {
 
         val pantryStorageRecyclerviewViewAdapater = StorageGroceryListRecyclerviewViewAdapater(this)
         mActivityCreateStorageBinding.storageGroceryListRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
-
         mStorageViewModel.coroutineScope.launch {
             mStorageViewModel.getGroceryLists(this@StorageGroceryListActivity)
             val storageGroceryListRecyclerviewViewAdapater= mActivityCreateStorageBinding.storageGroceryListRecyclerview.adapter as StorageGroceryListRecyclerviewViewAdapater
@@ -109,10 +111,8 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 storageGroceryListRecyclerviewViewAdapater.notifyDataSetChanged()
             }
         }
-
         mActivityCreateStorageBinding.fab.setOnClickListener{
             showGroceryListNameInput()
-
         }
 
     }
@@ -167,34 +167,60 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 finish()
             }
         }
-
         return super.onOptionsItemSelected(item)
     }
 
+
+    private fun copyStoreItemImageToGroceryItemImage(storeItemItemImageName:String, groceryItemName:String, groceryItemUniqueId:String): String? {
+
+        if(storeItemItemImageName == null || storeItemItemImageName.isEmpty()){
+            return null
+        }
+        val storageItemImageDir: File? = getExternalFilesDir(ImageUtil.STORAGE_ITEM_IMAGES_FINAL_LOCATION)
+        if(storageItemImageDir?.exists() == true){
+            val fileToCopy  = File(storageItemImageDir, storeItemItemImageName)
+            if(fileToCopy.exists()){
+
+                val destinationGroceryItemImageDir: File = getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                if(!destinationGroceryItemImageDir.exists()){
+                    destinationGroceryItemImageDir.mkdir()
+                }
+
+                val finalFile  = File(destinationGroceryItemImageDir, groceryItemUniqueId.plus(groceryItemName))
+
+                var source: FileChannel? = FileInputStream(fileToCopy).channel
+                var destination: FileChannel? =  FileOutputStream(finalFile).channel
+
+                if (destination != null && source != null) {
+                    destination.transferFrom(source, 0, source.size())
+                }
+                source?.close()
+                destination?.close()
+
+                return finalFile.name
+
+            }
+        }
+        return null
+
+    }
+
+
     class StorageGroceryListRecyclerviewViewAdapater(val storageGroceryListActivity:StorageGroceryListActivity): RecyclerView.Adapter<StorageGroceryListRecyclerviewViewAdapater.ItemViewHolder>() {
-
         var mGroceryListWithItemCount: List<GroceryListWithItemCount> = arrayListOf()
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val storageGroceryListLayoutBinding = StorageGroceryListLayoutBinding.inflate(layoutInflater,parent,false)
             val itemViewHolder = ItemViewHolder(storageGroceryListLayoutBinding)
             return itemViewHolder
         }
-
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val groceryListWithItemCount = mGroceryListWithItemCount[position]
             holder.storageGroceryListLayoutBinding.groceryListWithCount = groceryListWithItemCount
             holder.storageGroceryListLayoutBinding.executePendingBindings()
         }
-
         override fun getItemCount(): Int {
             return mGroceryListWithItemCount.size
-        }
-        fun test(){
-
-            val a = ""
-
         }
         inner class  ItemViewHolder(var storageGroceryListLayoutBinding:StorageGroceryListLayoutBinding): RecyclerView.ViewHolder(storageGroceryListLayoutBinding.root){
 
@@ -215,8 +241,6 @@ class StorageGroceryListActivity : AppCompatActivity() {
                             val groceryListAutoGeneratedId = groceryListEntity.autoGeneratedUniqueId
 
                             if(storageGroceryListActivity.mAction == ADD_SINGLE_PRODUCT_ACTION){
-
-                                val itemUniquedId = storageGroceryListActivity.mStorageViewModel.newGroceryItemEntity!!.groceryListUniqueId
                                 val itemName = storageGroceryListActivity.mStorageViewModel.newGroceryItemEntity!!.itemName
                                 val itemUnit = storageGroceryListActivity.mStorageViewModel.newGroceryItemEntity!!.unit
                                 val itemImageName = storageGroceryListActivity.mStorageViewModel.newGroceryItemEntity!!.imageName
@@ -226,16 +250,24 @@ class StorageGroceryListActivity : AppCompatActivity() {
                                     var id:Long = 0
 
                                     if(groceryItemEntity == null){
+
+                                        val autoGeneratedUniqueID = UUID.randomUUID().toString()
                                         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                                         val currentDatetime: String = simpleDateFormat.format(Date())
                                         val newGroceryItemEntity = storageGroceryListActivity.mStorageViewModel.newGroceryItemEntity as GroceryItemEntity
+                                        val latestPrice = storageGroceryListActivity.mStorageViewModel.getLatestPrice(storageGroceryListActivity,itemName,itemUnit)
+
+
+                                        val groceryListItemImageName = storageGroceryListActivity.copyStoreItemImageToGroceryItemImage(itemImageName, itemName, autoGeneratedUniqueID)?.let { imageName->imageName }?:run{""}
+                                        newGroceryItemEntity.uniqueId = autoGeneratedUniqueID
                                         newGroceryItemEntity.quantity = 1.0
+                                        newGroceryItemEntity.imageName = groceryListItemImageName
                                         newGroceryItemEntity.groceryListUniqueId = groceryListAutoGeneratedId
                                         newGroceryItemEntity.datetimeCreated = currentDatetime
                                         newGroceryItemEntity.datetimeModified  = currentDatetime
+                                        newGroceryItemEntity.pricePerUnit = latestPrice
                                         id = storageGroceryListActivity.mStorageViewModel.addGroceryListItem(storageGroceryListActivity,newGroceryItemEntity)
                                     }
-
 
                                     withContext(Main){
                                         if(id > 0 || groceryItemEntity !=null){
@@ -245,21 +277,17 @@ class StorageGroceryListActivity : AppCompatActivity() {
                                             Toast.makeText(storageGroceryListActivity,"Item failed to add. Please try again.",Toast.LENGTH_SHORT).show()
                                         }
                                     }
-
                                 }
                             }else{
                                 val containExpirationCondition = storageGroceryListActivity.mStorageViewModel.addMultipleGroceryItemEntityCondition.contains(StorageItemEntityValues.EXPIRED)
                                 val addMultipleGroceryItemEntityConditionCount = storageGroceryListActivity.mStorageViewModel.addMultipleGroceryItemEntityCondition.size
                                 if(containExpirationCondition && addMultipleGroceryItemEntityConditionCount == 1){
-
                                     addStorageItemToGroceryListThatExpired(groceryListAutoGeneratedId)
-
                                 }else if(containExpirationCondition && addMultipleGroceryItemEntityConditionCount > 1){
                                     addStorageItemToGroceryListThatExpiredAndWithOtherCondition(groceryListAutoGeneratedId)
+                                }else{
+                                    addStorageItemToGroceryListWithStockWeights(groceryListAutoGeneratedId)
                                 }
-
-
-
                             }
                         }
                     })
@@ -280,17 +308,27 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 try{
                     allHomeDatabase.withTransaction {
 
-                        val expiredItems:List<StorageItemDAO.SimpleGroceryLisItem> = storageGroceryListActivity.mStorageViewModel.getExpiredItemByStorage(storageGroceryListActivity,storageGroceryListActivity.mStorageName,currentDatetime)
+                        val expiredItems:List<StorageItemDAO.SimpleGroceryLisItem> = storageGroceryListActivity.mStorageViewModel.getExpiredItemByStorage(storageGroceryListActivity,storageGroceryListActivity.mStorageEntity.uniqueId,currentDatetime)
                         expiredItems.forEach { simpleGroceryLisItem->
 
                             val groceryItemEntity:GroceryItemEntity? = storageGroceryListActivity.mStorageViewModel.getSingleGroceryItemEntity(storageGroceryListActivity,groceryListAutoGeneratedId,simpleGroceryLisItem.itemName,simpleGroceryLisItem.unit)
                             groceryItemEntity?: kotlin.run {
                                 // if null the execute
+                                val autoGeneratedUniqueID = UUID.randomUUID().toString()
+                                val itemName = simpleGroceryLisItem.itemName
+                                val itemUnit = simpleGroceryLisItem.unit
+                                val itemImageName = simpleGroceryLisItem.imageName
+                                val latestPrice = storageGroceryListActivity.mStorageViewModel.getLatestPrice(storageGroceryListActivity,itemName,itemUnit)
+
+                                val groceryListItemImageName = storageGroceryListActivity.copyStoreItemImageToGroceryItemImage(itemImageName, itemName, autoGeneratedUniqueID)?.let { imageName->imageName }?:run{""}
                                 val newGroceryItemEntity = GroceryItemEntity(
                                     groceryListUniqueId = groceryListAutoGeneratedId,
-                                    itemName = simpleGroceryLisItem.itemName,
-                                    unit = simpleGroceryLisItem.unit,
+                                    uniqueId = autoGeneratedUniqueID,
+                                    itemName = itemName,
+                                    imageName = groceryListItemImageName,
+                                    unit = itemUnit,
                                     quantity = 1.0,
+                                    pricePerUnit =latestPrice,
                                     datetimeCreated = currentDatetime,
                                     datetimeModified = currentDatetime
                                 )
@@ -319,8 +357,73 @@ class StorageGroceryListActivity : AppCompatActivity() {
         }
 
         fun addStorageItemToGroceryListThatExpiredAndWithOtherCondition(groceryListAutoGeneratedId:String){
-            Toast.makeText(storageGroceryListActivity,"Test",Toast.LENGTH_SHORT).show()
+
             val stockWeights:ArrayList<Int> = ArrayList(storageGroceryListActivity.mStorageViewModel.addMultipleGroceryItemEntityCondition)
+
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime: String = simpleDateFormat.format(Date())
+            storageGroceryListActivity.mStorageViewModel.coroutineScope.launch {
+
+                var allInserted = true
+                val allHomeDatabase = AllHomeDatabase.getDatabase(storageGroceryListActivity)
+
+                try{
+                    allHomeDatabase.withTransaction {
+
+                        val stockWeights:ArrayList<Int> = ArrayList(storageGroceryListActivity.mStorageViewModel.addMultipleGroceryItemEntityCondition)
+
+
+                        val expiredItems:List<StorageItemDAO.SimpleGroceryLisItem> = storageGroceryListActivity.mStorageViewModel.getExpiredItemsWithStockWeight(storageGroceryListActivity,storageGroceryListActivity.mStorageEntity.uniqueId,currentDatetime,stockWeights)
+
+                         expiredItems.forEach { simpleGroceryLisItem->
+                            val groceryItemEntity:GroceryItemEntity? = storageGroceryListActivity.mStorageViewModel.getSingleGroceryItemEntity(storageGroceryListActivity,groceryListAutoGeneratedId,simpleGroceryLisItem.itemName,simpleGroceryLisItem.unit)
+                            groceryItemEntity?: kotlin.run {
+                                // if null the execute
+
+                                val autoGeneratedUniqueID = UUID.randomUUID().toString()
+                                val itemName = simpleGroceryLisItem.itemName
+                                val itemUnit = simpleGroceryLisItem.unit
+                                val itemImageName = simpleGroceryLisItem.imageName
+                                val latestPrice = storageGroceryListActivity.mStorageViewModel.getLatestPrice(storageGroceryListActivity,itemName,itemUnit)
+
+                                val groceryListItemImageName = storageGroceryListActivity.copyStoreItemImageToGroceryItemImage(itemImageName, itemName, autoGeneratedUniqueID)?.let { imageName->imageName }?:run{""}
+
+                                val newGroceryItemEntity = GroceryItemEntity(
+                                    uniqueId = autoGeneratedUniqueID,
+                                    groceryListUniqueId = groceryListAutoGeneratedId,
+                                    itemName = itemName,
+                                    unit = itemUnit,
+                                    imageName = groceryListItemImageName,
+                                    quantity = 1.0,
+                                    pricePerUnit=latestPrice,
+                                    datetimeCreated = currentDatetime,
+                                    datetimeModified = currentDatetime
+                                )
+
+                                val id = storageGroceryListActivity.mStorageViewModel.addGroceryListItem(storageGroceryListActivity,newGroceryItemEntity)
+                                if(id <= 0){
+                                    throw Exception("Failed to add item in grocery list")
+                                }
+                            }
+                        }
+                    }
+                }catch (ex: Exception){
+
+                    allInserted = false
+                }
+
+                withContext(Main){
+                    if(allInserted){
+                        Toast.makeText(storageGroceryListActivity,"Item added successfully",Toast.LENGTH_SHORT).show()
+                        storageGroceryListActivity.finish()
+                    }else{
+                        Toast.makeText(storageGroceryListActivity,"Item failed to add. Please try again.",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+
+        fun addStorageItemToGroceryListWithStockWeights(groceryListAutoGeneratedId:String){
 
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
@@ -334,19 +437,27 @@ class StorageGroceryListActivity : AppCompatActivity() {
 
 
                         val stockWeights:ArrayList<Int> = ArrayList(storageGroceryListActivity.mStorageViewModel.addMultipleGroceryItemEntityCondition)
-
-
-                        val expiredItems:List<StorageItemDAO.SimpleGroceryLisItem> = storageGroceryListActivity.mStorageViewModel.getExpiredItemsWithStockWeight(storageGroceryListActivity,storageGroceryListActivity.mStorageEntity.uniqueId,currentDatetime,stockWeights)
-
-                         expiredItems.forEach { simpleGroceryLisItem->
+                        val expiredItems:List<StorageItemDAO.SimpleGroceryLisItem> = storageGroceryListActivity.mStorageViewModel.getItemsWithStockWeight(storageGroceryListActivity,storageGroceryListActivity.mStorageEntity.uniqueId,stockWeights)
+                        expiredItems.forEach { simpleGroceryLisItem->
                             val groceryItemEntity:GroceryItemEntity? = storageGroceryListActivity.mStorageViewModel.getSingleGroceryItemEntity(storageGroceryListActivity,groceryListAutoGeneratedId,simpleGroceryLisItem.itemName,simpleGroceryLisItem.unit)
                             groceryItemEntity?: kotlin.run {
                                 // if null the execute
+
+                                val autoGeneratedUniqueID = UUID.randomUUID().toString()
+                                val itemName = simpleGroceryLisItem.itemName
+                                val itemUnit = simpleGroceryLisItem.unit
+                                val itemImageName = simpleGroceryLisItem.imageName
+                                val latestPrice = storageGroceryListActivity.mStorageViewModel.getLatestPrice(storageGroceryListActivity,itemName,itemUnit)
+                                val groceryListItemImageName = storageGroceryListActivity.copyStoreItemImageToGroceryItemImage(itemImageName, itemName, autoGeneratedUniqueID)?.let { imageName->imageName }?:run{""}
+
                                 val newGroceryItemEntity = GroceryItemEntity(
+                                    uniqueId = autoGeneratedUniqueID,
                                     groceryListUniqueId = groceryListAutoGeneratedId,
-                                    itemName = simpleGroceryLisItem.itemName,
-                                    unit = simpleGroceryLisItem.unit,
+                                    itemName = itemName,
+                                    unit = itemUnit,
+                                    imageName = groceryListItemImageName,
                                     quantity = 1.0,
+                                    pricePerUnit = latestPrice,
                                     datetimeCreated = currentDatetime,
                                     datetimeModified = currentDatetime
                                 )

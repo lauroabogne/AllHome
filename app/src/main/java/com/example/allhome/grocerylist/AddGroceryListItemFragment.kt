@@ -169,12 +169,12 @@ class AddGroceryListItemFragment : Fragment() {
 
         const val GROCERY_LIST_ITEM_IMAGE_NAME_TAG = "image_path"
 
-        @JvmStatic fun newInstance(groceryListUniqueId: String?, groceryListItemId: Int,action:Int,groceryListItemIndex:Int) =
+        @JvmStatic fun newInstance(groceryListUniqueId: String?, groceryListItemId: String?,action:Int,groceryListItemIndex:Int) =
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
                     Log.e("THE_ACTION","${action} ${groceryListItemId}")
                     putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
-                    putInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
+                    putString(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
                     putInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG,action)
                     putInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryListItemIndex)
                 }
@@ -223,7 +223,7 @@ class AddGroceryListItemFragment : Fragment() {
         arguments?.let {
             action = it.getInt(GROCERY_LIST_ACTION_EXTRA_DATA_TAG, ADD_NEW_RECORD_ACTION)
 
-            groceryListItemId = it.getString(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG).let { groceryListItemId->groceryListItemId }?:run{UUID.randomUUID().toString()}
+            groceryListItemId = it.getString(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { groceryListItemId->groceryListItemId }?:run{UUID.randomUUID().toString()}
             groceryListItemIndex = it.getInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
             it.getString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {groceryListUniqueIdParam->
@@ -388,7 +388,7 @@ class AddGroceryListItemFragment : Fragment() {
         }
 
         CoroutineScope(Dispatchers.IO).launch {
-            val mGroceryItemEntity = mGroceryListViewModel.getGroceryItem(requireContext(),itemName,unit,GroceryItemEntityValues.ACTIVE_STATUS)
+            val mGroceryItemEntity = mGroceryListViewModel.getGroceryItem(requireContext(),groceryListUniqueId,itemName,unit,GroceryItemEntityValues.ACTIVE_STATUS)
             withContext(Main){
                 mGroceryItemEntity?.let {
                     Toast.makeText(requireContext(),"Update",Toast.LENGTH_SHORT).show()

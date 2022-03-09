@@ -149,7 +149,7 @@ interface StorageItemDAO {
             " AND DATE(storage_item_expirations.expiration_date) <=DATE(:currentDate) "+
             " ORDER BY storage_item_expirations.expiration_date ASC")
      fun getItemCountThatExpired(storageUniqueId:String,currentDate:String):Int
-    @Query("SELECT name as itemName,unit FROM storage_items " +
+    @Query("SELECT name as itemName,unit, image_name as imageName FROM storage_items " +
             " WHERE storage_items.storage_unique_id = :storageUniqueId" +
             " AND item_status = 0 "+
             " AND storage_items.unique_id " +
@@ -177,7 +177,7 @@ interface StorageItemDAO {
             "  ORDER BY name")
      fun getStorageItemFilterByExpiredItems(itemNameSearchTerm:String,storageUniqueId:String,currentDate:String):List<StorageItemEntity>
 
-    @Query("SELECT name as itemName,unit FROM storage_items" +
+    @Query("SELECT name as itemName, unit, image_name as imageName FROM storage_items" +
             " WHERE " +
             "(stock_weight IN (:stockWeight) AND storage_items.storage_unique_id = :storageUniqueId AND item_status= 0)"+
             " OR " +
@@ -193,6 +193,11 @@ interface StorageItemDAO {
             "))" +
             "  ORDER BY name")
      fun getExpiredItemsWithStockWeight(stockWeight:List<Int>,storageUniqueId:String,currentDate:String):List<SimpleGroceryLisItem>
+    @Query("SELECT name as itemName, unit, image_name as imageName FROM storage_items" +
+            " WHERE " +
+            " ( stock_weight IN (:stockWeight) AND storage_items.storage_unique_id = :storageUniqueId AND item_status= 0) "+
+            "  ORDER BY name")
+    fun getItemsWithStockWeight(stockWeight:List<Int>,storageUniqueId:String):List<SimpleGroceryLisItem>
     @Query("SELECT storage_unique_id, unique_id,name,unit,stock_weight,category,storage,notes,image_name,item_status,created,modified," +
             "  SUM(CASE" +
             "       WHEN quantity < 0 THEN 0 ELSE quantity " +
@@ -240,7 +245,7 @@ interface StorageItemDAO {
             " GROUP BY category ORDER BY category ")
      fun getStorageAndGroceryItemCategoryForAutousuggest(categorySearchTerm:String):List<String>
 
-    data class SimpleGroceryLisItem(val itemName:String,val unit:String)
+    data class SimpleGroceryLisItem(val itemName:String,val unit:String,val imageName:String)
 
 
 }

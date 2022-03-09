@@ -54,8 +54,8 @@ class AddGroceryListItemActivity : AppCompatActivity() {
         if(action == AddGroceryListItemFragment.ADD_NEW_RECORD_ACTION || action == AddGroceryListItemFragment.UPDATE_RECORD_ACTION){
 
             val groceryListUniqueId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)
-            val groceryListItemId = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, 0)
-            val groceryListItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
+            val groceryListItemId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)
+           val groceryListItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
             val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance(groceryListUniqueId,groceryListItemId,action,groceryListItemIndex)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.recipeFragmentContainer,addGroceryListItemFragment)
