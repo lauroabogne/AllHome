@@ -10,7 +10,6 @@ import androidx.databinding.ViewDataBinding
 import androidx.fragment.app.Fragment
 import com.example.allhome.R
 import com.example.allhome.bill.BillCustomDateRangeDialogFragment
-import com.example.allhome.databinding.ActivityAddGroceryListItemBinding
 import com.example.allhome.databinding.ExpensesItemSummaryActivityBinding
 import com.google.android.material.tabs.TabLayout
 import java.text.SimpleDateFormat

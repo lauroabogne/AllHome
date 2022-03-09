@@ -50,7 +50,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
 
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
 
-        intent.getStringExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
+        intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
         mGroceryListInformationActivityViewModel = ViewModelProvider(this).get(GroceryListInformationActivityViewModel::class.java)
@@ -132,7 +132,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
             }
             R.id.go_shopping_menu -> {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
-                intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
                 this.startActivity(intent)
                 this.finish()
             }

@@ -10,6 +10,7 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.example.allhome.grocerylist.AddGroceryListItemActivity
+import com.example.allhome.grocerylist.AddGroceryListItemFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 
 class GroceryListNotificationReceiver : BroadcastReceiver() {
@@ -34,7 +35,7 @@ class GroceryListNotificationReceiver : BroadcastReceiver() {
                 //flags = Intent.FLAG_ACTIVITY_NEW_TASK
                 action = GROCERY_NOTIFICATION_ACTION
                 flags = Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP
-                putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueid)
+                putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueid)
             }
             /*groceryIntent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueid)
             groceryIntent.putExtra(SingleGroceryListActivity.LAUNCH_FROM_TAG,SingleGroceryListActivity.LAUNCH_FROM_NOTIFICATION)*/

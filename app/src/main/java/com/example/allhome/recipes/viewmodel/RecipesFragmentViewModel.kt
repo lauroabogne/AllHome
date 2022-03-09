@@ -116,7 +116,7 @@ class RecipesFragmentViewModel : ViewModel() {
         AllHomeDatabase.getDatabase(context).groceryItemDAO().insert(groceryItemEntity)
     }
 
-    suspend fun updateItemQuantityDatetimeModified(context: Context, id: Int, datetimeModified: String): Int {
+    suspend fun updateItemQuantityDatetimeModified(context: Context, id: String, datetimeModified: String): Int {
         return AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItemQuantityDatetimeModified(id, datetimeModified)
 
     }

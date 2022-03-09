@@ -9,6 +9,7 @@ import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
+import android.util.Log
 import com.example.allhome.grocerylist.GroceryUtil
 import java.io.File
 import java.io.FileOutputStream
@@ -27,6 +28,19 @@ class ImageUtil {
         const val IMAGE_TEMP_NAME = "temp_image"
         const val IMAGE_NAME_SUFFIX = "jpg"
 
+         fun getProportionImageSize(targetMaxWidthOrHeight: Int, imageWidth:Int,imageHeight:Int): Map<String, Int> {
+            if(imageWidth < targetMaxWidthOrHeight && imageHeight < targetMaxWidthOrHeight){
+                return mapOf("width" to imageWidth,"height" to imageHeight)
+            }
+            if(imageWidth > imageHeight){
+                val height = (imageHeight * targetMaxWidthOrHeight) / imageWidth
+                return mapOf("width" to targetMaxWidthOrHeight,"height" to height)
+            }else{
+                val width = (imageWidth * targetMaxWidthOrHeight) / imageHeight
+                return mapOf("width" to width,"height" to targetMaxWidthOrHeight)
+            }
+
+        }
         fun resizeImage(bitmap: Bitmap, targetMaxWidthOrHeight: Int): Bitmap {
 
             val height = bitmap.height
@@ -182,7 +196,9 @@ class ImageUtil {
             }
             return savedImagePath
         }
-
+        fun doImageExist(imagePath:String): Boolean {
+            return File(imagePath).exists()
+        }
     }
 
 }

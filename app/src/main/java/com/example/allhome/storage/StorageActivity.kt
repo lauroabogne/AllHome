@@ -1091,11 +1091,8 @@ interface OnItemRemovedListener{
 
         val storageItemWithExpirations = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion]
         val storageItemEntity =storageItemWithExpirations.storageItemEntity
-
         when(item?.itemId){
-
             R.id.pantryItemEditMenu -> {
-
                 val pantryItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion].storageItemEntity
 
                 val addPantryItemActivity = Intent(context, StorageAddItemActivity::class.java)
@@ -1168,7 +1165,6 @@ interface OnItemRemovedListener{
 
             }
             R.id.pantryAddToGroceryListMenu -> {
-
                 val storageGroceryListActivity = Intent(context, StorageGroceryListActivity::class.java)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ACTION_TAG, StorageGroceryListActivity.ADD_SINGLE_PRODUCT_ACTION)
                 storageGroceryListActivity.putExtra(StorageGroceryListActivity.ITEM_NAME_TAG, storageItemEntity.name)

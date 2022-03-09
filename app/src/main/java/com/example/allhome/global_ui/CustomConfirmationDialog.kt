@@ -21,15 +21,10 @@ class CustomConfirmationDialog(context: Context) : AlertDialog.Builder(context) 
     private var mOnClickListener: View.OnClickListener? = null
     lateinit var mAlertDialog: AlertDialog
 
-    init {
-
-        //mMessageTextView = LayoutInflater.from(context).inflate(R.layout.confirmation_textview, null, false) as TextView
-       // this.setView(mMessageTextView)
-    }
 
     fun setCustomMessage(message:String){
         setMessage(message)
-       // mMessageTextView.setText(message)
+
     }
     fun setButtonClickListener(onClickListener: View.OnClickListener) {
         mOnClickListener = onClickListener

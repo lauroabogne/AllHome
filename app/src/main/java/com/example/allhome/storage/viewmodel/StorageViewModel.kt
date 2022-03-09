@@ -439,6 +439,10 @@ class StorageViewModel: ViewModel() {
         return AllHomeDatabase.getDatabase(context).groceryItemDAO().getItemByGroceryListUniqueIdNameAndUnit(groceryListUniqueId,itemName,unit)
 
     }
+    suspend fun getLatestPrice(context:Context,itemName:String,unit:String):Double{
+        return AllHomeDatabase.getDatabase(context).groceryItemDAO().getLatestPrice(itemName,unit)
+    }
+
     suspend fun addGroceryListItem(context:Context,groceryItemEntity:GroceryItemEntity):Long{
         return AllHomeDatabase.getDatabase(context).groceryItemDAO().insert(groceryItemEntity)
     }
@@ -448,6 +452,12 @@ class StorageViewModel: ViewModel() {
     suspend fun getExpiredItemsWithStockWeight(context:Context,storageUniqueId:String,currentDate:String,stockWeight:List<Int>): List<StorageItemDAO.SimpleGroceryLisItem> {
 
         return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getExpiredItemsWithStockWeight(stockWeight,storageUniqueId,currentDate)
+
+    }
+
+    suspend fun getItemsWithStockWeight(context:Context,storageUniqueId:String,stockWeight:List<Int>): List<StorageItemDAO.SimpleGroceryLisItem> {
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().getItemsWithStockWeight(stockWeight,storageUniqueId)
 
     }
     suspend fun getItemByNameAndUnitAndStorage(context:Context, name:String, unit:String, storage:String):StorageItemEntity?{
@@ -478,6 +488,11 @@ class StorageViewModel: ViewModel() {
     }
     suspend fun updateStorageAsDeleted(context:Context,storageUniqueId:String,currentDateTime:String):Int{
        return AllHomeDatabase.getDatabase(context).getStorageDAO().updateStorageAsDeleted(storageUniqueId,currentDateTime,StorageEntityValues.DELETED_STATUS)
+
+    }
+    suspend fun updateStorageItemAsDeleted(context:Context,storageUniqueId:String,currentDateTime:String):Int{
+
+        return AllHomeDatabase.getDatabase(context).getStorageItemDAO().updateItemsAsDeleted(currentDateTime,storageUniqueId)
 
     }
     suspend fun getStorageWithItem(context: Context,itemName:String,unit:String):List<StorageEntityWithStorageItemInformation>{

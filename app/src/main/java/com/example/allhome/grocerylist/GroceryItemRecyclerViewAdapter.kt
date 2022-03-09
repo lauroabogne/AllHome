@@ -4,8 +4,8 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.view.*
+import android.widget.CheckBox
 import android.widget.CompoundButton
-import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
 
-class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<GroceryItemRecyclerViewAdapter.ItemViewHolder>() {
+class GroceryItemRecyclerViewAdapter(private val contextParams: Context, private val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<GroceryItemRecyclerViewAdapter.ItemViewHolder>() {
 
     var mGroceryItems: List<GroceryItemEntity> = arrayListOf()
     var mTouchHelper: ItemTouchHelper? = null
@@ -54,13 +54,11 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
     fun itemDroped() {
 
-
         /*val attrs = intArrayOf(R.attr.selectableItemBackground)
         val typedArray = context!!.obtainStyledAttributes(attrs)
         val backgroundResource = typedArray.getResourceId(0, 0)
         mSelectedView.setBackgroundResource(backgroundResource)
         typedArray.recycle()*/
-
 
     }
 
@@ -102,11 +100,10 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
 
     inner class ItemViewHolder(groceryListItemBindingParams: GroceryListProductBinding,productImageClickListenerParams:View.OnClickListener) : RecyclerView.ViewHolder(groceryListItemBindingParams.root), View.OnClickListener, CompoundButton.OnCheckedChangeListener {
-        var groceryListItemBinding: GroceryListProductBinding
-        var productImageClickListener:View.OnClickListener
+        var groceryListItemBinding: GroceryListProductBinding = groceryListItemBindingParams
+        var productImageClickListener:View.OnClickListener = productImageClickListenerParams
+
         init {
-            productImageClickListener = productImageClickListenerParams
-            groceryListItemBinding = groceryListItemBindingParams
             groceryListItemBinding.groceryItemNameTextview.setOnClickListener(this)
             groceryListItemBinding.otherInformationTextview.setOnClickListener(this)
             groceryListItemBinding.checkBox.setOnCheckedChangeListener(this)
@@ -123,28 +120,25 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                     // do nothing
                     val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
                     popupMenu.menuInflater.inflate(R.menu.add_to_storage_menu, popupMenu.menu)
-                    popupMenu.setOnMenuItemClickListener(object: PopupMenu.OnMenuItemClickListener{
-                        override fun onMenuItemClick(item: MenuItem?): Boolean {
-                            popupMenu.dismiss()
+                    popupMenu.setOnMenuItemClickListener { item ->
+                        popupMenu.dismiss()
 
-                            when (item!!.itemId) {
-                                R.id.addToStorageMenu->{
-                                    val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
-                                    storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION)
-                                    storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ITEM_ENTITY_TAG, groceryItemEntity)
-                                    context.startActivity(storageStorageListActiviy)
-                                }
+                        when (item!!.itemId) {
+                            R.id.addToStorageMenu -> {
+                                val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
+                                storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG, StorageFragment.STORAGE_ADD_ITEM_FROM_GROCERY_LIST_ACTION)
+                                storageStorageListActiviy.putExtra(StorageFragment.GROCERY_ITEM_ENTITY_TAG, groceryItemEntity)
+                                context.startActivity(storageStorageListActiviy)
                             }
-                           return true
                         }
-
-                    })
+                        true
+                    }
                     popupMenu.show()
                     return
                 }else{
                     val popupMenu = PopupMenu(context, groceryListItemBinding.groceryItemNameTextview)
                     popupMenu.menuInflater.inflate(R.menu.grocery_item_menu, popupMenu.menu)
-                    popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition))
+                    popupMenu.setOnMenuItemClickListener(CustomPopupMenu(context, adapterPosition,groceryListItemBinding.checkBox))
                     popupMenu.show()
                 }
 
@@ -170,7 +164,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
 
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity.id, groceryItemEntity.itemName,currentDatetime)
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 1, groceryItemEntity.uniqueId, groceryItemEntity.itemName,currentDatetime)
 
 
                     mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
@@ -214,7 +208,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                     val currentDatetime: String = simpleDateFormat.format(Date())
 
-                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity.id, groceryItemEntity.itemName,currentDatetime)
+                    singleGroceryListActivity.mGroceryListViewModel.updateGroceryItem(context, 0, groceryItemEntity.uniqueId, groceryItemEntity.itemName,currentDatetime)
 
 
                     mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
@@ -249,33 +243,30 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
 
     }
 
-    inner class CustomPopupMenu(var context: Context, var adapterPosition: Int) : PopupMenu.OnMenuItemClickListener {
+    inner class CustomPopupMenu(var context: Context, var adapterPosition: Int,var checkbox:CheckBox) : PopupMenu.OnMenuItemClickListener {
         val singleGroceryListActivity: SingleGroceryListActivity = context as SingleGroceryListActivity
 
         override fun onMenuItemClick(item: MenuItem?): Boolean {
             val groceryItemEntity = singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.get(adapterPosition)
 
             when (item!!.itemId) {
-                R.id.check -> {
-
-                    Toast.makeText(context, groceryItemEntity.itemName, Toast.LENGTH_SHORT).show()
-
-                }
                 R.id.edit -> {
 
 
                     val selectedGroceryListAutoGeneratedId = groceryItemEntity.groceryListUniqueId
                     val intent = Intent(context, AddGroceryListItemActivity::class.java)
 
-                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, selectedGroceryListAutoGeneratedId)
-                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryItemEntity.id)
-                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, adapterPosition)
-                    intent.putExtra(AddGroceryListItemActivity.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemActivity.UPDATE_RECORD_ACTION)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, selectedGroceryListAutoGeneratedId)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryItemEntity.uniqueId)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, adapterPosition)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG, AddGroceryListItemFragment.UPDATE_RECORD_ACTION)
 
-                    singleGroceryListActivity.startActivityForResult(
-                            intent,
-                            SingleGroceryListActivity.UPDATE_ITEM_REQUEST
-                    )
+//                    singleGroceryListActivity.startActivityForResult(
+//                            intent,
+//                            SingleGroceryListActivity.UPDATE_ITEM_REQUEST
+//                    )
+
+                    singleGroceryListActivity.openEditGroceryListItemContract.launch(intent)
 
 
                 }
@@ -287,7 +278,7 @@ class GroceryItemRecyclerViewAdapter(val contextParams: Context, val productImag
                         val currentDatetime: String = simpleDateFormat.format(Date())
                         mGroceryListViewModel.updateGroceryListAsNotUploaded(context,groceryItemEntity.groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
 
-                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.id, groceryItemEntity.groceryListUniqueId, GroceryItemEntityValues.DELETED_STATUS)
+                        singleGroceryListActivity.mGroceryListViewModel.deleteGroceryListItem(context, groceryItemEntity.uniqueId, groceryItemEntity.groceryListUniqueId, GroceryItemEntityValues.DELETED_STATUS)
                         singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems.remove(groceryItemEntity)
                         singleGroceryListActivity.mGroceryListViewModel.mergeToBuyAndBoughtItems(singleGroceryListActivity.mGroceryListViewModel.toBuyGroceryItems, singleGroceryListActivity.mGroceryListViewModel.boughtGroceryItems)
 

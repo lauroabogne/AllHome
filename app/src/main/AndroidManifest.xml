@@ -22,8 +22,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
         <activity
+            android:name=".grocerylist.BrowserItemImageActivity"
+            android:theme="@style/Theme.AllHome.NoActionBar"
+            android:exported="false" />
+        <activity
             android:name=".recipes.WebBrowseRecipeActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar"></activity>
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity android:name=".expenses.ExpensesItemSummaryActivity" />
         <activity
             android:name=".bill.BillActivity"
@@ -63,7 +67,8 @@
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".grocerylist.AddGroceryListItemActivity"
-            android:label="@string/new_grocery_item" />
+            android:theme="@style/Theme.AllHome.NoActionBar"
+            />
         <activity
             android:name=".grocerylist.GroceryListActivity"
             android:label="@string/title_activity_grocery_list_activity"
