@@ -81,8 +81,8 @@ class ViewMealOfTheDayFragment : Fragment() {
         }
 
         mFragmentViewMealOfTheDayBinding.toolbar.setNavigationOnClickListener {
-            activity?.finish()
-        }
+           activity?.finish()
+       }
         mFragmentViewMealOfTheDayBinding.toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
 
         mealPlan()

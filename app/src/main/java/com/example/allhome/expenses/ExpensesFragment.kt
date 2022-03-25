@@ -134,7 +134,7 @@ class ExpensesFragment : Fragment() {
 
                 val expensesEntity = mExpensesFragmentViewModel.getExpensesByMonth(requireContext(),month)
 
-                Log.e("exp",expensesEntity.toString())
+
 
                 if(expensesEntity !=null){
                     mExpensesFragmentViewModel.mExpensesPerMonth.add(expensesEntity)

@@ -11,7 +11,7 @@ class AllHomeBaseApplication : Application() {
     override fun onCreate() {
         super.onCreate()
         // Required initialization logic here!
-        Toast.makeText(this, "Base application",Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Base application",Toast.LENGTH_SHORT).show()
         Log.e("AllHomeBaseApplication","AllHomeBaseApplication WORKING HERE")
     }
 
@@ -28,6 +28,6 @@ class AllHomeBaseApplication : Application() {
         super.onLowMemory()
     }
     fun test(){
-        Toast.makeText(this, "Base application test function",Toast.LENGTH_SHORT).show()
+        //Toast.makeText(this, "Base application test function",Toast.LENGTH_SHORT).show()
     }
 }

@@ -55,14 +55,12 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
             android:layout_marginRight="@dimen/fab_margin_right"
-            android:layout_marginLeft="@dimen/fab_margin_left"
             android:text="Add recipe"
             app:icon="@android:drawable/ic_input_add"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/toggleViewMoreButton"
             app:layout_constraintEnd_toStartOf="@+id/categoryFab"
+            app:layout_constraintTop_toTopOf="@+id/toggleViewMoreButton"
             app:srcCompat="@android:drawable/ic_input_add" />
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
@@ -70,13 +68,11 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
             android:layout_marginRight="@dimen/fab_margin_right"
-            android:layout_marginLeft="@dimen/fab_margin_left"
             android:text="Categories"
-            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/toggleViewMoreButton"
             app:layout_constraintEnd_toStartOf="@+id/toggleViewMoreButton"
+            app:layout_constraintTop_toTopOf="@+id/toggleViewMoreButton"
             app:srcCompat="@android:drawable/ic_input_add" />
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/viewByFab"
@@ -110,15 +106,11 @@
             android:id="@+id/toggleViewMoreButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/fab_margin"
-            android:layout_marginBottom="@dimen/fab_margin"
             android:layout_marginRight="@dimen/fab_margin_right"
-            android:layout_marginLeft="@dimen/fab_margin_left"
             android:clickable="true"
             app:icon="@drawable/ic_baseline_grid_on_24"
-            app:layout_constraintBottom_toBottomOf="@+id/fab"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/fab" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
