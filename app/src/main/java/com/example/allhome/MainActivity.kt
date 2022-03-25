@@ -14,6 +14,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout.DrawerListener
 import androidx.fragment.app.Fragment
 import com.example.allhome.bill.AddBillFragment
 import com.example.allhome.bill.BillsFragment
@@ -35,6 +36,7 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var drawerLayout: DrawerLayout
+    var selectedDrawerItem = R.id.nav_grocery_list
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,56 +50,60 @@ class MainActivity : AppCompatActivity() {
         drawerLayout = findViewById(R.id.drawer_layout)
         // for drawerlayout
         val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+            override fun onDrawerClosed(drawerView: View) {
+                super.onDrawerClosed(drawerView)
+                when(selectedDrawerItem){
+                    R.id.nav_grocery_list->{
+                        fragmentProcessor(GroceryListFragment())
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+                    R.id.nav_storage->{
+
+                        val bundle = Bundle()
+                        bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
+
+                        val storageFragment = StorageFragment()
+                        storageFragment.arguments = bundle
+
+                        fragmentProcessor(storageFragment)
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+
+                    R.id.nav_recipes->{
+                        fragmentProcessor(RecipesFragment())
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+
+                    R.id.nav_meal_planner->{
+
+
+                        fragmentProcessor(MealPlannerFragment.newInstance("",""))
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+                    R.id.nav_bills->{
+                        fragmentProcessor(BillsFragment.newInstance("",""))
+                        drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+                    R.id.nav_expenses_summary->{
+                        fragmentProcessor(ExpensesFragment.newInstance("",""))
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+                    R.id.nav_todo->{
+
+                        fragmentProcessor(BrowseRecipeFragment.newInstance("",""))
+                        //drawerLayout.closeDrawer(GravityCompat.START)
+                    }
+                }
+
+            }
         }
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
         val navView: NavigationView = findViewById(R.id.nav_view)
         navView.setNavigationItemSelectedListener {
-            when(it.itemId){
-                R.id.nav_grocery_list->{
-                    //val intent = Intent (applicationContext,GroceryListActivity::class.java)
-                    //startActivity(intent)
-                    fragmentProcessor(GroceryListFragment())
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-                R.id.nav_storage->{
-
-                    val bundle = Bundle()
-                    bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
-
-                    val storageFragment = StorageFragment()
-                    storageFragment.arguments = bundle
-
-                    fragmentProcessor(storageFragment)
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-
-                R.id.nav_recipes->{
-                    fragmentProcessor(RecipesFragment())
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-
-                R.id.nav_meal_planner->{
-
-
-                    fragmentProcessor(MealPlannerFragment.newInstance("",""))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-                R.id.nav_bills->{
-                    fragmentProcessor(BillsFragment.newInstance("",""))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-                R.id.nav_expenses_summary->{
-                    fragmentProcessor(ExpensesFragment.newInstance("",""))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-                R.id.nav_todo->{
-
-                    fragmentProcessor(BrowseRecipeFragment.newInstance("",""))
-                    drawerLayout.closeDrawer(GravityCompat.START)
-                }
-            }
+            selectedDrawerItem = it.itemId
+            drawerLayout.closeDrawer(GravityCompat.START)
             true
         }
         fragmentProcessor(GroceryListFragment())

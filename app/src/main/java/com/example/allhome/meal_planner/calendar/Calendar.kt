@@ -12,6 +12,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -50,6 +51,12 @@ class Calendar : Fragment() {
     lateinit var mCalendarBinding:CalendarBinding
     lateinit var mCurrentDateString:String
 
+    var mSelectedDateString:String? = null
+    var mArrowHeaderClickListener:View.OnClickListener? = null
+    var mOnDateSelectedChangeListener: OnDateSelectedChangeListener? = null
+
+    var mCurrentlySelectedDateView:View? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -64,6 +71,11 @@ class Calendar : Fragment() {
 
         mCalendarBinding =  DataBindingUtil.inflate(inflater, R.layout.calendar, container, false)
 
+        mArrowHeaderClickListener?.let {
+            mCalendarBinding.previousMonthBtn.setOnClickListener(it)
+            mCalendarBinding.nextMonthBtn.setOnClickListener(it)
+        }
+
         val currentDateCalendar = java.util.Calendar.getInstance();
         mCurrentDateString = SimpleDateFormat("yyyy-MM-dd").format(currentDateCalendar.time)
 
@@ -73,6 +85,9 @@ class Calendar : Fragment() {
     fun generateData(){
 
         setTotalCostOfTheMonth()
+        mCurrentlySelectedDateView?.let {
+            it.setBackgroundResource(0)
+        }
         mCalendar?.let{
             it.set(java.util.Calendar.DAY_OF_MONTH,1)
 
@@ -121,7 +136,18 @@ class Calendar : Fragment() {
 
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+
+                        }
+
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -159,7 +185,17 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+                        }
+
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -197,7 +233,17 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+                        }
+
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -234,7 +280,17 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+                        }
+
 
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
@@ -273,7 +329,18 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+                        }
+
+
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -312,7 +379,18 @@ class Calendar : Fragment() {
                         val dayWithZero = if(totalDays <=9) "0${totalDays}" else{ totalDays}
                         val dateString = "${year}-${numericMonth}-${dayWithZero}"
                         dayHolder.setTag(dateString)
-                        showCurrentDateIndicator(dateString,currentDateIndicator)
+                        showCurrentDateIndicator(dateString,dayHolder.getChildAt(0))
+
+                        mOnDateSelectedChangeListener?.let {onDateSelectedChangeListener->
+
+                            if((onDateSelectedChangeListener as CalendarFragment).getSelectedDateString() == dateString){
+                                dayHolder.setBackgroundResource(R.drawable.rounder_border)
+                                mCurrentlySelectedDateView = dayHolder
+                            }
+
+                        }
+
+
 
                         mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -329,10 +407,20 @@ class Calendar : Fragment() {
 
 
     }
+    fun setArrowHeaderClickListener(arrowHeaderClickListener:View.OnClickListener){
+        mArrowHeaderClickListener = arrowHeaderClickListener
+    }
+    fun setOnDateSelectedChangeListener(onDateSelectedChangeListener: OnDateSelectedChangeListener){
+        mOnDateSelectedChangeListener = onDateSelectedChangeListener
+    }
+
     private fun showCurrentDateIndicator(dateString:String,view:View){
-        Log.e("DATE","${dateString} ${mCurrentDateString}")
-        if(mCurrentDateString.equals(dateString)){
-            view.visibility = View.VISIBLE
+        if(mCurrentDateString == dateString){
+
+            setCircleBackground(view)
+
+        }else{
+            view.background = null
         }
     }
     private fun showIndicator(indicatorTextView:TextView,mealPlans:List<MealTypes>){
@@ -406,17 +494,28 @@ class Calendar : Fragment() {
             view.setBackgroundDrawable(ContextCompat.getDrawable(requireContext(), R.drawable.calendar_circle))
         } else {
             view.background = ContextCompat.getDrawable(requireContext(), R.drawable.calendar_circle)
+
         }
+
     }
 
-
     val dayViewClickListener = object:View.OnClickListener{
-        override fun onClick(v: View?) {
-            val dateString = v?.getTag()
+        override fun onClick(dayHolderView: View?) {
 
-            val intent = Intent(requireContext(), ViewMealOfTheDayActivity::class.java)
-            intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,dateString.toString())
-            startActivity(intent)
+            mCurrentlySelectedDateView?.let {
+                it.setBackgroundResource(0)
+            }
+            mCurrentlySelectedDateView = dayHolderView
+            mCurrentlySelectedDateView?.setBackgroundResource(R.drawable.rounder_border)
+
+            val dateString = dayHolderView?.getTag().toString()
+
+            mOnDateSelectedChangeListener?.let {
+                it.onDateSelect(dateString)
+            }
+          /* val intent = Intent(requireContext(), ViewMealOfTheDayActivity::class.java)
+            intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,dateString)
+            startActivity(intent)*/
 
         }
 
@@ -430,5 +529,9 @@ class Calendar : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    interface OnDateSelectedChangeListener {
+        fun onDateSelect(selectedDate:String)
     }
 }

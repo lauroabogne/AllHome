@@ -14,8 +14,6 @@ import com.example.allhome.recipes.IngredientDialogFragment
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 
-// TODO: Rename parameter arguments, choose names that match
-// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
@@ -39,14 +37,16 @@ class MealPlannerFragment : Fragment() {
         super.onActivityCreated(savedInstanceState)
         // hide option menu
         mMealPlannerViewModel = ViewModelProvider(this).get(MealPlannerViewModel::class.java)
-        mSelectedFragment = CalendarFragment.newInstance("","")
 
-        fragmentProcessor(mSelectedFragment!!)
     }
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         setHasOptionsMenu(true)
 
         activity?.title = "Meal Planner"
+
+        mSelectedFragment = CalendarFragment.newInstance("","")
+
+        fragmentProcessor(mSelectedFragment!!)
         return inflater.inflate(R.layout.fragment_meal_planner, container, false)
     }
 
@@ -91,7 +91,7 @@ class MealPlannerFragment : Fragment() {
         return true
     }
 
-    fun fragmentProcessor(fragment: Fragment){
+    private fun fragmentProcessor(fragment: Fragment){
         childFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentContainer,fragment).commit()
         }

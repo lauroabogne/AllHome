@@ -37,13 +37,16 @@
         <entry key="app/src/main/res/layout/fragment_browse_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.16973065412569474" />
         <entry key="app/src/main/res/layout/fragment_grocery_list.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/layout/fragment_meal_type.xml" value="0.333786231884058" />
         <entry key="app/src/main/res/layout/fragment_recipe_category.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_recipes.xml" value="0.47533009034051427" />
         <entry key="app/src/main/res/layout/fragment_storage.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/fragment_view_meal_of_the_day.xml" value="0.12416046469413687" />
         <entry key="app/src/main/res/layout/fragment_view_recipe.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_view_recipe_information.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_view_recipe_ingredients.xml" value="0.25277777777777777" />
         <entry key="app/src/main/res/layout/grocery_list_product.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/layout/meal_item.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/progress_dialog_fragment_layout.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/recipe_category_dialog_fragment_layout.xml" value="0.22" />
         <entry key="app/src/main/res/layout/recipe_category_item.xml" value="0.38177083333333334" />
