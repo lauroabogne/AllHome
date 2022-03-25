@@ -30,7 +30,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 
-class AddMealDialogFragment(val mDate: Date): DialogFragment() {
+class AddMealDialogFragment(private val mDate: Date, private val singleMealType:String?): DialogFragment() {
 
     lateinit var mMealPlannerViewModel:MealPlannerViewModel
     lateinit var mlayoutBinding: AddMealDialogFragmentBinding
@@ -45,7 +45,12 @@ class AddMealDialogFragment(val mDate: Date): DialogFragment() {
     var mQuickRecipeName = ""
     var mQuckRecipeCost = 0.0
     var mDialogDettachedListener:DialogDettachedListener? = null
+    init {
+        singleMealType?.let {
+            mSelectedMealTypes.add(singleMealType)
+        }
 
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -140,7 +145,7 @@ class AddMealDialogFragment(val mDate: Date): DialogFragment() {
                 mQuckRecipeCost = quickrecipeCostDouble
 
 
-                val mealTypeFragment = MealTypeFragment.newInstance("","")
+                val mealTypeFragment = MealTypeFragment.newInstance(mSelectedMealTypes.toTypedArray())
                 mealTypeFragment.setOnCheckedChangeListener(mealTypeFragmentOnCheckedChangeListener)
                 mCurrentFragment = mealTypeFragment
                 loadFragment(mealTypeFragment)
@@ -316,7 +321,7 @@ class AddMealDialogFragment(val mDate: Date): DialogFragment() {
 
             mSelectedRecipeEntity = recipe
 
-            val mealTypeFragment = MealTypeFragment.newInstance("","")
+            val mealTypeFragment = MealTypeFragment.newInstance(mSelectedMealTypes.toTypedArray())
             mealTypeFragment.mOnCheckedChangeListener = mealTypeFragmentOnCheckedChangeListener
             mCurrentFragment = mealTypeFragment
 

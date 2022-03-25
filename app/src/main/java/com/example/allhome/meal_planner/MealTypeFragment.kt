@@ -17,22 +17,22 @@ import com.example.allhome.databinding.FragmentMealTypeBinding
 import com.example.allhome.databinding.MealTypeTextviewBinding
 
 
-private const val ARG_PARAM1 = "param1"
-private const val ARG_PARAM2 = "param2"
-
+const val SELECTED_MEAL_TYPE_TAG = "SELECTED_MEAL_TYPE_TAG"
 
 class MealTypeFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
+
+    private var mSelectedMealTypes:Array<String>? = null
     lateinit var mFragmentMealTypeBinding:FragmentMealTypeBinding
     var mOnCheckedChangeListener: CompoundButton.OnCheckedChangeListener? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
+
+            mSelectedMealTypes = it.getStringArray(SELECTED_MEAL_TYPE_TAG)
         }
     }
 
@@ -55,11 +55,11 @@ class MealTypeFragment : Fragment() {
 
     companion object {
 
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        @JvmStatic fun newInstance(selectedMealTypes: Array<String>) =
             MealTypeFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+
+                    putStringArray(SELECTED_MEAL_TYPE_TAG,selectedMealTypes)
                 }
             }
     }
@@ -79,6 +79,9 @@ class MealTypeFragment : Fragment() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
 
             val mealType = mMealType[position]
+
+            val indexOfMealType:Int = if(mealTypeFragment.mSelectedMealTypes == null) -1 else mealTypeFragment.mSelectedMealTypes!!.indexOf(mealType)
+            holder.mealTypeTextviewBinding.checkBox.isChecked = indexOfMealType >= 0
             holder.mealTypeTextviewBinding.checkBox.text = mealType
             holder.setCheckboxClickListener()
         }

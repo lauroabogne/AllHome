@@ -85,6 +85,41 @@ class ViewMealOfTheDayFragment : Fragment() {
        }
         mFragmentViewMealOfTheDayBinding.toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
 
+        mFragmentViewMealOfTheDayBinding.breakfastBtn.setOnClickListener {
+                Toast.makeText(requireContext(),"snack btn clicked "+getString(R.string.breakfast),Toast.LENGTH_SHORT).show()
+
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.breakfast))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+
+        }
+        mFragmentViewMealOfTheDayBinding.afterBreakfastSnackBtn.setOnClickListener {
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.snack_after_breakfast))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+        }
+        mFragmentViewMealOfTheDayBinding.lunchBtn.setOnClickListener {
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.lunch))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+        }
+        mFragmentViewMealOfTheDayBinding.snackAfterLunchBtn.setOnClickListener {
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.snack_after_lunch))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+        }
+        mFragmentViewMealOfTheDayBinding.dinnerBtn.setOnClickListener {
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.dinner))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+        }
+
+        mFragmentViewMealOfTheDayBinding.afterDinnerSnackBtn.setOnClickListener {
+            var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.snack_after_dinner))
+            dialog.mDialogDettachedListener  = dialogDettachedListener
+            dialog.show(childFragmentManager,"AddMealDialogFragment")
+        }
+
         mealPlan()
         return mFragmentViewMealOfTheDayBinding.root
     }
@@ -196,7 +231,7 @@ class ViewMealOfTheDayFragment : Fragment() {
         override fun onMenuItemClick(item: MenuItem?): Boolean {
             when(item?.itemId){
                 R.id.addMeal->{
-                    var dialog = AddMealDialogFragment(mDateSelected!!)
+                    var dialog = AddMealDialogFragment(mDateSelected!!,null)
                     dialog.mDialogDettachedListener  = dialogDettachedListener
                     dialog.show(childFragmentManager,"AddMealDialogFragment")
 

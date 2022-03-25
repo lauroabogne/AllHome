@@ -13,8 +13,7 @@
         android:layout_height="match_parent"
         android:paddingLeft="5dp"
         android:paddingRight="5dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        tools:listitem="@layout/storage_item"/>
+        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"/>
 
 </FrameLayout>
 </layout>
