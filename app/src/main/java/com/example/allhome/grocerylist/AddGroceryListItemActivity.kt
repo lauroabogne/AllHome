@@ -43,7 +43,7 @@ import kotlin.collections.ArrayList
 
 class AddGroceryListItemActivity : AppCompatActivity() {
 
-
+    private val TAG = "AddGroceryListItemActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,13 +71,15 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             val notes = intent.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
             val itemImageName = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)!!
 
-            Log.e("AddGroceryListItemActivity","ABSOLUTE_PATH:"+itemImageName);
             val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance(groceryListUniqueId, action,itemName,itemUnit,itemPrice,quantity,category,notes,itemImageName)
             supportFragmentManager.beginTransaction()
                 .replace(R.id.recipeFragmentContainer,addGroceryListItemFragment)
                 .commit()
 
         }else if(action == AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER){
+
+
+
             val groceryListUniqueId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)
             val itemName = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
             val itemUnit = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
@@ -86,11 +88,9 @@ class AddGroceryListItemActivity : AppCompatActivity() {
             val category = intent.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)!!
             val notes = intent.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
             val itemImageName = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG)!!
-            val groceryItemId = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,0)
+            val groceryItemId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { id->id }?:run { "" }
             val groceryItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,-1)
 
-
-            Log.e("AddGroceryListItemActivity","ABSOLUTE_PATH:"+itemImageName);
             val addGroceryListItemFragment = AddGroceryListItemFragment.newInstance(groceryListUniqueId,groceryItemId,groceryItemIndex, action,itemName,itemUnit,itemPrice,quantity,category,notes,itemImageName)
 
             supportFragmentManager.beginTransaction()

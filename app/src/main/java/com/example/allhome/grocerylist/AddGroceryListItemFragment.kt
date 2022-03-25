@@ -46,7 +46,7 @@ import kotlin.collections.ArrayList
 
 class AddGroceryListItemFragment : Fragment() {
 
-
+    private val TAG = "AddGroceryListItemFragment"
     lateinit var mDataBinding: FragmentAddGroceryListItemBinding
     private lateinit var mGroceryListViewModel: GroceryListViewModel
     var groceryListUniqueId: String = ""
@@ -86,6 +86,7 @@ class AddGroceryListItemFragment : Fragment() {
             val imageName = if(path !=null) File(path).name else ""
 
             val intent = Intent()
+            intent.putExtra(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
             intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
             intent.putExtra(GROCERY_LIST_ITEM_PRICE_TAG,price)
             intent.putExtra(GROCERY_LIST_ITEM_UNIT_TAG,unit)
@@ -115,8 +116,8 @@ class AddGroceryListItemFragment : Fragment() {
             }
             val imageName = if(path !=null) File(path).name else ""
 
-
             val intent = Intent()
+            intent.putExtra(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
             intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryListItemId)
             intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryListItemIndex)
             intent.putExtra(GROCERY_LIST_ITEM_NAME_TAG,itemName)
@@ -195,7 +196,7 @@ class AddGroceryListItemFragment : Fragment() {
 
                 }
             }
-        @JvmStatic fun newInstance(groceryListUniqueId: String?,groceryItemId:Int,groceryItemIndex:Int, action:Int,itemName:String,itemUnit:String,itemPrice:Double,quantity:Double,category: String,notes:String,itemImageName:String) =
+        @JvmStatic fun newInstance(groceryListUniqueId: String?,groceryItemId:String,groceryItemIndex:Int, action:Int,itemName:String,itemUnit:String,itemPrice:Double,quantity:Double,category: String,notes:String,itemImageName:String) =
             AddGroceryListItemFragment().apply {
                 arguments = Bundle().apply {
                     putString(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG,groceryListUniqueId)
@@ -207,7 +208,7 @@ class AddGroceryListItemFragment : Fragment() {
                     putString(ITEM_CATEGORY,category)
                     putString(ITEM_NOTES,notes)
                     putString(GROCERY_LIST_ITEM_IMAGE_NAME_TAG,itemImageName)
-                    putInt(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
+                    putString(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
                     putInt(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryItemIndex)
                 }
             }
@@ -537,6 +538,8 @@ class AddGroceryListItemFragment : Fragment() {
             withContext(Dispatchers.Main){
 
                 val intent = Intent()
+
+                intent.putExtra(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
                 intent.putExtra(GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, groceryListItemIndex)
                 intent.putExtra(GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG, groceryListItemId)
                 activity?.let {

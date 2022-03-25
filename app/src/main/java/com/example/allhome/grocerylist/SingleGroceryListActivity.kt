@@ -38,6 +38,7 @@ import java.util.*
 
 class SingleGroceryListActivity : AppCompatActivity() {
 
+    private val TAG = "SingleGroceryListActivity"
     lateinit var mGroceryListViewModel: GroceryListViewModel
     lateinit var dataBindingUtil: ActivitySingleGroceryListBinding
     lateinit var mItemTouchHelper: ItemTouchHelper
@@ -62,7 +63,9 @@ class SingleGroceryListActivity : AppCompatActivity() {
     }
 
     private val openBrowseImageContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
         activityResult.data?.let {
+
             if(it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_HAS_UPDATED_ITEM_TAG,-1) == AddGroceryListItemFragment.UPDATED_ITEM){
                 val updatedGroceryListId = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { updatedGroceryListId->updatedGroceryListId }?:run{""}
                 val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
@@ -122,6 +125,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
     val openEditGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         Log.e("==============","=====================")
+
         if(activityResult.resultCode == RESULT_OK){
 
 //            activityResult.data?.let {
@@ -142,9 +146,8 @@ class SingleGroceryListActivity : AppCompatActivity() {
                     val category = it.getStringExtra(AddGroceryListItemFragment.ITEM_CATEGORY)
                     val note = it.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)
                     val tempImageName = it.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)
-                    val groceryListItemId = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,-1)
+                    val groceryListItemId = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)
                     val groceryListItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,0)
-
 
 
 
@@ -166,14 +169,13 @@ class SingleGroceryListActivity : AppCompatActivity() {
                     openBrowseImageContract.launch(browseItemActivity)
                 }else{
 
-                    Log.e("TEST_HERE","TEST 2")
                     val updatedGroceryListId = it.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)?.let { updatedGroceryListId->updatedGroceryListId }?:run{""}
                     val oldItemIndex = it.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG, -1)
 
                     manipulateListUIAfterUpdateItemSuccessfullyAction(updatedGroceryListId,oldItemIndex)
                 }
             }?:run{
-                Log.e("TEST_HERE","TEST 3")
+
                 manipulateListUIAfterAddedItemSuccessfullyAction()
             }
             Log.e("ACTION",intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1).toString())

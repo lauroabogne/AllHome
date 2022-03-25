@@ -8,7 +8,7 @@ import com.example.allhome.R
 
 class BrowserItemImageActivity : AppCompatActivity() {
     private val TAG:String by lazy {
-        this@BrowserItemImageActivity::class.java.name
+        "BrowserItemImageActivity"
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -25,6 +25,7 @@ class BrowserItemImageActivity : AppCompatActivity() {
         val imageName = intent.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)!!
         val groceryListUniqueId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)!!
 
+        Log.e(TAG,"GROCERY_LIST_UNIQUE_ID: $groceryListUniqueId")
 
 
 
@@ -38,7 +39,7 @@ class BrowserItemImageActivity : AppCompatActivity() {
 
         }else if(action == AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER){
 
-            val groceryListItemId = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,0)
+            val groceryListItemId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)!!
             val groceryListItemIndex = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,0)
 
             val browseItemImageFragment = BrowseItemImageFragment. newInstance(groceryListUniqueId,groceryListItemId,groceryListItemIndex,itemName,unit,price,quantity,category,note,imageName)

@@ -39,6 +39,7 @@ import java.io.OutputStream
 
 class BrowseItemImageFragment : Fragment() {
 
+    private var TAG = "BrowseItemImageFragment"
     private var mProgressDialogFragment: ProgressDialogFragment = ProgressDialogFragment()
     lateinit var mFragmentBrowseItemImageBinding:FragmentBrowseItemImageBinding
 
@@ -54,19 +55,19 @@ class BrowseItemImageFragment : Fragment() {
     private var mHasAddedItem = AddGroceryListItemFragment.NO_ADDED_ITEM
 
 
-    private var mGroceryItemId = 0
+    private var mGroceryItemId = ""
     private var mGroceryItemIndex = -1
 
 
     companion object {
         //const val TEMP_IMAGE_NAME = "grocery_list_temp_img.png
-        const val GROCERY_LIST_UNIQUE_ID_TAG = "unique_id"
+        //const val GROCERY_LIST_UNIQUE_ID_TAG = "unique_id"
         const val ITEM_IMAGE_NAME_TAG = "image_path"
 
         @JvmStatic fun newInstance(groceryListUniqueId:String,itemName:String,unit:String,price:Double,quantity:Double,category:String,note:String,imageName:String) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
-                    putString(GROCERY_LIST_UNIQUE_ID_TAG, groceryListUniqueId)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, itemName)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,unit)
                     putDouble(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
@@ -84,10 +85,11 @@ class BrowseItemImageFragment : Fragment() {
         /**
          * for updating existing record
          */
-        @JvmStatic fun newInstance(groceryListUniqueId:String,groceryItemId:Int,groceryItemIndex:Int,itemName:String,unit:String,price:Double,quantity:Double,category:String,note:String,imageName:String) =
+        @JvmStatic fun newInstance(groceryListUniqueId:String,groceryItemId:String,groceryItemIndex:Int,itemName:String,unit:String,price:Double,quantity:Double,category:String,note:String,imageName:String) =
             BrowseItemImageFragment().apply {
                 arguments = Bundle().apply {
-                    putString(GROCERY_LIST_UNIQUE_ID_TAG, groceryListUniqueId)
+
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG, itemName)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG,unit)
                     putDouble(AddGroceryListItemFragment.GROCERY_LIST_ITEM_PRICE_TAG,price)
@@ -96,7 +98,7 @@ class BrowseItemImageFragment : Fragment() {
                     putString(AddGroceryListItemFragment.ITEM_NOTES,note)
                     putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_IMAGE_NAME_TAG,imageName)
 
-                    putInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
+                    putString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,groceryItemId)
                     putInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG,groceryItemIndex)
                     putInt(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,AddGroceryListItemFragment.UPDATE_RECORD_FROM_BROWSER)
 
@@ -179,8 +181,8 @@ class BrowseItemImageFragment : Fragment() {
         arguments?.let {
 
             mAction = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG)
-            mGroceryListUniqueId = it.getString(GROCERY_LIST_UNIQUE_ID_TAG)!!
-            mGroceryItemId = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG)
+            mGroceryListUniqueId = it.getString(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)!!
+            mGroceryItemId = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_ID_EXTRA_DATA_TAG,"")
             mGroceryItemIndex = it.getInt(AddGroceryListItemFragment.GROCERY_LIST_ITEM_INDEX_EXTRA_DATA_TAG)
 
             mItemName = it.getString(AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)?.let { name->name }?:run{""}
@@ -303,7 +305,6 @@ class BrowseItemImageFragment : Fragment() {
                         output.write(buff, 0, readed)
                         //write buff
                         downloaded += readed
-                        Log.e("PROGRESS","$downloaded / $target")
 
                     }
 
