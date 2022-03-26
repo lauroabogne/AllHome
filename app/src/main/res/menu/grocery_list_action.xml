@@ -14,6 +14,9 @@
         android:id="@+id/add_to_storage_menu"
         android:title="Add to storage" />
     <item
+        android:id="@+id/add_to_expenses_report_menu"
+        android:title="Add to expenses report" />
+    <item
         android:id="@+id/duplicate_menu"
         android:title="Duplicate" />
     <item

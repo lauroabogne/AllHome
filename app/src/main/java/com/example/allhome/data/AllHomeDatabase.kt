@@ -9,7 +9,9 @@ import com.example.allhome.data.entities.*
 
 @Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class,
     StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class,MealEntity::class,BillEntity::class,
-    BillPaymentEntity::class,BillCategoryEntity::class,GroceryListItemCategoryEntity::class,RecipeCategoryEntity::class,RecipeCategoryAssignmentEntity::class,AppSettingEntity::class),version = 4)
+    BillPaymentEntity::class,BillCategoryEntity::class,GroceryListItemCategoryEntity::class,RecipeCategoryEntity::class,
+    RecipeCategoryAssignmentEntity::class,AppSettingEntity::class,ExpensesGroceryListEntity::class,ExpensesGroceryItemEntity::class,ExpensesGroceryListItemCategoryEntity::class
+    ),version = 4)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
     abstract fun groceryListDAO(): GroceryListDAO
@@ -27,6 +29,10 @@ abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun getRecipeCategoryDAO():RecipeCategoryDAO
     abstract fun getRecipeCategoryAssignmentDAO():RecipeCategoryAssignmentDAO
     abstract fun getAppSettingDAO():AppSettingDAO
+    abstract fun getExpensesGroceryListDAO():ExpensesGroceryListDAO
+    abstract fun getExpensesGroceryItemDAO():ExpensesGroceryItemDAO
+    abstract fun getExpensesGroceryListItemCategoryDAO():ExpensesGroceryListItemCategoryDAO
+
 
 
 

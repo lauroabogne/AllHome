@@ -22,6 +22,7 @@ interface GroceryItemDAO {
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status=:status")
     fun getGroceryListItems(groceryListUniqueId:String,status:Int): List<GroceryItemEntity>
 
+
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId ORDER BY unique_id DESC LIMIT 1")
     fun getGroceryListItem(groceryListUniqueId:String):GroceryItemEntity
 

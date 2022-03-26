@@ -115,5 +115,23 @@ class GroceryListFragmentViewModel: ViewModel() {
 
     }
 
+    suspend fun getGroceryList(context:Context,groceryListUniqueId:String):GroceryListEntity{
+        val groceryListDAO = AllHomeDatabase.getDatabase(context).groceryListDAO()
+        return groceryListDAO.getGroceryList(groceryListUniqueId)
+    }
+    suspend fun getBoughtGroceryListItems(context:Context,groceryListUniqueId:String): List<GroceryItemEntity> {
+        val groceryItemDAO = AllHomeDatabase.getDatabase(context).groceryItemDAO()
+        return groceryItemDAO.getBoughtGroceryListItems(groceryListUniqueId)
+    }
+
+    suspend fun insertExpenseGroceryList(context:Context,expensesGroceryListEntity:ExpensesGroceryListEntity):Long{
+        val expensesGroceryList = AllHomeDatabase.getDatabase(context).getExpensesGroceryListDAO()
+        return expensesGroceryList.addItem(expensesGroceryListEntity)
+    }
+    suspend fun insertExpensesGroceryListItems(context:Context,expensesGroceryItemEntities:List<ExpensesGroceryItemEntity> ):List<Long>{
+        val expensesGroceryItemDAO = AllHomeDatabase.getDatabase(context).getExpensesGroceryItemDAO()
+        return expensesGroceryItemDAO.addItems(expensesGroceryItemEntities)
+
+    }
 
 }
