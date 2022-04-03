@@ -15,7 +15,6 @@ class ExpensesSummaryViewByItemsFragmentViewModel: ViewModel() {
 
     var mDateFromFilter: Calendar = Calendar.getInstance()
     var mDateToFilter: Calendar = Calendar.getInstance()
-
     var mFilterTotalExpenses:Double = 0.0
     var  mExpensesEntityWithItemNameAndType:List<ExpensesEntityWithItemNameAndType> = arrayListOf()
 

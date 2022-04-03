@@ -71,6 +71,8 @@ interface GroceryItemDAO {
 
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status= 0 AND bought = 1")
     fun getBoughtGroceryListItems(groceryListUniqueId:String): List<GroceryItemEntity>
+    @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status= 0 AND bought = 1 AND quantity * price_per_unit > 0")
+    fun getBoughtGroceryListItemsAndTotalAmountGreaterZero(groceryListUniqueId:String): List<GroceryItemEntity>
     @Query("SELECT price_per_unit from grocery_items WHERE item_name = :itemName AND unit=:unit AND item_status= 0")
     fun getLatestPrice(itemName:String,unit:String):Double
 

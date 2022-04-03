@@ -1,11 +1,8 @@
 package com.example.allhome.data.DAO
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.Query
-import com.example.allhome.data.entities.BillEntityWithTotalPayment
-import com.example.allhome.data.entities.BillPaymentEntity
-import com.example.allhome.data.entities.RecipeEntity
+import androidx.room.*
+import com.example.allhome.data.entities.*
+import com.example.allhome.data.entities.ExpensesEntityWithItemNameAndType
 
 @Dao
 interface BillPaymentDAO {
@@ -25,4 +22,18 @@ interface BillPaymentDAO {
     @Query("UPDATE ${BillPaymentEntity.TABLE_NAME} SET ${BillPaymentEntity.COLUMN_STATUS} = ${BillPaymentEntity.DELETED_STATUS}" +
             " WHERE ${BillPaymentEntity.COLUMN_UNIQUE_ID} = :uniqueId")
      fun updatePaymentAsDeleted(uniqueId:String):Int
+
+    @Query(
+        " SELECT " +
+                " bill_payments.payment_date as expense_date, TOTAL(bill_payments.payment_amount) as total_amount , bills.name as  item_name,'bill_payments' as expense_type  " +
+                " FROM bill_payments " +
+                " LEFT JOIN bills " +
+                " ON bills.unique_id =  bill_payments.bill_unique_id " +
+                " WHERE payment_date >= :fromDate AND payment_date <=:toDate" +
+                " GROUP BY name"
+    )
+    fun getBillPaymentExpenses(fromDate: String, toDate: String): List<ExpensesEntityWithItemNameAndType>
+
+
+
 }

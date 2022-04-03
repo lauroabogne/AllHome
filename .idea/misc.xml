@@ -31,11 +31,22 @@
         <entry key="app/src/main/res/layout/activity_web_browse_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/add_edit_recipe_category_dialog_fragment_layout.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/add_meal_dialog_fragment.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/layout/expenses_grocery_item_layout.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/expenses_item_summary_activity.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/expenses_monthly_item.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/expenses_summary_per_item_layout.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_add_grocery_list_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_add_recipe_information.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_browse_item_image.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_browse_recipe.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_grocery_items.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_summary_by_bills.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_summary_by_grocery_items.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_summary_items.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_summary_view_by_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.16973065412569474" />
+        <entry key="app/src/main/res/layout/fragment_grocery_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_grocery_list.xml" value="0.22702009405728943" />
         <entry key="app/src/main/res/layout/fragment_meal_type.xml" value="0.333786231884058" />
         <entry key="app/src/main/res/layout/fragment_recipe_category.xml" value="0.38177083333333334" />

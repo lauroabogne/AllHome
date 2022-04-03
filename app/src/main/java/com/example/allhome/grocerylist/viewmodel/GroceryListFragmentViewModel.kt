@@ -119,9 +119,9 @@ class GroceryListFragmentViewModel: ViewModel() {
         val groceryListDAO = AllHomeDatabase.getDatabase(context).groceryListDAO()
         return groceryListDAO.getGroceryList(groceryListUniqueId)
     }
-    suspend fun getBoughtGroceryListItems(context:Context,groceryListUniqueId:String): List<GroceryItemEntity> {
+    suspend fun getBoughtGroceryListItemsAndTotalAmountGreaterZero(context:Context,groceryListUniqueId:String): List<GroceryItemEntity> {
         val groceryItemDAO = AllHomeDatabase.getDatabase(context).groceryItemDAO()
-        return groceryItemDAO.getBoughtGroceryListItems(groceryListUniqueId)
+        return groceryItemDAO.getBoughtGroceryListItemsAndTotalAmountGreaterZero(groceryListUniqueId)
     }
 
     suspend fun insertExpenseGroceryList(context:Context,expensesGroceryListEntity:ExpensesGroceryListEntity):Long{

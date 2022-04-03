@@ -1,15 +1,16 @@
 package com.example.allhome.expenses
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -23,6 +24,7 @@ import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModel
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.lang.Exception
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -32,14 +34,17 @@ private const val ARG_PARAM2 = "param2"
 
 class ExpensesFragment : Fragment() {
 
+    private val TAG = "ExpensesFragment"
     private var param1: String? = null
     private var param2: String? = null
 
 
     lateinit var mExpensesFragmentViewModel:ExpensesFragmentViewModel
     lateinit var mFragmentExpensesBinding:FragmentExpensesBinding
+    var mContext:Context? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
@@ -93,12 +98,28 @@ class ExpensesFragment : Fragment() {
         val monthlyExpensesRecyclerviewViewAdapter = MonthlyExpensesRecyclerviewViewAdapter(arrayListOf())
         mFragmentExpensesBinding.monthlyExpensesRecyclerview.adapter = monthlyExpensesRecyclerviewViewAdapter
 
-        getFilteredExpenses()
-        getExpensePerMonthAndCurrentYear()
+
+
+            getFilteredExpenses()
+            getExpensePerMonthAndCurrentYear()
+
+
+
+
         return mFragmentExpensesBinding.root
     }
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        mContext = context
+    }
+    override fun onDetach() {
+        super.onDetach()
+
+    }
+
     fun getFilteredExpenses(){
+
 
         mExpensesFragmentViewModel.mCoroutineScope.launch {
 
@@ -125,24 +146,23 @@ class ExpensesFragment : Fragment() {
 
         mExpensesFragmentViewModel.mCoroutineScope.launch {
 
+            if(!isAdded){
+                return@launch
+            }
             val calendar = Calendar.getInstance()
-
-
             repeat(12){index->
+                calendar.set(Calendar.DAY_OF_MONTH,1)
                 calendar.set(Calendar.MONTH,index)
                 val month = SimpleDateFormat("yyyy-MM").format(calendar.time)
-
-                val expensesEntity = mExpensesFragmentViewModel.getExpensesByMonth(requireContext(),month)
-
-
-
+                val expensesEntity = mExpensesFragmentViewModel.getExpensesByMonth(mContext!!,month)
                 if(expensesEntity !=null){
                     mExpensesFragmentViewModel.mExpensesPerMonth.add(expensesEntity)
                 }else{
                     mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity(month,0.0))
                 }
             }
-            mExpensesFragmentViewModel.getCurrentYearExpenses(requireContext(),fromDate,toDate)
+
+            mExpensesFragmentViewModel.getCurrentYearExpenses(mContext!!,fromDate,toDate)
 
 
             withContext(Main){
@@ -196,30 +216,14 @@ class ExpensesFragment : Fragment() {
         datePickerDialog.show()
 
     }
-    val fromDateOnClick = object:View.OnClickListener{
-        override fun onClick(v: View?) {
-            showCalendar(FROM_DATE_REQUEST)
-        }
-
-    }
-
-    val toDateOnClick = object:View.OnClickListener{
-        override fun onClick(v: View?) {
-            showCalendar(TO_DATE_REQUEST)
-        }
-
-    }
-    val filterBtnOnClick = object :View.OnClickListener{
-        override fun onClick(v: View?) {
-
-            Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
-            getFilteredExpenses()
-        }
-
+    private val fromDateOnClick = View.OnClickListener { showCalendar(FROM_DATE_REQUEST) }
+    private val toDateOnClick = View.OnClickListener { showCalendar(TO_DATE_REQUEST) }
+    private val filterBtnOnClick = View.OnClickListener {
+        Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
+        getFilteredExpenses()
     }
 
     inner class MonthlyExpensesRecyclerviewViewAdapter(var monthlyExpenses:ArrayList<ExpensesEntity>): RecyclerView.Adapter<MonthlyExpensesRecyclerviewViewAdapter.ItemViewHolder>() {
-        val calendar = Calendar.getInstance()
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
@@ -231,10 +235,10 @@ class ExpensesFragment : Fragment() {
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             holder.setIsRecyclable(false);
-            calendar.set(Calendar.MONTH,position)
 
-            val readableDate = SimpleDateFormat("MMMM").format(calendar.time)
             val expensesEntity = monthlyExpenses[position]
+            val date = SimpleDateFormat("yyyy-MM").parse(expensesEntity.expenseDate)
+            val readableDate = SimpleDateFormat("MMMM").format(date)//SimpleDateFormat("MMMM").format(calendar.time)
 
             holder.expensesMonthlyItemBinding.month = readableDate
             holder.expensesMonthlyItemBinding.expensesEntity = expensesEntity
@@ -246,7 +250,7 @@ class ExpensesFragment : Fragment() {
         override fun getItemCount(): Int {
             return monthlyExpenses.size
         }
-        inner class  ItemViewHolder(var expensesMonthlyItemBinding: ExpensesMonthlyItemBinding, ): RecyclerView.ViewHolder(expensesMonthlyItemBinding.root),View.OnClickListener{
+        inner class  ItemViewHolder(var expensesMonthlyItemBinding: ExpensesMonthlyItemBinding): RecyclerView.ViewHolder(expensesMonthlyItemBinding.root),View.OnClickListener{
             override fun onClick(v: View?) {
 
                 val month = v!!.tag as String

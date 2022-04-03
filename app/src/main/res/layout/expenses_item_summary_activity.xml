@@ -19,12 +19,16 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View by items" />
+            android:text="View all items" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="View grocery items" />
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View by category" />
+            android:text="View bill expenses" />
     </com.google.android.material.tabs.TabLayout>
 
     <LinearLayout

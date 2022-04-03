@@ -71,7 +71,6 @@ class ExpensesSummaryViewByItemsFragment : Fragment() {
             mExpensesSummaryViewByItemsFragmentViewModel.getExpenses(requireContext(),fromDate,toDate)
             mExpensesSummaryViewByItemsFragmentViewModel.getExpensesWithItemNameAndType(requireContext(), fromDate , toDate)
 
-            Log.e("DATE",mExpensesSummaryViewByItemsFragmentViewModel.mExpensesEntityWithItemNameAndType.toString())
              withContext(Dispatchers.Main){
 
                  val monthlyExpensesRecyclerviewViewAdapter = mFragmentExpensesSummaryViewByItemsBinding.expensesItemRecyclerView.adapter as ExpensesPerItemRecyclerviewViewAdapter

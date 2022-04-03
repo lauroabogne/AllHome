@@ -42,7 +42,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
         @Volatile
         private var INSTANCE:AllHomeDatabase?=null
 
-        suspend fun getDatabase(context: Context):AllHomeDatabase{
+         fun getDatabase(context: Context):AllHomeDatabase{
             val tempInstance = INSTANCE
             if(tempInstance !=null){
                 return tempInstance
