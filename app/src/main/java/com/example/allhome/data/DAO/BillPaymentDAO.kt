@@ -25,7 +25,7 @@ interface BillPaymentDAO {
 
     @Query(
         " SELECT " +
-                " bill_payments.payment_date as expense_date, TOTAL(bill_payments.payment_amount) as total_amount , bills.name as  item_name,'bill_payments' as expense_type  " +
+                "RANDOM() as unique_id, bill_payments.payment_date as expense_date, TOTAL(bill_payments.payment_amount) as amount , bills.name as  item_name,'bill_payments' as expense_type  " +
                 " FROM bill_payments " +
                 " LEFT JOIN bills " +
                 " ON bills.unique_id =  bill_payments.bill_unique_id " +

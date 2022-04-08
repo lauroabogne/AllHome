@@ -5,22 +5,30 @@ import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.bill.BillCustomDateRangeDialogFragment
+import com.example.allhome.data.DAO.BillDAO
+import com.example.allhome.data.DAO.ExpensesGroceryItemDAO
+import com.example.allhome.data.DAO.ExpensesGroceryListDAO
 import com.example.allhome.data.entities.ExpensesEntity
 import com.example.allhome.databinding.ExpensesMonthlyItemBinding
 import com.example.allhome.databinding.FragmentExpensesBinding
 import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModel
+import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModelViewModelFactory
+import com.example.allhome.expenses.viewmodel.ExpensesSummaryByGroceryItemsViewModel
+import com.example.allhome.expenses.viewmodel.ExpensesSummaryByGroceryItemsViewModelFactory
+import com.example.allhome.recipes.FilterByInformationDialogFragment
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,23 +47,38 @@ class ExpensesFragment : Fragment() {
     private var param2: String? = null
 
 
-    lateinit var mExpensesFragmentViewModel:ExpensesFragmentViewModel
+    private val mExpensesFragmentViewModel:ExpensesFragmentViewModel by viewModels{
+        val expensesDAO = (context?.applicationContext as AllHomeBaseApplication).expensesDAO
+        val billDAO = (context?.applicationContext as AllHomeBaseApplication).billDAO
+        ExpensesFragmentViewModelViewModelFactory(expensesDAO,billDAO)
+    }
     lateinit var mFragmentExpensesBinding:FragmentExpensesBinding
     var mContext:Context? = null
+
+    private val addExpenseListener = object:AddExpenseDialogFragment.AddExpenseListener{
+        override fun onExpenseSet(expenseEntity: ExpensesEntity) {
+            mExpensesFragmentViewModel.addExpense(expenseEntity)
+        }
+    }
+    private val savingExpensesObserver = Observer<Boolean> {saveSuccessfully->
+        if(saveSuccessfully){
+            Toast.makeText(requireContext(),"Save successfully.",Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(requireContext(),"Failed to save.",Toast.LENGTH_SHORT).show()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
+        setHasOptionsMenu(true)
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
         }
 
-        mExpensesFragmentViewModel = ViewModelProvider(this).get(ExpensesFragmentViewModel::class.java)
         requireActivity().title = "Expenses"
 
 
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
 
@@ -98,26 +121,33 @@ class ExpensesFragment : Fragment() {
         val monthlyExpensesRecyclerviewViewAdapter = MonthlyExpensesRecyclerviewViewAdapter(arrayListOf())
         mFragmentExpensesBinding.monthlyExpensesRecyclerview.adapter = monthlyExpensesRecyclerviewViewAdapter
 
-
-
             getFilteredExpenses()
             getExpensePerMonthAndCurrentYear()
 
-
-
-
         return mFragmentExpensesBinding.root
     }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        mExpensesFragmentViewModel.mSaveSuccessfully.observe(viewLifecycleOwner,savingExpensesObserver)
 
+    }
     override fun onAttach(context: Context) {
         super.onAttach(context)
         mContext = context
     }
-    override fun onDetach() {
-        super.onDetach()
-
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.expenses_fragment_menu,menu)
+        super.onCreateOptionsMenu(menu, inflater)
     }
-
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId){
+            R.id.add_expenses_menu->{
+                val addExpenseDialogFragment  = AddExpenseDialogFragment(addExpenseListener)
+                addExpenseDialogFragment.show(requireActivity().supportFragmentManager,"AddExpenseDialogFragment")
+            }
+        }
+        return true
+    }
     fun getFilteredExpenses(){
 
 
@@ -158,12 +188,11 @@ class ExpensesFragment : Fragment() {
                 if(expensesEntity !=null){
                     mExpensesFragmentViewModel.mExpensesPerMonth.add(expensesEntity)
                 }else{
-                    mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity(month,0.0))
+                    mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity("","","",month,0.0))
                 }
             }
 
             mExpensesFragmentViewModel.getCurrentYearExpenses(mContext!!,fromDate,toDate)
-
 
             withContext(Main){
 
@@ -175,9 +204,6 @@ class ExpensesFragment : Fragment() {
 
             }
         }
-    }
-    fun generateMonths(){
-
     }
     fun showCalendar(dateTypeRequest:Int){
         val calendar = Calendar.getInstance()

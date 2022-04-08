@@ -94,7 +94,9 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
                 mCurrentActiveFragment = ExpensesSummaryViewByItemsFragment.newInstance(mDateFromFilter, mDateToFilter)
                 fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryViewByItemsFragment)
 
-            } else if (tab!!.position == 1) {
+            }else if(tab!!.position == 1){
+
+            } else if (tab!!.position == 2) {
                 Toast.makeText(this@ExpensesItemSummaryActivity, "Grocery item expenses", Toast.LENGTH_SHORT).show()
                 mCurrentActiveFragment = ExpensesSummaryByGroceryItemsFragment.newInstance(mDateFromFilter, mDateToFilter)
                 fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryByGroceryItemsFragment)

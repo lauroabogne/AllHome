@@ -2,7 +2,6 @@ package com.example.allhome.expenses
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -15,13 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.DAO.BillPaymentDAO
-import com.example.allhome.data.DAO.ExpensesGroceryItemDAO
-import com.example.allhome.data.DAO.ExpensesGroceryListDAO
 import com.example.allhome.data.entities.ExpensesEntityWithItemNameAndType
 import com.example.allhome.databinding.ExpensesItemLayoutBinding
 import com.example.allhome.databinding.FragmentExpensesSummaryByBillsBinding
-import com.example.allhome.expenses.viewmodel.ExpensesSummaryByGroceryItemsViewModel
-import com.example.allhome.expenses.viewmodel.ExpensesSummaryByGroceryItemsViewModelFactory
 import com.example.allhome.expenses.viewmodel.ExpensesSummaryViewByBillsFragmentViewModel
 import com.example.allhome.expenses.viewmodel.ExpensesSummaryViewByBillsFragmentViewModelFactory
 import com.example.allhome.utils.NumberUtils
@@ -115,7 +110,7 @@ class ExpensesSummaryViewByBillsFragment : Fragment() {
 
             val expensesEntityWithItemNameAndType = expensesEntitiesWithItemNameAndType[position]
             holder.expensesItemLayoutBinding.itemNameTextView.text = expensesEntityWithItemNameAndType.item_name
-            holder.expensesItemLayoutBinding.amountTextView.text = NumberUtils.formatNumber(expensesEntityWithItemNameAndType.expensesEntity.totalAmount)
+            holder.expensesItemLayoutBinding.amountTextView.text = NumberUtils.formatNumber(expensesEntityWithItemNameAndType.expensesEntity.amount)
 
         }
 

@@ -52,7 +52,6 @@ class ExpensesSummaryByGroceryItemsFragment : Fragment() {
 
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-
         mFragmentExpensesSummaryItemsBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_expenses_summary_items, container, false)
 
         val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
@@ -112,7 +111,7 @@ class ExpensesSummaryByGroceryItemsFragment : Fragment() {
 
             val expensesEntityWithItemNameAndType = expensesEntitiesWithItemNameAndType[position]
             holder.expensesItemLayoutBinding.itemNameTextView.text = expensesEntityWithItemNameAndType.item_name
-            holder.expensesItemLayoutBinding.amountTextView.text = NumberUtils.formatNumber(expensesEntityWithItemNameAndType.expensesEntity.totalAmount)
+            holder.expensesItemLayoutBinding.amountTextView.text = NumberUtils.formatNumber(expensesEntityWithItemNameAndType.expensesEntity.amount)
 
         }
 

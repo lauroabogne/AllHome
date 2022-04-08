@@ -13,7 +13,7 @@ interface ExpensesGroceryItemDAO {
     fun addItems(expensesGroceryListEntity: List<ExpensesGroceryItemEntity>): List<Long>
 
     @Query(
-        "SELECT datetime_created as expense_date, TOTAL(quantity * price_per_unit) as total_amount , item_name,'grocery_item' as expense_type FROM expenses_grocery_items " +
+        "SELECT RANDOM() as unique_id,datetime_created as expense_date, TOTAL(quantity * price_per_unit) as amount , item_name,'grocery_item' as expense_type FROM expenses_grocery_items " +
                 " WHERE " +
                 " datetime_modified >=:fromDate AND datetime_modified <=:toDate" +
                 " GROUP BY item_name"

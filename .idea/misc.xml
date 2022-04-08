@@ -26,15 +26,22 @@
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.35625" />
         <entry key="app/src/main/res/layout/activity_single_grocery_list.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/activity_storage.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/activity_storage_add_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/activity_storage_grocery_list.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/activity_view_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/activity_web_browse_recipe.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/add_edit_recipe_category_dialog_fragment_layout.xml" value="0.38177083333333334" />
+        <entry key="app/src/main/res/layout/add_expense_layout.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/add_ingredient_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/add_meal_dialog_fragment.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/layout/add_step_item.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/bill_item.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/bill_payment_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/expenses_grocery_item_layout.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/expenses_item_summary_activity.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/expenses_monthly_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/expenses_summary_per_item_layout.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_add_bill.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_add_grocery_list_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_add_recipe_information.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_browse_item_image.xml" value="0.29243266353142366" />
@@ -64,6 +71,7 @@
         <entry key="app/src/main/res/layout/recipe_category_item_checkbox.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/recipe_item.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/recipe_item_grid.xml" value="0.35625" />
+        <entry key="app/src/main/res/layout/recurring_bill.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/storage_grocery_list_layout.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/storage_item_layout.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/view_ingredient_item.xml" value="0.25277777777777777" />
@@ -72,8 +80,11 @@
         <entry key="app/src/main/res/menu/add_category_menu.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/menu/add_grocery_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/add_to_storage_menu.xml" value="0.22702009405728943" />
+        <entry key="app/src/main/res/menu/bill_item_menu.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/menu/expenses_fragment_menu.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/grocery_item_menu.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/grocery_list_action.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/menu/grocery_list_menu.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/pantry_item_menu.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/search_grocery_item_online.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/menu/search_recipe_online_menu.xml" value="0.29243266353142366" />
