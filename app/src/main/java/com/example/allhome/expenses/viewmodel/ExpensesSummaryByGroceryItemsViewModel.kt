@@ -38,6 +38,7 @@ class ExpensesSummaryByGroceryItemsViewModel(private val expensesGroceryListDAO:
     fun getExpensesGroceryItems() {
         val readableFromDate = SIMPLE_DATE_FORMAT.format(mDateFromFilter.time)
         val readableToDate = SIMPLE_DATE_FORMAT.format(mDateToFilter.time)
+
         viewModelScope.launch {
             mGroceryItemExpense.value = withContext(IO){
                 expensesGroceryItemDAO.getExpenses(readableFromDate,readableToDate)

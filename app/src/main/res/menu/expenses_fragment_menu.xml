@@ -4,6 +4,6 @@
 
     <item
         android:id="@+id/add_expenses_menu"
-        android:title="Add Expense"
+        android:title="Add other expense"
         app:showAsAction="always" />
 </menu>

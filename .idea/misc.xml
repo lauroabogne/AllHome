@@ -52,6 +52,7 @@
         <entry key="app/src/main/res/layout/fragment_expenses_summary_by_grocery_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_expenses_summary_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_expenses_summary_view_by_items.xml" value="0.29243266353142366" />
+        <entry key="app/src/main/res/layout/fragment_expenses_summary_view_by_other_expenses.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_first.xml" value="0.16973065412569474" />
         <entry key="app/src/main/res/layout/fragment_grocery_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_grocery_list.xml" value="0.22702009405728943" />
