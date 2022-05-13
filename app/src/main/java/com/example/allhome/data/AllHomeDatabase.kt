@@ -10,7 +10,8 @@ import com.example.allhome.data.entities.*
 @Database(entities = arrayOf(GroceryListEntity::class,GroceryItemEntity::class, StorageItemEntity::class,StorageItemExpirationEntity::class,
     StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class,MealEntity::class,BillEntity::class,
     BillPaymentEntity::class,BillCategoryEntity::class,GroceryListItemCategoryEntity::class,RecipeCategoryEntity::class,
-    RecipeCategoryAssignmentEntity::class,AppSettingEntity::class,ExpensesGroceryListEntity::class,ExpensesGroceryItemEntity::class,ExpensesGroceryListItemCategoryEntity::class
+    RecipeCategoryAssignmentEntity::class,AppSettingEntity::class,ExpensesGroceryListEntity::class,ExpensesGroceryItemEntity::class,ExpensesGroceryListItemCategoryEntity::class,
+    ExpensesEntity::class
     ),version = 4)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
@@ -32,7 +33,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun getExpensesGroceryListDAO():ExpensesGroceryListDAO
     abstract fun getExpensesGroceryItemDAO():ExpensesGroceryItemDAO
     abstract fun getExpensesGroceryListItemCategoryDAO():ExpensesGroceryListItemCategoryDAO
-
+    abstract fun getExpensesDAO():ExpensesDAO
 
 
 

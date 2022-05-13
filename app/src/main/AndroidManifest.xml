@@ -75,6 +75,7 @@
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".MainActivity"
+            android:configChanges="orientation|screenSize|screenLayout|keyboardHidden"
             android:label="@string/app_name"
             android:theme="@style/Theme.AllHome.NoActionBar">
             <intent-filter>

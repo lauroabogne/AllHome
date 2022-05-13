@@ -34,7 +34,7 @@
         android:id="@+id/expensesTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@{NumberUtils.INSTANCE.formatNumber(expensesEntity.totalAmount)}"
+        android:text="@{NumberUtils.INSTANCE.formatNumber(expensesEntity.amount)}"
         android:textSize="18sp"
         android:textStyle="bold"
         tools:text="0.0"

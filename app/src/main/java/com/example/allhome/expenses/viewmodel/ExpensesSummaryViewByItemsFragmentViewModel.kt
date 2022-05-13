@@ -8,7 +8,6 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import java.util.*
-import kotlin.collections.ArrayList
 
 class ExpensesSummaryViewByItemsFragmentViewModel: ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("ExpensesSummaryViewByItemsFragmentViewModel"))
@@ -20,7 +19,7 @@ class ExpensesSummaryViewByItemsFragmentViewModel: ViewModel() {
 
     suspend fun getExpenses(context: Context,fromDate:String,toDate:String): Double {
 
-        mFilterTotalExpenses = AllHomeDatabase.getDatabase(context).getBillItemDAO().getExpenses(fromDate,toDate).totalAmount
+        mFilterTotalExpenses = AllHomeDatabase.getDatabase(context).getBillItemDAO().getExpenses(fromDate,toDate).amount
         return mFilterTotalExpenses
     }
 

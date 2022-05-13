@@ -463,8 +463,8 @@ class BrowseItemImageFragment : Fragment() {
         mFragmentBrowseItemImageBinding.webView.settings.javaScriptEnabled = true// disable the default zoom controls on the page
         mFragmentBrowseItemImageBinding.webView.apply {
             settings.javaScriptEnabled = true
-            //loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
-            loadUrl("https://shopwise.gorobinsons.ph/collections/canned-goods?_=pf&tag=SW%20GRAND%20TERMINAL%20BATANGAS")//metadata ERROR SAVING
+            loadUrl("https://www.google.com/search?q=${mItemName}")//metadata ERROR SAVING
+            //loadUrl("https://shopwise.gorobinsons.ph/collections/canned-goods?_=pf&tag=SW%20GRAND%20TERMINAL%20BATANGAS")//metadata ERROR SAVING
 
             //loadUrl("https://www.watsons.com.ph/bundle-94ml/p/BP_50034200")//metadata ERROR SAVING
 

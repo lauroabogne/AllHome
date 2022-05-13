@@ -19,16 +19,19 @@
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View all items" />
+            android:text="All expenses" />
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View grocery items" />
-
+            android:text="Grocery expenses" />
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="View bill expenses" />
+            android:text="Bill expenses" />
+        <com.google.android.material.tabs.TabItem
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Other expenses" />
     </com.google.android.material.tabs.TabLayout>
 
     <LinearLayout

@@ -94,19 +94,19 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
                 mCurrentActiveFragment = ExpensesSummaryViewByItemsFragment.newInstance(mDateFromFilter, mDateToFilter)
                 fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryViewByItemsFragment)
 
-            } else if (tab!!.position == 1) {
-                Toast.makeText(this@ExpensesItemSummaryActivity, "Grocery item expenses", Toast.LENGTH_SHORT).show()
+            }else if(tab!!.position == 1){
                 mCurrentActiveFragment = ExpensesSummaryByGroceryItemsFragment.newInstance(mDateFromFilter, mDateToFilter)
                 fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryByGroceryItemsFragment)
 
-            } else {
+            } else if (tab!!.position == 2) {
                 mCurrentActiveFragment = ExpensesSummaryViewByBillsFragment.newInstance(mDateFromFilter, mDateToFilter)
                 fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryViewByBillsFragment)
 
-            }
-            Toast.makeText(this@ExpensesItemSummaryActivity, "Clicked", Toast.LENGTH_SHORT).show()
+            } else {
+                mCurrentActiveFragment = ExpensesSummaryViewByOtherExpensesFragment.newInstance(mDateFromFilter,mDateToFilter)
+                fragmentProcessor(mCurrentActiveFragment as ExpensesSummaryViewByOtherExpensesFragment)
 
-            //mFragmentViewRecipeBinding.viewPager.currentItem = tab!!.position
+            }
         }
 
         override fun onTabUnselected(tab: TabLayout.Tab?) {
