@@ -36,6 +36,17 @@ class ExpensesSummaryViewByBillsFragmentViewModel(private val billPaymentDAO: Bi
             }
         }
     }
+    fun getTotalExpensesByDateRange(){
+        val readableFromDate = SIMPLE_DATE_FORMAT.format(mDateFromFilter.time)
+        val readableToDate = SIMPLE_DATE_FORMAT.format(mDateToFilter.time)
+
+        viewModelScope.launch {
+            mTotalBillExpenses.value = withContext(IO){
+                billPaymentDAO.getTotalBillPaymentExpenses(readableFromDate, readableToDate)
+            }
+
+        }
+    }
 }
 
 class ExpensesSummaryViewByBillsFragmentViewModelFactory(private val billPaymentDAO: BillPaymentDAO) : ViewModelProvider.Factory {

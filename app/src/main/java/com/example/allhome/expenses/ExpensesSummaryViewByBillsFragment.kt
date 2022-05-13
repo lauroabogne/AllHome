@@ -83,12 +83,18 @@ class ExpensesSummaryViewByBillsFragment : Fragment() {
                 return@Observer
             }
             mExpensesSummaryViewByBillsFragmentViewModel.getBillExpenses()
+            mExpensesSummaryViewByBillsFragmentViewModel.getTotalExpensesByDateRange()
         })
         mExpensesSummaryViewByBillsFragmentViewModel.mBillExpenses.observe(viewLifecycleOwner, androidx.lifecycle.Observer {expensesEntityWithItemNameAndType->
             val expensesItemRecyclerViewRecyclerviewViewAdapter = mFragmentExpensesSummaryByBillsBinding.expensesItemRecyclerView.adapter as ExpensesItemRecyclerViewRecyclerviewViewAdapter
             expensesItemRecyclerViewRecyclerviewViewAdapter.expensesEntitiesWithItemNameAndType = expensesEntityWithItemNameAndType as ArrayList<ExpensesEntityWithItemNameAndType>
             expensesItemRecyclerViewRecyclerviewViewAdapter.notifyDataSetChanged()
         })
+
+        mExpensesSummaryViewByBillsFragmentViewModel.mTotalBillExpenses.observe(viewLifecycleOwner,androidx.lifecycle.Observer{totalExpenses->
+            mFragmentExpensesSummaryByBillsBinding.totalExpensesTextView.text = NumberUtils.formatNumber(totalExpenses)
+        })
+
 
         mExpensesSummaryViewByBillsFragmentViewModel.mDateToFilter = toCalendar
         mExpensesSummaryViewByBillsFragmentViewModel.mDateFromFilter = fromCalender

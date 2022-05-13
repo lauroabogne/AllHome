@@ -34,6 +34,17 @@ interface BillPaymentDAO {
     )
     fun getBillPaymentExpenses(fromDate: String, toDate: String): List<ExpensesEntityWithItemNameAndType>
 
+    @Query(
+        " SELECT " +
+                "TOTAL(bill_payments.payment_amount)" +
+                " FROM bill_payments " +
+                " LEFT JOIN bills " +
+                " ON bills.unique_id =  bill_payments.bill_unique_id " +
+                " WHERE payment_date >= :fromDate AND payment_date <=:toDate" +
+                " GROUP BY name"
+    )
+    fun getTotalBillPaymentExpenses(fromDate: String, toDate: String): Double
+
 
 
 }
