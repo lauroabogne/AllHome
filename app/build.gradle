@@ -40,6 +40,7 @@ android {
         experimental = true
         features = ["parcelize"]
     }
+    namespace 'com.example.allhome'
 
 
 }
