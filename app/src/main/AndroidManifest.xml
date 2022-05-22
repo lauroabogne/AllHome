@@ -21,9 +21,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AllHome">
         <activity
+            android:name=".todo.TodoFragmentContainerActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AllHome.NoActionBar" />
+        <activity
             android:name=".grocerylist.BrowserItemImageActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".recipes.WebBrowseRecipeActivity"
             android:theme="@style/Theme.AllHome.NoActionBar" />
@@ -66,8 +70,7 @@
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".grocerylist.AddGroceryListItemActivity"
-            android:theme="@style/Theme.AllHome.NoActionBar"
-            />
+            android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
             android:name=".grocerylist.GroceryListActivity"
             android:label="@string/title_activity_grocery_list_activity"

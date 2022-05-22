@@ -44,12 +44,11 @@ data class GroceryListWithItemCount(
 
 class GroceryListEntityValues{
     companion object{
-        val UPLOADED = 1
-        val NOT_YET_UPLOADED = 0
-
-        val ACTIVE_STATUS = 0
-        val DELETED_STATUS = 1
-        val PERMANENTLY_DELETED_STATUS = 2
+        const val UPLOADED = 1
+        const val NOT_YET_UPLOADED = 0
+        const val ACTIVE_STATUS = 0
+        const val DELETED_STATUS = 1
+        const val PERMANENTLY_DELETED_STATUS = 2
     }
 }
 
