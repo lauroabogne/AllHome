@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -52,6 +53,7 @@
                         app:layout_constraintTop_toTopOf="parent">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/taskNameTextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Task name" />
@@ -101,6 +103,7 @@
                         app:layout_constraintTop_toBottomOf="@+id/textInputLayout23">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/repeatEveryTextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Repeat every" />
@@ -110,17 +113,18 @@
                         android:id="@+id/repeatSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:entries="@array/bill_recurring"
+                        android:entries="@array/todo_recurring"
                         app:layout_constraintBottom_toBottomOf="@+id/textInputLayout25"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toEndOf="@+id/textInputLayout25"
                         app:layout_constraintTop_toTopOf="@+id/textInputLayout25" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/textInputLayout26"
+                        android:id="@+id/repeatTextInputLayout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
+                        android:visibility="gone"
                         app:layout_constraintEnd_toStartOf="@+id/repeatUntilImageView"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/textInputLayout25">
@@ -141,11 +145,12 @@
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:background="?selectableItemBackgroundBorderless"
+                        android:visibility="gone"
                         android:paddingLeft="12dp"
                         android:paddingTop="10dp"
                         android:paddingRight="12dp"
                         android:paddingBottom="10dp"
-                        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout26"
+                        app:layout_constraintBottom_toBottomOf="@+id/repeatTextInputLayout"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:srcCompat="@drawable/ic_calendar" />
 
@@ -154,18 +159,19 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        app:layout_constraintEnd_toStartOf="@+id/spinner"
+                        app:layout_constraintEnd_toStartOf="@+id/notifyEveryTypeSpinner"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout26">
+                        app:layout_constraintTop_toBottomOf="@+id/repeatTextInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/notifyTextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="Notify" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <Spinner
-                        android:id="@+id/spinner"
+                        android:id="@+id/notifyEveryTypeSpinner"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:entries="@array/grocery_alarm_options"

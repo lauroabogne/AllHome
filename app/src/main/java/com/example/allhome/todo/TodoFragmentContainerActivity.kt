@@ -9,9 +9,12 @@ class TodoFragmentContainerActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_todo_fragment_container)
 
-        supportFragmentManager.beginTransaction().apply {
-            replace(R.id.fragmentContainer,CreateEditTodoFragment.newInstance("",""))
-            commit()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction().apply {
+                replace(R.id.fragmentContainer,CreateEditTodoFragment.newInstance("",""))
+                commit()
+            }
         }
+
     }
 }

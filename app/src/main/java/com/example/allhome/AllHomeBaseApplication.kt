@@ -30,6 +30,8 @@ class AllHomeBaseApplication : Application() {
     val expensesGroceryItemDAO by lazy { database.getExpensesGroceryItemDAO() }
     val expensesGroceryListItemCategoryDAO by lazy { database.getExpensesGroceryListItemCategoryDAO() }
     val expensesDAO by lazy { database.getExpensesDAO()}
+    val todosDAO by lazy{database.getTodosDAO()}
+    val todoSubTasksDAO by lazy{database.getTodoSubTasksDAO()}
 
 
 }

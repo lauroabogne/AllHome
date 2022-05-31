@@ -6,6 +6,7 @@
         <entry key="../../../../layout/custom_preview.xml" value="0.384375" />
         <entry key="app/src/main/res/drawable-v21/ic_menu_camera.xml" value="0.3215" />
         <entry key="app/src/main/res/drawable/ic_alarm_24.xml" value="0.317" />
+        <entry key="app/src/main/res/drawable/ic_baseline_calendar_today_24.xml" value="0.3575" />
         <entry key="app/src/main/res/drawable/ic_baseline_format_list_bulleted_24.xml" value="0.317" />
         <entry key="app/src/main/res/drawable/ic_baseline_image_500.xml" value="0.3575" />
         <entry key="app/src/main/res/drawable/ic_browse_24.xml" value="0.214" />
@@ -59,7 +60,7 @@
         <entry key="app/src/main/res/layout/fragment_bills.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_browse_item_image.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_browse_recipe.xml" value="0.29243266353142366" />
-        <entry key="app/src/main/res/layout/fragment_create_edit_todo.xml" value="0.33" />
+        <entry key="app/src/main/res/layout/fragment_create_edit_todo.xml" value="0.5" />
         <entry key="app/src/main/res/layout/fragment_expenses.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_expenses_grocery_items.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/fragment_expenses_summary_by_bills.xml" value="0.29243266353142366" />

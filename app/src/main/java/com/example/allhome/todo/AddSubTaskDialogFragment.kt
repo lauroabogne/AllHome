@@ -14,7 +14,7 @@ import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.databinding.AddSubtaskDialogFragmentBinding
 
-class AddSubTaskDialogFragment: DialogFragment() {
+class AddSubTaskDialogFragment(val onSubTaskSavedListener:OnSubTaskSavedListener? = null): DialogFragment() {
 
     lateinit var mAddSubtaskDialogFragmentBinding:AddSubtaskDialogFragmentBinding
 
@@ -33,12 +33,18 @@ class AddSubTaskDialogFragment: DialogFragment() {
         val alertDialog = alertDialogBuilder.create()
         alertDialog.setOnShowListener {
             alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)?.setOnClickListener {
-                Toast.makeText(requireContext(),"Save",Toast.LENGTH_SHORT).show()
+                alertDialog.dismiss()
+                onSubTaskSavedListener?.let {
+                    it.onSubTaskSaved(mAddSubtaskDialogFragmentBinding.subtaskTextinputEdittext.text.toString())
+                }
             }
         }
 
         return alertDialog
     }
 
+    interface OnSubTaskSavedListener {
+        fun onSubTaskSaved(subTask:String)
+    }
 
 }
