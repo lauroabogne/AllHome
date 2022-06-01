@@ -1,8 +1,6 @@
 package com.example.allhome.data.entities
 
-import androidx.room.ColumnInfo
-import androidx.room.Entity
-import androidx.room.PrimaryKey
+import androidx.room.*
 import kotlinx.android.parcel.Parcelize
 
 
@@ -32,3 +30,7 @@ data class TodoEntity(
         const val RECURRING = 1
     }
 }
+data class TodosWithSubTaskCount(
+    @Embedded val todoEntity:TodoEntity,
+    var totalSubTaskCount: Int = 0,
+)

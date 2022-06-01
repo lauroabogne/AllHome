@@ -3,6 +3,11 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="todosWithSubTaskCount"
+            type="com.example.allhome.data.entities.TodosWithSubTaskCount" />
+    </data>
 
 <androidx.cardview.widget.CardView
     android:layout_width="match_parent"
@@ -32,12 +37,23 @@
             tools:layout_editor_absoluteY="8dp">
 
             <ImageButton
+                android:id="@+id/imageButton7"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:background="@null"
+                app:layout_constraintStart_toStartOf="@+id/textView34"
+                app:layout_constraintTop_toBottomOf="@+id/textView34"
+                app:srcCompat="@drawable/ic_baseline_repeat_24"
+                app:todoShowHideRepeatIcon="@{todosWithSubTaskCount}"/>
+
+            <ImageButton
                 android:id="@+id/imageButton4"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:background="@null"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView34"
+                app:layout_constraintBottom_toBottomOf="@+id/imageButton7"
+                app:layout_constraintStart_toEndOf="@+id/imageButton7"
+                app:layout_constraintTop_toTopOf="@+id/imageButton7"
                 app:srcCompat="@drawable/ic_alarm_24" />
 
             <ImageButton
@@ -60,11 +76,12 @@
                 android:layout_height="wrap_content"
                 android:paddingTop="4dp"
                 android:paddingBottom="4dp"
-                android:text="Clean kitchen"
+                android:text="@{todosWithSubTaskCount.todoEntity.name}"
                 android:textColor="#000"
                 android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Go shopping" />
 
             <TextView
                 android:id="@+id/textView52"
@@ -76,7 +93,8 @@
                 android:textSize="14sp"
                 app:layout_constraintBottom_toBottomOf="@+id/imageButton6"
                 app:layout_constraintStart_toEndOf="@+id/imageButton6"
-                app:layout_constraintTop_toTopOf="@+id/imageButton6" />
+                app:layout_constraintTop_toTopOf="@+id/imageButton6"
+                app:todoDueDateFormatter="@{todosWithSubTaskCount.todoEntity.dueDate}"/>
 
             <ImageButton
                 android:id="@+id/imageButton5"

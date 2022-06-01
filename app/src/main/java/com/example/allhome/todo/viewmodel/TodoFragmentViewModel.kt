@@ -7,20 +7,21 @@ import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodosWithSubTaskCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
-    var mTodoEntities:MutableList<TodoEntity> = mutableListOf()
+    var mTodoEntities:MutableList<TodosWithSubTaskCount> = mutableListOf()
     var mLoadData:MutableLiveData<Boolean> = MutableLiveData()
 
     fun getTodos(){
         viewModelScope.launch {
 
             mTodoEntities = withContext(IO){
-                todosDAO.selectTodos() as MutableList<TodoEntity>
+                todosDAO.selectTodos() as MutableList<TodosWithSubTaskCount>
             }
             withContext(IO){
                 mLoadData.postValue(true)

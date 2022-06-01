@@ -11,24 +11,15 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
-import com.example.allhome.bill.AddPaymentFragment
-import com.example.allhome.bill.BillActivity
-import com.example.allhome.data.entities.ExpensesEntity
 import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.databinding.ExpensesMonthlyItemBinding
-import com.example.allhome.databinding.FragmentGroceryListBinding
+import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentTodoBinding
 import com.example.allhome.databinding.TodoItemBinding
-import com.example.allhome.expenses.ExpensesFragment
-import com.example.allhome.expenses.ExpensesItemSummaryActivity
-import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModel
-import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModelFactory
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
 import java.text.SimpleDateFormat
@@ -92,7 +83,7 @@ class TodoFragment : Fragment() {
             Toast.makeText(requireContext(),"Load data ${mTodoFragmentViewModel.mTodoEntities.size}",Toast.LENGTH_SHORT).show()
 
             val todoListRecyclerviewViewAdapter = mFragmentTodoBinding.todoListRecyclerview.adapter as TodoListRecyclerviewViewAdapter
-            todoListRecyclerviewViewAdapter.todoEntities = mTodoFragmentViewModel.mTodoEntities as ArrayList<TodoEntity>
+            todoListRecyclerviewViewAdapter.todosWithSubTaskCount = mTodoFragmentViewModel.mTodoEntities as ArrayList<TodosWithSubTaskCount>
             todoListRecyclerviewViewAdapter.notifyDataSetChanged()
             //mFragmentExpensesBinding.invalidateAll()
 
@@ -117,33 +108,30 @@ class TodoFragment : Fragment() {
     }
 
 
-    inner class TodoListRecyclerviewViewAdapter(var todoEntities:ArrayList<TodoEntity>): RecyclerView.Adapter<TodoListRecyclerviewViewAdapter.ItemViewHolder>() {
+    inner class TodoListRecyclerviewViewAdapter(var todosWithSubTaskCount:ArrayList<TodosWithSubTaskCount>): RecyclerView.Adapter<TodoListRecyclerviewViewAdapter.ItemViewHolder>() {
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
 
             val expensesMonthlyItemBinding = TodoItemBinding.inflate(layoutInflater, parent, false)
-            val itemHolder = ItemViewHolder(expensesMonthlyItemBinding)
 
-            return itemHolder
+            return ItemViewHolder(expensesMonthlyItemBinding)
         }
 
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             holder.setIsRecyclable(false);
 
-            val todoEntity = todoEntities[position]
-            val date = SimpleDateFormat("yyyy-MM").parse(todoEntity.dueDate)
+            val todoWithSubTaskCount = todosWithSubTaskCount[position]
+            val date = SimpleDateFormat("yyyy-MM").parse(todoWithSubTaskCount.todoEntity.dueDate)
             val readableDate = SimpleDateFormat("MMMM").format(date)//SimpleDateFormat("MMMM").format(calendar.time)
 
-//            holder.expensesMonthlyItemBinding.month = readableDate
-//            holder.expensesMonthlyItemBinding.expensesEntity = expensesEntity
-//            holder.expensesMonthlyItemBinding.root.tag = expensesEntity.expenseDate
+            holder.todoItemBinding.todosWithSubTaskCount = todoWithSubTaskCount
             holder.todoItemBinding.root.setOnClickListener(holder)
             holder.todoItemBinding.executePendingBindings()
         }
 
         override fun getItemCount(): Int {
-            return todoEntities.size
+            return todosWithSubTaskCount.size
         }
         inner class  ItemViewHolder(var todoItemBinding: TodoItemBinding): RecyclerView.ViewHolder(todoItemBinding.root),View.OnClickListener{
             override fun onClick(v: View?) {
