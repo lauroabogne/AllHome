@@ -18,6 +18,9 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import com.example.allhome.AllHomeBaseApplication
@@ -25,7 +28,10 @@ import com.example.allhome.R
 import com.example.allhome.bill.DateInMonthDialogFragment
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentCreateEditTodoBinding
+import com.example.allhome.databinding.TodoItemBinding
+import com.example.allhome.databinding.TodoItemSubTaskBinding
 import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModelViewModelFactory
 import com.example.allhome.todo.AddSubTaskDialogFragment.OnSubTaskSavedListener
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModel
@@ -46,6 +52,16 @@ class CreateEditTodoFragment : Fragment() {
     private val SHOW_CALENDAR_FOR_REPEAT_UNTIL = 2
     private var showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
 
+    companion object {
+        @JvmStatic fun newInstance(param1: String, param2: String) =
+            CreateEditTodoFragment().apply {
+                arguments = Bundle().apply {
+                    putString(ARG_PARAM1, param1)
+                    putString(ARG_PARAM2, param2)
+                }
+            }
+    }
+
     private val mCreateEditTodoFragmentViewModel: CreateEditTodoFragmentViewModel by viewModels{
 
         val database = (context?.applicationContext as AllHomeBaseApplication).database
@@ -55,10 +71,7 @@ class CreateEditTodoFragment : Fragment() {
         CreateEditTodoFragmentViewModelFactory(database,todosDAO,todoSubTasksDAO)
 
     }
-
     lateinit var mFragmentCreateEditTodoBinding: FragmentCreateEditTodoBinding
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -69,7 +82,6 @@ class CreateEditTodoFragment : Fragment() {
 
 
     }
-
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentCreateEditTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_edit_todo,null,false)
@@ -87,11 +99,17 @@ class CreateEditTodoFragment : Fragment() {
                     saveTodo()
                 }
                 R.id.update_menu->{
-
                 }
             }
             true
         }
+
+        val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+        mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.addItemDecoration(decorator)
+
+        val todoSubTaskListRecyclerviewAdapter = TodoSubTaskListRecyclerviewAdapter(mCreateEditTodoFragmentViewModel.mTodoSubTask as ArrayList<TodoSubTasksEntity>)
+        mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter = todoSubTaskListRecyclerviewAdapter
+
         mFragmentCreateEditTodoBinding.addSubmenuLinearLayout.setOnClickListener {
             val addSubTaskDialogFragment = AddSubTaskDialogFragment(object: OnSubTaskSavedListener{
                 override fun onSubTaskSaved(subTask: String) {
@@ -111,7 +129,7 @@ class CreateEditTodoFragment : Fragment() {
                     )
 
                     mCreateEditTodoFragmentViewModel.mTodoSubTask.add(todoSubTasksEntity)
-                    Log.e("COUNT","${mCreateEditTodoFragmentViewModel.mTodoSubTask.size}")
+                    (mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter as TodoSubTaskListRecyclerviewAdapter).notifyDataSetChanged()
 
                 }
             })
@@ -119,7 +137,6 @@ class CreateEditTodoFragment : Fragment() {
             addSubTaskDialogFragment.show(requireActivity().supportFragmentManager,"AddSubTaskDialogFragment")
 
         }
-
         mFragmentCreateEditTodoBinding.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
         mFragmentCreateEditTodoBinding.dueDateImageView.setOnClickListener {
             showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
@@ -322,13 +339,32 @@ class CreateEditTodoFragment : Fragment() {
         }
 
     }
-    companion object {
-        @JvmStatic fun newInstance(param1: String, param2: String) =
-            CreateEditTodoFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
+
+
+    inner class TodoSubTaskListRecyclerviewAdapter(var todoSubTasksEntities:ArrayList<TodoSubTasksEntity>): RecyclerView.Adapter<TodoSubTaskListRecyclerviewAdapter.ItemViewHolder>() {
+        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
+            val layoutInflater = LayoutInflater.from(parent.context)
+            val todoItemSubTaskBinding = TodoItemSubTaskBinding.inflate(layoutInflater, parent, false)
+            return ItemViewHolder(todoItemSubTaskBinding)
+        }
+        override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
+            val todoSubTasksEntity = todoSubTasksEntities[position]
+            holder.todoItemSubTaskBinding.todoSubTasksEntity = todoSubTasksEntity
+            holder.todoItemSubTaskBinding.root.setOnClickListener(holder)
+            holder.todoItemSubTaskBinding.executePendingBindings()
+        }
+        override fun getItemCount(): Int {
+            return todoSubTasksEntities.size
+        }
+        private fun itemClicked(itemPosition:Int){
+            Toast.makeText(requireContext(),"Position ${itemPosition}",Toast.LENGTH_SHORT).show()
+        }
+        inner class  ItemViewHolder(var todoItemSubTaskBinding: TodoItemSubTaskBinding): RecyclerView.ViewHolder(todoItemSubTaskBinding.root),View.OnClickListener{
+            override fun onClick(view: View?) {
+
+                itemClicked(adapterPosition)
             }
+
+        }
     }
 }

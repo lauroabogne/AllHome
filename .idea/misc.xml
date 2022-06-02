@@ -93,7 +93,8 @@
         <entry key="app/src/main/res/layout/recurring_bill.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/storage_grocery_list_layout.xml" value="0.27395833333333336" />
         <entry key="app/src/main/res/layout/storage_item_layout.xml" value="0.29243266353142366" />
-        <entry key="app/src/main/res/layout/todo_item.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/todo_item.xml" value="0.6637824474660075" />
+        <entry key="app/src/main/res/layout/todo_item_sub_task.xml" value="0.29157759726378796" />
         <entry key="app/src/main/res/layout/view_ingredient_item.xml" value="0.25277777777777777" />
         <entry key="app/src/main/res/menu/activity_main_drawer.xml" value="0.35625" />
         <entry key="app/src/main/res/menu/add_bill_menu.xml" value="0.38177083333333334" />

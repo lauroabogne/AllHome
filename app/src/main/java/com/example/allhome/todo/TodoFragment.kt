@@ -109,37 +109,28 @@ class TodoFragment : Fragment() {
 
 
     inner class TodoListRecyclerviewViewAdapter(var todosWithSubTaskCount:ArrayList<TodosWithSubTaskCount>): RecyclerView.Adapter<TodoListRecyclerviewViewAdapter.ItemViewHolder>() {
-
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
-
             val expensesMonthlyItemBinding = TodoItemBinding.inflate(layoutInflater, parent, false)
-
             return ItemViewHolder(expensesMonthlyItemBinding)
         }
-
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
-            holder.setIsRecyclable(false);
-
             val todoWithSubTaskCount = todosWithSubTaskCount[position]
-            val date = SimpleDateFormat("yyyy-MM").parse(todoWithSubTaskCount.todoEntity.dueDate)
-            val readableDate = SimpleDateFormat("MMMM").format(date)//SimpleDateFormat("MMMM").format(calendar.time)
-
             holder.todoItemBinding.todosWithSubTaskCount = todoWithSubTaskCount
             holder.todoItemBinding.root.setOnClickListener(holder)
             holder.todoItemBinding.executePendingBindings()
         }
-
         override fun getItemCount(): Int {
             return todosWithSubTaskCount.size
         }
+        private fun itemClicked(itemPosition:Int){
+            Toast.makeText(requireContext(),"Position ${itemPosition}",Toast.LENGTH_SHORT).show()
+        }
         inner class  ItemViewHolder(var todoItemBinding: TodoItemBinding): RecyclerView.ViewHolder(todoItemBinding.root),View.OnClickListener{
-            override fun onClick(v: View?) {
+            override fun onClick(view: View?) {
 
-
-
+                itemClicked(adapterPosition)
             }
-
 
         }
     }

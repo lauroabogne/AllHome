@@ -11,7 +11,8 @@
 
 <androidx.cardview.widget.CardView
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="wrap_content"
+    android:foreground="?attr/selectableItemBackground">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -54,7 +55,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/imageButton7"
                 app:layout_constraintStart_toEndOf="@+id/imageButton7"
                 app:layout_constraintTop_toTopOf="@+id/imageButton7"
-                app:srcCompat="@drawable/ic_alarm_24" />
+                app:srcCompat="@drawable/ic_alarm_24"
+                app:todoShowHideNotificationIcon="@{todosWithSubTaskCount}"/>
 
             <ImageButton
                 android:id="@+id/imageButton6"
@@ -68,7 +70,8 @@
                 app:layout_constraintStart_toEndOf="@+id/imageButton5"
                 app:layout_constraintTop_toTopOf="@+id/imageButton5"
                 app:srcCompat="@drawable/ic_baseline_calendar_today_24"
-                tools:ignore="VectorDrawableCompat" />
+                tools:ignore="VectorDrawableCompat"
+                app:todoShowHideDueDateIcon="@{todosWithSubTaskCount}"/>
 
             <TextView
                 android:id="@+id/textView34"
@@ -106,7 +109,8 @@
                 app:layout_constraintBottom_toBottomOf="@+id/imageButton4"
                 app:layout_constraintStart_toEndOf="@+id/imageButton4"
                 app:layout_constraintTop_toTopOf="@+id/imageButton4"
-                app:srcCompat="@drawable/ic_baseline_format_list_bulleted_24" />
+                app:srcCompat="@drawable/ic_baseline_format_list_bulleted_24"
+                app:todoShowHideSubTaskIcon="@{todosWithSubTaskCount}"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.cardview.widget.CardView>
