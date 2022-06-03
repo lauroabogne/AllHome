@@ -81,6 +81,7 @@
         <entry key="app/src/main/res/layout/fragment_view_recipe.xml" value="0.38177083333333334" />
         <entry key="app/src/main/res/layout/fragment_view_recipe_information.xml" value="0.33" />
         <entry key="app/src/main/res/layout/fragment_view_recipe_ingredients.xml" value="0.25277777777777777" />
+        <entry key="app/src/main/res/layout/fragment_view_todo.xml" value="0.67" />
         <entry key="app/src/main/res/layout/grocery_list_item.xml" value="0.29243266353142366" />
         <entry key="app/src/main/res/layout/grocery_list_product.xml" value="0.22702009405728943" />
         <entry key="app/src/main/res/layout/meal_item.xml" value="0.35625" />

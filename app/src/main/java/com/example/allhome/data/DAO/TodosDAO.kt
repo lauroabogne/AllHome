@@ -15,4 +15,6 @@ interface TodosDAO {
 
     @Query("SELECT *,(SELECT count(*) from todo_subtasks WHERE todo_unique_id = todos.unique_id) as totalSubTaskCount  FROM todos")
     fun selectTodos():List<TodosWithSubTaskCount>
+    @Query("SELECT * FROM todos WHERE  unique_id=:uniqueId AND item_status =${TodoEntity.NOT_DELETED_STATUS} LIMIT 1")
+    fun getTodo(uniqueId:String):TodoEntity
 }

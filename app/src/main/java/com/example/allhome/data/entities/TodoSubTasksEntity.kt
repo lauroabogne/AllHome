@@ -16,4 +16,11 @@ data class TodoSubTasksEntity (
     @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int, //0=not yet uploaded,1=uploaded
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
-)
+){
+    companion object{
+        const val NOT_DELETED_STATUS = 0
+        const val DELETED_STATUS = 1
+        const val NOT_UPLOADED = 0
+        const val UPLOADED = 1
+    }
+}

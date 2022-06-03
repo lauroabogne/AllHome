@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="todoEntity"
+            type="com.example.allhome.data.entities.TodoEntity" />
+
+    </data>
+<ScrollView
+
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="12dp"
+    tools:context=".todo.ViewTodoFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="1000dp"
+        android:orientation="vertical">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <TextView
+                android:id="@+id/textView54"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{todoEntity.name}"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="Clean kitchen" />
+
+            <TextView
+                android:id="@+id/textView55"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:text="Due date : January 1, 2022 1:00 pm"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView54" />
+
+            <TextView
+                android:id="@+id/textView117"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:text="Repeat every : 1 week"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView55" />
+
+            <TextView
+                android:id="@+id/textView118"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:text="Repeat until : January 1, 2023"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView117" />
+
+            <TextView
+                android:id="@+id/textView125"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingLeft="12dp"
+                android:paddingTop="4dp"
+                android:paddingRight="4dp"
+                android:paddingBottom="4dp"
+                android:text="Notify : 10 minutes before due date"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView118" />
+
+            <TextView
+                android:id="@+id/textView126"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:paddingTop="8dp"
+                android:paddingBottom="8dp"
+                android:text="Sub task"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView125" />
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/subTodoTaskRecyclerView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginLeft="12dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/textView126" />
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
+
+</ScrollView>
+</layout>

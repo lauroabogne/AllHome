@@ -46,6 +46,12 @@ class TodoFragment : Fragment() {
         }
     }
 
+    private val viewTodoResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+
+        }
+    }
+
     lateinit var mFragmentTodoBinding:FragmentTodoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,7 +64,6 @@ class TodoFragment : Fragment() {
         requireActivity().title = "To Do List"
     }
 
-    var a:Int = 1
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
         mFragmentTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo,null,false)
@@ -73,6 +78,7 @@ class TodoFragment : Fragment() {
 
         mFragmentTodoBinding.fab.setOnClickListener {
             val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
+            intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.CREATE_TODO_FRAGMENT)
             addTodoListResultContract.launch(intent)
         }
 
@@ -124,7 +130,12 @@ class TodoFragment : Fragment() {
             return todosWithSubTaskCount.size
         }
         private fun itemClicked(itemPosition:Int){
-            Toast.makeText(requireContext(),"Position ${itemPosition}",Toast.LENGTH_SHORT).show()
+
+            val todoUniqueId = todosWithSubTaskCount[itemPosition].todoEntity.uniqueId
+            val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
+            intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.VIEW_TODO_FRAGMENT)
+            intent.putExtra(ViewTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
+            addTodoListResultContract.launch(intent)
         }
         inner class  ItemViewHolder(var todoItemBinding: TodoItemBinding): RecyclerView.ViewHolder(todoItemBinding.root),View.OnClickListener{
             override fun onClick(view: View?) {
