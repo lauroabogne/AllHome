@@ -122,7 +122,7 @@ class CalendarFragment : Fragment(),Calendar.OnDateSelectedChangeListener {
                         mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
                         mFragmentCalendarBinding.calendarViewPager.isUserInputEnabled = true
 
-                    },3)
+                    },500)
                 }
                 if(position == 2){
 
@@ -142,7 +142,7 @@ class CalendarFragment : Fragment(),Calendar.OnDateSelectedChangeListener {
 
                         mFragmentCalendarBinding.calendarViewPager.setCurrentItem(1,false)
                         mFragmentCalendarBinding.calendarViewPager.isUserInputEnabled = true
-                    },3)
+                    },500)
                 }
 
             }
