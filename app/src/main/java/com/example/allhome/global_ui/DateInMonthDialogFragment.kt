@@ -1,27 +1,21 @@
-package com.example.allhome.bill
+package com.example.allhome.global_ui
 
 import android.app.AlertDialog
 import android.app.Dialog
 import android.content.DialogInterface
-import android.graphics.Color
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TableLayout
 import android.widget.TableRow
 import android.widget.TextView
-import android.widget.Toast
-import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.example.allhome.R
-import com.example.allhome.databinding.MessageLayoutBinding
-import com.example.allhome.meal_planner.AddMealOptionFragment
 
 class DateInMonthDialogFragment: DialogFragment() {
 
-    var mDateSelectedListener:DateSelectedListener? = null
-    fun setDateSelectedListener(dateSelectedListener:DateSelectedListener){
+    private var mDateSelectedListener: DateSelectedListener? = null
+    fun setDateSelectedListener(dateSelectedListener: DateSelectedListener){
         mDateSelectedListener = dateSelectedListener
     }
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {

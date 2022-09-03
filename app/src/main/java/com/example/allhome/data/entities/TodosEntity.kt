@@ -14,7 +14,7 @@ data class TodoEntity(
     @ColumnInfo(name = "repeat_every",defaultValue="0") var repeatEvery:Int,
     @ColumnInfo(name = "repeat_every_type",defaultValue="0000-00-00 00:00:00") var repeatEveryType:String,
     @ColumnInfo(name = "repeat_until",defaultValue="0000-00-00 00:00:00") var repeatUntil:String,
-    @ColumnInfo(name = "notify_every",defaultValue="0") var notifyEvery:Int,
+    @ColumnInfo(name = "notify_at",defaultValue="0") var notifyAt:Int,
     @ColumnInfo(name = "notify_every_type",defaultValue="none") var notifyEveryType:String,
     @ColumnInfo(name = "item_status",defaultValue="0") var itemStatus:Int,//0 active,1=deleted,2=permanently deleted
     @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int, //0=not yet uploaded,1=uploaded

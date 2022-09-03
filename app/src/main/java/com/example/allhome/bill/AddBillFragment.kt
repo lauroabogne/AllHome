@@ -8,7 +8,6 @@ import android.view.*
 import android.widget.AdapterView
 import android.widget.RadioGroup
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -18,6 +17,7 @@ import com.example.allhome.bill.viewmodel.BillViewModel
 import com.example.allhome.data.entities.BillCategoryEntity
 import com.example.allhome.data.entities.BillEntity
 import com.example.allhome.databinding.FragmentAddBillBinding
+import com.example.allhome.global_ui.DateInMonthDialogFragment
 import com.example.allhome.utils.MinMaxInputFilter
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
@@ -849,7 +849,7 @@ class AddBillFragment : Fragment() {
                     mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.requestFocus()
 
                     var dateInMonthDialogFragment = DateInMonthDialogFragment()
-                    dateInMonthDialogFragment.mDateSelectedListener = dateInMonthDialogFragmentDateSelectedListener
+                    dateInMonthDialogFragment.setDateSelectedListener(dateInMonthDialogFragmentDateSelectedListener)
                     dateInMonthDialogFragment.show(childFragmentManager,"DateInMonthDialogFragment")
 
                 }
@@ -869,7 +869,7 @@ class AddBillFragment : Fragment() {
         }
 
     }
-    private val dateInMonthDialogFragmentDateSelectedListener = object:DateInMonthDialogFragment.DateSelectedListener{
+    private val dateInMonthDialogFragmentDateSelectedListener = object: DateInMonthDialogFragment.DateSelectedListener{
         override fun dateSelected(date: String) {
 
             mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.setText(date)

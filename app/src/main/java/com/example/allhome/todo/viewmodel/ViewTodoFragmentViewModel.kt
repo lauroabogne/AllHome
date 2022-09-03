@@ -2,22 +2,22 @@ package com.example.allhome.todo.viewmodel
 
 import android.util.Log
 import androidx.lifecycle.*
-import com.example.allhome.AllHomeBaseApplication
-import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
-import com.example.allhome.data.entities.TodosWithSubTaskCount
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasksDAO: TodoSubTasksDAO):ViewModel() {
     var mLoadData:MutableLiveData<Boolean> = MutableLiveData()
+    var mDeleteSelectedTask:MutableLiveData<Boolean> = MutableLiveData()
+    var mDeleteSelectedAndFutureTask:MutableLiveData<Boolean>  = MutableLiveData()
+    var mDoTaskUpdatedAsDeletedSuccesfully:MutableLiveData<Boolean> = MutableLiveData()
     var mTodoEntity:MutableLiveData<TodoEntity> = MutableLiveData()
     var mTodoSubTasksEntities:MutableLiveData<List<TodoSubTasksEntity>> = MutableLiveData(arrayListOf())
+    var mDoTaskNeedToDeleteIsRecurring:MutableLiveData<Boolean> = MutableLiveData()
 
     fun getTodo(uniqueId:String){
         viewModelScope.launch {
@@ -25,11 +25,10 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
             mTodoEntity.value = withContext(IO){
                 todosDAO.getTodo(uniqueId)
             }
-
         }
     }
     fun getSubTask(uniqueId:String){
-        Log.e("UNIQUE_ID",uniqueId)
+
         viewModelScope.launch {
             mTodoSubTasksEntities.value = withContext(IO){
                 val a = todoSubTasksDAO.getSubTasks(uniqueId)
@@ -38,6 +37,36 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
             }
         }
     }
+    fun updateSelectedTodoAndSubTodoTaskAsDeleted(uniqueId:String){
+        viewModelScope.launch {
+
+            withContext(IO){
+                val todoSubTaskAffected = todoSubTasksDAO.updateSubTasksAsDeleted(uniqueId)
+                val todoAffected = todosDAO.updateAsDeleted(uniqueId)
+                mDoTaskUpdatedAsDeletedSuccesfully.postValue(todoAffected >0)
+            }
+
+        }
+    }
+
+    fun updateSelectedAndFutureTodoAndSubTaskAsDeleted(uniqueId:String){
+        viewModelScope.launch {
+            withContext(IO){
+                todoSubTasksDAO.updateSelectedTodoAndFutureSubTasksAsDeleted(uniqueId)
+                val todoAffected = todosDAO.updateSelectedAndFutureTodoAsDeleted(uniqueId)
+                mDoTaskUpdatedAsDeletedSuccesfully.postValue(todoAffected>0)
+            }
+        }
+    }
+
+    fun checkIfTodoIsRecurring(todoGroupUniqueId:String){
+        viewModelScope.launch {
+            mDoTaskNeedToDeleteIsRecurring.value =  withContext(IO){
+                todosDAO.getTodoCountByGroupUniqueId(todoGroupUniqueId) > 0
+            }
+        }
+    }
+
 }
 class ViewTodoFragmentViewModelFactory( private val todosDAO: TodosDAO,private val todoSubTasksDAO: TodoSubTasksDAO) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {

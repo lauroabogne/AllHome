@@ -36,6 +36,15 @@
         <item>@string/grocery_notification_day_before</item>
     </string-array>
 
+
+    <string-array name="todo_alarm_options">
+        <item>@string/grocery_notification_none</item>
+        <item>@string/grocery_notification_same_day_and_time</item>
+        <item>@string/grocery_notification_minute_before</item>
+        <item>@string/grocery_notification_hour_before</item>
+        <item>@string/grocery_notification_day_before</item>
+    </string-array>
+
     <!--MEAL TYPE-->
     <string name="breakfast">Breakfast</string>
     <string name="lunch">Launch</string>

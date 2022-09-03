@@ -10,6 +10,7 @@ import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -29,6 +30,7 @@ class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
 
         }
     }
+
 
 }
 

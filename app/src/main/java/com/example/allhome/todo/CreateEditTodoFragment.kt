@@ -5,39 +5,26 @@ import android.app.TimePickerDialog
 import android.content.DialogInterface
 import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.Toast
-import android.widget.Toolbar
 import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
+import androidx.recyclerview.widget.*
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
-import com.example.allhome.bill.DateInMonthDialogFragment
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
-import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentCreateEditTodoBinding
-import com.example.allhome.databinding.TodoItemBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
-import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModelViewModelFactory
-import com.example.allhome.todo.AddSubTaskDialogFragment.OnSubTaskSavedListener
+import com.example.allhome.global_ui.DateInMonthDialogFragment
+import com.example.allhome.todo.AddEditSubTaskDialogFragment.OnSubTaskSavedListener
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModelFactory
-import com.example.allhome.utils.MinMaxInputFilter
-import org.w3c.dom.Text
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -52,16 +39,6 @@ class CreateEditTodoFragment : Fragment() {
     private val SHOW_CALENDAR_FOR_REPEAT_UNTIL = 2
     private var showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
 
-    companion object {
-        @JvmStatic fun newInstance(param1: String, param2: String) =
-            CreateEditTodoFragment().apply {
-                arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
-                }
-            }
-    }
-
     private val mCreateEditTodoFragmentViewModel: CreateEditTodoFragmentViewModel by viewModels{
 
         val database = (context?.applicationContext as AllHomeBaseApplication).database
@@ -72,12 +49,42 @@ class CreateEditTodoFragment : Fragment() {
 
     }
     lateinit var mFragmentCreateEditTodoBinding: FragmentCreateEditTodoBinding
+    private var mUpdateTodoOptionDialogFragment:UpdateTodoOptionDialogFragment? = null
+
+    companion object {
+        const val TODO_UNIQUE_ID_TAG = "TODO_UNIQUE_ID_TAG"
+        const val ACTION_TAG = "ACTION_TAG"
+        const val ACTION_CREATE = 1
+        const val ACTION_EDIT = 2
+        var mAction = ACTION_CREATE
+
+        @JvmStatic fun newInstance(todoUniqueId: String) =
+            CreateEditTodoFragment().apply {
+                arguments = Bundle().apply {
+                    putString(TODO_UNIQUE_ID_TAG, todoUniqueId)
+                    putInt(ACTION_TAG, ACTION_EDIT)
+
+                }
+            }
+        @JvmStatic fun newInstance() =
+            CreateEditTodoFragment().apply {
+                arguments = Bundle().apply {
+                    putInt(ACTION_TAG, ACTION_CREATE)
+
+                }
+            }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         arguments?.let {
-//            param1 = it.getString(ARG_PARAM1)
-//            param2 = it.getString(ARG_PARAM2)
+
+            mAction = it.getInt(ACTION_TAG)
+            if(mAction == ACTION_EDIT){
+                val uniqueId = it.getString(TODO_UNIQUE_ID_TAG)
+                mCreateEditTodoFragmentViewModel.mTodoUniqueId.value = uniqueId
+            }
         }
 
 
@@ -86,12 +93,9 @@ class CreateEditTodoFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         mFragmentCreateEditTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_edit_todo,null,false)
         val toolbar = mFragmentCreateEditTodoBinding.toolbar
-        toolbar.title = "Create To Do"
+        toolbar.title = if(mAction == ACTION_CREATE) "Create Todo" else "Edit Todo"
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-        toolbar.setNavigationOnClickListener {
-            activity?.finish()
-        }
-
+        toolbar.setNavigationOnClickListener { activity?.finish() }
         toolbar.inflateMenu(R.menu.create_edit_todo_menu)
         toolbar.setOnMenuItemClickListener {
             when(it.itemId){
@@ -99,19 +103,26 @@ class CreateEditTodoFragment : Fragment() {
                     saveTodo()
                 }
                 R.id.update_menu->{
+                    mCreateEditTodoFragmentViewModel.mUpdateTask.value = true
+
+                    //checkIfTodoIsRecurring
+                    //updateTodo()
                 }
             }
             true
         }
 
+        //hide or show option menu
+        toolbar.menu.findItem(R.id.update_menu).isVisible = mAction == ACTION_EDIT
+        toolbar.menu.findItem(R.id.save_menu).isVisible = mAction == ACTION_CREATE
+
         val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
         mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.addItemDecoration(decorator)
 
-        val todoSubTaskListRecyclerviewAdapter = TodoSubTaskListRecyclerviewAdapter(mCreateEditTodoFragmentViewModel.mTodoSubTask as ArrayList<TodoSubTasksEntity>)
+        val todoSubTaskListRecyclerviewAdapter = TodoSubTaskListRecyclerviewAdapter()
         mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter = todoSubTaskListRecyclerviewAdapter
-
         mFragmentCreateEditTodoBinding.addSubmenuLinearLayout.setOnClickListener {
-            val addSubTaskDialogFragment = AddSubTaskDialogFragment(object: OnSubTaskSavedListener{
+            val addSubTaskDialogFragment = AddEditSubTaskDialogFragment(object: OnSubTaskSavedListener{
                 override fun onSubTaskSaved(subTask: String) {
 
                     val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -128,8 +139,8 @@ class CreateEditTodoFragment : Fragment() {
                         modified = currentDatetime
                     )
 
-                    mCreateEditTodoFragmentViewModel.mTodoSubTask.add(todoSubTasksEntity)
-                    (mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter as TodoSubTaskListRecyclerviewAdapter).notifyDataSetChanged()
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!.add(todoSubTasksEntity)
+                    (mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter as TodoSubTaskListRecyclerviewAdapter).setData(mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!)
 
                 }
             })
@@ -192,7 +203,122 @@ class CreateEditTodoFragment : Fragment() {
 
         }
 
+        mCreateEditTodoFragmentViewModel.mTodoUniqueId.observe(viewLifecycleOwner){
+            getTodoInformation(it)
+        }
+        mCreateEditTodoFragmentViewModel.mTodoName.observe(viewLifecycleOwner){
+            mFragmentCreateEditTodoBinding.taskNameTextInputEditText.setText(it)
+        }
+        mCreateEditTodoFragmentViewModel.mDueDateCalendar.observe(viewLifecycleOwner){dueDate->
+
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val dueDateTimeString: String = simpleDateFormat.format(dueDate.time)
+
+            if(dueDateTimeString.contains(" 00:00:00")){
+                val dueDateString = SimpleDateFormat("MMMM dd, y").format(dueDate.time)
+                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+            }else{
+                val dueDateString = SimpleDateFormat("MMMM dd, y hh:mm:ss a").format(dueDate.time)
+                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+            }
+
+        }
+        mCreateEditTodoFragmentViewModel.mRepeatEvery.observe(viewLifecycleOwner){
+            mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(if(it==0) "" else it.toString())
+        }
+
+        mCreateEditTodoFragmentViewModel.mRepeatEveryType.observe(viewLifecycleOwner){
+
+            val indexOfSelectedRepeat = context?.resources?.getStringArray(R.array.todo_recurring)?.indexOf(it)
+            if (indexOfSelectedRepeat != null) {
+                mFragmentCreateEditTodoBinding.repeatSpinner.setSelection(indexOfSelectedRepeat)
+            }
+        }
+        mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner){repeatUntil->
+
+            val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+            val dueDateTimeString: String = simpleDateFormat.format(repeatUntil.time)
+
+            if(dueDateTimeString.contains(" 00:00:00")){
+                val repeatUntilDateString = SimpleDateFormat("MMMM dd, y").format(repeatUntil.time)
+                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
+            }else{
+                val repeatUntilDateString = SimpleDateFormat("MMMM dd, y hh:mm:ss a").format(repeatUntil.time)
+                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
+            }
+
+        }
+
+        mCreateEditTodoFragmentViewModel.mNotifyAt.observe(viewLifecycleOwner){
+            mFragmentCreateEditTodoBinding.notifyTextInputEditText.setText(if(it==0) "" else it.toString())
+        }
+        mCreateEditTodoFragmentViewModel.mNotifyEveryType.observe(viewLifecycleOwner){
+            val indexOfAlarmOption = context?.resources?.getStringArray(R.array.todo_alarm_options)?.indexOf(it)
+            if (indexOfAlarmOption != null) {
+                mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.setSelection(indexOfAlarmOption)
+            }
+
+        }
+        mCreateEditTodoFragmentViewModel.mTodoSubTask.observe(viewLifecycleOwner){
+
+            val todoSubTaskListRecyclerviewAdapter = (mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter as TodoSubTaskListRecyclerviewAdapter)
+            todoSubTaskListRecyclerviewAdapter.todoSubTasksEntities = it as ArrayList<TodoSubTasksEntity>
+            todoSubTaskListRecyclerviewAdapter.notifyDataSetChanged()
+
+        }
+
+        mCreateEditTodoFragmentViewModel.mUpdateTask.observe(viewLifecycleOwner){updating->
+            if(updating){
+                mCreateEditTodoFragmentViewModel.checkIfTodoIsRecurring(mCreateEditTodoFragmentViewModel.mGroupUniqueId?.value!! )
+            }
+
+        }
+        mCreateEditTodoFragmentViewModel.mDoTaskNeedToUpdateIsRecurring.observe(viewLifecycleOwner){isRecurring->
+            if(isRecurring){
+                mUpdateTodoOptionDialogFragment = UpdateTodoOptionDialogFragment("","Selected task is recurring. What you want to update?")
+                mUpdateTodoOptionDialogFragment?.setClickListener(object:View.OnClickListener{
+                    override fun onClick(view: View?) {
+                        when (view?.id){
+                            R.id.selectedAndAlsoFutureTaskBtn->{
+                                Toast.makeText(requireContext(),"Delete or update selected and also future task btn",Toast.LENGTH_SHORT).show()
+                            }
+
+                            R.id.selectedTaskOnlyBtn->{
+                                Toast.makeText(requireContext(),"Delete or update selected only btn",Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                        Toast.makeText(requireContext(),"Clicked",Toast.LENGTH_SHORT).show()
+                    }
+                })
+                mUpdateTodoOptionDialogFragment?.show(childFragmentManager,"UpdateTodoOptionDialogFragment")
+            }
+        }
+        val mItemTouchHelper = ItemTouchHelper(object:ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP or ItemTouchHelper.DOWN, 0){
+
+            override fun onMove(recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder): Boolean {
+                val sourcePosition = viewHolder.adapterPosition
+                val targetPosition = target.adapterPosition
+
+                Collections.swap(todoSubTaskListRecyclerviewAdapter.todoSubTasksEntities,sourcePosition,targetPosition)
+                todoSubTaskListRecyclerviewAdapter.notifyItemMoved(sourcePosition, targetPosition)
+                return false
+            }
+
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+                TODO("Not yet implemented")
+            }
+
+        })
+
+        mItemTouchHelper.attachToRecyclerView(mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview)
+
+
         return mFragmentCreateEditTodoBinding.root
+    }
+    private fun getTodoInformation(todoUniqueId: String){
+
+        mCreateEditTodoFragmentViewModel.getTodoInformation(todoUniqueId)
+
     }
     private fun showCalendar(){
         val calendar = Calendar.getInstance()
@@ -252,7 +378,8 @@ class CreateEditTodoFragment : Fragment() {
 
     }
     @RequiresApi(Build.VERSION_CODES.N)
-    private fun saveTodo(){
+    private fun saveTodoBackup(){
+
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
         val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
@@ -273,54 +400,663 @@ class CreateEditTodoFragment : Fragment() {
             repeatEvery = repeatEvery,
             repeatEveryType = repeatEveryType,
             repeatUntil = repeatUntilDateTimeFormatted,
-            notifyEvery = notifyEvery,
+            notifyAt = notifyEvery,
             notifyEveryType = notifyEveryType,
             itemStatus = TodoEntity.NOT_DELETED_STATUS,
             uploaded = TodoEntity.NOT_UPLOADED,
             created = currentDatetime,
             modified = currentDatetime
         )
-        if(mCreateEditTodoFragmentViewModel.mTodoSubTask.size > 0){
+        if(mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!.size > 0){
             // add todo unique id to sub todo's
-            mCreateEditTodoFragmentViewModel.mTodoSubTask.forEach {
+            mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach {
                 it.todoUniqueId = taskUniqueId
             }
         }
         mCreateEditTodoFragmentViewModel.saveTodo(todosEntity)
 
+    }
+    private fun saveTodo(){
 
+        val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
+
+
+        var taskUniqueGroupId = UUID.randomUUID().toString()
+
+
+
+        if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value == null && repeatEveryType != getString(R.string.none)){
+            val repeatUntilDateCalendar = Calendar.getInstance()
+            repeatUntilDateCalendar.set(Calendar.DAY_OF_MONTH,1)
+            repeatUntilDateCalendar.add(Calendar.YEAR,5)
+            repeatUntilDateCalendar.set(Calendar.DAY_OF_MONTH,repeatUntilDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+            mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value = repeatUntilDateCalendar
+        }
+
+        val repeatUntilDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!= null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!!.time) else "0000-00-00 00:00:00"
+
+        val todoEntities = arrayListOf<TodoEntity>()
+        val todoSubTaskEntities = arrayListOf<TodoSubTasksEntity>()
+        val dueDateCopy:Calendar = mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.clone() as Calendar
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        when(repeatEveryType){
+            requireContext().getString(R.string.day)->{
+                do {
+                    dueDateCopy.add(Calendar.DAY_OF_MONTH,repeatEvery)
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.week)->{
+                do {
+                    dueDateCopy.add(Calendar.WEEK_OF_MONTH,repeatEvery)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,repeatEvery)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.end_of_month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,1)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.date_of_month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,1)
+                    val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEvery > maxDayOfMonth ){
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,repeatEvery)
+                    }
+
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.year)->{
+                do {
+                    dueDateCopy.add(Calendar.YEAR,1)
+                    val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEvery > maxDayOfMonth ){
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,repeatEvery)
+                    }
+
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = dueDateTimeFormatted,
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+
+            requireContext().getString(R.string.none)->{
+
+                var taskUniqueId = UUID.randomUUID().toString()
+                val todosEntity = TodoEntity(
+                    uniqueId = taskUniqueId,
+                    groupUniqueId=taskUniqueGroupId,
+                    name = taskName,
+                    dueDate = simpleDateFormat.format(dueDateCopy.time),
+                    repeatEvery = repeatEvery,
+                    repeatEveryType = repeatEveryType,
+                    repeatUntil = repeatUntilDateTimeFormatted,
+                    notifyAt = notifyEvery,
+                    notifyEveryType = notifyEveryType,
+                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                    uploaded = TodoEntity.NOT_UPLOADED,
+                    created = currentDatetime,
+                    modified = currentDatetime
+                )
+
+                todoEntities.add(todosEntity)
+                mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                    todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                    todoSubTaskEntityCopy.created = currentDatetime
+                    todoSubTaskEntityCopy.modified = currentDatetime
+                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                }
+
+            }
+
+        }
+
+        mCreateEditTodoFragmentViewModel.saveTodos(todoEntities,todoSubTaskEntities)
+    }
+    private fun updateTodo(){
+
+        val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
+
+
+        var taskUniqueGroupId = mCreateEditTodoFragmentViewModel.mGroupUniqueId.value
+        if(taskUniqueGroupId == null || taskUniqueGroupId.trim().isEmpty()){
+
+            Toast.makeText(requireContext(),"Failed to update task. Please try again.",Toast.LENGTH_SHORT).show()
+            return
+        }
+
+
+
+        if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value == null && repeatEveryType != getString(R.string.none)){
+            val repeatUntilDateCalendar = Calendar.getInstance()
+            repeatUntilDateCalendar.set(Calendar.DAY_OF_MONTH,1)
+            repeatUntilDateCalendar.add(Calendar.YEAR,5)
+            repeatUntilDateCalendar.set(Calendar.DAY_OF_MONTH,repeatUntilDateCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+            mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value = repeatUntilDateCalendar
+        }
+
+        val repeatUntilDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!= null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!!.time) else "0000-00-00 00:00:00"
+
+        val todoEntities = arrayListOf<TodoEntity>()
+        val todoSubTaskEntities = arrayListOf<TodoSubTasksEntity>()
+        val dueDateCopy:Calendar = mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.clone() as Calendar
+
+        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val currentDatetime: String = simpleDateFormat.format(Date())
+
+        when(repeatEveryType){
+            requireContext().getString(R.string.day)->{
+                do {
+                    dueDateCopy.add(Calendar.DAY_OF_MONTH,repeatEvery)
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.week)->{
+                do {
+                    dueDateCopy.add(Calendar.WEEK_OF_MONTH,repeatEvery)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,repeatEvery)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.end_of_month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,1)
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.date_of_month)->{
+                do {
+                    dueDateCopy.add(Calendar.MONTH,1)
+                    val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEvery > maxDayOfMonth ){
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,repeatEvery)
+                    }
+
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = simpleDateFormat.format(dueDateCopy.time),
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+            requireContext().getString(R.string.year)->{
+                do {
+                    dueDateCopy.add(Calendar.YEAR,1)
+                    val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
+
+                    if(repeatEvery > maxDayOfMonth ){
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,maxDayOfMonth)
+                    }else{
+                        dueDateCopy.set(Calendar.DAY_OF_MONTH,repeatEvery)
+                    }
+
+
+                    var taskUniqueId = UUID.randomUUID().toString()
+                    val todosEntity = TodoEntity(
+                        uniqueId = taskUniqueId,
+                        groupUniqueId=taskUniqueGroupId,
+                        name = taskName,
+                        dueDate = dueDateTimeFormatted,
+                        repeatEvery = repeatEvery,
+                        repeatEveryType = repeatEveryType,
+                        repeatUntil = repeatUntilDateTimeFormatted,
+                        notifyAt = notifyEvery,
+                        notifyEveryType = notifyEveryType,
+                        itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                        uploaded = TodoEntity.NOT_UPLOADED,
+                        created = currentDatetime,
+                        modified = currentDatetime
+                    )
+
+                    todoEntities.add(todosEntity)
+                    mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                        var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                        val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                        todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                        todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                        todoSubTaskEntityCopy.created = currentDatetime
+                        todoSubTaskEntityCopy.modified = currentDatetime
+                        todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                    }
+
+
+                }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
+            }
+
+            requireContext().getString(R.string.none)->{
+
+                var taskUniqueId = UUID.randomUUID().toString()
+                val todosEntity = TodoEntity(
+                    uniqueId = taskUniqueId,
+                    groupUniqueId=taskUniqueGroupId,
+                    name = taskName,
+                    dueDate = simpleDateFormat.format(dueDateCopy.time),
+                    repeatEvery = repeatEvery,
+                    repeatEveryType = repeatEveryType,
+                    repeatUntil = repeatUntilDateTimeFormatted,
+                    notifyAt = notifyEvery,
+                    notifyEveryType = notifyEveryType,
+                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                    uploaded = TodoEntity.NOT_UPLOADED,
+                    created = currentDatetime,
+                    modified = currentDatetime
+                )
+
+                todoEntities.add(todosEntity)
+                mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                    todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+                    todoSubTaskEntityCopy.created = currentDatetime
+                    todoSubTaskEntityCopy.modified = currentDatetime
+                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                }
+
+            }
+        }
+
+
+        val todoDueDate: String = simpleDateFormat.format(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value!!.time)
+        mCreateEditTodoFragmentViewModel.updateTodos(todoEntities,todoSubTaskEntities,mCreateEditTodoFragmentViewModel.mTodoUniqueId.value!!,mCreateEditTodoFragmentViewModel.mGroupUniqueId.value!!,todoDueDate)
     }
     private val repeatSpinnerOnItemSelectedListener = object : AdapterView.OnItemSelectedListener{
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
             var selectedRepeat = requireContext().resources.getStringArray(R.array.todo_recurring)[position]
             when(selectedRepeat){
                 requireContext().getString(R.string.year)->{
-                    Toast.makeText(requireContext(),"YEAR",Toast.LENGTH_SHORT).show()
+
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.date_of_month)->{
-                    Toast.makeText(requireContext(),"DATE OF MONTH",Toast.LENGTH_SHORT).show()
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+
+                    var dateInMonthDialogFragment = DateInMonthDialogFragment()
+                    dateInMonthDialogFragment.setDateSelectedListener(object:DateInMonthDialogFragment.DateSelectedListener{
+                        override fun dateSelected(date: String) {
+                            mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+                            mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+
+                            mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(date)
+                        }
+
+                    })
+                    dateInMonthDialogFragment.show(childFragmentManager,"DateInMonthDialogFragment")
+
                 }
                 requireContext().getString(R.string.end_of_month)->{
-                    Toast.makeText(requireContext(),"END OF MONTH",Toast.LENGTH_SHORT).show()
+
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.month)->{
-                    Toast.makeText(requireContext(),"MONTH",Toast.LENGTH_SHORT).show()
+
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.week)->{
-                    Toast.makeText(requireContext(),"WEEK",Toast.LENGTH_SHORT).show()
+
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.day)->{
-                    Toast.makeText(requireContext(),"DAY",Toast.LENGTH_SHORT).show()
+
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
@@ -328,7 +1064,7 @@ class CreateEditTodoFragment : Fragment() {
                     mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.GONE
                     mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.GONE
 
-                    Toast.makeText(requireContext(),"NONE",Toast.LENGTH_SHORT).show()
+
                 }
 
             }
@@ -340,17 +1076,24 @@ class CreateEditTodoFragment : Fragment() {
 
     }
 
+    inner class TodoSubTaskListRecyclerviewAdapter(): RecyclerView.Adapter<TodoSubTaskListRecyclerviewAdapter.ItemViewHolder>() {
 
-    inner class TodoSubTaskListRecyclerviewAdapter(var todoSubTasksEntities:ArrayList<TodoSubTasksEntity>): RecyclerView.Adapter<TodoSubTaskListRecyclerviewAdapter.ItemViewHolder>() {
+        var todoSubTasksEntities = emptyList<TodoSubTasksEntity>()
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val todoItemSubTaskBinding = TodoItemSubTaskBinding.inflate(layoutInflater, parent, false)
+            todoItemSubTaskBinding.checkBox3.isEnabled = false
             return ItemViewHolder(todoItemSubTaskBinding)
         }
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val todoSubTasksEntity = todoSubTasksEntities[position]
             holder.todoItemSubTaskBinding.todoSubTasksEntity = todoSubTasksEntity
+            holder.todoItemSubTaskBinding.editImageView.visibility = View.VISIBLE
+            holder.todoItemSubTaskBinding.deleteImageView.visibility = View.VISIBLE
             holder.todoItemSubTaskBinding.root.setOnClickListener(holder)
+            holder.todoItemSubTaskBinding.deleteImageView.setOnClickListener(holder)
+            holder.todoItemSubTaskBinding.editImageView.setOnClickListener(holder)
             holder.todoItemSubTaskBinding.executePendingBindings()
         }
         override fun getItemCount(): Int {
@@ -359,12 +1102,112 @@ class CreateEditTodoFragment : Fragment() {
         private fun itemClicked(itemPosition:Int){
             Toast.makeText(requireContext(),"Position ${itemPosition}",Toast.LENGTH_SHORT).show()
         }
+        private fun deleteClicked(itemPosition:Int){
+
+
+
+            mCreateEditTodoFragmentViewModel.mTodoSubTask.value?.removeAt(itemPosition)
+
+            mCreateEditTodoFragmentViewModel.mTodoSubTask.postValue(mCreateEditTodoFragmentViewModel.mTodoSubTask.value)
+        }
+        private fun editClicked(itemPosition:Int){
+            mCreateEditTodoFragmentViewModel.mTodoSubTask.value?.let {
+                val todoSubTasksEntity = it[itemPosition]
+                val addSubTaskDialogFragment = AddEditSubTaskDialogFragment(object: OnSubTaskSavedListener{
+                    override fun onSubTaskSaved(subTask: String) {
+
+                        val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+                        val currentDatetime: String = simpleDateFormat.format(Date())
+                        var uniqueId = UUID.randomUUID().toString()
+
+                        todoSubTasksEntity.name = subTask
+                        todoSubTasksEntity.modified = currentDatetime
+                        todoSubTasksEntity.uploaded = 0
+
+                        mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value?.removeAt(itemPosition)
+                        mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value?.add(itemPosition,todoSubTasksEntity)
+                        mCreateEditTodoFragmentViewModel.mTodoSubTask.postValue(mCreateEditTodoFragmentViewModel.mTodoSubTask.value)
+
+                        (mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter as TodoSubTaskListRecyclerviewAdapter).setData( mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!)
+
+                    }
+                },todoSubTasksEntity)
+                addSubTaskDialogFragment.isCancelable = false
+                addSubTaskDialogFragment.show(requireActivity().supportFragmentManager,"AddSubTaskDialogFragment")
+            }
+
+
+        }
+        fun setData(updatedSubTodoEntities:List<TodoSubTasksEntity>){
+            val diffUtil = CustomDiffUtil(todoSubTasksEntities,updatedSubTodoEntities)
+            val diffResult = DiffUtil.calculateDiff(diffUtil)
+            todoSubTasksEntities = updatedSubTodoEntities
+
+            diffResult.dispatchUpdatesTo(this)
+
+        }
+
         inner class  ItemViewHolder(var todoItemSubTaskBinding: TodoItemSubTaskBinding): RecyclerView.ViewHolder(todoItemSubTaskBinding.root),View.OnClickListener{
             override fun onClick(view: View?) {
 
-                itemClicked(adapterPosition)
+                when (view?.id){
+                    R.id.deleteImageView->{
+                        deleteClicked(adapterPosition)
+                    }
+                    R.id.editImageView->{
+                        editClicked(adapterPosition)
+
+                    }
+                    else->{
+                        itemClicked(adapterPosition)
+                    }
+                }
+
             }
 
         }
     }
+
+
+    class CustomDiffUtil(val oldTodoSubtasks:List<TodoSubTasksEntity>,val newTodoSubTasks:List<TodoSubTasksEntity>): DiffUtil.Callback() {
+        override fun getOldListSize(): Int {
+            return oldTodoSubtasks.size
+        }
+
+        override fun getNewListSize(): Int {
+            return newTodoSubTasks.size
+        }
+
+        override fun areItemsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return oldTodoSubtasks[oldItemPosition].uniqueId == newTodoSubTasks[newItemPosition].uniqueId
+        }
+
+        override fun areContentsTheSame(oldItemPosition: Int, newItemPosition: Int): Boolean {
+            return when{
+                oldTodoSubtasks[oldItemPosition].uniqueId != newTodoSubTasks[newItemPosition].uniqueId->{
+                    false
+                }
+                oldTodoSubtasks[oldItemPosition].name != newTodoSubTasks[newItemPosition].name->{
+                    false
+                }
+                oldTodoSubtasks[oldItemPosition].itemStatus != newTodoSubTasks[newItemPosition].itemStatus->{
+                    false
+                }
+                oldTodoSubtasks[oldItemPosition].uploaded != newTodoSubTasks[newItemPosition].uploaded->{
+                    false
+                }
+                oldTodoSubtasks[oldItemPosition].created != newTodoSubTasks[newItemPosition].created->{
+                    false
+                }
+                oldTodoSubtasks[oldItemPosition].modified != newTodoSubTasks[newItemPosition].modified->{
+                    false
+                }
+                else -> {
+                    true
+                }
+            }
+        }
+
+    }
 }
+
