@@ -31,6 +31,8 @@ class CreateEditTodoFragmentViewModel(private val database: AllHomeDatabase, pri
     var mSaveSuccessfully:MutableLiveData<Boolean> = MutableLiveData()
     var mUpdateTask:MutableLiveData<Boolean> = MutableLiveData()
     var mDoTaskNeedToUpdateIsRecurring:MutableLiveData<Boolean> = MutableLiveData()
+    var mUpdateSelectedTask:MutableLiveData<Boolean> = MutableLiveData(false)
+    var mUpdateFutureAndSelectedTask:MutableLiveData<Boolean> = MutableLiveData(false)
 
     fun saveTodo(todoEntity: TodoEntity){
          viewModelScope.launch {
@@ -75,13 +77,32 @@ class CreateEditTodoFragmentViewModel(private val database: AllHomeDatabase, pri
         viewModelScope.launch {
             database.withTransaction {
 
-                todoSubTasksDAO.deleteSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId)
-                todosDAO.deleteByGroupIdAndDueDate(todoGroupUniqueId)
+               // todoSubTasksDAO.deleteSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId)
+               // todosDAO.deleteByGroupIdAndDueDate(todoGroupUniqueId)
+
+                //todoSubTasksDAO.updateSubTasksAsDeleted(todoUniqueId)
+                //todosDAO.updateAsDeleted(todoUniqueId)
+
                 todoSubTasksDAO.updateSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId,selectedTodoDueDate)
                 todosDAO.updateAsDeletedByGroupIdAndDueDate(todoGroupUniqueId, selectedTodoDueDate )
 
                 todosDAO.saveMany(todoEntities)
                 todoSubTasksDAO.saveMany(todoSunEntities)
+            }
+        }
+    }
+
+    fun updateTodo(uniqueId:String,name:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
+                   repeatUntil:String,notifyAt:Int,notifyEveryType:String, isFinished:Int,
+                   datetimeFinished:String,
+                   todoSunEntities:ArrayList<TodoSubTasksEntity>){
+
+        viewModelScope.launch {
+            database.withTransaction {
+                todosDAO.updateATodo(uniqueId,name , dueDate, repeatEvery,repeatEveryType, repeatUntil,notifyAt,notifyEveryType, isFinished, datetimeFinished)
+                todoSubTasksDAO.updateSelectedTodoAsDeleted(uniqueId)
+                todoSubTasksDAO.saveMany(todoSunEntities)
+
             }
         }
 
