@@ -18,6 +18,8 @@ data class TodoEntity(
     @ColumnInfo(name = "notify_every_type",defaultValue="none") var notifyEveryType:String,
     @ColumnInfo(name = "item_status",defaultValue="0") var itemStatus:Int,//0 active,1=deleted,2=permanently deleted
     @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int, //0=not yet uploaded,1=uploaded
+    @ColumnInfo(name = "is_finished",defaultValue= "$NOT_FINISHED") var isFinished:Int, //0=not yet done,1=done
+    @ColumnInfo(name = "datetime_finished") var datetimeFinished:String,
     @ColumnInfo(name = "created",defaultValue = "CURRENT_TIMESTAMP") var created:String,
     @ColumnInfo(name = "modified",defaultValue = "CURRENT_TIMESTAMP") var modified:String
 ){
@@ -28,6 +30,8 @@ data class TodoEntity(
         const val UPLOADED = 1
         const val NOT_RECURRING = 0
         const val RECURRING = 1
+        const val NOT_FINISHED = 0
+        const val FINISHED = 1
     }
 }
 data class TodosWithSubTaskCount(

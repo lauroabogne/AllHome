@@ -124,4 +124,8 @@
     <string name="low_stock">Low</string>
     <string name="high_stock">High</string>
     <string name="expired_stock">Expired</string>
+    <!-- TO DO LIST -->
+    <string name="yesterday_todo">Yesterday</string>
+    <string name="today_todo">Today</string>
+    <string name="tomorrow_todo">Tomorrow</string>
 </resources>

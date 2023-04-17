@@ -35,6 +35,14 @@ interface TodoSubTasksDAO {
             ")"
             )
     fun updateSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId:String,todoDueDate:String):Int
+    @Query("UPDATE  todo_subtasks SET item_status = ${TodoSubTasksEntity.DELETED_STATUS}, modified=  datetime('now')  WHERE " +
+            " item_status = ${TodoSubTasksEntity.NOT_DELETED_STATUS} AND  " +
+            " todo_unique_id = :unique_id"
+    )
+    fun updateSelectedTodoAsDeleted(unique_id:String):Int
+
+    @Query("UPDATE todo_subtasks SET is_finished = :isFinished, datetime_finished = :currentDatetime WHERE unique_id = :subTaskUniqueId AND todo_unique_id = :todoUniqueId")
+    fun updateSelectedSubTaskAsFinished(subTaskUniqueId:String, todoUniqueId:String, currentDatetime:String, isFinished:Int)
 
     @Query("DELETE FROM todo_subtasks WHERE  created = modified AND todo_unique_id=:todoGroupUniqueId AND uploaded=${TodoSubTasksEntity.NOT_UPLOADED}")
     fun deleteSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId:String):Int

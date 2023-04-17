@@ -20,17 +20,35 @@ class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
 
     fun getTodos(){
         viewModelScope.launch {
-
             mTodoEntities = withContext(IO){
                 todosDAO.selectTodos() as MutableList<TodosWithSubTaskCount>
             }
             withContext(IO){
                 mLoadData.postValue(true)
             }
+        }
+    }
+    fun getTodos(dueDateString:String){
 
+        viewModelScope.launch {
+            mTodoEntities = withContext(IO){
+                todosDAO.getTodosByDueDate(dueDateString) as MutableList<TodosWithSubTaskCount>
+            }
+            withContext(IO){
+                mLoadData.postValue(true)
+            }
         }
     }
 
+    fun updateTodoAsFinished(todoUniqueId:String, currentDatetime:String,isFinished:Int){
+
+        viewModelScope.launch {
+            withContext(IO){
+                todosDAO.updateSelectedTodoAsFinished(todoUniqueId,currentDatetime,isFinished)
+            }
+        }
+
+    }
 
 }
 

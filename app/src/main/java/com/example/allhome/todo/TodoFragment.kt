@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
@@ -17,12 +18,16 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
+import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentTodoBinding
 import com.example.allhome.databinding.TodoItemBinding
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
-import java.text.SimpleDateFormat
+import com.google.android.material.tabs.TabLayout
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 private const val ARG_PARAM1 = "param1"
@@ -31,7 +36,9 @@ private const val ARG_PARAM2 = "param2"
 class TodoFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
-
+    private var currentDate = LocalDate.now()
+    private var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
+    private var selectedDateString:String = currentDate.format(dateFormatter)
 
     private val mTodoFragmentViewModel: TodoFragmentViewModel by viewModels{
 
@@ -40,15 +47,25 @@ class TodoFragment : Fragment() {
 
     }
 
-    private val addTodoListResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+    private val addOrUpdateTodoListResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
         if(activityResult.resultCode == Activity.RESULT_OK){
+
+            val action = activityResult.data?.getIntExtra(ACTION_TAG,0)
+            if(action == RELOAD_ACTION_TAG){
+                mTodoFragmentViewModel.getTodos(selectedDateString)
+            }
 
         }
     }
 
     private val viewTodoResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
-        if(activityResult.resultCode == Activity.RESULT_OK){
 
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            val action = activityResult.data?.getIntExtra(ACTION_TAG,0)
+            if(action == RELOAD_ACTION_TAG){
+                mTodoFragmentViewModel.getTodos(selectedDateString)
+            }
         }
     }
 
@@ -79,7 +96,7 @@ class TodoFragment : Fragment() {
         mFragmentTodoBinding.fab.setOnClickListener {
             val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
             intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.CREATE_TODO_FRAGMENT)
-            addTodoListResultContract.launch(intent)
+            addOrUpdateTodoListResultContract.launch(intent)
         }
 
         mTodoFragmentViewModel.mLoadData.observe(viewLifecycleOwner) { loadData->
@@ -91,19 +108,67 @@ class TodoFragment : Fragment() {
             val todoListRecyclerviewViewAdapter = mFragmentTodoBinding.todoListRecyclerview.adapter as TodoListRecyclerviewViewAdapter
             todoListRecyclerviewViewAdapter.todosWithSubTaskCount = mTodoFragmentViewModel.mTodoEntities as ArrayList<TodosWithSubTaskCount>
             todoListRecyclerviewViewAdapter.notifyDataSetChanged()
-            //mFragmentExpensesBinding.invalidateAll()
 
 
         }
 
-        mTodoFragmentViewModel.getTodos()
+
+        mFragmentTodoBinding.todoTabLayout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+
+                val selectedTabText = tab?.text.toString()
+                when (selectedTabText) {
+                    resources.getString(R.string.yesterday_todo) -> {
+
+                        selectedDateString= currentDate.minusDays(1).format(dateFormatter)
+                        mTodoFragmentViewModel.getTodos(selectedDateString)
+                        
+                    }
+                    resources.getString(R.string.today_todo) -> {
+
+                        selectedDateString = currentDate.format(dateFormatter)
+                        mTodoFragmentViewModel.getTodos(selectedDateString)
+
+                    }
+                    resources.getString(R.string.tomorrow_todo) -> {
+
+                        selectedDateString = currentDate.plusDays(1).format(dateFormatter)
+                        mTodoFragmentViewModel.getTodos(selectedDateString)
+
+                    }
+                    "null" -> {
+                        Toast.makeText(this@TodoFragment.context,"custom date",Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {
+
+            }
+
+            override fun onTabReselected(tab: TabLayout.Tab?) {
+
+            }
+
+        })
+
+
+        mFragmentTodoBinding.swipeRefresh.setOnRefreshListener {
+            mTodoFragmentViewModel.getTodos(selectedDateString)
+            mFragmentTodoBinding.swipeRefresh.isRefreshing = false
+        }
+
+        mFragmentTodoBinding.todoTabLayout.getTabAt(1)?.select()
+
 
 
         return mFragmentTodoBinding.root
     }
 
     companion object {
-
+        const val ACTION_TAG = "ACTION_TAG"
+        const val RELOAD_ACTION_TAG = 1
         @JvmStatic fun newInstance(param1: String, param2: String) =
             TodoFragment().apply {
                 arguments = Bundle().apply {
@@ -115,6 +180,21 @@ class TodoFragment : Fragment() {
 
 
     inner class TodoListRecyclerviewViewAdapter(var todosWithSubTaskCount:ArrayList<TodosWithSubTaskCount>): RecyclerView.Adapter<TodoListRecyclerviewViewAdapter.ItemViewHolder>() {
+
+        private val itemOnCheckChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            val itemPosition = buttonView?.tag
+
+             val selectedTodo = todosWithSubTaskCount[itemPosition as Int]
+
+            val currentDateTime = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime = currentDateTime.format(formatter)
+            val isFinished = if (isChecked) TodoEntity.FINISHED else TodoEntity.NOT_FINISHED
+
+            mTodoFragmentViewModel.updateTodoAsFinished(selectedTodo.todoEntity.uniqueId, currentDatetime, isFinished )
+
+        }
+
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
             val layoutInflater = LayoutInflater.from(parent.context)
             val expensesMonthlyItemBinding = TodoItemBinding.inflate(layoutInflater, parent, false)
@@ -123,6 +203,9 @@ class TodoFragment : Fragment() {
         override fun onBindViewHolder(holder: ItemViewHolder, position: Int) {
             val todoWithSubTaskCount = todosWithSubTaskCount[position]
             holder.todoItemBinding.todosWithSubTaskCount = todoWithSubTaskCount
+            holder.todoItemBinding.checkBox2.tag = position
+            holder.todoItemBinding.checkBox2.setOnCheckedChangeListener(itemOnCheckChangeListener)
+            holder.todoItemBinding.checkBox2.isChecked = todoWithSubTaskCount.todoEntity.isFinished == TodoSubTasksEntity.FINISHED
             holder.todoItemBinding.root.setOnClickListener(holder)
             holder.todoItemBinding.executePendingBindings()
         }
@@ -135,7 +218,7 @@ class TodoFragment : Fragment() {
             val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
             intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.VIEW_TODO_FRAGMENT)
             intent.putExtra(ViewTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
-            addTodoListResultContract.launch(intent)
+            viewTodoResultContract.launch(intent)
         }
         inner class  ItemViewHolder(var todoItemBinding: TodoItemBinding): RecyclerView.ViewHolder(todoItemBinding.root),View.OnClickListener{
             override fun onClick(view: View?) {

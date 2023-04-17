@@ -23,6 +23,8 @@ import com.example.allhome.databinding.FragmentViewTodoBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
 import com.example.allhome.todo.viewmodel.ViewTodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.ViewTodoFragmentViewModelFactory
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 import java.util.ArrayList
 
 
@@ -35,7 +37,13 @@ class ViewTodoFragment : Fragment() {
 
 
     private val addEditTodoListResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+
         if(activityResult.resultCode == Activity.RESULT_OK){
+
+            val newTodoUniqueId = activityResult.data?.getStringExtra(NEW_UNIQUE_ID_TAG)
+            todoUniqueId = newTodoUniqueId.toString()
+            mViewTodoFragmentViewModel.mLoadData.value = true
+            mTodoEdited = true
 
         }
     }
@@ -48,6 +56,8 @@ class ViewTodoFragment : Fragment() {
     }
     companion object {
         const val TODO_UNIQUE_ID_TAG = "TODO_UNIQUE_ID_TAG"
+        const val NEW_UNIQUE_ID_TAG = "NEW_UNIQUE_ID_TAG"
+
         @JvmStatic fun newInstance(todoUniqueId:String) =
             ViewTodoFragment().apply {
                 arguments = Bundle().apply {
@@ -59,6 +69,7 @@ class ViewTodoFragment : Fragment() {
 
     private var mDeleteTodoOptionDialogFragment:DeleteTodoOptionDialogFragment? = null
     private lateinit var todoUniqueId: String
+    private var mTodoEdited = false
     lateinit var mFragmentViewTodoBinding:FragmentViewTodoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +87,12 @@ class ViewTodoFragment : Fragment() {
         toolbar.title = "Todo"
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         toolbar.setNavigationOnClickListener {
+            if(mTodoEdited){
+                val intent = Intent()
+                intent.putExtra(TodoFragment.ACTION_TAG, TodoFragment.RELOAD_ACTION_TAG)
+                activity?.setResult(Activity.RESULT_OK, intent)
+
+            }
             activity?.finish()
         }
         toolbar?.inflateMenu(R.menu.view_todo_menu)
@@ -172,12 +189,17 @@ class ViewTodoFragment : Fragment() {
 
     inner class SubTodoTaskRecyclerViewAdapter(var todoSubTasksEntities: ArrayList<TodoSubTasksEntity>): RecyclerView.Adapter<SubTodoTaskRecyclerViewAdapter.ItemViewHolder>() {
 
-        val itemOnCheckChangeListener = object: CompoundButton.OnCheckedChangeListener {
-            override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-                val itemPosition = buttonView?.tag
-                Toast.makeText(requireContext(),"${itemPosition}",Toast.LENGTH_SHORT).show()
+        private val itemOnCheckChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+            val itemPosition = buttonView?.tag
 
-            }
+            val selectedSubtask = todoSubTasksEntities[itemPosition as Int]
+
+            val currentDateTime = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime = currentDateTime.format(formatter)
+            val isFinished = if (isChecked) TodoSubTasksEntity.FINISHED else TodoSubTasksEntity.NOT_FINISHED
+
+            mViewTodoFragmentViewModel.updateSubtaskAsFinished(selectedSubtask.uniqueId, selectedSubtask.todoUniqueId,currentDatetime, isFinished)
 
         }
 
@@ -193,6 +215,7 @@ class ViewTodoFragment : Fragment() {
             holder.todoItemSubTaskBinding.checkBox3.visibility = View.VISIBLE
             holder.todoItemSubTaskBinding.checkBox3.tag = position
             holder.todoItemSubTaskBinding.checkBox3.setOnCheckedChangeListener(itemOnCheckChangeListener)
+            holder.todoItemSubTaskBinding.checkBox3.isChecked = todoSubTasksEntity.isFinished == TodoSubTasksEntity.FINISHED
             holder.todoItemSubTaskBinding.root.setOnClickListener(holder)
             holder.todoItemSubTaskBinding.executePendingBindings()
         }
@@ -200,19 +223,20 @@ class ViewTodoFragment : Fragment() {
             Log.e("THE_COUNT","${todoSubTasksEntities.size}")
             return todoSubTasksEntities.size
         }
-        private fun itemClicked(itemPosition:Int){
-            Toast.makeText(requireContext(),"Working here",Toast.LENGTH_SHORT).show()
-
-//            val todoUniqueId = todosWithSubTaskCount[itemPosition].todoEntity.uniqueId
-//            val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
-//            intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.VIEW_TODO_FRAGMENT)
-//            intent.putExtra(ViewTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
-//            addTodoListResultContract.launch(intent)
+        private fun itemClicked(itemPosition:Int, view: View){
+        //           Toast.makeText(requireContext(),"Working here",Toast.LENGTH_SHORT).show()
+        //            val todoUniqueId = todosWithSubTaskCount[itemPosition].todoEntity.uniqueId
+        //            val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
+        //            intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.VIEW_TODO_FRAGMENT)
+        //            intent.putExtra(ViewTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
+        //            addTodoListResultContract.launch(intent)
         }
         inner class  ItemViewHolder(var todoItemSubTaskBinding: TodoItemSubTaskBinding): RecyclerView.ViewHolder(todoItemSubTaskBinding.root),View.OnClickListener{
             override fun onClick(view: View?) {
-
-                itemClicked(adapterPosition)
+                if (view != null) {
+                    todoItemSubTaskBinding.checkBox3.isChecked = !todoItemSubTaskBinding.checkBox3.isChecked
+                    itemClicked(adapterPosition, view)
+                }
             }
 
         }

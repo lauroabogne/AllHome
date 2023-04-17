@@ -8,14 +8,49 @@
     android:layout_height="match_parent"
     tools:context=".todo.TodoFragment">
 
+    <com.google.android.material.tabs.TabLayout
+        android:id="@+id/todoTabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/viewByStorage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+            android:text="Yesterday" />
+
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/viewPerProduct"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Today" />
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/viewTomorrow"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tomorrow" />
+        <com.google.android.material.tabs.TabItem
+            android:id="@+id/customView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:icon="@drawable/ic_baseline_more_vert_24"/>
+
+    </com.google.android.material.tabs.TabLayout>
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:visibility="visible"
         app:layout_constraintBottom_toTopOf="@+id/fab"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/todoTabLayout">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/todo_list_recyclerview"
