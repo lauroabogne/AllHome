@@ -32,7 +32,6 @@ class MainActivity : AppCompatActivity() {
     lateinit var drawerLayout: DrawerLayout
     var selectedDrawerItem = R.id.nav_grocery_list
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -129,19 +128,15 @@ class MainActivity : AppCompatActivity() {
                 fragmentProcessor(GroceryListFragment())
             }
             R.id.grocery_list_trash_menu->{
-
                 fragmentProcessor(TrashGroceryListFragment())
-
 
             }
         }
-
         return super.onOptionsItemSelected(item)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
         intent?.action?.let{
             intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
@@ -149,8 +144,6 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
-
-
         Toast.makeText(this,"NEW INTENT",Toast.LENGTH_SHORT).show()
     }
 
