@@ -162,21 +162,52 @@ class ViewTodoFragment : Fragment() {
             Toast.makeText(requireContext(),"Selected task deleted successfully.",Toast.LENGTH_SHORT).show()
         }
 
+
+//        mCreateEditTodoFragmentViewModel.mDoTaskNeedToUpdateIsRecurring.observe(viewLifecycleOwner){isRecurring->
+//            if(isRecurring){
+//                mUpdateTodoOptionDialogFragment = UpdateTodoOptionDialogFragment("","Selected task is recurring. What you want to update?")
+//                mUpdateTodoOptionDialogFragment?.setClickListener { view ->
+//                    mUpdateTodoOptionDialogFragment?.dismiss()
+//                    val selectedRadioBtn = mUpdateTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
+//                    when (view?.id) {
+//                        UpdateTodoOptionDialogFragment.POSITIVE_BTN_ID-> {
+//                            when(selectedRadioBtn){
+//                                R.id.selectedTaskOnlyBtn->{
+//                                    mCreateEditTodoFragmentViewModel.mUpdateSelectedTask.value = true
+//                                }
+//                                R.id.selectedAndAlsoFutureTaskBtn->{
+//                                    mCreateEditTodoFragmentViewModel.mUpdateFutureAndSelectedTask.value = true
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//
+//                mUpdateTodoOptionDialogFragment?.show(childFragmentManager,"UpdateTodoOptionDialogFragment")
+//            }
+//        }
+
         mViewTodoFragmentViewModel.mDoTaskNeedToDeleteIsRecurring.observe(viewLifecycleOwner){ doTaskNeedToDeleteIsRecurring ->
             mDeleteTodoOptionDialogFragment = DeleteTodoOptionDialogFragment("","Selected task is recurring. What you want to delete?")
             mDeleteTodoOptionDialogFragment?.let {deleteTodoOptionDialogFragment->
-                deleteTodoOptionDialogFragment.setClickListener( object:View.OnClickListener{
-                    override fun onClick(view: View?) {
-                        when(view?.id){
-                            R.id.selectedTaskOnlyBtn->{
-                                mViewTodoFragmentViewModel.mDeleteSelectedTask.value = true
+                deleteTodoOptionDialogFragment.setClickListener { view ->
+                    mDeleteTodoOptionDialogFragment?.dismiss()
+
+                    val selectedRadioBtn =  mDeleteTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
+                    when (view?.id) {
+                        DeleteTodoOptionDialogFragment.POSITIVE_BTN_ID -> {
+                            when(selectedRadioBtn){
+                                R.id.selectedTaskOnlyBtn->{
+                                    mViewTodoFragmentViewModel.mDeleteSelectedTask.value = true
+                                }
+                                R.id.selectedAndAlsoFutureTaskBtn->{
+                                    mViewTodoFragmentViewModel.mDeleteSelectedAndFutureTask.value = true
+                                }
                             }
-                            R.id.selectedAndAlsoFutureTaskBtn->{
-                                mViewTodoFragmentViewModel.mDeleteSelectedAndFutureTask.value = true
-                            }
+
                         }
                     }
-                })
+                }
                 deleteTodoOptionDialogFragment.show(childFragmentManager,"DeleteTodoOptionDialogFragment")
             }
         }

@@ -169,8 +169,6 @@ class ExpensesFragment : Fragment() {
     fun getExpensePerMonthAndCurrentYear(){
 
         val currentYear = Calendar.getInstance().get(Calendar.YEAR)
-
-
         val fromDate = "${currentYear}-01-01"
         val toDate = "${currentYear}-12-31"
 
@@ -205,7 +203,7 @@ class ExpensesFragment : Fragment() {
             }
         }
     }
-    fun showCalendar(dateTypeRequest:Int){
+    private fun showCalendar(dateTypeRequest:Int){
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
         val month = calendar.get(Calendar.MONTH)

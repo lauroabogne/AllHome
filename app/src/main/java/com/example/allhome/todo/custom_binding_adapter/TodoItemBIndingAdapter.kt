@@ -8,6 +8,8 @@ import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 import org.joda.time.DateTime
+import org.joda.time.LocalDate
+import org.joda.time.LocalDateTime
 import org.joda.time.format.DateTimeFormat
 import java.text.SimpleDateFormat
 import java.util.*
@@ -61,13 +63,51 @@ fun todoDueDateFormatter(textView:TextView,dueDatetime:String?){
         val dueDateDateTime = DateTime.parse(dueDatetime.replace("00:00:00","").trim(), DateTimeFormat.forPattern("yyyy-MM-dd"))
         val dueDateFormattedString = SimpleDateFormat("MMM dd, y").format(dueDateDateTime.toDate())
 
-        textView.text = "Due date : $dueDateFormattedString"
+        //textView.text = "Due date : $dueDateFormattedString"
+        textView.text =  setDueDatetimeLabel(dueDatetime)
 
         return
     }
-    val dueDateDateTime = DateTime.parse(dueDatetime, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
+    textView.text =  setDueDateLabel(dueDatetime)
+
+}
+fun setDueDateLabel(dueDatetime:String?):String {
+    val dueDateDateTime = LocalDateTime.parse(dueDatetime, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
     val dueDateFormattedString = SimpleDateFormat("MMM dd, y h:mm:ss a").format(dueDateDateTime.toDate())
-    textView.text = "Due date : $dueDateFormattedString"
+    val dueDateDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(dueDateDateTime.toDate()))
+    val currentDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().toDate()))
+    val tomorrowDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().plusDays(1).toDate()))
+    val yesterdayDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().minusDays(1).toDate()))
+
+    return if (dueDateDate.isEqual(currentDate)) {
+        "Due date : Today at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+    }else if(dueDateDate.isEqual(tomorrowDate)){
+        "Due date : Tomorrow at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+    }else if(dueDateDate.isEqual(yesterdayDate)){
+        "Due date : Yesterday at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+    }  else {
+        // The due date is not equal to the current date
+        "Due date : $dueDateFormattedString"
+    }
+}
+fun setDueDatetimeLabel(dueDatetime:String?):String{
+    val dueDateDateTime = DateTime.parse(dueDatetime?.replace("00:00:00","")?.trim(), DateTimeFormat.forPattern("yyyy-MM-dd"))
+    val dueDateDate =  LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(dueDateDateTime.toDate()))
+    val dueDateFormattedString = SimpleDateFormat("MMM dd, y").format(dueDateDateTime.toDate())
+    val currentDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().toDate()))
+    val tomorrowDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().plusDays(1).toDate()))
+    val yesterdayDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().minusDays(1).toDate()))
+
+    return if (dueDateDate.isEqual(currentDate)) {
+        "Due date : Today"
+    }else if(dueDateDate.isEqual(tomorrowDate)){
+        "Due date : Tomorrow"
+    }else if(dueDateDate.isEqual(yesterdayDate)){
+        "Due date : Yesterday"
+    }  else {
+        // The due date is not equal to the current date
+        "Due date : $dueDateFormattedString"
+    }
 
 }
 @BindingAdapter("todoRepeatUntil")

@@ -15,17 +15,23 @@ import com.example.allhome.databinding.DeleteTodoDialogFragmentLayoutBinding
 class UpdateTodoOptionDialogFragment(var title:String, var message:String): DialogFragment()  {
 
     var mOnClickListener:View.OnClickListener? = null
+    var mDeleteTodoDialogFragmentLayoutBinding:DeleteTodoDialogFragmentLayoutBinding?  = null
     companion object{
         const val POSITIVE_BTN_ID = 1986
+        const val NEGATIVE_BTN_ID = 1985
     }
     fun setClickListener(onClickListener:View.OnClickListener ){
         mOnClickListener = onClickListener
 
     }
+    fun getDeleteTodoDialogFragmentLayoutBinding(): DeleteTodoDialogFragmentLayoutBinding? {
+        return mDeleteTodoDialogFragmentLayoutBinding
+    }
+
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
 
         val inflater = LayoutInflater.from(requireContext())
-        val deleteTodoDialogFragmentLayoutBinding: DeleteTodoDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, delete_todo_dialog_fragment_layout,null,false)
+        mDeleteTodoDialogFragmentLayoutBinding = DataBindingUtil.inflate(inflater, delete_todo_dialog_fragment_layout,null,false)
 
         val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(activity)
 
@@ -33,25 +39,34 @@ class UpdateTodoOptionDialogFragment(var title:String, var message:String): Dial
             alertDialogBuilder.setTitle(title)
         }
 
-        deleteTodoDialogFragmentLayoutBinding.messageTextView.text = message
-        alertDialogBuilder.setView(deleteTodoDialogFragmentLayoutBinding.root)
+        mDeleteTodoDialogFragmentLayoutBinding?.messageTextView?.text = message
+        alertDialogBuilder.setView(mDeleteTodoDialogFragmentLayoutBinding?.root)
 
-        deleteTodoDialogFragmentLayoutBinding.selectedTaskOnlyBtn.visibility = View.VISIBLE
-        deleteTodoDialogFragmentLayoutBinding.selectedAndAlsoFutureTaskBtn.visibility = View.VISIBLE
+        mDeleteTodoDialogFragmentLayoutBinding?.selectedTaskOnlyBtn?.visibility = View.VISIBLE
+        mDeleteTodoDialogFragmentLayoutBinding?.selectedAndAlsoFutureTaskBtn?.visibility = View.VISIBLE
 
         mOnClickListener?.let {
-            deleteTodoDialogFragmentLayoutBinding.selectedTaskOnlyBtn.setOnClickListener(it)
-            deleteTodoDialogFragmentLayoutBinding.selectedAndAlsoFutureTaskBtn.setOnClickListener(it)
+            mDeleteTodoDialogFragmentLayoutBinding?.selectedTaskOnlyBtn?.setOnClickListener(it)
+            mDeleteTodoDialogFragmentLayoutBinding?.selectedAndAlsoFutureTaskBtn?.setOnClickListener(it)
         }
 
-
-        alertDialogBuilder.setNegativeButton("Cancel", DialogInterface.OnClickListener { dialog, which ->
-                // on success
-        })
-
-
+        alertDialogBuilder.setNegativeButton("Cancel", null)
+        alertDialogBuilder.setPositiveButton("Continue", null)
 
         val dialog = alertDialogBuilder.create()
+        dialog.setOnShowListener {
+            val positiveBtn = dialog.getButton(DialogInterface.BUTTON_POSITIVE)
+            val negativeBtn = dialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+
+            positiveBtn.id = POSITIVE_BTN_ID
+            negativeBtn.id = NEGATIVE_BTN_ID
+
+            mOnClickListener?.let {
+                positiveBtn.setOnClickListener(it)
+                negativeBtn.setOnClickListener(it)
+            }
+
+        }
         dialog.show()
 
 

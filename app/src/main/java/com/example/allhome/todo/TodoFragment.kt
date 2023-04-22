@@ -1,8 +1,10 @@
 package com.example.allhome.todo
 
 import android.app.Activity
+import android.app.DatePickerDialog
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -17,6 +19,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
+import com.example.allhome.bill.BillCustomDateRangeDialogFragment
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
@@ -24,7 +27,9 @@ import com.example.allhome.databinding.FragmentTodoBinding
 import com.example.allhome.databinding.TodoItemBinding
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
+import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
+import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -34,8 +39,6 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class TodoFragment : Fragment() {
-    private var param1: String? = null
-    private var param2: String? = null
     private var currentDate = LocalDate.now()
     private var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private var selectedDateString:String = currentDate.format(dateFormatter)
@@ -73,10 +76,6 @@ class TodoFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        arguments?.let {
-            param1 = it.getString(ARG_PARAM1)
-            param2 = it.getString(ARG_PARAM2)
-        }
         setHasOptionsMenu(true)
         requireActivity().title = "To Do List"
     }
@@ -86,8 +85,8 @@ class TodoFragment : Fragment() {
         mFragmentTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo,null,false)
 
 
-        val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
-        mFragmentTodoBinding.todoListRecyclerview.addItemDecoration(decorator)
+        //val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+        //mFragmentTodoBinding.todoListRecyclerview.addItemDecoration(decorator)
 
         val todoListRecyclerviewViewAdapter = TodoListRecyclerviewViewAdapter(arrayListOf())
         mFragmentTodoBinding.todoListRecyclerview.adapter = todoListRecyclerviewViewAdapter
@@ -136,9 +135,6 @@ class TodoFragment : Fragment() {
                         mTodoFragmentViewModel.getTodos(selectedDateString)
 
                     }
-                    "null" -> {
-                        Toast.makeText(this@TodoFragment.context,"custom date",Toast.LENGTH_SHORT).show()
-                    }
                 }
 
             }
@@ -153,17 +149,41 @@ class TodoFragment : Fragment() {
 
         })
 
+        val customViewTabItem = mFragmentTodoBinding.todoTabLayout.getTabAt(3);
+        customViewTabItem?.view?.setOnClickListener {
+            showCalendar()
+        }
+
 
         mFragmentTodoBinding.swipeRefresh.setOnRefreshListener {
             mTodoFragmentViewModel.getTodos(selectedDateString)
             mFragmentTodoBinding.swipeRefresh.isRefreshing = false
         }
-
         mFragmentTodoBinding.todoTabLayout.getTabAt(1)?.select()
 
-
-
         return mFragmentTodoBinding.root
+    }
+
+    private fun showCalendar(){
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        val day = calendar.get(Calendar.DAY_OF_MONTH)
+
+        val dateSetListener = DatePickerDialog.OnDateSetListener { view, year, monthOfYear, dayOfMonth ->
+            val pattern = "yyyy-M-d"
+            val simpleDateFormat = SimpleDateFormat(pattern)
+            val date: Date = simpleDateFormat.parse(year.toString() + "-" + (monthOfYear + 1) + "-" + dayOfMonth)
+            val readableDate = SimpleDateFormat("MMMM d,yyyy").format(date)
+
+            selectedDateString= SimpleDateFormat("yyyy-MM-dd").format(date)
+            mTodoFragmentViewModel.getTodos(selectedDateString)
+
+        }
+
+        val datePickerDialog = DatePickerDialog(requireContext(), dateSetListener, year, month, day)
+        datePickerDialog.show()
+
     }
 
     companion object {
