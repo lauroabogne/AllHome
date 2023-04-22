@@ -276,17 +276,21 @@ class CreateEditTodoFragment : Fragment() {
                 mUpdateTodoOptionDialogFragment = UpdateTodoOptionDialogFragment("","Selected task is recurring. What you want to update?")
                 mUpdateTodoOptionDialogFragment?.setClickListener { view ->
                     mUpdateTodoOptionDialogFragment?.dismiss()
-
+                    val selectedRadioBtn = mUpdateTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
                     when (view?.id) {
-                        R.id.selectedAndAlsoFutureTaskBtn -> {
-                            mCreateEditTodoFragmentViewModel.mUpdateFutureAndSelectedTask.value = true
-                        }
-
-                        R.id.selectedTaskOnlyBtn -> {
-                            mCreateEditTodoFragmentViewModel.mUpdateSelectedTask.value = true
+                        UpdateTodoOptionDialogFragment.POSITIVE_BTN_ID-> {
+                            when(selectedRadioBtn){
+                                R.id.selectedTaskOnlyBtn->{
+                                    mCreateEditTodoFragmentViewModel.mUpdateSelectedTask.value = true
+                                }
+                                R.id.selectedAndAlsoFutureTaskBtn->{
+                                    mCreateEditTodoFragmentViewModel.mUpdateFutureAndSelectedTask.value = true
+                                }
+                            }
                         }
                     }
                 }
+
                 mUpdateTodoOptionDialogFragment?.show(childFragmentManager,"UpdateTodoOptionDialogFragment")
             }
         }

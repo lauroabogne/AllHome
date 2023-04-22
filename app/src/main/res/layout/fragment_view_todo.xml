@@ -50,7 +50,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{todoEntity.name}"
-                android:textSize="18sp"
+                android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -62,56 +62,56 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingRight="4dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="8dp"
                 android:text="Due date : January 1, 2022 1:00 pm"
-                app:todoDueDateFormatter="@{todoEntity.dueDate}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView54" />
+                app:layout_constraintTop_toBottomOf="@+id/textView54"
+                app:todoDueDateFormatter="@{todoEntity.dueDate}" />
 
             <TextView
                 android:id="@+id/textView117"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingRight="4dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="8dp"
                 android:text="Repeat every : 1 week"
-                app:todoRepeatEvery="@{todoEntity}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView55" />
+                app:layout_constraintTop_toBottomOf="@+id/textView55"
+                app:todoRepeatEvery="@{todoEntity}" />
 
             <TextView
                 android:id="@+id/textView118"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingRight="4dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="8dp"
                 android:text="Repeat until : January 1, 2023"
-                app:todoRepeatUntil="@{todoEntity.repeatUntil}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView117" />
+                app:layout_constraintTop_toBottomOf="@+id/textView117"
+                app:todoRepeatUntil="@{todoEntity.repeatUntil}" />
 
             <TextView
                 android:id="@+id/textView125"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:paddingLeft="12dp"
-                android:paddingTop="4dp"
+                android:paddingTop="8dp"
                 android:paddingRight="4dp"
-                android:paddingBottom="4dp"
+                android:paddingBottom="8dp"
                 android:text="Notify : 10 minutes before due date"
-                app:todoNotifyBefore="@{todoEntity}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView118" />
+                app:layout_constraintTop_toBottomOf="@+id/textView118"
+                app:todoNotifyBefore="@{todoEntity}" />
 
             <TextView
                 android:id="@+id/textView126"
