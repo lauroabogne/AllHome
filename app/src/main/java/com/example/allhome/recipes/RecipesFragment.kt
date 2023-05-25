@@ -3,13 +3,9 @@ package com.example.allhome.recipes
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
-import android.view.animation.Animation
-import android.view.animation.AnimationUtils
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -17,9 +13,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
 import androidx.sqlite.db.SimpleSQLiteQuery
-import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.AppSettingEntity
@@ -39,7 +33,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 
-class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING,val recipeSelectedListener: AddMealDialogFragment.RecipeSelectedListener? = null) : Fragment() {
+class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelectedListener: AddMealDialogFragment.RecipeSelectedListener? = null) : Fragment() {
 
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
     private lateinit var mFragmentRecipesBinding: FragmentRecipesBinding

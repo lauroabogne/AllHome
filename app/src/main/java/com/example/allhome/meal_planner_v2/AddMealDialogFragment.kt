@@ -1,4 +1,4 @@
-package com.example.allhome.meal_planner
+package com.example.allhome.meal_planner_v2
 
 import android.os.Bundle
 import android.util.Log
@@ -272,7 +272,12 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
                     showNextButton()
 
                 }else{
-                    val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
+                    //val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
+                    /**
+                     * @todo set recipeSelectedListener not null
+                     */
+                    // Temporary commented by lauro
+                    val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,null)
                     recipeFragment.setUpToolbar(mlayoutBinding.toolbar)
                     mCurrentFragment = recipeFragment
                     loadFragment(recipeFragment)
@@ -290,7 +295,11 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
                 R.id.recipeButton->{
 
                     mMealKind = MealEntity.RECIPE_KIND
-                    val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
+                    //val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
+                    /**
+                     * @todo set recipeSelectedListener not null
+                     */
+                    val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,null)
                     recipeFragment.setUpToolbar(mlayoutBinding.toolbar)
 
                     mCurrentFragment = recipeFragment
