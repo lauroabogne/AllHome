@@ -1,8 +1,7 @@
-package com.example.allhome.meal_planner
+package com.example.allhome.meal_planner_v2
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
 import com.example.allhome.R
 import com.example.allhome.recipes.ViewRecipeFragment
 
@@ -15,6 +14,7 @@ class ViewMealOfTheDayActivity : AppCompatActivity() {
             val viewMealOfTheDayFragment = ViewMealOfTheDayFragment.newInstance(it)
             supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer,viewMealOfTheDayFragment).commit()
         }
+
 
     }
 }

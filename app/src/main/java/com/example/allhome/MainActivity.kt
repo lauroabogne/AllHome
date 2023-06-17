@@ -3,7 +3,6 @@ package com.example.allhome
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import android.view.Menu
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -32,28 +31,30 @@ class MainActivity : AppCompatActivity() {
     lateinit var drawerLayout: DrawerLayout
     var selectedDrawerItem = R.id.nav_grocery_list
 
+
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        setTheme(R.style.ThemeBlue)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         //show menu icon on action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
         drawerLayout = findViewById(R.id.drawer_layout)
         // for drawerlayout
-        val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close){
+        val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             override fun onDrawerClosed(drawerView: View) {
                 super.onDrawerClosed(drawerView)
-                when(selectedDrawerItem){
-                    R.id.nav_grocery_list->{
+                when (selectedDrawerItem) {
+                    R.id.nav_grocery_list -> {
                         fragmentProcessor(GroceryListFragment())
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
-                    R.id.nav_storage->{
+                    R.id.nav_storage -> {
 
                         val bundle = Bundle()
-                        bundle.putInt(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_VIEWING_ACTION)
+                        bundle.putInt(StorageFragment.ACTION_TAG, StorageFragment.STORAGE_VIEWING_ACTION)
 
                         val storageFragment = StorageFragment()
                         storageFragment.arguments = bundle
@@ -62,34 +63,36 @@ class MainActivity : AppCompatActivity() {
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
 
-                    R.id.nav_recipes->{
+                    R.id.nav_recipes -> {
                         fragmentProcessor(RecipesFragment())
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
 
-                    R.id.nav_meal_planner->{
+                    R.id.nav_meal_planner -> {
 
 
-                        fragmentProcessor(MealPlannerFragment.newInstance("",""))
+                        //fragmentProcessor(MealPlannerFragment.newInstance("", ""))
+                        fragmentProcessor(com.example.allhome.meal_planner_v2.MealPlannerFragment.newInstance("", ""))
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
-                    R.id.nav_bills->{
-                        fragmentProcessor(BillsFragment.newInstance("",""))
+                    R.id.nav_bills -> {
+                        fragmentProcessor(BillsFragment.newInstance("", ""))
                         drawerLayout.closeDrawer(GravityCompat.START)
                     }
-                    R.id.nav_expenses_summary->{
-                        fragmentProcessor(ExpensesFragment.newInstance("",""))
+                    R.id.nav_expenses_summary -> {
+                        fragmentProcessor(ExpensesFragment.newInstance("", ""))
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
-                    R.id.nav_todo->{
+                    R.id.nav_todo -> {
 
-                        fragmentProcessor(TodoFragment.newInstance("",""))
+                        fragmentProcessor(TodoFragment.newInstance("", ""))
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                 }
 
             }
         }
+
         drawerLayout.addDrawerListener(drawerToggle)
         drawerToggle.syncState()
 
@@ -128,15 +131,19 @@ class MainActivity : AppCompatActivity() {
                 fragmentProcessor(GroceryListFragment())
             }
             R.id.grocery_list_trash_menu->{
+
                 fragmentProcessor(TrashGroceryListFragment())
+
 
             }
         }
+
         return super.onOptionsItemSelected(item)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
+
         intent?.action?.let{
             intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
                 val intent = Intent(this, SingleGroceryListActivity::class.java)
@@ -144,6 +151,8 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         }
+
+
         Toast.makeText(this,"NEW INTENT",Toast.LENGTH_SHORT).show()
     }
 

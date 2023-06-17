@@ -1,6 +1,5 @@
-package com.example.allhome.meal_planner
+package com.example.allhome.meal_planner_v2
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -82,8 +81,6 @@ class ViewMealOfTheDayFragment : Fragment() {
         }
 
         mFragmentViewMealOfTheDayBinding.toolbar.setNavigationOnClickListener {
-            val resultIntent = Intent()
-            activity?.setResult(Activity.RESULT_OK, resultIntent)
            activity?.finish()
        }
         mFragmentViewMealOfTheDayBinding.toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
@@ -102,8 +99,6 @@ class ViewMealOfTheDayFragment : Fragment() {
             dialog.show(childFragmentManager,"AddMealDialogFragment")
         }
         mFragmentViewMealOfTheDayBinding.lunchBtn.setOnClickListener {
-
-            Toast.makeText(requireContext(),"the launch btn clicked "+getString(R.string.breakfast),Toast.LENGTH_SHORT).show()
             var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.lunch))
             dialog.mDialogDettachedListener  = dialogDettachedListener
             dialog.show(childFragmentManager,"AddMealDialogFragment")
@@ -128,7 +123,6 @@ class ViewMealOfTheDayFragment : Fragment() {
         mealPlan()
         return mFragmentViewMealOfTheDayBinding.root
     }
-
     fun mealPlan(){
 
         val currentDate = SimpleDateFormat("yyyy-MM-dd").format(mDateSelected)
@@ -156,7 +150,7 @@ class ViewMealOfTheDayFragment : Fragment() {
         }
 
     }
-    private fun setupBreakFastMealPlan(mealEntities:List<MealEntity>){
+    fun setupBreakFastMealPlan(mealEntities:List<MealEntity>){
         var breakFastMealPlanItemsAdapter = MealPlanItemsAdapter(this@ViewMealOfTheDayFragment)
         breakFastMealPlanItemsAdapter.mMealEntities = mealEntities as ArrayList<MealEntity>
         var rcyclerview = mFragmentViewMealOfTheDayBinding.breakFastsRecyclerview
@@ -292,7 +286,6 @@ class ViewMealOfTheDayFragment : Fragment() {
 
             return mMealEntities.size
         }
-
         inner class  ItemViewHolder(val mealItemBinding: MealItemBinding): RecyclerView.ViewHolder(mealItemBinding.root),View.OnClickListener{
 
             fun setText(text:String){
