@@ -79,7 +79,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
         days = if(startOfWeekDay == Calendar.SUNDAY) listOf(WEEKENDSUNDAY, "MON", "TUE", "WED", "THU", "FRI", WEEKENDSATURDAY) else listOf("MON", "TUE", "WED", "THU", "FRI", WEEKENDSATURDAY,WEEKENDSUNDAY)
 
         setOnDrawFinishedListener {
-
+            removeAllViews()
             addClickableBackground()
             // set onDrawFinishedListener to avoid infinite loop of onDraw function
             onDrawFinishedListener = null
@@ -87,24 +87,26 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
 
     }
 
-
-//    fun setYearAndMonth(year: Int, month: Int) {
-//        this.year = year
-//        this.month = month
-//        this.dates = createCalendarArray(year, month)
-//    }
-
+    fun getMonthPagerItem(): MonthPagerItem? {
+        return monthPagerItem
+    }
     fun setYearMonthAndDates(monthPagerItem: MonthPagerItem, monthDate: Array<Array<MonthDate?>>?) {
 
+        this.monthPagerItem = monthPagerItem
         this.year = monthPagerItem.calendar.get(Calendar.YEAR)
         this.month = monthPagerItem.calendar.get(Calendar.MONTH)
         this.dates = monthDate
+        Log.e("Test","MOnth date set")
 
-        if (monthPagerItem.selectedDate == null) {
-            removeAllBackground()
-        }
-
+//        if (monthPagerItem.selectedDate == null) {
+//            removeAllBackground()
+//        }
+        removeAllViews()
+        addClickableBackground()
         invalidate()
+        //removeAllViews()
+
+
     }
 
     override fun onDraw(canvas: Canvas) {
@@ -131,8 +133,6 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
                     val monthOfYear = Calendar.getInstance().apply { time = date!!.date }.get(Calendar.MONTH)
                     val yearOfMonth = Calendar.getInstance().apply { time =date!!.date }.get(Calendar.YEAR)
 
-
-
                     val xPos = x * dayWidth + horizontalOffset
                     val yPos = y * dayHeight + weekDaysLetterHeight
                     val xPosCenter = xPos + dayWidth / 2
@@ -153,23 +153,15 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
 
                     }
 
-                   // if(dayOfMonth == 18 ){
-
-                        drawLine(xPos, yPos, canvas,date.mealTypes)
-
-                   // }
+                    drawLine(xPos, yPos, canvas,date.mealTypes)
                     canvas.drawText("${dayOfMonth}", xPosCenter, yPos + textPaint.textSize + (textPaint.textSize * .4f) , textPaint)
                     onDrawFinishedListener?.invoke()
-                }?:run{
-                    Log.e("Calendar", "not data")
                 }
-
 
             }
         }
 
     }
-
     // Register a callback function to be called when onDraw() has finished executing
     private fun setOnDrawFinishedListener(listener: () -> Unit) {
         this.onDrawFinishedListener = listener
@@ -265,6 +257,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
     private fun addClickableBackground(){
         for (y in 0 until numberOfColumns) {
             for (x in 0 until numberOfRows) {
+                Log.e("Test","${y}} ${x}")
                 dates?.let{date->
                     val date = date[y][x]!!
                     val dayOfMonth = Calendar.getInstance().apply { time = date!!.date }.get(Calendar.DAY_OF_MONTH)
@@ -284,7 +277,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
                         setOnClickListener{
 
 
-                            removeAllBackground()
+                            //removeAllBackground()
                            // it.background =  resources.getDrawable(R.drawable.selected_calendar_date_background,context.theme)
                             onDateSelectedListener?.dateSelected(date!!.date,this@MonthView)
 

@@ -168,6 +168,10 @@ public class IngredientEvaluator {
     }
 
     public static Double convertStringQuantityToDouble(String quantity){
+
+        if(quantity.isEmpty()){
+            return 0.0;
+        }
         String splitedQuantity[] = quantity.split(" ");
 
         if(splitedQuantity.length <=0){

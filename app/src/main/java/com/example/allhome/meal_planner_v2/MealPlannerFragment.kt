@@ -2,15 +2,12 @@ package com.example.allhome.meal_planner_v2
 
 import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
 import android.os.Bundle
-import android.text.BoringLayout.make
 import android.util.Log
 import android.view.*
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.view.children
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -55,6 +52,13 @@ class MealPlannerFragment : Fragment() {
 
         if(activityResult.resultCode == Activity.RESULT_OK){
 
+                val monthView = getCurrentVisibleAdapterItem()
+                val calendarPagerAdapter:CalendarPagerAdapter = calendarViewPager!!.adapter as CalendarPagerAdapter
+
+                monthView.getMonthPagerItem()?.let {
+                    val index = calendarPagerAdapter.viewPagerItemArrayList.indexOf(it)
+                    calendarPagerAdapter.notifyItemChanged(index)
+                }
 
         }
     }
@@ -88,9 +92,6 @@ class MealPlannerFragment : Fragment() {
         calendarPagerAdapter.setItemDateSelectedListener(object:CalendarPagerAdapter.ItemDateSelectedListener{
             override fun onDateSelected(date: Date, position: Int) {
                 val dateFormat = SimpleDateFormat("yyyy-MM-dd")
-                //val childCount = calendarViewPager!!.children
-                //Toast.makeText(context,"Date selected aaaa",Toast.LENGTH_SHORT).show()
-
                 val intent = Intent(requireContext(), ViewMealOfTheDayActivity::class.java)
                 intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,dateFormat.format(date))
 
@@ -98,25 +99,6 @@ class MealPlannerFragment : Fragment() {
             }
 
         })
-//        calendarPagerAdapter.setOnDateSelectedListener(object : MonthView.OnDateSelectedListener{
-//
-//            override fun dateSelected(date: Date, monthView: MonthView) {
-//                val dateFormat = SimpleDateFormat("MMMM dd, yyyy")
-//                val childCount = calendarViewPager!!.children
-//
-//
-//
-////                val recyclerView = calendarViewPager!!.getChildAt(0) as? RecyclerView
-////                val layoutManager = recyclerView?.layoutManager as? LinearLayoutManager
-////                val currentVisiblePosition = layoutManager?.findFirstVisibleItemPosition()
-////                val currentVisibleView = currentVisiblePosition?.let { layoutManager?.findViewByPosition(it) }
-////                val monthView = currentVisibleView!!.findViewById<MonthView>(R.id.monthView)
-////                monthView.setYearAndMonth(2024,Calendar.MAY)
-//                //monthView.setBackgroundColor(Color.RED)
-//                //Toast.makeText(context, "Clicked ${dateFormat.format(date)} ${childCount}",Toast.LENGTH_SHORT).show()
-//            }
-//
-//        })
 
         calendarViewPager!!.adapter = calendarPagerAdapter
         calendarViewPager!!.clipToPadding = false
@@ -145,6 +127,14 @@ class MealPlannerFragment : Fragment() {
         super.onCreateOptionsMenu(menu, inflater)
     }
 
+    private fun getCurrentVisibleAdapterItem(): MonthView {
+        val recyclerView = calendarViewPager!!.getChildAt(0) as? RecyclerView
+        val layoutManager = recyclerView?.layoutManager as? LinearLayoutManager
+        val currentVisiblePosition = layoutManager?.findFirstVisibleItemPosition()
+        val currentVisibleView = currentVisiblePosition?.let { layoutManager?.findViewByPosition(it) }
+
+        return currentVisibleView!!.findViewById(R.id.monthView)
+    }
     private fun generateMonthPagerItems(): Array<MonthPagerItem> {
 
         val calendar = Calendar.getInstance()
@@ -165,30 +155,48 @@ class MealPlannerFragment : Fragment() {
 
         when(item.itemId){
             R.id.addToGroceryList->{
+                val monthView = getCurrentVisibleAdapterItem()
+                monthView.getMonthPagerItem()?.calendar?.let { calendar->
+                    val totalDaysInMonth: Int = calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+                    val year = calendar.get(java.util.Calendar.YEAR)
+                    val numericMonth = SimpleDateFormat("MM").format(calendar.time)
 
-                Toast.makeText(this.context, "Working here",Toast.LENGTH_SHORT).show()
-                if(mSelectedFragment is CalendarFragment){
-                    val selectedDateCalendar = (mSelectedFragment as CalendarFragment).getSelectedDate()
-                    selectedDateCalendar?.let { calendar->
+                    val startDate = "${year}-${numericMonth}-01"
+                    val endDate = "${year}-${numericMonth}-${totalDaysInMonth}"
 
-                        val totalDaysInMonth: Int = calendar.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
-                        val year = calendar.get(java.util.Calendar.YEAR)
-                        val numericMonth = SimpleDateFormat("MM").format(calendar.time)
+                    mMealPlannerViewModel.mCoroutineScope.launch {
 
-                        val startDate = "${year}-${numericMonth}-01"
-                        val endDate = "${year}-${numericMonth}-${totalDaysInMonth}"
-
-                        mMealPlannerViewModel.mCoroutineScope.launch {
-
-                            val uniqueIds = mMealPlannerViewModel.getRecipeUniqueIDs(requireContext(),startDate,endDate)
-                            uniqueIds?.let{
-                                val ingredientDialogFragment = IngredientDialogFragment("Ingredients",uniqueIds as ArrayList<String>)
-                                ingredientDialogFragment.show(childFragmentManager,"ingredientDialogFragment")
-                            }
+                        val uniqueIds = mMealPlannerViewModel.getRecipeUniqueIDs(requireContext(),startDate,endDate)
+                        uniqueIds?.let{
+                            val ingredientDialogFragment = IngredientDialogFragment("Ingredients",uniqueIds as ArrayList<String>)
+                            ingredientDialogFragment.show(childFragmentManager,"ingredientDialogFragment")
                         }
                     }
-
                 }
+
+
+//                //if(mSelectedFragment is CalendarFragment){
+//                    val selectedDateCalendar = (mSelectedFragment as CalendarFragment).getSelectedDate()
+//                    selectedDateCalendar?.let { calendar1->
+//
+//                        val totalDaysInMonth: Int = calendar1.getActualMaximum(java.util.Calendar.DAY_OF_MONTH)
+//                        val year = calendar1.get(java.util.Calendar.YEAR)
+//                        val numericMonth = SimpleDateFormat("MM").format(calendar1.time)
+//
+//                        val startDate = "${year}-${numericMonth}-01"
+//                        val endDate = "${year}-${numericMonth}-${totalDaysInMonth}"
+//
+//                        mMealPlannerViewModel.mCoroutineScope.launch {
+//
+//                            val uniqueIds = mMealPlannerViewModel.getRecipeUniqueIDs(requireContext(),startDate,endDate)
+//                            uniqueIds?.let{
+//                                val ingredientDialogFragment = IngredientDialogFragment("Ingredients",uniqueIds as ArrayList<String>)
+//                                ingredientDialogFragment.show(childFragmentManager,"ingredientDialogFragment")
+//                            }
+//                        }
+//                    }
+//
+//                //}
 
             }
         }

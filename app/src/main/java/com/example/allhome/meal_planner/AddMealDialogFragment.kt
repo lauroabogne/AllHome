@@ -108,12 +108,16 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
 
     }
     fun setTitle(fragment: Fragment){
-        if(fragment is AddMealOptionFragment){
-            mlayoutBinding.toolbar.title = "Add meal"
-        }else if(fragment is RecipesFragment){
-            mlayoutBinding.toolbar.title = "Recipe"
-        }else if(fragment is MealTypeFragment){
-            mlayoutBinding.toolbar.title = "Select type"
+        when (fragment) {
+            is AddMealOptionFragment -> {
+                mlayoutBinding.toolbar.title = "Add meal"
+            }
+            is RecipesFragment -> {
+                mlayoutBinding.toolbar.title = "Recipe"
+            }
+            is MealTypeFragment -> {
+                mlayoutBinding.toolbar.title = "Select type"
+            }
         }
     }
     fun showNextButton(){
@@ -122,7 +126,7 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
     fun hideNextButton(){
         mlayoutBinding.nextBtn.visibility = View.GONE
     }
-    val nextBtnClickListener = object:View.OnClickListener{
+    private val nextBtnClickListener = object:View.OnClickListener{
         override fun onClick(v: View?) {
             if(mCurrentFragment is QuickRecipeFragment){
 
@@ -161,25 +165,26 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
         }
 
     }
-    fun convertStringMealTypeStringToInt( mealTypeString:String):Int{
+    private fun convertStringMealTypeStringToInt(mealTypeString:String):Int{
 
 
-        if( mealTypeString.equals(requireContext().getString(R.string.breakfast))){
+        if(mealTypeString == requireContext().getString(R.string.breakfast)){
             return MealEntity.BREAKFAST_TYPE
-        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_breakfast))){
+        }else if(mealTypeString == requireContext().getString(R.string.snack_after_breakfast)){
             return MealEntity.SNACK_AFTER_BREAKFAST_TYPE
-        }else if(mealTypeString.equals(requireContext().getString(R.string.lunch))){
+        }else if(mealTypeString == requireContext().getString(R.string.lunch)){
             return MealEntity.LUNCK_TYPE
-        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_lunch))){
+        }else if(mealTypeString == requireContext().getString(R.string.snack_after_lunch)){
             return MealEntity.SNACK_AFTERLUNCK_TYPE
-        }else if(mealTypeString.equals(requireContext().getString(R.string.dinner))){
+        }else if(mealTypeString == requireContext().getString(R.string.dinner)){
             return MealEntity.DINNER_TYPE
-        }else if(mealTypeString.equals(requireContext().getString(R.string.snack_after_dinner))){
+        }else if(mealTypeString == requireContext().getString(R.string.snack_after_dinner)){
             return MealEntity.SNACK_AFTER_DINNER_TYPE
         }
 
         return MealEntity.BREAKFAST_TYPE
     }
+
     fun saveData(){
 
         val selectedDate = SimpleDateFormat("yyyy-MM-dd").format(mDate)
@@ -188,7 +193,6 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
 
 
         if(mMealKind == MealEntity.RECIPE_KIND){
-
 
                 mMealPlannerViewModel.mCoroutineScope.launch {
 
@@ -248,43 +252,38 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
             }
         }
     }
-    val toolbarNavigationClickListener= object:View.OnClickListener{
-        override fun onClick(v: View?) {
+    private val toolbarNavigationClickListener= View.OnClickListener {
+        mlayoutBinding.toolbar.menu.clear()
 
-            mlayoutBinding.toolbar.menu.clear()
+        if(mCurrentFragment is AddMealOptionFragment){
+            this@AddMealDialogFragment.dismiss()
+        }else if(mCurrentFragment is RecipesFragment || mCurrentFragment is QuickRecipeFragment){
 
-            if(mCurrentFragment is AddMealOptionFragment){
-                this@AddMealDialogFragment.dismiss()
-            }else if(mCurrentFragment is RecipesFragment || mCurrentFragment is QuickRecipeFragment){
+            val addMealOptionFragment = AddMealOptionFragment.newInstance("","")
+            addMealOptionFragment.mAddMealOptionFragmentSelectionListener = addMealOptionFragmentSelectionListener
+            mCurrentFragment = addMealOptionFragment
+            loadFragment(addMealOptionFragment)
+            hideNextButton()
 
-                val addMealOptionFragment = AddMealOptionFragment.newInstance("","")
-                addMealOptionFragment.mAddMealOptionFragmentSelectionListener = addMealOptionFragmentSelectionListener
-                mCurrentFragment = addMealOptionFragment
-                loadFragment(addMealOptionFragment)
+        }else if(mCurrentFragment is MealTypeFragment){
+            if(mMealKind == MealEntity.QUICK_RECIPE_KIND){
+
+                val quickRecipeFragment = QuickRecipeFragment.newInstance(mQuickRecipeName,mQuckRecipeCost)
+                mCurrentFragment = quickRecipeFragment
+                loadFragment(quickRecipeFragment)
+                showNextButton()
+
+            }else{
+                val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
+                recipeFragment.setUpToolbar(mlayoutBinding.toolbar)
+                mCurrentFragment = recipeFragment
+                loadFragment(recipeFragment)
                 hideNextButton()
 
-            }else if(mCurrentFragment is MealTypeFragment){
-                if(mMealKind == MealEntity.QUICK_RECIPE_KIND){
-
-                    val quickRecipeFragment = QuickRecipeFragment.newInstance(mQuickRecipeName,mQuckRecipeCost)
-                    mCurrentFragment = quickRecipeFragment
-                    loadFragment(quickRecipeFragment)
-                    showNextButton()
-
-                }else{
-                    val recipeFragment = RecipesFragment(RecipesFragment.ADDING_MEAL_VIEWING,recipeSelectedListener)
-                    recipeFragment.setUpToolbar(mlayoutBinding.toolbar)
-                    mCurrentFragment = recipeFragment
-                    loadFragment(recipeFragment)
-                    hideNextButton()
-
-                }
             }
-
         }
-
     }
-    val addMealOptionFragmentSelectionListener =  object:AddMealOptionFragmentSelectionListener{
+    private val addMealOptionFragmentSelectionListener =  object:AddMealOptionFragmentSelectionListener{
         override fun onSelect(viewId: Int) {
             when(viewId){
                 R.id.recipeButton->{
@@ -328,19 +327,15 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
         }
 
     }
-    val mealTypeFragmentOnCheckedChangeListener =  object : CompoundButton.OnCheckedChangeListener{
-        override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-
-            buttonView?.let{
-                val text = it.text.toString()
-                if(isChecked){
-                    mSelectedMealTypes.add(text)
-                }else{
-                    mSelectedMealTypes.remove(text)
-                }
+    val mealTypeFragmentOnCheckedChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
+        buttonView?.let{
+            val text = it.text.toString()
+            if(isChecked){
+                mSelectedMealTypes.add(text)
+            }else{
+                mSelectedMealTypes.remove(text)
             }
         }
-
     }
 
 

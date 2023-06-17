@@ -12,13 +12,9 @@ class ViewMealOfTheDayActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_view_meal_of_the_day)
         intent.getStringExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM)?.let {
-            Toast.makeText(this,"Here I am.", Toast.LENGTH_SHORT).show()
             val viewMealOfTheDayFragment = ViewMealOfTheDayFragment.newInstance(it)
             supportFragmentManager.beginTransaction().replace(R.id.fragmentContainer,viewMealOfTheDayFragment).commit()
-        }?:run{
-            Toast.makeText(this,"Here I am another.", Toast.LENGTH_SHORT).show()
         }
-
 
     }
 }

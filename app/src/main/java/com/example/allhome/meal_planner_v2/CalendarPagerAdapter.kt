@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
@@ -17,6 +16,7 @@ import com.example.allhome.meal_planner.calendar.CalendarFragment
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.meal_planner_v2.MonthDate
 import com.example.allhome.meal_planner_v2.calendar.views.MonthView
+import com.example.allhome.utils.NumberUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -28,6 +28,7 @@ class CalendarPagerAdapter(var viewPagerItemArrayList: Array<MonthPagerItem>,var
     RecyclerView.Adapter<CalendarPagerAdapter.ViewHolder>() {
 
     private val dateFormat = SimpleDateFormat("MMMM yyyy")
+    private val dateFormat_ = SimpleDateFormat("yyyy-MM-dd")
     private var itemDateSelectedListener: ItemDateSelectedListener? = null
     private lateinit var mealPlannerViewModel: MealPlannerViewModel
 
@@ -47,11 +48,33 @@ class CalendarPagerAdapter(var viewPagerItemArrayList: Array<MonthPagerItem>,var
         val monthView = holder.monthView
 
         mealPlannerViewModel.mCoroutineScope.launch {
-           val dates = createCalendarArray(viewPagerItem.calendar.get(Calendar.YEAR), viewPagerItem.calendar.get(Calendar.MONTH))
+
+                val clonedCalendar:Calendar = Calendar.getInstance()
+                clonedCalendar.set(Calendar.YEAR,viewPagerItem.calendar.get(Calendar.YEAR))
+                clonedCalendar.set(Calendar.MONTH,viewPagerItem.calendar.get(Calendar.MONTH))
+
+                clonedCalendar.set(Calendar.DAY_OF_MONTH, 1)
+                val firstDayOfMonth = clonedCalendar.time
+
+                // Get the last day of the month
+                 clonedCalendar.set(Calendar.DAY_OF_MONTH, clonedCalendar.getActualMaximum(Calendar.DAY_OF_MONTH))
+                val lastDayOfMonth = clonedCalendar.time
+
+                // Format the dates
+
+                val formattedFirstDayOfMonth = dateFormat_.format(firstDayOfMonth)
+                val formattedLastDayOfMonth = dateFormat_.format(lastDayOfMonth)
+
+                val dates = createCalendarArray(viewPagerItem.calendar.get(Calendar.YEAR), viewPagerItem.calendar.get(Calendar.MONTH))
+
+                val totalCostForTheMonth = mealPlannerViewModel.getTotalCostInTheMonth(context,formattedFirstDayOfMonth,formattedLastDayOfMonth)
                 withContext(Dispatchers.Main){
+
                     monthView.setYearMonthAndDates( viewPagerItem,dates)
                     val formattedDate = dateFormat.format(viewPagerItem.calendar.time)
                     holder.dateTextView.text = formattedDate
+                    holder.totalCostTextView.text = "Total cost : ${NumberUtils.formatNumber(totalCostForTheMonth)}"
+
            }
         }
 
@@ -76,6 +99,8 @@ class CalendarPagerAdapter(var viewPagerItemArrayList: Array<MonthPagerItem>,var
         }
     }
     private suspend fun createCalendarArray(year: Int, month: Int): Array<Array<MonthDate?>>? {
+
+
         val calendar = Calendar.getInstance().apply {
             clear()
             set(Calendar.YEAR, year)
@@ -112,12 +137,16 @@ class CalendarPagerAdapter(var viewPagerItemArrayList: Array<MonthPagerItem>,var
 
         var monthView: MonthView
         var dateTextView:TextView
+        var totalCostTextView:TextView
 
         init {
             monthView = itemView.findViewById(R.id.monthView)
             dateTextView = itemView.findViewById(R.id.dateTextView)
+            totalCostTextView = itemView.findViewById(R.id.totalCostTextView)
+
             monthView.setOnDateSelectedListener(object:MonthView.OnDateSelectedListener{
                 override fun dateSelected(date: Date, monthView: MonthView) {
+
                     viewPagerItemArrayList[adapterPosition].selectedDate = date
                     itemDateSelectedListener?.let{
                         it.onDateSelected(date,adapterPosition)
