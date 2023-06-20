@@ -21,6 +21,7 @@ class CreateEditTodoFragmentViewModel(private val database: AllHomeDatabase, pri
     var mTodoUniqueId:MutableLiveData<String> = MutableLiveData()
     var mGroupUniqueId:MutableLiveData<String> = MutableLiveData()
     var mTodoName:MutableLiveData<String> = MutableLiveData()
+    var mTodoDescription:MutableLiveData<String> = MutableLiveData()
     var mDueDateCalendar: MutableLiveData<Calendar> = MutableLiveData()
     var mRepeatUntilCalendar: MutableLiveData<Calendar> = MutableLiveData()
     var mRepeatEvery:MutableLiveData<Int> = MutableLiveData()
@@ -92,14 +93,14 @@ class CreateEditTodoFragmentViewModel(private val database: AllHomeDatabase, pri
         }
     }
 
-    fun updateTodo(uniqueId:String,name:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
+    fun updateTodo(uniqueId:String,name:String,description:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
                    repeatUntil:String,notifyAt:Int,notifyEveryType:String, isFinished:Int,
                    datetimeFinished:String,
                    todoSunEntities:ArrayList<TodoSubTasksEntity>){
 
         viewModelScope.launch {
             database.withTransaction {
-                todosDAO.updateATodo(uniqueId,name , dueDate, repeatEvery,repeatEveryType, repeatUntil,notifyAt,notifyEveryType, isFinished, datetimeFinished)
+                todosDAO.updateATodo(uniqueId,name , description,dueDate, repeatEvery,repeatEveryType, repeatUntil,notifyAt,notifyEveryType, isFinished, datetimeFinished)
                 todoSubTasksDAO.updateSelectedTodoAsDeleted(uniqueId)
                 todoSubTasksDAO.saveMany(todoSunEntities)
 
@@ -114,6 +115,7 @@ class CreateEditTodoFragmentViewModel(private val database: AllHomeDatabase, pri
                 val todoEntity = todosDAO.getTodo(todoUniqueId)
                 todoEntity.let {
                     mTodoName.postValue(it.name)
+                    mTodoDescription.postValue(it.description)
                     mGroupUniqueId.postValue(it.groupUniqueId)
                     mDueDateCalendar.postValue(dueDateStringToCalendar(it.dueDate))
                     mRepeatEvery.postValue(it.repeatEvery)

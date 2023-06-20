@@ -10,6 +10,7 @@ data class TodoEntity(
     @ColumnInfo(name = "unique_id",index = true) var uniqueId:String,
     @ColumnInfo(name = "group_unique_id",index = true) var groupUniqueId:String,
     @ColumnInfo(name = "name") var name:String,
+    @ColumnInfo(name = "description") var description:String,
     @ColumnInfo(name = "due_date",defaultValue="0000-00-00 00:00:00") var dueDate:String,
     @ColumnInfo(name = "repeat_every",defaultValue="0") var repeatEvery:Int,
     @ColumnInfo(name = "repeat_every_type",defaultValue="0000-00-00 00:00:00") var repeatEveryType:String,

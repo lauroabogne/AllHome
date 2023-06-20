@@ -122,7 +122,7 @@ class CreateEditTodoFragment : Fragment() {
 
         val todoSubTaskListRecyclerviewAdapter = TodoSubTaskListRecyclerviewAdapter()
         mFragmentCreateEditTodoBinding.todoSubTaskListRecyclerview.adapter = todoSubTaskListRecyclerviewAdapter
-        mFragmentCreateEditTodoBinding.addSubmenuLinearLayout.setOnClickListener {
+        mFragmentCreateEditTodoBinding.addSubTaskBtn.setOnClickListener {
             val addSubTaskDialogFragment = AddEditSubTaskDialogFragment(object: OnSubTaskSavedListener{
                 override fun onSubTaskSaved(subTask: String) {
 
@@ -208,6 +208,9 @@ class CreateEditTodoFragment : Fragment() {
         }
         mCreateEditTodoFragmentViewModel.mTodoName.observe(viewLifecycleOwner){
             mFragmentCreateEditTodoBinding.taskNameTextInputEditText.setText(it)
+        }
+        mCreateEditTodoFragmentViewModel.mTodoDescription.observe(viewLifecycleOwner){
+            mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.setText(it)
         }
         mCreateEditTodoFragmentViewModel.mDueDateCalendar.observe(viewLifecycleOwner){dueDate->
 
@@ -396,6 +399,7 @@ class CreateEditTodoFragment : Fragment() {
     private fun saveTodoBackup(){
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
         val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
@@ -411,6 +415,7 @@ class CreateEditTodoFragment : Fragment() {
             uniqueId = taskUniqueId,
             groupUniqueId=taskUniqueGroupId,
             name = taskName,
+            description = taskDescription,
             dueDate = dueDateTimeFormatted,
             repeatEvery = repeatEvery,
             repeatEveryType = repeatEveryType,
@@ -436,6 +441,7 @@ class CreateEditTodoFragment : Fragment() {
     private fun saveTodo(){
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
         val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
@@ -470,6 +476,7 @@ class CreateEditTodoFragment : Fragment() {
             uniqueId = taskUniqueId,
             groupUniqueId=taskUniqueGroupId,
             name = taskName,
+            description = taskDescription,
             dueDate = simpleDateFormat.format(dueDateCopy.time),
             repeatEvery = repeatEvery,
             repeatEveryType = repeatEveryType,
@@ -506,6 +513,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -543,6 +551,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -580,6 +589,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -617,6 +627,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -663,6 +674,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -709,6 +721,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = dueDateTimeFormatted,
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -737,39 +750,39 @@ class CreateEditTodoFragment : Fragment() {
 
                 }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
             }
-            requireContext().getString(R.string.none)->{
-
-                var taskUniqueId = UUID.randomUUID().toString()
-                val todosEntity = TodoEntity(
-                    uniqueId = taskUniqueId,
-                    groupUniqueId=taskUniqueGroupId,
-                    name = taskName,
-                    dueDate = simpleDateFormat.format(dueDateCopy.time),
-                    repeatEvery = repeatEvery,
-                    repeatEveryType = repeatEveryType,
-                    repeatUntil = repeatUntilDateTimeFormatted,
-                    notifyAt = notifyEvery,
-                    notifyEveryType = notifyEveryType,
-                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
-                    uploaded = TodoEntity.NOT_UPLOADED,
-                    isFinished = TodoEntity.NOT_FINISHED,
-                    datetimeFinished ="",
-                    created = currentDatetime,
-                    modified = currentDatetime
-                )
-
-                todoEntities.add(todosEntity)
-                mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
-                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
-                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
-                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
-                    todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
-                    todoSubTaskEntityCopy.created = currentDatetime
-                    todoSubTaskEntityCopy.modified = currentDatetime
-                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
-                }
-
-            }
+//            requireContext().getString(R.string.none)->{
+//
+//                var taskUniqueId = UUID.randomUUID().toString()
+//                val todosEntity = TodoEntity(
+//                    uniqueId = taskUniqueId,
+//                    groupUniqueId=taskUniqueGroupId,
+//                    name = taskName,
+//                    dueDate = simpleDateFormat.format(dueDateCopy.time),
+//                    repeatEvery = repeatEvery,
+//                    repeatEveryType = repeatEveryType,
+//                    repeatUntil = repeatUntilDateTimeFormatted,
+//                    notifyAt = notifyEvery,
+//                    notifyEveryType = notifyEveryType,
+//                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
+//                    uploaded = TodoEntity.NOT_UPLOADED,
+//                    isFinished = TodoEntity.NOT_FINISHED,
+//                    datetimeFinished ="",
+//                    created = currentDatetime,
+//                    modified = currentDatetime
+//                )
+//
+//                todoEntities.add(todosEntity)
+//                mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
+//                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
+//                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+//                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+//                    todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+//                    todoSubTaskEntityCopy.created = currentDatetime
+//                    todoSubTaskEntityCopy.modified = currentDatetime
+//                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
+//                }
+//
+//            }
 
         }
         mCreateEditTodoFragmentViewModel.saveTodos(todoEntities,todoSubTaskEntities)
@@ -780,6 +793,7 @@ class CreateEditTodoFragment : Fragment() {
     }
     private fun updateTodos(){
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
         val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
@@ -830,6 +844,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId as String,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -870,6 +885,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -909,6 +925,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -949,6 +966,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -989,6 +1007,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = simpleDateFormat.format(dueDateCopy.time),
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -1038,6 +1057,7 @@ class CreateEditTodoFragment : Fragment() {
                         uniqueId = taskUniqueId,
                         groupUniqueId=taskUniqueGroupId,
                         name = taskName,
+                        description = taskDescription,
                         dueDate = dueDateTimeFormatted,
                         repeatEvery = repeatEvery,
                         repeatEveryType = repeatEveryType,
@@ -1082,6 +1102,7 @@ class CreateEditTodoFragment : Fragment() {
                     uniqueId = taskUniqueId,
                     groupUniqueId=taskUniqueGroupId,
                     name = taskName,
+                    description = taskDescription,
                     dueDate = simpleDateFormat.format(dueDateCopy.time),
                     repeatEvery = repeatEvery,
                     repeatEveryType = repeatEveryType,
@@ -1123,6 +1144,7 @@ class CreateEditTodoFragment : Fragment() {
     private fun updateTodo(){
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
         val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
@@ -1174,7 +1196,7 @@ class CreateEditTodoFragment : Fragment() {
         }
 
         val todoDueDate: String = simpleDateFormat.format(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value!!.time)
-        mCreateEditTodoFragmentViewModel.updateTodo(todoUniqueId,taskName , simpleDateFormat.format(dueDateCopy.time), repeatEvery,repeatEveryType,
+        mCreateEditTodoFragmentViewModel.updateTodo(todoUniqueId,taskName ,taskDescription , simpleDateFormat.format(dueDateCopy.time), repeatEvery,repeatEveryType,
             repeatUntilDateTimeFormatted,notifyEvery,notifyEveryType, TodoEntity.NOT_FINISHED, "",todoSubTaskEntities)
 
 
