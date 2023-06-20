@@ -62,13 +62,31 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:id="@+id/textInputLayout26"
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout22">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/taskDescriptionTextInputEditText"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:inputType="textMultiLine"
+                            android:gravity="top"
+                            android:minLines="4"
+                            android:hint="Description" />
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/textInputLayout23"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toStartOf="@+id/dueDateImageView"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout22">
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout26">
 
                         <com.google.android.material.textfield.TextInputEditText
                             android:id="@+id/dueDateTextInputEditText"
@@ -76,9 +94,9 @@
                             android:layout_height="wrap_content"
                             android:cursorVisible="false"
                             android:focusable="false"
+                            android:hint="Due Date"
                             android:inputType="none"
-                            android:longClickable="false"
-                            android:hint="Due Date" />
+                            android:longClickable="false" />
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <ImageView
@@ -92,7 +110,7 @@
                         android:paddingBottom="10dp"
                         app:layout_constraintBottom_toBottomOf="@+id/textInputLayout23"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout22"
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout26"
                         app:srcCompat="@drawable/ic_calendar" />
 
                     <com.google.android.material.textfield.TextInputLayout
@@ -181,34 +199,14 @@
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintTop_toTopOf="@+id/textInputLayout24" />
 
-                    <LinearLayout
-                        android:id="@+id/addSubmenuLinearLayout"
-                        android:layout_width="match_parent"
+                    <Button
+                        android:id="@+id/addSubTaskBtn"
+                        android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:background="?android:attr/selectableItemBackground"
+                        android:text="Add Sub-task"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout24">
-
-                        <ImageView
-                            android:id="@+id/imageView5"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:paddingLeft="12dp"
-                            android:paddingTop="10dp"
-                            android:paddingRight="12dp"
-                            android:paddingBottom="10dp"
-                            app:srcCompat="@drawable/ic_add" />
-
-                        <TextView
-                            android:id="@+id/textView36"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:padding="12dp"
-                            android:text="Add Sub-task" />
-
-                    </LinearLayout>
+                        app:layout_constraintTop_toBottomOf="@+id/textInputLayout24" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/todo_sub_task_list_recyclerview"
@@ -217,7 +215,7 @@
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/addSubmenuLinearLayout"
+                        app:layout_constraintTop_toBottomOf="@+id/addSubTaskBtn"
                         tools:itemCount="2"
                         tools:listitem="@layout/todo_item" />
 

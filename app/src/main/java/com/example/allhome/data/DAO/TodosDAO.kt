@@ -41,11 +41,11 @@ interface TodosDAO {
 
     @Query("UPDATE todos SET is_finished = :isFinished, datetime_finished = :currentDatetime WHERE unique_id = :todoUniqueId")
     fun updateSelectedTodoAsFinished(todoUniqueId:String, currentDatetime:String, isFinished:Int)
-    @Query(" UPDATE todos SET  name =:name, due_date = :dueDate, repeat_every = :repeatEvery, repeat_every_type=:repeatEveryType, repeat_until= :repeatUntil," +
+    @Query(" UPDATE todos SET  name =:name,description=:description, due_date = :dueDate, repeat_every = :repeatEvery, repeat_every_type=:repeatEveryType, repeat_until= :repeatUntil," +
             " notify_at =:notifyAt, notify_every_type =:notifyEveryType, uploaded= ${TodoEntity.NOT_UPLOADED}, item_status =${TodoEntity.NOT_DELETED_STATUS}, " +
             " is_finished =:isFinished, datetime_finished =:datetimeFinished, modified = datetime('now') " +
             "  WHERE unique_id=:uniqueId")
-    fun updateATodo(uniqueId:String,name:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
+    fun updateATodo(uniqueId:String,name:String,description:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
                     repeatUntil:String,notifyAt:Int,notifyEveryType:String, isFinished:Int,
                     datetimeFinished:String):Int
 
