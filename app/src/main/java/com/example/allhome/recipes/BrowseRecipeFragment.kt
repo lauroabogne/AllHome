@@ -136,7 +136,7 @@ class BrowseRecipeFragment : Fragment() {
 
             menu.add(0, 1, 0, "Click to download")
                 .setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener{
-                    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
+                    override fun onMenuItemClick(item: MenuItem): Boolean {
                         val DownloadImageURL = webViewHitTestResult.extra
                         if (URLUtil.isValidUrl(DownloadImageURL)) {
 //                            val mRequest = DownloadManager.Request(Uri.parse(DownloadImageURL))

@@ -32,8 +32,7 @@ import com.example.allhome.global_ui.CustomConfirmationDialog
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
 import com.example.allhome.utils.ImageUtil
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.canhub.cropper.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.Main
 import java.io.File
@@ -55,6 +54,36 @@ class AddGroceryListItemFragment : Fragment() {
     var groceryListItemIndex = -1
     var tempPhotoFileForAddingImage: File? = null
     var imageChanged = false
+
+
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            // Use the returned uri.
+//            val uriContent = result.uriContent
+//            val uriFilePath = result.getUriFilePath(requireContext()) // optional usage
+//
+//            val result = CropImage.getActivityResult(data)
+            //mNewImageUri= result.uriContent
+            //mFragmentAddPaymentBinding.itemImageView.setImageURI(result.uriContent)
+
+            val result = result.uriContent
+            val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
+            if(!storageDir.exists()){
+                storageDir.mkdir()
+            }
+            val itemBitmap = ImageUtil.uriToBitmap(result!!,requireContext())
+            val uri = ImageUtil.saveImage(requireContext(),itemBitmap,GroceryUtil.TEMPORARY_IMAGES_LOCATION,"$IMAGE_TEMP_NAME.$IMAGE_NAME_SUFFIX")?.let {
+                Uri.fromFile(File(it))
+            }
+            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  uri
+            mDataBinding.itemImageview.setImageURI(uri)
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(requireContext(), exception.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
 
     private val toolbarNavigationOnClickListener = View.OnClickListener{
         if(action == ADD_NEW_RECORD_FROM_BROWSER){
@@ -361,17 +390,17 @@ class AddGroceryListItemFragment : Fragment() {
                 launchImageCropper(fileUri)
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
-            val result = CropImage.getActivityResult(data)
-            val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
-            if(!storageDir.exists()){
-                storageDir.mkdir()
-            }
-            val itemBitmap = ImageUtil.uriToBitmap(result.uri,requireContext())
-            val uri = ImageUtil.saveImage(requireContext(),itemBitmap,GroceryUtil.TEMPORARY_IMAGES_LOCATION,"$IMAGE_TEMP_NAME.$IMAGE_NAME_SUFFIX")?.let {
-                Uri.fromFile(File(it))
-            }
-            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  uri
-            mDataBinding.itemImageview.setImageURI(uri)
+//            val result = CropImage.getActivityResult(data)
+//            val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.TEMPORARY_IMAGES_LOCATION)!!
+//            if(!storageDir.exists()){
+//                storageDir.mkdir()
+//            }
+//            val itemBitmap = ImageUtil.uriToBitmap(result.uri,requireContext())
+//            val uri = ImageUtil.saveImage(requireContext(),itemBitmap,GroceryUtil.TEMPORARY_IMAGES_LOCATION,"$IMAGE_TEMP_NAME.$IMAGE_NAME_SUFFIX")?.let {
+//                Uri.fromFile(File(it))
+//            }
+//            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  uri
+//            mDataBinding.itemImageview.setImageURI(uri)
 
 
 
@@ -580,11 +609,19 @@ class AddGroceryListItemFragment : Fragment() {
     }
     private fun launchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            //.setAspectRatio(500, 500)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(requireContext(), this);
+//        CropImage.activity(uri)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            //.setAspectRatio(500, 500)
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .start(requireContext(), this);
+
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(1000, 1000)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
     }
     private fun showIntentChooser(){
         // Determine Uri of camera image to save.

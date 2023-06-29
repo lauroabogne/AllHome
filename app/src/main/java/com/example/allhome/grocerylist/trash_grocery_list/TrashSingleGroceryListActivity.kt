@@ -66,6 +66,9 @@ class TrashSingleGroceryListActivity : AppCompatActivity() {
             TrashGroceryListViewModel::class.java
         )
 
+        val trashGroceryListViewModel: TrashGroceryListViewModel = ViewModelProvider(this)[TrashGroceryListViewModel::class.java]
+
+
         //Bind data
         dataBindingUtil = DataBindingUtil.setContentView<ActivityTrashSingleGroceryListBinding>(
             this, R.layout.activity_trash_single_grocery_list

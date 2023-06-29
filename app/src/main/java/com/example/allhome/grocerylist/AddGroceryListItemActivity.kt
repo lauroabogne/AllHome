@@ -28,8 +28,7 @@ import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.recipes.ViewRecipeActivity
 import com.example.allhome.recipes.ViewRecipeFragment
 import com.example.allhome.utils.ImageUtil
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.canhub.cropper.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main

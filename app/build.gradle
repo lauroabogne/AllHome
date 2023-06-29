@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    compileSdkVersion 31
+    compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
     defaultConfig {
         applicationId "com.example.allhome"
         minSdkVersion 16
-        targetSdkVersion 30
+        targetSdkVersion 33
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
@@ -74,7 +74,7 @@ dependencies {
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.2'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
-    api 'com.theartofdev.edmodo:android-image-cropper:2.8.+'
+    implementation("com.vanniktech:android-image-cropper:4.3.3")
     implementation("com.squareup.okhttp3:okhttp:4.9.2")
 
     implementation 'com.github.bumptech.glide:glide:4.12.0'

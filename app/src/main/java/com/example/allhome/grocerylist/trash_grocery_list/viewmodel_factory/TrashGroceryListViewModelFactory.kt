@@ -11,9 +11,9 @@ import com.example.allhome.grocerylist.viewmodel.TrashGroceryListViewModel
 import java.lang.IllegalArgumentException
 
 class TrashGroceryListViewModelFactory( private var groceryListEntity: GroceryListEntity? = null, private var groceryItemEntity: GroceryItemEntity?) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(TrashGroceryListViewModel::class.java)){
-
+            @Suppress("UNCHECKED_CAST")
             return TrashGroceryListViewModel(groceryListEntity,groceryItemEntity) as T
         }
         throw IllegalArgumentException("View model not found")

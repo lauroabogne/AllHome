@@ -36,9 +36,7 @@ import com.example.allhome.utils.ImageUtil
 import com.example.allhome.utils.MinMaxInputFilter
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.textfield.TextInputEditText
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
-import kotlinx.coroutines.Dispatchers.Main
+import com.canhub.cropper.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -58,6 +56,20 @@ class AddRecipeInformationFragment : Fragment() {
     var mRecipeEntity:RecipeEntity? = null
     var mAction = ADD_ACTION
     var mTempPhotoFileForAddingImage: File? = null
+
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+
+            val result = result.uriContent
+            mAddRecipeInformationFragmentViewModel.newImageUri = result
+            mDataBinding.itemImageView.setImageURI(result)
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(requireContext(), exception.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
 
     companion object{
         const val ADD_ACTION = 0
@@ -178,19 +190,24 @@ class AddRecipeInformationFragment : Fragment() {
                 val fileUri = Uri.fromFile(mTempPhotoFileForAddingImage) as Uri
                 lauchImageCropper(fileUri)
             }
-        }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
-
-            val result = CropImage.getActivityResult(data)
-            mAddRecipeInformationFragmentViewModel.newImageUri = result.uri
-            mDataBinding.itemImageView.setImageURI(result.uri)
         }
+//        else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
+//
+//            val result = CropImage.getActivityResult(data)
+//            mAddRecipeInformationFragmentViewModel.newImageUri = result.uri
+//            mDataBinding.itemImageView.setImageURI(result.uri)
+//        }
     }
     private fun lauchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(requireContext(),this)
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(1000, 1000)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
+
     }
     fun showDifficultyPopup(){
 
