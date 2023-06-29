@@ -115,4 +115,5 @@ class TrashGroceryListViewModel(groceryListEntityParams: GroceryListEntity? = nu
         totalItemBoughtAmount.postValue(total)
     }
 
+
 }

@@ -172,3 +172,16 @@ fun todoNotifyBefore(textview:TextView,todoEntity: TodoEntity?){
     todoEntity.notifyEveryType
 
 }
+
+@BindingAdapter("capitalizeFirstLetter")
+fun capitalizeFirstLetter(textView: TextView,todoName:String ?) {
+
+    todoName?.let {
+        val capitalizedText = if (it.isNotEmpty()) {
+            it.substring(0, 1).uppercase(Locale.getDefault()) + it.substring(1)
+        } else {
+            it
+        }
+        textView.text = capitalizedText
+    }
+}

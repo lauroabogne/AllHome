@@ -32,8 +32,7 @@ import com.example.allhome.databinding.StorageExpirationLayoutBinding
 import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
 import com.example.allhome.utils.ImageUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.canhub.cropper.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -68,6 +67,22 @@ class StorageAddItemActivity : AppCompatActivity() {
         val REPLACE_ITEM_COMMAND = 1
 
     }
+
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+
+            val resultUri = result.uriContent
+            mStorageAddItemViewModel.newImageUri = resultUri
+            mActivityPantryAddItemBinding.itemImageView.setImageURI(resultUri)
+
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(this, exception.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -210,9 +225,9 @@ class StorageAddItemActivity : AppCompatActivity() {
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
 
-            val result = CropImage.getActivityResult(data)
-            mStorageAddItemViewModel.newImageUri = result.uri
-            mActivityPantryAddItemBinding.itemImageView.setImageURI(result.uri)
+//            val result = CropImage.getActivityResult(data)
+//            mStorageAddItemViewModel.newImageUri = result.uri
+//            mActivityPantryAddItemBinding.itemImageView.setImageURI(result.uri)
             //itemImageView
             //mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
             //dataBindingUtil.itemImageview.setImageURI(result.uri)
@@ -229,11 +244,20 @@ class StorageAddItemActivity : AppCompatActivity() {
     }
     private fun lauchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(500, 500)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(this)
+//        CropImage.activity(uri)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            .setAspectRatio(500, 500)
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .start(this)
+
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(500, 500)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
+
     }
     private fun checkData(){
         val storageItem = mActivityPantryAddItemBinding.storageItemTextinput.text.toString().trim()

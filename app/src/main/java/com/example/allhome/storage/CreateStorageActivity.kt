@@ -25,8 +25,7 @@ import com.example.allhome.databinding.ActivityCreateStorageBinding
 import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import com.example.allhome.utils.ImageUtil
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.canhub.cropper.*
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -50,6 +49,22 @@ class CreateStorageActivity : AppCompatActivity() {
         val REQUEST_PICK_IMAGE = 4
 
     }
+
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+
+            val result = result.uriContent
+            mStorageViewModel.storageNewImageUri = result
+            mActivityCreateStorageBinding.itemImageView.setImageURI(result)
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(this, exception.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -97,10 +112,7 @@ class CreateStorageActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.create_storage_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.create_storage_menu, menu)
-//        return true
-//    }
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if(requestCode == StorageAddItemActivity.REQUEST_PICK_IMAGE){
@@ -114,9 +126,9 @@ class CreateStorageActivity : AppCompatActivity() {
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
 
-            val result = CropImage.getActivityResult(data)
-            mStorageViewModel.storageNewImageUri = result.uri
-            mActivityCreateStorageBinding.itemImageView.setImageURI(result.uri)
+//            val result = CropImage.getActivityResult(data)
+//            mStorageViewModel.storageNewImageUri = result.uri
+//            mActivityCreateStorageBinding.itemImageView.setImageURI(result.uri)
 
 
 
@@ -334,10 +346,18 @@ class CreateStorageActivity : AppCompatActivity() {
     }
     private fun lauchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(500, 500)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(this)
+//        CropImage.activity(uri)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            .setAspectRatio(500, 500)
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .start(this)
+
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(500, 500)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
     }
 }

@@ -27,8 +27,7 @@ import com.example.allhome.databinding.ActivityAddGroceryListItemBackupBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import com.example.allhome.grocerylist.viewmodel_factory.GroceryListViewModelFactory
 import com.example.allhome.utils.ImageUtil
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
+import com.canhub.cropper.*
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -79,6 +78,25 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
 
 
             }
+        }
+    }
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            // Use the returned uri.
+//            val uriContent = result.uriContent
+//            val uriFilePath = result.getUriFilePath(requireContext()) // optional usage
+//
+//            val result = CropImage.getActivityResult(data)
+
+            mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uriContent
+
+            dataBindingUtil.itemImageview.setImageURI(result.uriContent)
+
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(this, exception.toString(),Toast.LENGTH_SHORT).show()
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -172,7 +190,6 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
         dataBindingUtil.itemCategoryTextinput.threshold = 0
         dataBindingUtil.itemCategoryTextinput.setAdapter(itemCategoryAutoSuggestCustomAdapter)
     }
-
    private fun showIntentChooser(){
        // Determine Uri of camera image to save.
 
@@ -233,11 +250,11 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
 
-            val result = CropImage.getActivityResult(data)
-
-           mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
-
-           dataBindingUtil.itemImageview.setImageURI(result.uri)
+//            val result = CropImage.getActivityResult(data)
+//
+//           mGroceryListViewModel.selectedGroceryItemEntityNewImageUri =  result.uri
+//
+//           dataBindingUtil.itemImageview.setImageURI(result.uri)
 
 
 
@@ -372,11 +389,19 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
 
     private fun lauchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            //.setAspectRatio(500, 500)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(this)
+//        CropImage.activity(uri)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            //.setAspectRatio(500, 500)
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .start(this)
+
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(1000, 1000)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
     }
 
     @Throws(IOException::class)

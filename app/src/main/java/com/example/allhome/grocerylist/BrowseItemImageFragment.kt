@@ -396,34 +396,35 @@ class BrowseItemImageFragment : Fragment() {
         if (webViewHitTestResult.type == WebView.HitTestResult.IMAGE_TYPE ) {
             menu.setHeaderTitle("Download Image...")
             menu.add(0, 1, 0, "Click to download").setOnMenuItemClickListener(object : MenuItem.OnMenuItemClickListener{
-                    override fun onMenuItemClick(menuItem: MenuItem?): Boolean {
-                        val downloadImageURL = webViewHitTestResult.extra
 
-                        if (URLUtil.isValidUrl(downloadImageURL)) {
+                override fun onMenuItemClick(item: MenuItem): Boolean {
+                    val downloadImageURL = webViewHitTestResult.extra
 
-                            saveImage(downloadImageURL.toString())
+                    if (URLUtil.isValidUrl(downloadImageURL)) {
 
-                        } else {
-                            //base 64
-                            val possibleBase64Image = webViewHitTestResult.extra
-                            val base64Word = "base64,"
-                            val indexOfBase64Word: Int = possibleBase64Image!!.indexOf(base64Word)
+                        saveImage(downloadImageURL.toString())
+
+                    } else {
+                        //base 64
+                        val possibleBase64Image = webViewHitTestResult.extra
+                        val base64Word = "base64,"
+                        val indexOfBase64Word: Int = possibleBase64Image!!.indexOf(base64Word)
 
 
-                            if(indexOfBase64Word <=0 ){
-                                Toast.makeText(requireContext(), "Sorry.. Something Went Wrong...", Toast.LENGTH_LONG).show()
-                                return false
-                            }
+                        if(indexOfBase64Word <=0 ){
+                            Toast.makeText(requireContext(), "Sorry.. Something Went Wrong...", Toast.LENGTH_LONG).show()
+                            return false
+                        }
 
-                            val base64StringImage = possibleBase64Image.removeRange(0,indexOfBase64Word + base64Word.length)
-                            val imageBytes = Base64.decode(base64StringImage, Base64.DEFAULT)
-                            val bitmapImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-                            saveBitmap(bitmapImage)
+                        val base64StringImage = possibleBase64Image.removeRange(0,indexOfBase64Word + base64Word.length)
+                        val imageBytes = Base64.decode(base64StringImage, Base64.DEFAULT)
+                        val bitmapImage = BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+                        saveBitmap(bitmapImage)
 
-                       }
-                        return false
                     }
-                })
+                    return false
+                }
+            })
         }
     }
 

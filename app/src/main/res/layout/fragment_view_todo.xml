@@ -45,17 +45,28 @@
             android:layout_height="match_parent"
             android:padding="12dp">
 
+            <CheckBox
+                android:id="@+id/checkBox4"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
+                app:layout_constraintBottom_toBottomOf="@+id/textView54"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="@+id/textView54" />
+
             <TextView
                 android:id="@+id/textView54"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{todoEntity.name}"
                 android:textSize="24sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/checkBox4"
                 app:layout_constraintTop_toTopOf="parent"
+                app:capitalizeFirstLetter="@{todoEntity.name}"
                 tools:text="Clean kitchen" />
+
             <TextView
                 android:id="@+id/textView36"
                 android:layout_width="0dp"
@@ -65,10 +76,10 @@
                 android:paddingRight="4dp"
                 android:paddingBottom="8dp"
                 android:text="@{todoEntity.description}"
-                tools:text="Sample description"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/textView54" />
+                app:layout_constraintTop_toBottomOf="@+id/checkBox4"
+                tools:text="Sample description" />
 
             <TextView
                 android:id="@+id/textView55"

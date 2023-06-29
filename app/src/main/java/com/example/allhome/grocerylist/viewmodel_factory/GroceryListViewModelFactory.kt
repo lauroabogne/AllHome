@@ -10,7 +10,7 @@ import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
 import java.lang.IllegalArgumentException
 
 class GroceryListViewModelFactory( private var groceryListEntity: GroceryListEntity? = null, private var groceryItemEntity: GroceryItemEntity?) : ViewModelProvider.Factory {
-    override fun <T : ViewModel?> create(modelClass: Class<T>): T {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(GroceryListViewModel::class.java)){
 
             return GroceryListViewModel(groceryListEntity,groceryItemEntity) as T

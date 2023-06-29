@@ -18,6 +18,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.room.ColumnInfo
+import com.canhub.cropper.*
 import com.example.allhome.R
 import com.example.allhome.bill.viewmodel.BillViewModel
 import com.example.allhome.data.entities.BillEntity
@@ -27,8 +28,6 @@ import com.example.allhome.databinding.FragmentAddPaymentBinding
 import com.example.allhome.storage.StorageAddItemActivity
 import com.example.allhome.storage.StorageUtil
 import com.example.allhome.utils.ImageUtil
-import com.theartofdev.edmodo.cropper.CropImage
-import com.theartofdev.edmodo.cropper.CropImageView
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -58,6 +57,22 @@ class AddPaymentFragment : Fragment() {
     var mOldImageUri: Uri? = null
     var mNewImageUri: Uri? = null
 
+    private val cropImage = registerForActivityResult(CropImageContract()) { result ->
+        if (result.isSuccessful) {
+            // Use the returned uri.
+//            val uriContent = result.uriContent
+//            val uriFilePath = result.getUriFilePath(requireContext()) // optional usage
+//
+//            val result = CropImage.getActivityResult(data)
+            mNewImageUri= result.uriContent
+            mFragmentAddPaymentBinding.itemImageView.setImageURI(result.uriContent)
+
+        } else {
+            // An error occurred.
+            val exception = result.error
+            Toast.makeText(requireContext(), exception.toString(),Toast.LENGTH_SHORT).show()
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -100,7 +115,6 @@ class AddPaymentFragment : Fragment() {
 
 
     }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mFragmentAddPaymentBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_add_payment,null,false)
@@ -154,9 +168,9 @@ class AddPaymentFragment : Fragment() {
             }
         }else if(requestCode == CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE && resultCode == Activity.RESULT_OK){
 
-            val result = CropImage.getActivityResult(data)
+          /*  val result = CropImage.getActivityResult(data)
             mNewImageUri= result.uri
-            mFragmentAddPaymentBinding.itemImageView.setImageURI(result.uri)
+            mFragmentAddPaymentBinding.itemImageView.setImageURI(result.uri)*/
 
 
 
@@ -369,11 +383,19 @@ class AddPaymentFragment : Fragment() {
 
     private fun lauchImageCropper(uri: Uri){
 
-        CropImage.activity(uri)
-            .setGuidelines(CropImageView.Guidelines.ON)
-            .setAspectRatio(1000, 1000)
-            .setCropShape(CropImageView.CropShape.RECTANGLE)
-            .start(requireContext(),this)
+//        CropImage.activity(uri)
+//            .setGuidelines(CropImageView.Guidelines.ON)
+//            .setAspectRatio(1000, 1000)
+//            .setCropShape(CropImageView.CropShape.RECTANGLE)
+//            .start(requireContext(),this)
+
+        cropImage.launch(
+            options(uri = uri) {
+                setGuidelines(CropImageView.Guidelines.ON)
+                setAspectRatio(1000, 1000)
+                setCropShape(CropImageView.CropShape.RECTANGLE)
+            }
+        )
     }
     private fun createImageFile(): File {
         val storageDir: File = requireContext().getExternalFilesDir(ImageUtil.TEMPORARY_IMAGES_LOCATION)!!
