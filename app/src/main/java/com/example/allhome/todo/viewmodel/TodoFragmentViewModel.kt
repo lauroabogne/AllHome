@@ -3,6 +3,7 @@ package com.example.allhome.todo.viewmodel
 import android.util.Log
 import androidx.lifecycle.*
 import com.example.allhome.data.AllHomeDatabase
+import com.example.allhome.data.DAO.LogsDAO
 import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
 import com.example.allhome.data.entities.TodoEntity
@@ -14,9 +15,10 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
+class TodoFragmentViewModel( private val todosDAO: TodosDAO, private val logsDao:LogsDAO):ViewModel() {
     var mTodoEntities:MutableList<TodosWithSubTaskCount> = mutableListOf()
     var mLoadData:MutableLiveData<Boolean> = MutableLiveData()
+
 
     fun getTodos(){
         viewModelScope.launch {
@@ -39,6 +41,17 @@ class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
             }
         }
     }
+    fun getOverdueTodos(currentDateString:String){
+
+        viewModelScope.launch {
+            mTodoEntities = withContext(IO){
+                todosDAO.getOverdueTodosByDueDate(currentDateString) as MutableList<TodosWithSubTaskCount>
+            }
+            withContext(IO){
+                mLoadData.postValue(true)
+            }
+        }
+    }
 
     fun updateTodoAsFinished(todoUniqueId:String, currentDatetime:String,isFinished:Int){
 
@@ -52,11 +65,11 @@ class TodoFragmentViewModel( private val todosDAO: TodosDAO):ViewModel() {
 
 }
 
-class TodoFragmentViewModelFactory( private val todosDAO: TodosDAO) : ViewModelProvider.Factory {
+class TodoFragmentViewModelFactory( private val todosDAO: TodosDAO, private val logsDao: LogsDAO) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TodoFragmentViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return TodoFragmentViewModel(todosDAO) as T
+            return TodoFragmentViewModel(todosDAO,logsDao) as T
 
         }
         throw IllegalArgumentException("Unknown ViewModel class")

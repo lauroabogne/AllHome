@@ -18,6 +18,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
+import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.databinding.FragmentViewTodoBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
@@ -96,12 +97,10 @@ class ViewTodoFragment : Fragment() {
             activity?.finish()
         }
         toolbar?.inflateMenu(R.menu.view_todo_menu)
-
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.view_todo_edit_menu -> {
                     Toast.makeText(requireContext(),"Edit",Toast.LENGTH_SHORT).show()
-
                     val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
                     intent.putExtra(CreateEditTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
                     intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.CREATE_TODO_FRAGMENT)
@@ -117,6 +116,21 @@ class ViewTodoFragment : Fragment() {
             }
             true
         }
+
+        mFragmentViewTodoBinding.todoCheckbox.setOnClickListener {
+
+
+            val currentDateTime = LocalDateTime.now()
+            val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val currentDatetime = currentDateTime.format(formatter)
+            val isFinished = if (mFragmentViewTodoBinding.todoCheckbox.isChecked) TodoEntity.FINISHED else TodoEntity.NOT_FINISHED
+
+            mViewTodoFragmentViewModel.updateTodoAsFinished(todoUniqueId, currentDatetime,isFinished)
+
+            mTodoEdited = true
+
+        }
+
 
 
         val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
@@ -162,30 +176,6 @@ class ViewTodoFragment : Fragment() {
             Toast.makeText(requireContext(),"Selected task deleted successfully.",Toast.LENGTH_SHORT).show()
         }
 
-
-//        mCreateEditTodoFragmentViewModel.mDoTaskNeedToUpdateIsRecurring.observe(viewLifecycleOwner){isRecurring->
-//            if(isRecurring){
-//                mUpdateTodoOptionDialogFragment = UpdateTodoOptionDialogFragment("","Selected task is recurring. What you want to update?")
-//                mUpdateTodoOptionDialogFragment?.setClickListener { view ->
-//                    mUpdateTodoOptionDialogFragment?.dismiss()
-//                    val selectedRadioBtn = mUpdateTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
-//                    when (view?.id) {
-//                        UpdateTodoOptionDialogFragment.POSITIVE_BTN_ID-> {
-//                            when(selectedRadioBtn){
-//                                R.id.selectedTaskOnlyBtn->{
-//                                    mCreateEditTodoFragmentViewModel.mUpdateSelectedTask.value = true
-//                                }
-//                                R.id.selectedAndAlsoFutureTaskBtn->{
-//                                    mCreateEditTodoFragmentViewModel.mUpdateFutureAndSelectedTask.value = true
-//                                }
-//                            }
-//                        }
-//                    }
-//                }
-//
-//                mUpdateTodoOptionDialogFragment?.show(childFragmentManager,"UpdateTodoOptionDialogFragment")
-//            }
-//        }
 
         mViewTodoFragmentViewModel.mDoTaskNeedToDeleteIsRecurring.observe(viewLifecycleOwner){ doTaskNeedToDeleteIsRecurring ->
             mDeleteTodoOptionDialogFragment = DeleteTodoOptionDialogFragment("","Selected task is recurring. What you want to delete?")

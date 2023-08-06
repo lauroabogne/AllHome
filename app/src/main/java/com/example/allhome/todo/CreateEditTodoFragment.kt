@@ -1,8 +1,7 @@
 package com.example.allhome.todo
 
-import android.app.Activity
-import android.app.DatePickerDialog
-import android.app.TimePickerDialog
+import android.app.*
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
@@ -17,9 +16,15 @@ import androidx.annotation.RequiresApi
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewModelScope
 import androidx.recyclerview.widget.*
+import androidx.room.ColumnInfo
+import androidx.room.withTransaction
 import com.example.allhome.AllHomeBaseApplication
+import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
+import com.example.allhome.data.entities.AlarmRecordsEntity
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.databinding.FragmentCreateEditTodoBinding
@@ -28,8 +33,17 @@ import com.example.allhome.global_ui.DateInMonthDialogFragment
 import com.example.allhome.todo.AddEditSubTaskDialogFragment.OnSubTaskSavedListener
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModelFactory
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Dispatchers.IO
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.joda.time.DateTime
+import org.joda.time.LocalDateTime
+import org.joda.time.format.DateTimeFormat
 import java.text.SimpleDateFormat
+import java.time.format.DateTimeFormatter
+import java.time.format.DateTimeFormatter.ofPattern
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 
@@ -48,13 +62,15 @@ class CreateEditTodoFragment : Fragment() {
         val database = (context?.applicationContext as AllHomeBaseApplication).database
         val todosDAO = (context?.applicationContext as AllHomeBaseApplication).todosDAO
         val todoSubTasksDAO = (context?.applicationContext as AllHomeBaseApplication).todoSubTasksDAO
+        val alarmRecordsDAO = (context?.applicationContext as AllHomeBaseApplication).alarmsRecordsDAO
 
-        CreateEditTodoFragmentViewModelFactory(database,todosDAO,todoSubTasksDAO)
+
+
+        CreateEditTodoFragmentViewModelFactory(database,todosDAO,todoSubTasksDAO,alarmRecordsDAO)
 
     }
     lateinit var mFragmentCreateEditTodoBinding: FragmentCreateEditTodoBinding
     private var mUpdateTodoOptionDialogFragment:UpdateTodoOptionDialogFragment? = null
-
     companion object {
         const val TODO_UNIQUE_ID_TAG = "TODO_UNIQUE_ID_TAG"
         const val ACTION_TAG = "ACTION_TAG"
@@ -78,7 +94,6 @@ class CreateEditTodoFragment : Fragment() {
                 }
             }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
@@ -104,7 +119,25 @@ class CreateEditTodoFragment : Fragment() {
         toolbar.setOnMenuItemClickListener {
             when(it.itemId){
                 R.id.save_menu->{
+                    /**
+                     * @todo temporary disable
+                     */
                     saveTodo()
+                   // createAlarm()
+
+                    //current task is to create multiple notification for each task
+                    // Get the current date and time
+//                    val currentDateTime: java.time.LocalDateTime? = java.time.LocalDateTime.now()
+//
+//                    // Define the desired date-time format
+//                    val formatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+//
+//                    // Format the LocalDateTime object
+//                    val formattedDateTime: String = formatter.format(currentDateTime)
+//
+//
+//                    createAlarm(1, "Minute before", formattedDateTime, "308049b7-29d9-4d8b-86af-5de52829b998", "test")
+
                 }
                 R.id.update_menu->{
                     mCreateEditTodoFragmentViewModel.mUpdateTask.value = true
@@ -181,23 +214,30 @@ class CreateEditTodoFragment : Fragment() {
             }
 
         }
-        mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner) { calendar ->
-
-            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-            val minutes = calendar.get(Calendar.MINUTE)
-            if(hour == 0 && minutes == 0 ){
-                val dueDateString = SimpleDateFormat("MMM dd, y").format(calendar.time)
-                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
-            }else{
-                val dueDateString = SimpleDateFormat("MMM dd, y hh:mm:ss a").format(calendar.time)
-                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
-            }
-
-        }
+//        mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner) { calendar ->
+//
+//            if(calendar == null){
+//                return@observe
+//            }
+//            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+//            val minutes = calendar.get(Calendar.MINUTE)
+//            if(hour == 0 && minutes == 0 ){
+//                val dueDateString = SimpleDateFormat("MMM dd, y").format(calendar.time)
+//                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
+//            }else{
+//                val dueDateString = SimpleDateFormat("MMM dd, y hh:mm:ss a").format(calendar.time)
+//                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
+//            }
+//
+//
         mCreateEditTodoFragmentViewModel.mSaveSuccessfully.observe(viewLifecycleOwner) { isSuccess ->
 
             if(isSuccess){
-                Toast.makeText(requireContext(),"saved successfully",Toast.LENGTH_SHORT).show()
+
+                val intent = Intent()
+                intent.putExtra(TodoFragment.ACTION_TAG, TodoFragment.RELOAD_ACTION_TAG)
+                activity?.setResult(Activity.RESULT_OK, intent)
+                activity?.finish()
             }else{
                 Toast.makeText(requireContext(),"failed to save",Toast.LENGTH_SHORT).show()
             }
@@ -237,6 +277,10 @@ class CreateEditTodoFragment : Fragment() {
             }
         }
         mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner){repeatUntil->
+
+            if(repeatUntil == null){
+                return@observe
+            }
 
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val dueDateTimeString: String = simpleDateFormat.format(repeatUntil.time)
@@ -295,6 +339,8 @@ class CreateEditTodoFragment : Fragment() {
                 }
 
                 mUpdateTodoOptionDialogFragment?.show(childFragmentManager,"UpdateTodoOptionDialogFragment")
+            }else{
+                mCreateEditTodoFragmentViewModel.mUpdateSelectedTask.value = true
             }
         }
 
@@ -302,7 +348,6 @@ class CreateEditTodoFragment : Fragment() {
 
             if(update){
                 updateTodo()
-
             }
 
         }
@@ -334,9 +379,7 @@ class CreateEditTodoFragment : Fragment() {
         return mFragmentCreateEditTodoBinding.root
     }
     private fun getTodoInformation(todoUniqueId: String){
-
         mCreateEditTodoFragmentViewModel.getTodoInformation(todoUniqueId)
-
     }
     private fun showCalendar(){
         val calendar = Calendar.getInstance()
@@ -435,10 +478,14 @@ class CreateEditTodoFragment : Fragment() {
                 it.todoUniqueId = taskUniqueId
             }
         }
+
+
+
         mCreateEditTodoFragmentViewModel.saveTodo(todosEntity)
 
     }
     private fun saveTodo(){
+
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
@@ -447,6 +494,7 @@ class CreateEditTodoFragment : Fragment() {
         val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
         val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
+
 
 
         var taskUniqueGroupId = UUID.randomUUID().toString()
@@ -467,13 +515,15 @@ class CreateEditTodoFragment : Fragment() {
         val todoSubTaskEntities = arrayListOf<TodoSubTasksEntity>()
         val dueDateCopy:Calendar = mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.clone() as Calendar
 
+
+
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
         // generate first task item
-        var taskUniqueId = UUID.randomUUID().toString()
+        var todoUniqueId = UUID.randomUUID().toString()
         val todosEntity = TodoEntity(
-            uniqueId = taskUniqueId,
+            uniqueId = todoUniqueId,
             groupUniqueId=taskUniqueGroupId,
             name = taskName,
             description = taskDescription,
@@ -496,11 +546,14 @@ class CreateEditTodoFragment : Fragment() {
             var todoSubTaskUniqueId = UUID.randomUUID().toString()
             val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
             todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
-            todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
+            todoSubTaskEntityCopy.todoUniqueId = todoUniqueId
             todoSubTaskEntityCopy.created = currentDatetime
             todoSubTaskEntityCopy.modified = currentDatetime
             todoSubTaskEntities.add(todoSubTaskEntityCopy)
         }
+
+
+
 
 
         when(repeatEveryType){
@@ -578,7 +631,6 @@ class CreateEditTodoFragment : Fragment() {
                     }
 
 
-
                 }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
             }
             requireContext().getString(R.string.month)->{
@@ -614,6 +666,7 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntityCopy.modified = currentDatetime
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
+
 
 
 
@@ -750,46 +803,59 @@ class CreateEditTodoFragment : Fragment() {
 
                 }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
             }
-//            requireContext().getString(R.string.none)->{
-//
-//                var taskUniqueId = UUID.randomUUID().toString()
-//                val todosEntity = TodoEntity(
-//                    uniqueId = taskUniqueId,
-//                    groupUniqueId=taskUniqueGroupId,
-//                    name = taskName,
-//                    dueDate = simpleDateFormat.format(dueDateCopy.time),
-//                    repeatEvery = repeatEvery,
-//                    repeatEveryType = repeatEveryType,
-//                    repeatUntil = repeatUntilDateTimeFormatted,
-//                    notifyAt = notifyEvery,
-//                    notifyEveryType = notifyEveryType,
-//                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
-//                    uploaded = TodoEntity.NOT_UPLOADED,
-//                    isFinished = TodoEntity.NOT_FINISHED,
-//                    datetimeFinished ="",
-//                    created = currentDatetime,
-//                    modified = currentDatetime
-//                )
-//
-//                todoEntities.add(todosEntity)
-//                mCreateEditTodoFragmentViewModel.mTodoSubTask.value!!.forEach { todoSubTaskEntity->
-//                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
-//                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
-//                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
-//                    todoSubTaskEntityCopy.todoUniqueId = taskUniqueId
-//                    todoSubTaskEntityCopy.created = currentDatetime
-//                    todoSubTaskEntityCopy.modified = currentDatetime
-//                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
-//                }
-//
-//            }
 
         }
-        mCreateEditTodoFragmentViewModel.saveTodos(todoEntities,todoSubTaskEntities)
-        val intent = Intent()
-        intent.putExtra(TodoFragment.ACTION_TAG, TodoFragment.RELOAD_ACTION_TAG)
-        activity?.setResult(Activity.RESULT_OK, intent)
-        activity?.finish()
+
+        lifecycleScope.launch {
+
+            try {
+
+                    mCreateEditTodoFragmentViewModel.database.withTransaction {
+                   val todoIds = mCreateEditTodoFragmentViewModel.saveTodos(todoEntities,todoSubTaskEntities)
+                    if(todoIds.isEmpty()){
+                        throw Exception("No data was inserted in database")
+                    }
+                    todoEntities.forEach {todoEntity->
+                        val todoEntityWithId = mCreateEditTodoFragmentViewModel.getTodoInformationAndReturn(todoEntity.uniqueId)
+                        val todoEntityWithIdNotifyAt = todoEntityWithId.notifyAt
+                        val todoEntityWithIdNotifyEveryType =  todoEntityWithId.notifyEveryType
+                        val todoEntityWithIdDueDate = todoEntityWithId.dueDate
+                        val todoEntityUniqueId = todoEntityWithId.uniqueId
+                        val todoEntityName = todoEntityWithId.name
+                        val todoEntityId = todoEntityWithId.id
+
+                        val isNeedToCreateAlarm = isNeedToSetAlarmToday(todoEntityWithIdNotifyAt, todoEntityWithIdNotifyEveryType, todoEntityWithIdDueDate)
+                        if(isNeedToCreateAlarm){
+                            // save alarm information
+                            mCreateEditTodoFragmentViewModel.saveTodoAlarmInformation(
+                                AlarmRecordsEntity(
+                                    id= 0,// in will automatically generated since id is auto increment. @see AlarmRecordsEntity
+                                    type = AlarmRecordsEntity.TYPE_GROCERY_TODO,
+                                    uniqueId = todoEntityUniqueId,
+                                    created = currentDatetime
+                                )
+                            )
+                            createAlarm(todoEntityWithIdNotifyAt, todoEntityWithIdNotifyEveryType,   todoEntityWithIdDueDate, todoEntityUniqueId,todoEntityId,todoEntityName)
+                        }
+                    }
+
+                    withContext(Dispatchers.Main){
+                            Toast.makeText(requireContext(),"Failed to save",Toast.LENGTH_SHORT).show()
+                        mCreateEditTodoFragmentViewModel.mSaveSuccessfully.postValue(true)
+                    }
+
+
+                }
+
+            } catch (e: Exception) {
+                Toast.makeText(requireContext(),"${e.message}",Toast.LENGTH_SHORT).show()
+            }
+        }
+
+//        val intent = Intent()
+//        intent.putExtra(TodoFragment.ACTION_TAG, TodoFragment.RELOAD_ACTION_TAG)
+//        activity?.setResult(Activity.RESULT_OK, intent)
+//        activity?.finish()
     }
     private fun updateTodos(){
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
@@ -873,6 +939,8 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
 
+
+
                     dueDateCopy.add(Calendar.DAY_OF_MONTH,repeatEvery)
 
                 }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
@@ -912,6 +980,7 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntityCopy.modified = currentDatetime
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
+
 
                     dueDateCopy.add(Calendar.WEEK_OF_MONTH,repeatEvery)
 
@@ -954,6 +1023,7 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
 
+
                     dueDateCopy.add(Calendar.MONTH,repeatEvery)
 
                 }while (dueDateCopy.before(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value))
@@ -993,6 +1063,7 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntityCopy.modified = currentDatetime
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
+
 
                     dueDateCopy.add(Calendar.MONTH,1)
 
@@ -1034,6 +1105,8 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntityCopy.modified = currentDatetime
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
+
+
 
                     dueDateCopy.add(Calendar.MONTH,1)
                     val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
@@ -1085,6 +1158,7 @@ class CreateEditTodoFragment : Fragment() {
                         todoSubTaskEntities.add(todoSubTaskEntityCopy)
                     }
 
+
                     dueDateCopy.add(Calendar.YEAR,1)
                     val maxDayOfMonth = dueDateCopy.getActualMaximum(Calendar.DAY_OF_MONTH)
 
@@ -1130,6 +1204,7 @@ class CreateEditTodoFragment : Fragment() {
                     todoSubTaskEntities.add(todoSubTaskEntityCopy)
                 }
 
+
             }
         }
 
@@ -1172,12 +1247,10 @@ class CreateEditTodoFragment : Fragment() {
             mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value = repeatUntilDateCalendar
         }
 
-        val repeatUntilDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!= null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!!.time) else "0000-00-00 00:00:00"
 
-
+        val repeatUntilDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!= null ) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value!!.time) else "0000-00-00 00:00:00"
         val todoSubTaskEntities = arrayListOf<TodoSubTasksEntity>()
         val dueDateCopy:Calendar = mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.clone() as Calendar
-
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
@@ -1199,13 +1272,118 @@ class CreateEditTodoFragment : Fragment() {
         mCreateEditTodoFragmentViewModel.updateTodo(todoUniqueId,taskName ,taskDescription , simpleDateFormat.format(dueDateCopy.time), repeatEvery,repeatEveryType,
             repeatUntilDateTimeFormatted,notifyEvery,notifyEveryType, TodoEntity.NOT_FINISHED, "",todoSubTaskEntities)
 
-
         val intent = Intent()
         intent.putExtra(ViewTodoFragment.NEW_UNIQUE_ID_TAG, todoUniqueId)
         activity?.setResult(Activity.RESULT_OK, intent)
         activity?.finish()
 
     }
+    private fun isNeedToSetAlarmToday(notifyAt: Int, notifyType: String, dueDateTimeFormatted: String):Boolean {
+
+        if(dueDateTimeFormatted.isEmpty() || dueDateTimeFormatted == "0000-00-00 00:00:00"){
+
+            return false
+        }
+        val formatter: org.joda.time.format.DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+        val dueDateTime:DateTime = formatter.parseDateTime(dueDateTimeFormatted)
+        val currentDateTime = DateTime.now()
+        val nextDayDateTime = currentDateTime.plusDays(1).withTimeAtStartOfDay()
+
+
+        when(notifyType){
+            resources.getString(R.string.grocery_notification_none) -> {
+                return false
+            }
+            resources.getString(R.string.grocery_notification_same_day_and_time) -> {
+
+                return currentDateTime <= dueDateTime && dueDateTime < nextDayDateTime
+            }
+            resources.getString(R.string.grocery_notification_minute_before) -> {
+
+                return currentDateTime <= dueDateTime.minusMinutes(notifyAt)  && dueDateTime.minusMinutes(notifyAt) < nextDayDateTime
+            }
+            resources.getString(R.string.grocery_notification_hour_before) -> {
+
+                return currentDateTime <= dueDateTime.minusHours(notifyAt)  && dueDateTime.minusHours(notifyAt) < nextDayDateTime
+            }
+            resources.getString(R.string.grocery_notification_day_before) -> {
+
+                return currentDateTime <= dueDateTime.minusDays(notifyAt)  && dueDateTime.minusDays(notifyAt) < nextDayDateTime
+            }else -> {
+                return false
+            }
+        }
+
+
+    }
+    private fun createAlarm(notifyValue: Int, notifyType: String, dueDateTimeFormatted: String, todoUniqueId: String,todoEntityId:Int, todoName : String){
+
+
+        val notificationDatetime  = generatedAlarmDatetime(notifyValue, notifyType,dueDateTimeFormatted)
+        val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(requireContext(), NotificationReceiver::class.java)
+
+        intent.apply {
+            action = NotificationReceiver.TODO_NOTIFICATION_ACTION
+            addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+            addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+            intent.putExtra(NotificationReceiver.TODO_UNIQUE_ID, todoUniqueId)
+            intent.putExtra(NotificationReceiver.TODO_NAME, todoName)
+
+        }
+
+        val pendingIntent = createPendingIntent(intent,todoEntityId)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+
+            alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
+
+        }else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+
+            alarmManager.setExact(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
+        }else{
+
+            alarmManager.set(AlarmManager.RTC_WAKEUP, notificationDatetime, pendingIntent)
+        }
+
+    }
+
+    private fun generatedAlarmDatetime(notifyValue: Int, notifyType: String, dueDateTimeFormatted: String):Long{
+
+        if(dueDateTimeFormatted.isEmpty() || dueDateTimeFormatted == "0000-00-00 00:00:00"){
+
+            return 0
+        }
+        val formatter: org.joda.time.format.DateTimeFormatter = DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss")
+        val datetime:DateTime = formatter.parseDateTime(dueDateTimeFormatted)
+
+        when(notifyType){
+            resources.getString(R.string.grocery_notification_none) -> {
+                return 0
+            }
+            resources.getString(R.string.grocery_notification_same_day_and_time) -> {
+
+                return datetime.millis
+            }
+            resources.getString(R.string.grocery_notification_minute_before) -> {
+
+                return datetime.minusMinutes(notifyValue).millis
+            }
+            resources.getString(R.string.grocery_notification_hour_before) -> {
+
+                return datetime.minusHours(notifyValue).millis
+            }
+            resources.getString(R.string.grocery_notification_day_before) -> {
+
+                return datetime.minusDays(notifyValue).millis
+            }
+        }
+        return 0
+    }
+    private fun createPendingIntent(intent: Intent,todoEntityId:Int): PendingIntent {
+
+        return PendingIntent.getBroadcast(requireContext(), todoEntityId, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE)
+    }
+
     private val repeatSpinnerOnItemSelectedListener = object : AdapterView.OnItemSelectedListener{
         override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
             var selectedRepeat = requireContext().resources.getStringArray(R.array.todo_recurring)[position]
@@ -1357,7 +1535,6 @@ class CreateEditTodoFragment : Fragment() {
 
         }
     }
-
 
     class CustomDiffUtil(val oldTodoSubtasks:List<TodoSubTasksEntity>,val newTodoSubTasks:List<TodoSubTasksEntity>): DiffUtil.Callback() {
         override fun getOldListSize(): Int {

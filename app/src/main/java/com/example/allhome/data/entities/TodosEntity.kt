@@ -4,10 +4,11 @@ import androidx.room.*
 import kotlinx.android.parcel.Parcelize
 
 
-@Entity(tableName = "todos")
+@Entity(tableName = "todos", indices = [Index(value=["unique_id"],unique = true)])
 data class TodoEntity(
-    @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name = "unique_id",index = true) var uniqueId:String,
+    @PrimaryKey(autoGenerate = true) // Use autoGenerate = true for auto-incrementing ID
+    @ColumnInfo(name = "id") var id: Int = 0, // Auto-incrementing ID field
+    @ColumnInfo(name = "unique_id") var uniqueId:String,
     @ColumnInfo(name = "group_unique_id",index = true) var groupUniqueId:String,
     @ColumnInfo(name = "name") var name:String,
     @ColumnInfo(name = "description") var description:String,

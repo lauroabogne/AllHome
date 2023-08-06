@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="true" />
-
+<manifest
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.SET_ALARM" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.USE_EXACT_ALARM"/>
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="true" />
+
+
 
     <application
         android:name=".AllHomeBaseApplication"
@@ -24,6 +28,7 @@
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
             android:name=".todo.TodoFragmentContainerActivity"
+            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
@@ -81,7 +86,7 @@
             android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity" />
 
         <receiver
-            android:name=".GroceryListNotificationReceiver"
+            android:name=".NotificationReceiver"
             android:enabled="true"
             android:exported="true" />
 
@@ -115,7 +120,6 @@
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>

@@ -15,13 +15,13 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
+        android:visibility="gone"
         app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
 
         <com.google.android.material.tabs.TabItem
             android:id="@+id/viewByStorage"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-
             android:text="Yesterday" />
 
         <com.google.android.material.tabs.TabItem
@@ -42,6 +42,19 @@
 
     </com.google.android.material.tabs.TabLayout>
 
+    <TextView
+        android:id="@+id/todoDateLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:paddingLeft="12dp"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp"
+        android:text="Today"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/todoTabLayout" />
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefresh"
         android:layout_width="0dp"
@@ -50,7 +63,7 @@
         app:layout_constraintBottom_toTopOf="@+id/fab"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/todoTabLayout">
+        app:layout_constraintTop_toBottomOf="@+id/todoDateLabel">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/todo_list_recyclerview"
@@ -59,6 +72,8 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             tools:listitem="@layout/grocery_list_item" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+
 
     <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"

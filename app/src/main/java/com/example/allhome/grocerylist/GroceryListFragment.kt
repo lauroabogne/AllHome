@@ -301,8 +301,6 @@ class GroceryListFragment : Fragment(),OnItemAdded {
         mDataBindingUtil.groceryListRecyclerview.adapter?.notifyDataSetChanged()
         mDataBindingUtil.groceryListRecyclerview.smoothScrollToPosition(position)
 
-
-
     }
 
 }

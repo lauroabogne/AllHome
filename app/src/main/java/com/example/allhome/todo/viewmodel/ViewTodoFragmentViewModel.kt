@@ -77,7 +77,15 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
 
     }
 
+    fun updateTodoAsFinished(todoUniqueId:String, currentDatetime:String,isFinished:Int){
 
+        viewModelScope.launch {
+            withContext(IO){
+                todosDAO.updateSelectedTodoAsFinished(todoUniqueId,currentDatetime,isFinished)
+            }
+        }
+
+    }
 
 }
 class ViewTodoFragmentViewModelFactory( private val todosDAO: TodosDAO,private val todoSubTasksDAO: TodoSubTasksDAO) : ViewModelProvider.Factory {
