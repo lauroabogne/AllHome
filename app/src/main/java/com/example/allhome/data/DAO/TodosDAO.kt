@@ -20,6 +20,8 @@ interface TodosDAO {
     fun selectTodos():List<TodosWithSubTaskCount>
     @Query("SELECT *,(SELECT count(*) from todo_subtasks WHERE todo_unique_id = todos.unique_id) as totalSubTaskCount  FROM todos WHERE item_status = ${TodoEntity.NOT_DELETED_STATUS} AND date(due_date) =:date")
     fun getTodosByDueDate(date: String): List<TodosWithSubTaskCount>
+    @Query("SELECT *,(SELECT count(*) from todo_subtasks WHERE todo_unique_id = todos.unique_id) as totalSubTaskCount  FROM todos WHERE item_status = ${TodoEntity.NOT_DELETED_STATUS} AND date(due_date) <:currentDate AND is_finished = ${TodoEntity.NOT_FINISHED}")
+    fun getOverdueTodosByDueDate(currentDate: String): List<TodosWithSubTaskCount>
     @Query("SELECT * FROM todos WHERE  unique_id=:uniqueId AND item_status =${TodoEntity.NOT_DELETED_STATUS} LIMIT 1")
     fun getTodo(uniqueId:String):TodoEntity
     @Query("SELECT COUNT(*) FROM todos WHERE group_unique_id =:groupUniqueId")
@@ -48,5 +50,29 @@ interface TodosDAO {
     fun updateATodo(uniqueId:String,name:String,description:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
                     repeatUntil:String,notifyAt:Int,notifyEveryType:String, isFinished:Int,
                     datetimeFinished:String):Int
+    @Query("SELECT  * FROM todos" +
+            " WHERE " +
+            " notify_every_type IN (:minuteBefore,:hourBefore,:dayBefore)" +
+            " AND "+
+            " CASE " +
+            " WHEN notify_every_type = :sameDayAndTime THEN  date(due_date)  = :currentDate " +
+            " WHEN notify_every_type = :minuteBefore THEN  date(due_date,'-'||repeat_every||' minutes')  = :currentDate " +
+            " WHEN notify_every_type = :hourBefore THEN  date(due_date,'-'||repeat_every||' hours')  = :currentDate " +
+            " WHEN notify_every_type = :dayBefore THEN  date(due_date,'-'||repeat_every||' days')  = :currentDate " +
+            " ELSE  date(due_date)  = :currentDate " +
+            " END")
+    fun getTodosNeedToCreateAlarm(sameDayAndTime:String, minuteBefore:String,hourBefore:String,dayBefore:String,currentDate:String):List<TodoEntity>
+
+//    @Query("UPDATE  todos  SET item_status = ${TodoEntity.DELETED_STATUS}" +
+//            " WHERE " +
+//            " group_unique_id = (SELECT group_unique_id FROM todos WHERE unique_id=:uniqueId)" +
+//            " AND " +
+//            " due_date >= (SELECT due_date FROM todos WHERE unique_id=:uniqueId)")
+    @Query("SELECT * FROM  todos " +
+            " WHERE " +
+            " group_unique_id = (SELECT group_unique_id FROM todos WHERE unique_id=:uniqueId)" +
+            " AND " +
+            " due_date >= (SELECT due_date FROM todos WHERE unique_id=:uniqueId)")
+    fun getSelectedAndFutureTodoAsDeleted(uniqueId: String):List<TodoEntity>
 
 }

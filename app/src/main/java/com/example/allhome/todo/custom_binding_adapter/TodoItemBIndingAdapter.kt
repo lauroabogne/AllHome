@@ -110,6 +110,18 @@ fun setDueDatetimeLabel(dueDatetime:String?):String{
     }
 
 }
+@BindingAdapter("todoDescription")
+fun todoDescription(textview:TextView,todoEntity:TodoEntity?){
+    if(todoEntity == null){
+        return
+    }
+    if(todoEntity.description.trim().isEmpty()){
+        textview.visibility = View.GONE
+        return
+    }
+    textview.visibility = View.VISIBLE
+    textview.text = "${todoEntity.description}"
+}
 @BindingAdapter("todoRepeatUntil")
 fun todoRepeatUntil(textView:TextView,repeatUntilDate:String?){
     if(repeatUntilDate == "0000-00-00 00:00:00" || repeatUntilDate == null){
@@ -122,7 +134,7 @@ fun todoRepeatUntil(textView:TextView,repeatUntilDate:String?){
         val dueDateDateTime = DateTime.parse(repeatUntilDate.replace("00:00:00","").trim(), DateTimeFormat.forPattern("yyyy-MM-dd"))
         val dueDateFormattedString = SimpleDateFormat("MMM dd, y").format(dueDateDateTime.toDate())
 
-        textView.text = "Repeat until : $dueDateFormattedString"
+        textView.text = "Repeat until test : $dueDateFormattedString"
         return
     }
     val dueDateDateTime = DateTime.parse(repeatUntilDate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:title="Today"
+        android:id="@+id/todoToday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+    <item
+        android:title="Tomorrow"
+        android:id="@+id/todoTomorrow"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+        />
+    <item
+        android:title="Yesterday"
+        android:id="@+id/todoYesterday"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"/>
+    <item
+        android:title="Overdue"
+        android:id="@+id/todoOverdue"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        />
+    <item
+        android:title="Custom date"
+        android:id="@+id/todoCustomDate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        />
+    <item
+        android:title="Set Alart"
+        android:id="@+id/setAlartMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        />
+    <item
+        android:title="Cancel Alart"
+        android:id="@+id/cancelAlartMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+
+        />
+</menu>
