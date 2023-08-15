@@ -28,7 +28,6 @@
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
             android:name=".todo.TodoFragmentContainerActivity"
-            android:launchMode="singleTop"
             android:exported="false"
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity

@@ -36,6 +36,7 @@ import com.example.allhome.todo.CreateEditTodoFragment
 import com.example.allhome.todo.TodoFragment
 import com.example.allhome.todo.TodoFragmentContainerActivity
 import com.example.allhome.todo.ViewTodoFragment
+import com.example.allhome.utils.CustomAlarmManager
 import org.joda.time.DateTime
 import java.util.*
 
@@ -93,8 +94,15 @@ class MainActivity : AppCompatActivity() {
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                     R.id.nav_bills -> {
-                        fragmentProcessor(BillsFragment.newInstance("", ""))
-                        drawerLayout.closeDrawer(GravityCompat.START)
+//                        fragmentProcessor(BillsFragment.newInstance("", ""))
+//                        drawerLayout.closeDrawer(GravityCompat.START)
+                        if(!isAlarmActive()){
+                            createAlarm()
+                            Toast.makeText(this@MainActivity,"Alarm is not active", Toast.LENGTH_SHORT).show()
+                        }else{
+                            Toast.makeText(this@MainActivity,"Alarm is already active", Toast.LENGTH_SHORT).show()
+                        }
+
                     }
                     R.id.nav_expenses_summary -> {
                         fragmentProcessor(ExpensesFragment.newInstance("", ""))
@@ -262,39 +270,21 @@ class MainActivity : AppCompatActivity() {
         intent.apply {
             action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
         }
-        val pendingIntent = PendingIntent.getBroadcast(applicationContext, NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE)
-        return pendingIntent != null
+        return CustomAlarmManager.isAlarmActive(this,NotificationReceiver.NOTIFICATION_REQUEST_CODE,intent)
     }
 
     private fun createAlarm(){
-
-
         val alarmDateTimeMilli = DateTime.now().plusSeconds(10).millis
-        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         intent.apply {
             action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
             addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
             addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-
         }
+        CustomAlarmManager.createAlarm(this,NotificationReceiver.NOTIFICATION_REQUEST_CODE,intent,alarmDateTimeMilli)
 
-        val pendingIntent = PendingIntent.getBroadcast(applicationContext, NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_IMMUTABLE)
-        alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmDateTimeMilli, pendingIntent)
     }
-    private fun cancelAlarm(){
-        val alarmManager = applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        val intent = Intent(applicationContext, NotificationReceiver::class.java)
 
-        intent.apply {
-            action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
-        }
-
-        val pendingIntent = PendingIntent.getBroadcast(applicationContext, NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE  or PendingIntent.FLAG_IMMUTABLE)
-        if(pendingIntent != null){
-            alarmManager.cancel(pendingIntent)
-        }
-    }
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

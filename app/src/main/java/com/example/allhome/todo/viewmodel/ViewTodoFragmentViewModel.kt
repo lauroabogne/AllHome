@@ -19,6 +19,10 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
     var mTodoSubTasksEntities:MutableLiveData<List<TodoSubTasksEntity>> = MutableLiveData(arrayListOf())
     var mDoTaskNeedToDeleteIsRecurring:MutableLiveData<Boolean> = MutableLiveData()
 
+
+    var mTodoEntitiesToCancelAlarm:MutableLiveData<List<TodoEntity>> = MutableLiveData()
+    var mCancelRecurringTodosAlarm:MutableLiveData<Boolean> = MutableLiveData()
+
     fun getTodo(uniqueId:String){
         viewModelScope.launch {
 
@@ -31,9 +35,9 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
 
         viewModelScope.launch {
             mTodoSubTasksEntities.value = withContext(IO){
-                val a = todoSubTasksDAO.getSubTasks(uniqueId)
-                Log.e("COUNT","${a.size}")
-                a
+                val count = todoSubTasksDAO.getSubTasks(uniqueId)
+                Log.e("COUNT","${count.size}")
+                count
             }
         }
     }
@@ -49,6 +53,7 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
         }
     }
 
+
     fun updateSelectedAndFutureTodoAndSubTaskAsDeleted(uniqueId:String){
         viewModelScope.launch {
             withContext(IO){
@@ -59,10 +64,18 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
         }
     }
 
+    fun getSelectedAndFutureTodos(uniqueId:String){
+        viewModelScope.launch {
+            withContext(IO){
+                mTodoEntitiesToCancelAlarm.postValue( todosDAO.getSelectedAndFutureTodoAsDeleted(uniqueId))
+            }
+        }
+
+    }
     fun checkIfTodoIsRecurring(todoGroupUniqueId:String){
         viewModelScope.launch {
             mDoTaskNeedToDeleteIsRecurring.value =  withContext(IO){
-                todosDAO.getTodoCountByGroupUniqueId(todoGroupUniqueId) > 0
+                todosDAO.getTodoCountByGroupUniqueId(todoGroupUniqueId) > 1
             }
         }
     }

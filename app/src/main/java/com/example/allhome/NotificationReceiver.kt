@@ -175,7 +175,7 @@ class NotificationReceiver : BroadcastReceiver() {
                     val hourBefore = context.resources.getString(R.string.grocery_notification_hour_before)
                     val dayBefore = context.resources.getString(R.string.grocery_notification_day_before)
 
-                    val currentDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
+                    val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:00").format(Date())
                     val todos:List<TodoEntity> = todoDAO.getTodosNeedToCreateAlarm(sameDayAndTime,minutesBefore,hourBefore,dayBefore,currentDate)
 
                     todos.forEach {
@@ -241,8 +241,8 @@ class NotificationReceiver : BroadcastReceiver() {
 
         // Set the alarm to trigger at 8 AM
         calendar.apply {
-            set(Calendar.HOUR_OF_DAY, 8)
-            set(Calendar.MINUTE, 0)
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 1)
             set(Calendar.SECOND, 0)
             set(Calendar.MILLISECOND, 0)
             if (timeInMillis <= System.currentTimeMillis()) {

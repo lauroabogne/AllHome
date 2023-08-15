@@ -1,6 +1,9 @@
 package com.example.allhome.todo
 
 import android.app.Activity
+import android.app.AlarmManager
+import android.app.PendingIntent
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -17,6 +20,7 @@ import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
+import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
@@ -24,6 +28,7 @@ import com.example.allhome.databinding.FragmentViewTodoBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
 import com.example.allhome.todo.viewmodel.ViewTodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.ViewTodoFragmentViewModelFactory
+import com.example.allhome.utils.CustomAlarmManager
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.ArrayList
@@ -48,6 +53,8 @@ class ViewTodoFragment : Fragment() {
 
         }
     }
+
+
 
     private val mViewTodoFragmentViewModel: ViewTodoFragmentViewModel by viewModels{
         val todosDAO = (context?.applicationContext as AllHomeBaseApplication).todosDAO
@@ -100,7 +107,7 @@ class ViewTodoFragment : Fragment() {
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.view_todo_edit_menu -> {
-                    Toast.makeText(requireContext(),"Edit",Toast.LENGTH_SHORT).show()
+                   // Toast.makeText(requireContext(),"Edit test",Toast.LENGTH_SHORT).show()
                     val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
                     intent.putExtra(CreateEditTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
                     intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.CREATE_TODO_FRAGMENT)
@@ -110,8 +117,12 @@ class ViewTodoFragment : Fragment() {
 
                 R.id.view_todo_delete_menu -> {
 
-                    mViewTodoFragmentViewModel.checkIfTodoIsRecurring(todoUniqueId)
+                    mViewTodoFragmentViewModel.checkIfTodoIsRecurring(mViewTodoFragmentViewModel.mTodoEntity.value!!.groupUniqueId)
 
+                }
+                R.id.view_todo_cancel_alarm_menu->{
+                    Toast.makeText(context, "Cancel alarm",Toast.LENGTH_SHORT).show()
+                    mViewTodoFragmentViewModel.mTodoEntity.value?.let { todoEntity -> cancelAlarm(todoEntity.uniqueId, todoEntity.id) }
                 }
             }
             true
@@ -156,9 +167,27 @@ class ViewTodoFragment : Fragment() {
         }
         mViewTodoFragmentViewModel.mDeleteSelectedTask.observe(viewLifecycleOwner){deleteSelectedTask->
 
-            mViewTodoFragmentViewModel.mTodoEntity.value?.uniqueId?.let {
-                mViewTodoFragmentViewModel.updateSelectedTodoAndSubTodoTaskAsDeleted(it)
+            mViewTodoFragmentViewModel.mTodoEntity.value?.uniqueId?.let { uniqueId ->
+                cancelAlarm(uniqueId, mViewTodoFragmentViewModel.mTodoEntity.value!!.id)
+                mViewTodoFragmentViewModel.updateSelectedTodoAndSubTodoTaskAsDeleted(uniqueId)
             }
+
+        }
+
+        mViewTodoFragmentViewModel.mTodoEntitiesToCancelAlarm.observe(viewLifecycleOwner){todos->
+
+            todos.forEach { todo->
+                cancelAlarm(todo.uniqueId, todo.id)
+            }
+
+            mViewTodoFragmentViewModel.updateSelectedAndFutureTodoAndSubTaskAsDeleted(mViewTodoFragmentViewModel.mTodoEntity.value!!.uniqueId)
+
+        }
+
+        mViewTodoFragmentViewModel.mCancelRecurringTodosAlarm.observe(viewLifecycleOwner){deleteAlarm->
+
+
+            mViewTodoFragmentViewModel.getSelectedAndFutureTodos(mViewTodoFragmentViewModel.mTodoEntity.value!!.uniqueId)
 
         }
 
@@ -173,15 +202,19 @@ class ViewTodoFragment : Fragment() {
             mDeleteTodoOptionDialogFragment?.let {
                 it.dismiss()
             }
-            Toast.makeText(requireContext(),"Selected task deleted successfully.",Toast.LENGTH_SHORT).show()
+
+            val intent = Intent()
+            intent.putExtra(TodoFragment.ACTION_TAG, TodoFragment.RELOAD_ACTION_TAG)
+            activity?.setResult(Activity.RESULT_OK, intent)
+            activity?.finish()
+
         }
-
-
         mViewTodoFragmentViewModel.mDoTaskNeedToDeleteIsRecurring.observe(viewLifecycleOwner){ doTaskNeedToDeleteIsRecurring ->
+
             mDeleteTodoOptionDialogFragment = DeleteTodoOptionDialogFragment("","Selected task is recurring. What you want to delete?")
             mDeleteTodoOptionDialogFragment?.let {deleteTodoOptionDialogFragment->
                 deleteTodoOptionDialogFragment.setClickListener { view ->
-                    mDeleteTodoOptionDialogFragment?.dismiss()
+                  //  mDeleteTodoOptionDialogFragment?.dismiss()
 
                     val selectedRadioBtn =  mDeleteTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
                     when (view?.id) {
@@ -191,7 +224,7 @@ class ViewTodoFragment : Fragment() {
                                     mViewTodoFragmentViewModel.mDeleteSelectedTask.value = true
                                 }
                                 R.id.selectedAndAlsoFutureTaskBtn->{
-                                    mViewTodoFragmentViewModel.mDeleteSelectedAndFutureTask.value = true
+                                    mViewTodoFragmentViewModel.mCancelRecurringTodosAlarm.value = true
                                 }
                             }
 
@@ -205,6 +238,20 @@ class ViewTodoFragment : Fragment() {
         mViewTodoFragmentViewModel.mLoadData.value = true
 
         return mFragmentViewTodoBinding.root
+    }
+
+    private fun cancelAlarm(todoEntityUniqueId: String, todoEntityId: Int) {
+
+        val intent = Intent(requireContext(), NotificationReceiver::class.java)
+            intent.action = NotificationReceiver.TODO_NOTIFICATION_ACTION
+            intent.putExtra(NotificationReceiver.TODO_UNIQUE_ID, todoEntityUniqueId) // Use the same identifier used when setting the alarm
+
+
+        CustomAlarmManager.cancelAlarm(requireContext(),todoEntityId,intent)
+    }
+    private fun createPendingIntent(intent: Intent,todoEntityId:Int): PendingIntent {
+
+        return PendingIntent.getBroadcast(requireContext(), todoEntityId, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE)
     }
 
 

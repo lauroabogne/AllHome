@@ -63,4 +63,16 @@ interface TodosDAO {
             " END")
     fun getTodosNeedToCreateAlarm(sameDayAndTime:String, minuteBefore:String,hourBefore:String,dayBefore:String,currentDate:String):List<TodoEntity>
 
+//    @Query("UPDATE  todos  SET item_status = ${TodoEntity.DELETED_STATUS}" +
+//            " WHERE " +
+//            " group_unique_id = (SELECT group_unique_id FROM todos WHERE unique_id=:uniqueId)" +
+//            " AND " +
+//            " due_date >= (SELECT due_date FROM todos WHERE unique_id=:uniqueId)")
+    @Query("SELECT * FROM  todos " +
+            " WHERE " +
+            " group_unique_id = (SELECT group_unique_id FROM todos WHERE unique_id=:uniqueId)" +
+            " AND " +
+            " due_date >= (SELECT due_date FROM todos WHERE unique_id=:uniqueId)")
+    fun getSelectedAndFutureTodoAsDeleted(uniqueId: String):List<TodoEntity>
+
 }

@@ -110,6 +110,18 @@ fun setDueDatetimeLabel(dueDatetime:String?):String{
     }
 
 }
+@BindingAdapter("todoDescription")
+fun todoDescription(textview:TextView,todoEntity:TodoEntity?){
+    if(todoEntity == null){
+        return
+    }
+    if(todoEntity.description.trim().isEmpty()){
+        textview.visibility = View.GONE
+        return
+    }
+    textview.visibility = View.VISIBLE
+    textview.text = "${todoEntity.description}"
+}
 @BindingAdapter("todoRepeatUntil")
 fun todoRepeatUntil(textView:TextView,repeatUntilDate:String?){
     if(repeatUntilDate == "0000-00-00 00:00:00" || repeatUntilDate == null){

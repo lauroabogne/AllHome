@@ -21,11 +21,17 @@ import java.util.*
 class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private val todosDAO:TodosDAO, private val todoSubTasksDAO: TodoSubTasksDAO,
                                       private val alarmRecordsDAO:AlarmRecordsDAO): ViewModel() {
 
+    var mTodoId:MutableLiveData<Int> = MutableLiveData()
     var mTodoUniqueId:MutableLiveData<String> = MutableLiveData()
     var mGroupUniqueId:MutableLiveData<String> = MutableLiveData()
     var mTodoName:MutableLiveData<String> = MutableLiveData()
     var mTodoDescription:MutableLiveData<String> = MutableLiveData()
     var mDueDateCalendar: MutableLiveData<Calendar> = MutableLiveData()
+
+    /**
+     * mSelectedTodoDueDate is used for editing todos. It stored original due date of todo
+     */
+    var mSelectedTodoDueDate: MutableLiveData<String> = MutableLiveData()
     var mRepeatUntilCalendar: MutableLiveData<Calendar> = MutableLiveData(null)
     var mRepeatEvery:MutableLiveData<Int> = MutableLiveData()
     var mRepeatEveryType:MutableLiveData<String> = MutableLiveData()
@@ -83,6 +89,11 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
         alarmRecordsDAO.insert(alarmRecordsEntity)
 
     }
+
+    /**
+     * @Deprecated
+     * @see updateTodos1
+     */
     fun updateTodos(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoSubTasksEntity>,todoUniqueId:String,todoGroupUniqueId:String,selectedTodoDueDate:String){
         viewModelScope.launch {
             database.withTransaction {
@@ -100,6 +111,30 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
                 todoSubTasksDAO.saveMany(todoSunEntities)
             }
         }
+    }
+    suspend fun updateTodos1(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoSubTasksEntity>,todoUniqueId:String,todoGroupUniqueId:String,selectedTodoDueDate:String){
+
+            database.withTransaction {
+
+                // todoSubTasksDAO.deleteSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId)
+                // todosDAO.deleteByGroupIdAndDueDate(todoGroupUniqueId)
+
+                //todoSubTasksDAO.updateSubTasksAsDeleted(todoUniqueId)
+                //todosDAO.updateAsDeleted(todoUniqueId)
+
+                todoSubTasksDAO.updateSelectedTodoAndFutureSubTasksAsDeleted(todoGroupUniqueId,selectedTodoDueDate)
+                todosDAO.updateAsDeletedByGroupIdAndDueDate(todoGroupUniqueId, selectedTodoDueDate )
+
+                todosDAO.saveMany(todoEntities)
+                todoSubTasksDAO.saveMany(todoSunEntities)
+            }
+
+    }
+     fun getSelectedAndFutureTodos(uniqueId:String): List<TodoEntity> {
+
+        return todosDAO.getSelectedAndFutureTodoAsDeleted(uniqueId)
+
+
     }
 
     fun updateTodo(uniqueId:String,name:String,description:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
@@ -123,10 +158,12 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
             withContext(IO){
                 val todoEntity = todosDAO.getTodo(todoUniqueId)
                 todoEntity.let {
+                    mTodoId.postValue(it.id)
                     mTodoName.postValue(it.name)
                     mTodoDescription.postValue(it.description)
                     mGroupUniqueId.postValue(it.groupUniqueId)
                     mDueDateCalendar.postValue(dueDateStringToCalendar(it.dueDate))
+                    mSelectedTodoDueDate.postValue(it.dueDate)
                     mRepeatEvery.postValue(it.repeatEvery)
                     mRepeatEveryType.postValue(it.repeatEveryType)
                     mRepeatUntilCalendar.postValue(repeatUntilDateStringToCalendar(it.repeatUntil))
