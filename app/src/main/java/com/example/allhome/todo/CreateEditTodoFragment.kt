@@ -27,6 +27,7 @@ import com.example.allhome.R
 import com.example.allhome.data.entities.AlarmRecordsEntity
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.databinding.FragmentCreateEditTodo2Binding
 import com.example.allhome.databinding.FragmentCreateEditTodoBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
 import com.example.allhome.global_ui.DateInMonthDialogFragment
@@ -68,7 +69,7 @@ class CreateEditTodoFragment : Fragment() {
         CreateEditTodoFragmentViewModelFactory(database,todosDAO,todoSubTasksDAO,alarmRecordsDAO)
 
     }
-    lateinit var mFragmentCreateEditTodoBinding: FragmentCreateEditTodoBinding
+    lateinit var mFragmentCreateEditTodoBinding: FragmentCreateEditTodo2Binding
     private var mUpdateTodoOptionDialogFragment:UpdateTodoOptionDialogFragment? = null
     companion object {
         const val TODO_UNIQUE_ID_TAG = "TODO_UNIQUE_ID_TAG"
@@ -109,7 +110,7 @@ class CreateEditTodoFragment : Fragment() {
     }
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        mFragmentCreateEditTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_edit_todo,null,false)
+        mFragmentCreateEditTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_create_edit_todo_2,null,false)
         val toolbar = mFragmentCreateEditTodoBinding.toolbar
         toolbar.title = if(mAction == ACTION_CREATE) "Create Todo" else "Edit Todo"
         toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -168,52 +169,69 @@ class CreateEditTodoFragment : Fragment() {
             addSubTaskDialogFragment.show(requireActivity().supportFragmentManager,"AddSubTaskDialogFragment")
 
         }
-        mFragmentCreateEditTodoBinding.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
-        mFragmentCreateEditTodoBinding.dueDateImageView.setOnClickListener {
+
+        mFragmentCreateEditTodoBinding.dueDateLinearLayout.setOnClickListener{
             showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
             showCalendar()
         }
-        mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setOnClickListener {
-            showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
-            showCalendar()
+        mFragmentCreateEditTodoBinding.repeatEveryLinearLayout.setOnClickListener{
+
         }
-        mFragmentCreateEditTodoBinding.repeatUntilImageView.setOnClickListener {
+        mFragmentCreateEditTodoBinding.repeatEndAtLinearLayout.setOnClickListener{
             showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
             showCalendar()
         }
-        mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setOnClickListener {
-            showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
-            showCalendar()
-        }
+
+//        mFragmentCreateEditTodoBinding.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
+//        mFragmentCreateEditTodoBinding.dueDateImageView.setOnClickListener {
+//            showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
+//            showCalendar()
+//        }
+//        mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setOnClickListener {
+//            showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
+//            showCalendar()
+//        }
+//        mFragmentCreateEditTodoBinding.repeatUntilImageView.setOnClickListener {
+//            showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
+//            showCalendar()
+//        }
+//        mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setOnClickListener {
+//            showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
+//            showCalendar()
+//        }
 
         mCreateEditTodoFragmentViewModel.mDueDateCalendar.observe(viewLifecycleOwner) { calendar ->
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
             val minutes = calendar.get(Calendar.MINUTE)
             if(hour == 0 && minutes == 0 ){
                 val dueDateString = SimpleDateFormat("MMM dd, y").format(calendar.time)
-                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+                //mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+                mFragmentCreateEditTodoBinding.dueDateTextView.text = dueDateString
             }else{
                 val dueDateString = SimpleDateFormat("MMM dd, y hh:mm:ss a").format(calendar.time)
-                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+               // mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+                mFragmentCreateEditTodoBinding.dueDateTextView.text = dueDateString
             }
 
         }
-//        mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner) { calendar ->
-//
-//            if(calendar == null){
-//                return@observe
-//            }
-//            val hour = calendar.get(Calendar.HOUR_OF_DAY)
-//            val minutes = calendar.get(Calendar.MINUTE)
-//            if(hour == 0 && minutes == 0 ){
-//                val dueDateString = SimpleDateFormat("MMM dd, y").format(calendar.time)
-//                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
-//            }else{
-//                val dueDateString = SimpleDateFormat("MMM dd, y hh:mm:ss a").format(calendar.time)
-//                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
-//            }
-//
-//
+        mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner) { calendar ->
+
+            if (calendar == null) {
+                return@observe
+            }
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val minutes = calendar.get(Calendar.MINUTE)
+            if (hour == 0 && minutes == 0) {
+                val dueDateString = SimpleDateFormat("MMM dd, y").format(calendar.time)
+                //mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
+                mFragmentCreateEditTodoBinding.repeatEndAtTextView.text = dueDateString
+            } else {
+                val dueDateString = SimpleDateFormat("MMM dd, y hh:mm:ss a").format(calendar.time)
+                //mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(dueDateString)
+                mFragmentCreateEditTodoBinding.repeatEndAtTextView.text = dueDateString
+            }
+        }
+
         mCreateEditTodoFragmentViewModel.mSaveSuccessfully.observe(viewLifecycleOwner) { isSuccess ->
 
             if(isSuccess){
@@ -243,21 +261,21 @@ class CreateEditTodoFragment : Fragment() {
 
             if(dueDateTimeString.contains(" 00:00:00")){
                 val dueDateString = SimpleDateFormat("MMMM dd, y").format(dueDate.time)
-                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+                //mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
             }else{
                 val dueDateString = SimpleDateFormat("MMMM dd, y hh:mm:ss a").format(dueDate.time)
-                mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
+                //mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setText(dueDateString)
             }
 
         }
         mCreateEditTodoFragmentViewModel.mRepeatEvery.observe(viewLifecycleOwner){
-            mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(if(it==0) "" else it.toString())
+            //mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(if(it==0) "" else it.toString())
         }
         mCreateEditTodoFragmentViewModel.mRepeatEveryType.observe(viewLifecycleOwner){
 
             val indexOfSelectedRepeat = context?.resources?.getStringArray(R.array.todo_recurring)?.indexOf(it)
             if (indexOfSelectedRepeat != null) {
-                mFragmentCreateEditTodoBinding.repeatSpinner.setSelection(indexOfSelectedRepeat)
+                //mFragmentCreateEditTodoBinding.repeatSpinner.setSelection(indexOfSelectedRepeat)
             }
         }
         mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner){repeatUntil->
@@ -271,20 +289,20 @@ class CreateEditTodoFragment : Fragment() {
 
             if(dueDateTimeString.contains(" 00:00:00")){
                 val repeatUntilDateString = SimpleDateFormat("MMMM dd, y").format(repeatUntil.time)
-                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
+                //mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
             }else{
                 val repeatUntilDateString = SimpleDateFormat("MMMM dd, y hh:mm:ss a").format(repeatUntil.time)
-                mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
+                //mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setText(repeatUntilDateString)
             }
 
         }
         mCreateEditTodoFragmentViewModel.mNotifyAt.observe(viewLifecycleOwner){
-            mFragmentCreateEditTodoBinding.notifyTextInputEditText.setText(if(it==0) "" else it.toString())
+            //mFragmentCreateEditTodoBinding.notifyTextInputEditText.setText(if(it==0) "" else it.toString())
         }
         mCreateEditTodoFragmentViewModel.mNotifyEveryType.observe(viewLifecycleOwner){
             val indexOfAlarmOption = context?.resources?.getStringArray(R.array.todo_alarm_options)?.indexOf(it)
             if (indexOfAlarmOption != null) {
-                mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.setSelection(indexOfAlarmOption)
+                //mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.setSelection(indexOfAlarmOption)
             }
 
         }
@@ -425,11 +443,11 @@ class CreateEditTodoFragment : Fragment() {
     private fun saveTodoBackup(){
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
-        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
-        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
-        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
-        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
-        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val taskDescription = ""//mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
+        val repeatEvery = 0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = ""//mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= 0//if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType =""// mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
         val repeatUntilDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.value?.time) else "0000-00-00 00:00:00"
         var taskUniqueId = UUID.randomUUID().toString()
@@ -472,11 +490,11 @@ class CreateEditTodoFragment : Fragment() {
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
-        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
-        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
-        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
-        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
-        val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
+        val repeatEvery = 0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = ""//mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= 1//if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType =""// mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val dueDateTimeFormatted =""// if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
 
 
 
@@ -843,10 +861,10 @@ class CreateEditTodoFragment : Fragment() {
     private fun updateTodos(){
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
-        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
-        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
-        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
-        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val repeatEvery = 0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = ""//mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= 1//if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType = ""//mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
 
 
@@ -1272,10 +1290,10 @@ class CreateEditTodoFragment : Fragment() {
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
-        val repeatEvery = if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
-        val repeatEveryType = mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
-        val notifyEvery= if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
-        val notifyEveryType = mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
+        val repeatEvery = 0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
+        val repeatEveryType = ""//mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val notifyEvery= 1//if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
+        val notifyEveryType = ""//mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
 
 
@@ -1414,18 +1432,18 @@ class CreateEditTodoFragment : Fragment() {
             when(selectedRepeat){
                 requireContext().getString(R.string.year)->{
 
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.date_of_month)->{
 
                     var dateInMonthDialogFragment = DateInMonthDialogFragment()
                     dateInMonthDialogFragment.setDateSelectedListener(object:DateInMonthDialogFragment.DateSelectedListener{
                         override fun dateSelected(date: String) {
-                            mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                            mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
-
-                            mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(date)
+//                            mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                            mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//
+//                            mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.setText(date)
                         }
 
                     })
@@ -1434,27 +1452,27 @@ class CreateEditTodoFragment : Fragment() {
                 }
                 requireContext().getString(R.string.end_of_month)->{
 
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.month)->{
 
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.week)->{
 
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.day)->{
 
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.VISIBLE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.VISIBLE
                 }
                 requireContext().getString(R.string.none)->{
-                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.GONE
-                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.GONE
+//                    mFragmentCreateEditTodoBinding.repeatTextInputLayout.visibility = View.GONE
+//                    mFragmentCreateEditTodoBinding.repeatUntilImageView.visibility = View.GONE
 
 
                 }
