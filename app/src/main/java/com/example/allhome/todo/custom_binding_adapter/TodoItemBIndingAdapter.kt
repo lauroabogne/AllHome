@@ -1,5 +1,6 @@
 package com.example.allhome.todo.custom_binding_adapter
 
+import android.content.Context
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
@@ -80,14 +81,14 @@ fun setDueDateLabel(dueDatetime:String?):String {
     val yesterdayDate = LocalDate.parse(SimpleDateFormat("yyyy-MM-dd").format(DateTime.now().minusDays(1).toDate()))
 
     return if (dueDateDate.isEqual(currentDate)) {
-        "Due date : Today at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+        "Today at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
     }else if(dueDateDate.isEqual(tomorrowDate)){
-        "Due date : Tomorrow at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+        "Tomorrow at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
     }else if(dueDateDate.isEqual(yesterdayDate)){
-        "Due date : Yesterday at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
+        "Yesterday at ${SimpleDateFormat("h:mm:ss a").format(dueDateDateTime.toDate())}"
     }  else {
         // The due date is not equal to the current date
-        "Due date : $dueDateFormattedString"
+        "$dueDateFormattedString"
     }
 }
 fun setDueDatetimeLabel(dueDatetime:String?):String{
@@ -134,12 +135,12 @@ fun todoRepeatUntil(textView:TextView,repeatUntilDate:String?){
         val dueDateDateTime = DateTime.parse(repeatUntilDate.replace("00:00:00","").trim(), DateTimeFormat.forPattern("yyyy-MM-dd"))
         val dueDateFormattedString = SimpleDateFormat("MMM dd, y").format(dueDateDateTime.toDate())
 
-        textView.text = "Repeat until test : $dueDateFormattedString"
+        textView.text = "$dueDateFormattedString"
         return
     }
     val dueDateDateTime = DateTime.parse(repeatUntilDate, DateTimeFormat.forPattern("yyyy-MM-dd HH:mm:ss"))
     val dueDateFormattedString = SimpleDateFormat("MMM dd, y h:mm:ss a").format(dueDateDateTime.toDate())
-    textView.text = "Repeat until : $dueDateFormattedString"
+    textView.text = "$dueDateFormattedString"
 
 }
 @BindingAdapter("todoRepeatEvery")
@@ -151,8 +152,45 @@ fun todoRepeatEvery(textview:TextView,todoEntity:TodoEntity?){
         textview.visibility = View.GONE
         return
     }
+
     textview.visibility = View.VISIBLE
-    textview.text = "Repeat every : ${todoEntity.repeatEvery} ${todoEntity.repeatEveryType}"
+    if(textview.context.resources.getString(R.string.day) == todoEntity.repeatEveryType){
+        textview.text = "${todoEntity.repeatEvery} ${todoEntity.repeatEveryType} ${generateDayRepeatString(textview.context,todoEntity)}"
+    }else{
+        textview.text = "${todoEntity.repeatEvery} ${todoEntity.repeatEveryType}"
+    }
+
+}
+fun generateDayRepeatString(context: Context, todoEntity: TodoEntity):String{
+
+    val selectedDays = arrayListOf<String>()
+    if (todoEntity.isSetInMonday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.monday_abbr))
+    }
+    if (todoEntity.isSetInTuesday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.tuesday_abbr))
+    }
+    if (todoEntity.isSetInWednesday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.wednesday_abbr))
+    }
+    if (todoEntity.isSetInThursday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.thursday_abbr))
+    }
+    if (todoEntity.isSetInFriday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.friday_abbr))
+    }
+    if (todoEntity.isSetInSaturday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.saturday_abbr))
+    }
+    if (todoEntity.isSetInSunday == TodoEntity.SET) {
+        selectedDays.add(context.getString(R.string.sunday_abbr))
+    }
+
+    if(selectedDays.isEmpty()){
+        return ""
+    }
+
+    return "(${selectedDays.joinToString(", ")})"
 }
 @BindingAdapter("todoNotifyBefore")
 fun todoNotifyBefore(textview:TextView,todoEntity: TodoEntity?){
@@ -169,16 +207,16 @@ fun todoNotifyBefore(textview:TextView,todoEntity: TodoEntity?){
             textview.visibility = View.GONE
         }
         textview.context.getString(R.string.grocery_notification_same_day_and_time)->{
-            textview.text = "Notify : Same day and time of due date"
+            textview.text = "Same day and time of due date"
         }
         textview.context.getString(R.string.grocery_notification_minute_before)->{
-            textview.text = "Notify : $notifyAt minutes before due date"
+            textview.text = "$notifyAt minutes before due date"
         }
         textview.context.getString(R.string.grocery_notification_hour_before)->{
-            textview.text = "Notify : $notifyAt hour before due date"
+            textview.text = "$notifyAt hour before due date"
         }
         textview.context.getString(R.string.grocery_notification_day_before)->{
-            textview.text = "Notify : $notifyAt day before due date"
+            textview.text = "$notifyAt day before due date"
         }
     }
     todoEntity.notifyEveryType

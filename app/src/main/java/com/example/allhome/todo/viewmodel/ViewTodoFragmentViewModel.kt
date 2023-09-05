@@ -5,7 +5,7 @@ import androidx.lifecycle.*
 import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
 import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodoChecklistEntity
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -16,7 +16,7 @@ class ViewTodoFragmentViewModel( private val todosDAO: TodosDAO,val todoSubTasks
     var mDeleteSelectedAndFutureTask:MutableLiveData<Boolean>  = MutableLiveData()
     var mDoTaskUpdatedAsDeletedSuccesfully:MutableLiveData<Boolean> = MutableLiveData()
     var mTodoEntity:MutableLiveData<TodoEntity> = MutableLiveData()
-    var mTodoSubTasksEntities:MutableLiveData<List<TodoSubTasksEntity>> = MutableLiveData(arrayListOf())
+    var mTodoSubTasksEntities:MutableLiveData<List<TodoChecklistEntity>> = MutableLiveData(arrayListOf())
     var mDoTaskNeedToDeleteIsRecurring:MutableLiveData<Boolean> = MutableLiveData()
 
 

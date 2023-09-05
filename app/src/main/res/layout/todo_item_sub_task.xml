@@ -6,7 +6,7 @@
     <data>
         <variable
             name="todoSubTasksEntity"
-            type="com.example.allhome.data.entities.TodoSubTasksEntity" />
+            type="com.example.allhome.data.entities.TodoChecklistEntity" />
     </data>
 
 <androidx.cardview.widget.CardView

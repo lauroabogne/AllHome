@@ -1,9 +1,7 @@
 package com.example.allhome.todo
 
 import android.app.Activity
-import android.app.AlarmManager
 import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
@@ -23,7 +21,7 @@ import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodoChecklistEntity
 import com.example.allhome.databinding.FragmentViewTodoBinding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
 import com.example.allhome.todo.viewmodel.ViewTodoFragmentViewModel
@@ -161,7 +159,7 @@ class ViewTodoFragment : Fragment() {
         }
         mViewTodoFragmentViewModel.mTodoSubTasksEntities.observe(viewLifecycleOwner){ todoSubTasksEntities->
             val subTodoTaskRecyclerViewAdapter = mFragmentViewTodoBinding.subTodoTaskRecyclerView.adapter as SubTodoTaskRecyclerViewAdapter
-            subTodoTaskRecyclerViewAdapter.todoSubTasksEntities = todoSubTasksEntities as ArrayList<TodoSubTasksEntity>
+            subTodoTaskRecyclerViewAdapter.todoSubTasksEntities = todoSubTasksEntities as ArrayList<TodoChecklistEntity>
             subTodoTaskRecyclerViewAdapter.notifyDataSetChanged()
 
         }
@@ -255,7 +253,7 @@ class ViewTodoFragment : Fragment() {
     }
 
 
-    inner class SubTodoTaskRecyclerViewAdapter(var todoSubTasksEntities: ArrayList<TodoSubTasksEntity>): RecyclerView.Adapter<SubTodoTaskRecyclerViewAdapter.ItemViewHolder>() {
+    inner class SubTodoTaskRecyclerViewAdapter(var todoSubTasksEntities: ArrayList<TodoChecklistEntity>): RecyclerView.Adapter<SubTodoTaskRecyclerViewAdapter.ItemViewHolder>() {
 
         private val itemOnCheckChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
             val itemPosition = buttonView?.tag
@@ -265,7 +263,7 @@ class ViewTodoFragment : Fragment() {
             val currentDateTime = LocalDateTime.now()
             val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             val currentDatetime = currentDateTime.format(formatter)
-            val isFinished = if (isChecked) TodoSubTasksEntity.FINISHED else TodoSubTasksEntity.NOT_FINISHED
+            val isFinished = if (isChecked) TodoChecklistEntity.FINISHED else TodoChecklistEntity.NOT_FINISHED
 
             mViewTodoFragmentViewModel.updateSubtaskAsFinished(selectedSubtask.uniqueId, selectedSubtask.todoUniqueId,currentDatetime, isFinished)
 
@@ -283,7 +281,7 @@ class ViewTodoFragment : Fragment() {
             holder.todoItemSubTaskBinding.checkBox3.visibility = View.VISIBLE
             holder.todoItemSubTaskBinding.checkBox3.tag = position
             holder.todoItemSubTaskBinding.checkBox3.setOnCheckedChangeListener(itemOnCheckChangeListener)
-            holder.todoItemSubTaskBinding.checkBox3.isChecked = todoSubTasksEntity.isFinished == TodoSubTasksEntity.FINISHED
+            holder.todoItemSubTaskBinding.checkBox3.isChecked = todoSubTasksEntity.isFinished == TodoChecklistEntity.FINISHED
             holder.todoItemSubTaskBinding.root.setOnClickListener(holder)
             holder.todoItemSubTaskBinding.executePendingBindings()
         }

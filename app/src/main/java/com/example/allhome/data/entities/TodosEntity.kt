@@ -18,6 +18,13 @@ data class TodoEntity(
     @ColumnInfo(name = "repeat_until",defaultValue="0000-00-00 00:00:00") var repeatUntil:String,
     @ColumnInfo(name = "notify_at",defaultValue="0") var notifyAt:Int,
     @ColumnInfo(name = "notify_every_type",defaultValue="none") var notifyEveryType:String,
+    @ColumnInfo(name = "is_set_in_monday", defaultValue = "$NOT_SET") var isSetInMonday: Int,
+    @ColumnInfo(name = "is_set_in_tuesday", defaultValue = "$NOT_SET") var isSetInTuesday: Int,
+    @ColumnInfo(name = "is_set_in_wednesday", defaultValue = "$NOT_SET") var isSetInWednesday: Int,
+    @ColumnInfo(name = "is_set_in_thursday", defaultValue = "$NOT_SET") var isSetInThursday: Int,
+    @ColumnInfo(name = "is_set_in_friday", defaultValue = "$NOT_SET") var isSetInFriday: Int,
+    @ColumnInfo(name = "is_set_in_saturday", defaultValue = "$NOT_SET") var isSetInSaturday: Int,
+    @ColumnInfo(name = "is_set_in_sunday", defaultValue = "$NOT_SET") var isSetInSunday: Int,
     @ColumnInfo(name = "item_status",defaultValue="0") var itemStatus:Int,//0 active,1=deleted,2=permanently deleted
     @ColumnInfo(name = "uploaded",defaultValue="0") var uploaded:Int, //0=not yet uploaded,1=uploaded
     @ColumnInfo(name = "is_finished",defaultValue= "$NOT_FINISHED") var isFinished:Int, //0=not yet done,1=done
@@ -34,6 +41,9 @@ data class TodoEntity(
         const val RECURRING = 1
         const val NOT_FINISHED = 0
         const val FINISHED = 1
+        const val SET = 1
+        const val NOT_SET = 0
+
     }
 }
 data class TodosWithSubTaskCount(

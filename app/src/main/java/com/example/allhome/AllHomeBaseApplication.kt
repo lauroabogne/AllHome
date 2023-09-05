@@ -1,11 +1,8 @@
 package com.example.allhome
 
 import android.app.Application
-import android.content.res.Configuration
-import android.util.Log
-import android.widget.Toast
 import com.example.allhome.data.AllHomeDatabase
-import com.example.allhome.data.DAO.*
+import java.util.*
 
 class AllHomeBaseApplication : Application() {
 
@@ -34,9 +31,6 @@ class AllHomeBaseApplication : Application() {
     val todoSubTasksDAO by lazy{database.getTodoSubTasksDAO()}
     val logsDAO by lazy{database.getLogsDAO()}
     val alarmsRecordsDAO by lazy{database.getAlarmsRecordsDAO()}
-
-
-
 
 
 }

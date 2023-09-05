@@ -33,8 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/appbar"
-            android:background="@color/gray">
+            app:layout_constraintTop_toBottomOf="@+id/appbar">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -60,6 +59,7 @@
                             android:id="@+id/taskNameTextInputEditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
+                            android:inputType="textCapSentences"
                             android:hint="Task name" />
                     </com.google.android.material.textfield.TextInputLayout>
 
@@ -77,7 +77,7 @@
                             android:layout_height="wrap_content"
                             android:gravity="top"
                             android:hint="Description"
-                            android:inputType="textMultiLine"
+                            android:inputType="textCapSentences|textMultiLine"
                             android:minLines="4" />
 
                     </com.google.android.material.textfield.TextInputLayout>
@@ -102,7 +102,7 @@
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
                             android:text="Due Date : "
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/dueDateTextView"
@@ -112,7 +112,8 @@
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
-                            android:text="TextView" />
+                            android:textSize="18sp"
+                            tools:text="January 16, 1986" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -129,13 +130,14 @@
                         <TextView
                             android:id="@+id/textView129"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
+                            android:gravity="center_vertical"
                             android:paddingLeft="4dp"
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
                             android:text="Repeat Every :"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/repeatEveryTextView"
@@ -145,7 +147,8 @@
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
-                            android:text="TextView" />
+                            android:textSize="18sp"
+                            tools:text="1 Year" />
                     </LinearLayout>
 
                     <LinearLayout
@@ -162,28 +165,32 @@
                         <TextView
                             android:id="@+id/textView131"
                             android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
+                            android:layout_height="match_parent"
                             android:layout_weight="0"
+                            android:background="#00732A2A"
+                            android:gravity="center_vertical"
                             android:paddingLeft="4dp"
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
                             android:text="Repeat End At :"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/repeatEndAtTextView"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
+                            android:gravity="center_vertical"
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
-                            android:text="TextView" />
+                            android:textSize="18sp"
+                            tools:text="January 16, 2023" />
                     </LinearLayout>
 
                     <LinearLayout
-                        android:id="@+id/linearLayout8"
+                        android:id="@+id/notifyAtLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
@@ -202,7 +209,7 @@
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
                             android:text="Notify at :"
-                            android:textSize="16sp" />
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/notifyAtTextView"
@@ -212,17 +219,18 @@
                             android:paddingTop="10dp"
                             android:paddingRight="4dp"
                             android:paddingBottom="10dp"
-                            android:text="TextView" />
+                            android:textSize="18sp"
+                            tools:text="2 Minutes" />
                     </LinearLayout>
 
                     <Button
-                        android:id="@+id/addSubTaskBtn"
+                        android:id="@+id/addChecklistBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:text="Add Sub-task"
+                        android:text="Add Check List"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/linearLayout8" />
+                        app:layout_constraintTop_toBottomOf="@+id/notifyAtLinearLayout" />
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/todo_sub_task_list_recyclerview"
@@ -231,7 +239,7 @@
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/addSubTaskBtn"
+                        app:layout_constraintTop_toBottomOf="@+id/addChecklistBtn"
                         tools:itemCount="2"
                         tools:listitem="@layout/todo_item" />
 

@@ -200,7 +200,7 @@
                         app:layout_constraintTop_toTopOf="@+id/textInputLayout24" />
 
                     <Button
-                        android:id="@+id/addSubTaskBtn"
+                        android:id="@+id/addChecklistBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="Add Sub-task"
@@ -215,7 +215,7 @@
                         app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/addSubTaskBtn"
+                        app:layout_constraintTop_toBottomOf="@+id/addChecklistBtn"
                         tools:itemCount="2"
                         tools:listitem="@layout/todo_item" />
 

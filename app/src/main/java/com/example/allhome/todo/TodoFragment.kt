@@ -8,7 +8,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.CompoundButton
@@ -16,25 +15,17 @@ import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
-import androidx.recyclerview.widget.DividerItemDecoration
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.ColumnInfo
-import androidx.room.PrimaryKey
-import com.canhub.cropper.CropImageContract
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
-import com.example.allhome.bill.BillCustomDateRangeDialogFragment
-import com.example.allhome.data.entities.LogsEntity
 import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodoChecklistEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentTodoBinding
 import com.example.allhome.databinding.TodoItemBinding
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
-import com.google.android.material.tabs.TabItem
 import com.google.android.material.tabs.TabLayout
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
@@ -469,7 +460,7 @@ class TodoFragment : Fragment() {
             holder.todoItemBinding.todosWithSubTaskCount = todoWithSubTaskCount
             holder.todoItemBinding.checkBox2.tag = position
             holder.todoItemBinding.checkBox2.setOnCheckedChangeListener(itemOnCheckChangeListener)
-            holder.todoItemBinding.checkBox2.isChecked = todoWithSubTaskCount.todoEntity.isFinished == TodoSubTasksEntity.FINISHED
+            holder.todoItemBinding.checkBox2.isChecked = todoWithSubTaskCount.todoEntity.isFinished == TodoChecklistEntity.FINISHED
             holder.todoItemBinding.root.setOnClickListener(holder)
             holder.todoItemBinding.executePendingBindings()
         }
