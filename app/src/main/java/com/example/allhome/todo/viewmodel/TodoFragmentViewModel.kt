@@ -1,17 +1,10 @@
 package com.example.allhome.todo.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.*
-import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.DAO.LogsDAO
-import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
-import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.data.entities.TodoSubTasksEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 

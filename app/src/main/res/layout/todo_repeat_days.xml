@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/textInputLayout27"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toStartOf="@+id/textView128"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/numberOfDays"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Repeat Every"
+            android:inputType="number"
+            android:text="1" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <TextView
+        android:id="@+id/textView128"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:text="Days"
+        android:textSize="18sp"
+        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout27"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textInputLayout27" />
+    <TextView
+        android:id="@+id/repeatOn"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:padding="4dp"
+        android:text="Repeat on"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textInputLayout27" />
+
+    <LinearLayout
+        android:id="@+id/daysRadioGroup"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/repeatOn">
+
+        <CheckBox
+            android:id="@+id/sundayCheckbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/sunday" />
+
+        <CheckBox
+            android:id="@+id/mondayCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/monday" />
+
+        <CheckBox
+            android:id="@+id/tuesdayCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/tuesday" />
+
+        <CheckBox
+            android:id="@+id/wednesdayCheckBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/wednesday" />
+
+        <CheckBox
+            android:id="@+id/thursdayCheckbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/thursday" />
+
+        <CheckBox
+            android:id="@+id/fridayChecbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/friday" />
+
+        <CheckBox
+            android:id="@+id/saturdayCheckbox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="@string/saturday" />
+
+
+    </LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

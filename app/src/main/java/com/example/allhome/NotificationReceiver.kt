@@ -134,7 +134,7 @@ class NotificationReceiver : BroadcastReceiver() {
             createNotificationChannel(context)
             var builder = NotificationCompat.Builder(context, NOTIFCATION_CHANNEL_ID)
                 .setSmallIcon(R.drawable.check)
-                .setContentTitle("Reminder Notification")
+                .setContentTitle("Reminder Notification test")
                 .setContentText("Alarmed ${  SimpleDateFormat("MMM d, yyyy h:mm a").format(Date())}")
                 .setAutoCancel(false)
                 //.setContentIntent(pendingIntent)
@@ -175,8 +175,10 @@ class NotificationReceiver : BroadcastReceiver() {
                     val hourBefore = context.resources.getString(R.string.grocery_notification_hour_before)
                     val dayBefore = context.resources.getString(R.string.grocery_notification_day_before)
 
-                    val currentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:00").format(Date())
-                    val todos:List<TodoEntity> = todoDAO.getTodosNeedToCreateAlarm(sameDayAndTime,minutesBefore,hourBefore,dayBefore,currentDate)
+                    //val currentDate = SimpleDateFormat("yyyy-MM-dd").format(Date())
+                    val todos:List<TodoEntity> = todoDAO.getTodosNeedToCreateAlarm(sameDayAndTime,minutesBefore,hourBefore,dayBefore)
+
+                    Log.e("The_todos","${todos.size}")
 
                     todos.forEach {
 

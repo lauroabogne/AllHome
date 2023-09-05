@@ -3,11 +3,10 @@ package com.example.allhome.data.entities
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import kotlinx.android.parcel.Parcelize
 
 
-@Entity(tableName = "todo_subtasks")
-data class TodoSubTasksEntity (
+@Entity(tableName = "todo_checklists")
+data class TodoChecklistEntity (
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name = "unique_id",index = true) var uniqueId:String,
     @ColumnInfo(name = "todo_unique_id",index = true) var todoUniqueId:String,

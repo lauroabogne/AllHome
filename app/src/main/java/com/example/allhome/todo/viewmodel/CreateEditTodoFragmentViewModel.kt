@@ -1,17 +1,19 @@
 package com.example.allhome.todo.viewmodel
 
+import android.content.Context
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.room.withTransaction
+import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.DAO.AlarmRecordsDAO
 import com.example.allhome.data.DAO.TodoSubTasksDAO
 import com.example.allhome.data.DAO.TodosDAO
 import com.example.allhome.data.entities.AlarmRecordsEntity
 import com.example.allhome.data.entities.TodoEntity
-import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodoChecklistEntity
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -35,14 +37,16 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
     var mRepeatUntilCalendar: MutableLiveData<Calendar> = MutableLiveData(null)
     var mRepeatEvery:MutableLiveData<Int> = MutableLiveData()
     var mRepeatEveryType:MutableLiveData<String> = MutableLiveData()
-    var mNotifyAt:MutableLiveData<Int> = MutableLiveData()
+    var mNotifyAt:MutableLiveData<Int> = MutableLiveData(0)
     var mNotifyEveryType:MutableLiveData<String> = MutableLiveData()
-    var mTodoSubTask:MutableLiveData<MutableList<TodoSubTasksEntity>> = MutableLiveData(mutableListOf())
+    var mTodoSubTask:MutableLiveData<MutableList<TodoChecklistEntity>> = MutableLiveData(mutableListOf())
     var mSaveSuccessfully:MutableLiveData<Boolean> = MutableLiveData()
     var mUpdateTask:MutableLiveData<Boolean> = MutableLiveData()
     var mDoTaskNeedToUpdateIsRecurring:MutableLiveData<Boolean> = MutableLiveData()
     var mUpdateSelectedTask:MutableLiveData<Boolean> = MutableLiveData(false)
     var mUpdateFutureAndSelectedTask:MutableLiveData<Boolean> = MutableLiveData(false)
+    var mWeekDaysSelected:MutableLiveData<List<String>> = MutableLiveData()
+
 
     fun saveTodo(todoEntity: TodoEntity){
          viewModelScope.launch {
@@ -77,7 +81,7 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
         }
     }
 
-    fun saveTodos(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoSubTasksEntity>): List<Long> {
+    fun saveTodos(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoChecklistEntity>): List<Long> {
 
         val insertedIds = todosDAO.saveMany(todoEntities)
         todoSubTasksDAO.saveMany(todoSunEntities)
@@ -94,7 +98,7 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
      * @Deprecated
      * @see updateTodos1
      */
-    fun updateTodos(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoSubTasksEntity>,todoUniqueId:String,todoGroupUniqueId:String,selectedTodoDueDate:String){
+    fun updateTodos(todoEntities:ArrayList<TodoEntity>, todoSunEntities:ArrayList<TodoChecklistEntity>, todoUniqueId:String, todoGroupUniqueId:String, selectedTodoDueDate:String){
         viewModelScope.launch {
             database.withTransaction {
 
@@ -112,7 +116,7 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
             }
         }
     }
-    suspend fun updateTodos1(todoEntities:ArrayList<TodoEntity>,todoSunEntities:ArrayList<TodoSubTasksEntity>,todoUniqueId:String,todoGroupUniqueId:String,selectedTodoDueDate:String){
+    suspend fun updateTodos1(todoEntities:ArrayList<TodoEntity>, todoSunEntities:ArrayList<TodoChecklistEntity>, todoUniqueId:String, todoGroupUniqueId:String, selectedTodoDueDate:String){
 
             database.withTransaction {
 
@@ -140,7 +144,7 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
     fun updateTodo(uniqueId:String,name:String,description:String , dueDate:String, repeatEvery:Int,repeatEveryType:String,
                    repeatUntil:String,notifyAt:Int,notifyEveryType:String, isFinished:Int,
                    datetimeFinished:String,
-                   todoSunEntities:ArrayList<TodoSubTasksEntity>){
+                   todoSunEntities:ArrayList<TodoChecklistEntity>){
 
         viewModelScope.launch {
             database.withTransaction {
@@ -153,7 +157,7 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
 
 
     }
-    fun getTodoInformation(todoUniqueId:String){
+    fun getTodoInformation(context:Context, todoUniqueId:String){
         viewModelScope.launch {
             withContext(IO){
                 val todoEntity = todosDAO.getTodo(todoUniqueId)
@@ -169,13 +173,45 @@ class CreateEditTodoFragmentViewModel( val database: AllHomeDatabase, private va
                     mRepeatUntilCalendar.postValue(repeatUntilDateStringToCalendar(it.repeatUntil))
                     mNotifyAt.postValue(it.notifyAt)
                     mNotifyEveryType.postValue(it.notifyEveryType)
-                    mTodoSubTask.postValue(todoSubTasksDAO.getSubTasks(todoUniqueId) as MutableList<TodoSubTasksEntity>?)
-
+                    mTodoSubTask.postValue(todoSubTasksDAO.getSubTasks(todoUniqueId) as MutableList<TodoChecklistEntity>?)
+                    mWeekDaysSelected.postValue(generateSelectedDays(context,todoEntity))
 
                 }
             }
         }
+    }
 
+    private fun generateSelectedDays(context:Context, todoEntity: TodoEntity):List<String>{
+
+
+        val selectedDays = arrayListOf<String>()
+        if (todoEntity.isSetInMonday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.monday))
+        }
+        if (todoEntity.isSetInTuesday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.tuesday))
+        }
+        if (todoEntity.isSetInWednesday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.wednesday))
+        }
+        if (todoEntity.isSetInThursday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.thursday))
+        }
+        if (todoEntity.isSetInFriday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.friday))
+        }
+        if (todoEntity.isSetInSaturday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.saturday))
+        }
+        if (todoEntity.isSetInSunday == TodoEntity.SET) {
+            selectedDays.add(context.getString(R.string.sunday))
+        }
+
+        if(selectedDays.isEmpty()){
+            return arrayListOf()
+        }
+
+       return selectedDays
     }
     fun getTodoInformationAndReturn(todoUniqueId:String): TodoEntity {
        return todosDAO.getTodo(todoUniqueId)

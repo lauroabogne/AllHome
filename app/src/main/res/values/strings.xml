@@ -28,6 +28,22 @@
     <string name="grocery_notification_minute_before">Minute before</string>
     <string name="grocery_notification_hour_before">Hour before</string>
     <string name="grocery_notification_day_before">Day before</string>
+    <!-- Days -->
+    <string name="monday">Monday</string>
+    <string name="monday_abbr">Mon</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="tuesday_abbr">Tue</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="wednesday_abbr">Wed</string>
+    <string name="thursday">Thursday</string>
+    <string name="thursday_abbr">Thu</string>
+    <string name="friday">Friday</string>
+    <string name="friday_abbr">Fri</string>
+    <string name="saturday">Saturday</string>
+    <string name="saturday_abbr">Sat</string>
+    <string name="sunday">Sunday</string>
+    <string name="sunday_abbr">Sun</string>
+
     <string-array name="grocery_alarm_options">
         <item>@string/grocery_notification_none</item>
         <item>@string/grocery_notification_same_day_and_time</item>
@@ -62,6 +78,38 @@
         <item>@string/snack_after_dinner</item>
     </string-array>
 
+    <string name="one">Day 1</string>
+    <string name="two">Day 2</string>
+    <string name="three">Day 3</string>
+    <string name="four">Day 4</string>
+    <string name="five">Day 5</string>
+    <string name="six">Day 6</string>
+    <string name="seven">Day 7</string>
+    <string name="eight">Day 8</string>
+    <string name="nine">Day 9</string>
+    <string name="ten">Day 10</string>
+    <string name="eleven">Day 11</string>
+    <string name="twelve">Day 12</string>
+    <string name="thirteen">Day 13</string>
+    <string name="fourteen">Day 14</string>
+    <string name="fifteen">Day 15</string>
+    <string name="sixteen">Day 16</string>
+    <string name="seventeen">Day 17</string>
+    <string name="eighteen">Day 18</string>
+    <string name="nineteen">Day 19</string>
+    <string name="twenty">Day 20</string>
+    <string name="twenty_one">Day 21</string>
+    <string name="twenty_two">Day 22</string>
+    <string name="twenty_three">Day 23</string>
+    <string name="twenty_four">Day 24</string>
+    <string name="twenty_five">Day 25</string>
+    <string name="twenty_six">Day 26</string>
+    <string name="twenty_seven">Day 27</string>
+    <string name="twenty_eight">Day 28</string>
+    <string name="twenty_nine">Day 29</string>
+    <string name="thirty">Day 30</string>
+    <string name="thirty_one">Day 31</string>
+
     <string name="cost_is_equal">Cost is equal</string>
     <string name="cost_is_less_than">Cost is less than</string>
     <string name="cost_is_greater_than">Cost is greater than</string>
@@ -79,6 +127,40 @@
         <item>@string/serving_is_equal</item>
         <item>@string/serving_is_greater_than</item>
         <item>@string/serving_is_less_than</item>
+    </string-array>
+    <string-array name="months_number">
+        <item>@string/one</item>
+        <item>@string/two</item>
+        <item>@string/three</item>
+        <item>@string/four</item>
+        <item>@string/five</item>
+        <item>@string/six</item>
+        <item>@string/seven</item>
+        <item>@string/eight</item>
+        <item>@string/nine</item>
+        <item>@string/ten</item>
+        <item>@string/eleven</item>
+        <item>@string/twelve</item>
+        <item>@string/thirteen</item>
+        <item>@string/fourteen</item>
+        <item>@string/fifteen</item>
+        <item>@string/sixteen</item>
+        <item>@string/seventeen</item>
+        <item>@string/eighteen</item>
+        <item>@string/nineteen</item>
+        <item>@string/twenty</item>
+        <item>@string/twenty_one</item>
+        <item>@string/twenty_two</item>
+        <item>@string/twenty_three</item>
+        <item>@string/twenty_four</item>
+        <item>@string/twenty_five</item>
+        <item>@string/twenty_six</item>
+        <item>@string/twenty_seven</item>
+        <item>@string/twenty_eight</item>
+        <item>@string/twenty_nine</item>
+        <item>@string/thirty</item>
+        <item>@string/thirty_one</item>
+        <item>@string/end_of_month</item>
     </string-array>
     <string name="prep_plus_cook_time_is_equal">Prep + cook time is equal</string>
     <string name="prep_plus_cook_time_is_less_than">Prep + cook time is less than</string>
@@ -108,6 +190,16 @@
         <item>@string/year</item>
     </string-array>
     <string-array name="todo_recurring">
+        <item>@string/none</item>
+        <item>@string/day</item>
+        <item>@string/week</item>
+        <item>@string/month</item>
+        <item>@string/end_of_month</item>
+        <item>@string/date_of_month</item>
+        <item>@string/year</item>
+    </string-array>
+
+    <string-array name="tod_repeat_month_options">
         <item>@string/none</item>
         <item>@string/day</item>
         <item>@string/week</item>

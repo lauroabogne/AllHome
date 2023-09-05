@@ -11,13 +11,13 @@ import android.view.inputmethod.InputMethodManager
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
 import com.example.allhome.R
-import com.example.allhome.data.entities.TodoSubTasksEntity
+import com.example.allhome.data.entities.TodoChecklistEntity
 import com.example.allhome.databinding.AddSubtaskDialogFragmentBinding
 
 
 
 
-class AddEditSubTaskDialogFragment(val onSubTaskSavedListener:OnSubTaskSavedListener? = null, val todoSubTasksEntity:TodoSubTasksEntity? = null): DialogFragment() {
+class AddEditSubTaskDialogFragment(val onSubTaskSavedListener:OnSubTaskSavedListener? = null, val todoSubTasksEntity:TodoChecklistEntity? = null): DialogFragment() {
 
     lateinit var mAddSubtaskDialogFragmentBinding:AddSubtaskDialogFragmentBinding
 

@@ -96,6 +96,9 @@ class MainActivity : AppCompatActivity() {
                     R.id.nav_bills -> {
 //                        fragmentProcessor(BillsFragment.newInstance("", ""))
 //                        drawerLayout.closeDrawer(GravityCompat.START)
+
+
+
                         if(!isAlarmActive()){
                             createAlarm()
                             Toast.makeText(this@MainActivity,"Alarm is not active", Toast.LENGTH_SHORT).show()
@@ -274,7 +277,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun createAlarm(){
-        val alarmDateTimeMilli = DateTime.now().plusSeconds(10).millis
+        val alarmDateTimeMilli = DateTime.now().plusSeconds(1).millis
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         intent.apply {
             action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
