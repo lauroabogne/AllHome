@@ -96,12 +96,12 @@
                 android:text="Due date : January 1, 2022 1:00 pm"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView130"
+                app:layout_constraintStart_toEndOf="@+id/dueDateLabelTextView"
                 app:layout_constraintTop_toBottomOf="@+id/textView36"
                 app:todoDueDateFormatter="@{todoEntity.dueDate}" />
 
             <TextView
-                android:id="@+id/textView130"
+                android:id="@+id/dueDateLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Due date :"
@@ -110,7 +110,7 @@
                 app:layout_constraintTop_toBottomOf="@+id/textView36" />
 
             <TextView
-                android:id="@+id/textView133"
+                android:id="@+id/repeatEveryLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Repeat every :"
@@ -129,12 +129,12 @@
                 android:text="Repeat every : 1 week"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView133"
+                app:layout_constraintStart_toEndOf="@+id/repeatEveryLabelTextView"
                 app:layout_constraintTop_toBottomOf="@+id/textView55"
                 app:todoRepeatEvery="@{todoEntity}" />
 
             <TextView
-                android:id="@+id/textView135"
+                android:id="@+id/repeatUntilLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Repeat until :"
@@ -153,12 +153,12 @@
                 android:text="Repeat until : January 1, 2023"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView135"
+                app:layout_constraintStart_toEndOf="@+id/repeatUntilLabelTextView"
                 app:layout_constraintTop_toBottomOf="@+id/textView117"
                 app:todoRepeatUntil="@{todoEntity.repeatUntil}" />
 
             <TextView
-                android:id="@+id/textView136"
+                android:id="@+id/notifyLabelTextView"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Notify :"
@@ -177,7 +177,7 @@
                 android:text="Notify : 10 minutes before due date"
                 android:textSize="14sp"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/textView136"
+                app:layout_constraintStart_toEndOf="@+id/notifyLabelTextView"
                 app:layout_constraintTop_toBottomOf="@+id/textView118"
                 app:todoNotifyBefore="@{todoEntity}" />
 

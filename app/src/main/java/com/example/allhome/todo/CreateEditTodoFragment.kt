@@ -1,6 +1,7 @@
 package com.example.allhome.todo
 
 import android.app.*
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Build
@@ -8,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
 import android.widget.AdapterView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
@@ -25,6 +27,8 @@ import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodoChecklistEntity
 import com.example.allhome.databinding.FragmentCreateEditTodo2Binding
 import com.example.allhome.databinding.TodoItemSubTaskBinding
+import com.example.allhome.global_ui.CustomConfirmationDialog
+import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.global_ui.DateInMonthDialogFragment
 import com.example.allhome.todo.AddEditSubTaskDialogFragment.OnSubTaskSavedListener
 import com.example.allhome.todo.viewmodel.CreateEditTodoFragmentViewModel
@@ -169,101 +173,36 @@ class CreateEditTodoFragment : Fragment() {
         }
         mFragmentCreateEditTodoBinding.repeatEveryLinearLayout.setOnClickListener{
 
-            val todoRepeatDaysDialogFragment = TodoRepeatEveryDialogFragment()
-            todoRepeatDaysDialogFragment.setOnItemClickListener(object:TodoRepeatEveryDialogFragment.OnItemClickListener{
-                override fun onItemClick(selectedOption: String) {
+            if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+                showDialogToSetDueDateConfirmation()
+                return@setOnClickListener
+            }
 
-
-                    when(selectedOption) {
-                        requireContext().getString(R.string.none)->{
-                            mCreateEditTodoFragmentViewModel.mRepeatEvery.value = 0
-                            mCreateEditTodoFragmentViewModel.mRepeatEveryType.value = selectedOption
-                        }
-                        requireContext().getString(R.string.day)->{
-
-                            showDialogForRepeatEveryDay(selectedOption)
-
-
-                        }
-                        requireContext().getString(R.string.week)->{
-                            showDialogForRepeatEveryWeek(selectedOption)
-                        }
-                        requireContext().getString(R.string.month)->{
-                            showDialogForRepeatMonthly(selectedOption)
-
-                        }
-                        requireContext().getString(R.string.end_of_month)->{
-
-                            mCreateEditTodoFragmentViewModel.mRepeatEveryType.value = selectedOption
-
-                        }
-                        requireContext().getString(R.string.date_of_month)->{
-                            showDialogForRepeatByMonthDate(selectedOption)
-
-                        }
-                        requireContext().getString(R.string.year)->{
-                            showDialogForRepeatYearly(selectedOption)
-                        }
-                    }
-
-                }
-
-            })
-            todoRepeatDaysDialogFragment.show(requireActivity().supportFragmentManager,"todo_repeat_dialog")
+            showRepeatEveryDialogFragment()
 
         }
         mFragmentCreateEditTodoBinding.repeatEndAtLinearLayout.setOnClickListener{
+            if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+                showDialogToSetDueDateConfirmation()
+                return@setOnClickListener
+            }
+            if( mCreateEditTodoFragmentViewModel.mRepeatEvery.value == null){
+                showDialogToSetRepeatEveryConfirmation()
+                return@setOnClickListener
+            }
+
             showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
             showCalendar()
         }
         mFragmentCreateEditTodoBinding.notifyAtLinearLayout.setOnClickListener{
-            val notifyAt = if(mCreateEditTodoFragmentViewModel.mNotifyAt.value != null) mCreateEditTodoFragmentViewModel.mNotifyAt.value!! else 0
-            val notifyEveryType = if(mCreateEditTodoFragmentViewModel.mNotifyEveryType.value != null) mCreateEditTodoFragmentViewModel.mNotifyEveryType.value!! else requireContext().resources.getString(R.string.grocery_notification_minute_before)
-            var notifyAtDialogFragment = NotifyAtDialogFragment(notifyAt, notifyEveryType)
-            notifyAtDialogFragment.setOnNotifySetListener(object:NotifyAtDialogFragment.OnNotifySetListener{
-                override fun notifySet(notifyAt: Int, notifyType: String) {
-                    val sameDayAndTimeNotification =requireContext().resources.getString(R.string.grocery_notification_same_day_and_time)
-                    val noNotification =  requireContext().resources.getString(R.string.grocery_notification_none)
-                    if( ((notifyType != sameDayAndTimeNotification) and (notifyType != noNotification)) and (notifyAt <=0)){
 
-                        Toast.makeText(requireContext(),"Notify at must value is greater than 0 $notifyType $notifyAt",Toast.LENGTH_SHORT).show()
-                        return
-                    }
+            if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+                showDialogToSetDueDateConfirmation()
+                return@setOnClickListener
+            }
 
-                    notifyAtDialogFragment.dismiss()
-
-                    if(notifyType == requireContext().resources.getString(R.string.none)){
-                        mCreateEditTodoFragmentViewModel.mNotifyAt.value = 0
-                        mCreateEditTodoFragmentViewModel.mNotifyEveryType.value = requireContext().resources.getString(R.string.none)
-                        return
-                    }
-                    mCreateEditTodoFragmentViewModel.mNotifyAt.value = notifyAt
-                    mCreateEditTodoFragmentViewModel.mNotifyEveryType.value = notifyType
-                }
-
-            })
-
-            notifyAtDialogFragment.show(childFragmentManager,"notify_at_dialog")
+            showDialogForNotifyAt()
         }
-
-
-//        mFragmentCreateEditTodoBinding.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
-//        mFragmentCreateEditTodoBinding.dueDateImageView.setOnClickListener {
-//            showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
-//            showCalendar()
-//        }
-//        mFragmentCreateEditTodoBinding.dueDateTextInputEditText.setOnClickListener {
-//            showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
-//            showCalendar()
-//        }
-//        mFragmentCreateEditTodoBinding.repeatUntilImageView.setOnClickListener {
-//            showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
-//            showCalendar()
-//        }
-//        mFragmentCreateEditTodoBinding.repeatUntilDateTextInputEditText.setOnClickListener {
-//            showCalendarFor = SHOW_CALENDAR_FOR_REPEAT_UNTIL
-//            showCalendar()
-//        }
 
         mCreateEditTodoFragmentViewModel.mDueDateCalendar.observe(viewLifecycleOwner) { calendar ->
             val hour = calendar.get(Calendar.HOUR_OF_DAY)
@@ -351,7 +290,6 @@ class CreateEditTodoFragment : Fragment() {
             }
 
         }
-
         mCreateEditTodoFragmentViewModel.mRepeatUntilCalendar.observe(viewLifecycleOwner){repeatUntil->
 
             if(repeatUntil == null){
@@ -400,7 +338,7 @@ class CreateEditTodoFragment : Fragment() {
             if(isRecurring){
                 mUpdateTodoOptionDialogFragment = UpdateTodoOptionDialogFragment("","Selected task is recurring. What you want to update?")
                 mUpdateTodoOptionDialogFragment?.setClickListener { view ->
-                   // mUpdateTodoOptionDialogFragment?.dismiss()
+                   mUpdateTodoOptionDialogFragment?.dismiss()
                     val selectedRadioBtn = mUpdateTodoOptionDialogFragment?.getDeleteTodoDialogFragmentLayoutBinding()?.radioButtonGroup?.checkedRadioButtonId
                     when (view?.id) {
                         UpdateTodoOptionDialogFragment.POSITIVE_BTN_ID-> {
@@ -458,6 +396,49 @@ class CreateEditTodoFragment : Fragment() {
     private fun getTodoInformation(todoUniqueId: String){
         mCreateEditTodoFragmentViewModel.getTodoInformation(requireContext(),todoUniqueId)
     }
+   private fun showRepeatEveryDialogFragment(){
+       val todoRepeatDaysDialogFragment = TodoRepeatEveryDialogFragment()
+       todoRepeatDaysDialogFragment.setOnItemClickListener(object:TodoRepeatEveryDialogFragment.OnItemClickListener{
+           override fun onItemClick(selectedOption: String) {
+
+
+               when(selectedOption) {
+                   requireContext().getString(R.string.none)->{
+                       mCreateEditTodoFragmentViewModel.mRepeatEvery.value = 0
+                       mCreateEditTodoFragmentViewModel.mRepeatEveryType.value = selectedOption
+                   }
+                   requireContext().getString(R.string.day)->{
+
+                       showDialogForRepeatEveryDay(selectedOption)
+
+
+                   }
+                   requireContext().getString(R.string.week)->{
+                       showDialogForRepeatEveryWeek(selectedOption)
+                   }
+                   requireContext().getString(R.string.month)->{
+                       showDialogForRepeatMonthly(selectedOption)
+
+                   }
+                   requireContext().getString(R.string.end_of_month)->{
+
+                       mCreateEditTodoFragmentViewModel.mRepeatEveryType.value = selectedOption
+
+                   }
+                   requireContext().getString(R.string.date_of_month)->{
+                       showDialogForRepeatByMonthDate(selectedOption)
+
+                   }
+                   requireContext().getString(R.string.year)->{
+                       showDialogForRepeatYearly(selectedOption)
+                   }
+               }
+
+           }
+
+       })
+       todoRepeatDaysDialogFragment.show(requireActivity().supportFragmentManager,"todo_repeat_dialog")
+   }
     private fun showDialogForRepeatEveryDay(selectedRepeatEveryType:String){
 
         val repeatValue = if(mCreateEditTodoFragmentViewModel.mRepeatEveryType.value == requireContext().getString(R.string.day)) mCreateEditTodoFragmentViewModel.mRepeatEvery.value else 0
@@ -555,8 +536,87 @@ class CreateEditTodoFragment : Fragment() {
         })
         dateInMonthDialogFragment.show(childFragmentManager,"date_in_month_dialog")
     }
+    private fun showDialogToSetDueDateConfirmation(){
+        val customConfirmationDialog = CustomConfirmationDialog(requireContext())
+        customConfirmationDialog.setCustomMessage("Need to set Due date first.\r\nSet now?")
+        customConfirmationDialog.createNegativeButton("No")
+        customConfirmationDialog.createPositiveButton("Yes")
+        customConfirmationDialog.setButtonClickListener(View.OnClickListener {view->
 
+            customConfirmationDialog.mAlertDialog.dismiss()
+            if(view.id == CustomConfirmationDialog.POSITIVE_BUTTON_ID){
 
+                showCalendarFor = SHOW_CALENDAR_FOR_DUE_DATE
+                showCalendar()
+            }
+        })
+        customConfirmationDialog.show()
+    }
+    private fun showDialogToSetRepeatEveryConfirmation(){
+        val customConfirmationDialog = CustomConfirmationDialog(requireContext())
+        customConfirmationDialog.setCustomMessage("Need to set 'Repeat Every' first. Set now?")
+        customConfirmationDialog.createNegativeButton("No")
+        customConfirmationDialog.createPositiveButton("Yes")
+        customConfirmationDialog.setButtonClickListener(View.OnClickListener {view->
+
+            customConfirmationDialog.mAlertDialog.dismiss()
+            if(view.id == CustomConfirmationDialog.POSITIVE_BUTTON_ID){
+
+                showRepeatEveryDialogFragment()
+            }
+        })
+        customConfirmationDialog.show()
+    }
+    private fun showDialogForNotifyAt(){
+        val notifyAt = if(mCreateEditTodoFragmentViewModel.mNotifyAt.value != null) mCreateEditTodoFragmentViewModel.mNotifyAt.value!! else 0
+        val notifyEveryType = if(mCreateEditTodoFragmentViewModel.mNotifyEveryType.value != null) mCreateEditTodoFragmentViewModel.mNotifyEveryType.value!! else requireContext().resources.getString(R.string.grocery_notification_minute_before)
+        var notifyAtDialogFragment = NotifyAtDialogFragment(notifyAt, notifyEveryType)
+        notifyAtDialogFragment.setOnNotifySetListener(object:NotifyAtDialogFragment.OnNotifySetListener{
+            override fun notifySet(notifyAt: Int, notifyType: String) {
+                val sameDayAndTimeNotification =requireContext().resources.getString(R.string.grocery_notification_same_day_and_time)
+                val noNotification =  requireContext().resources.getString(R.string.grocery_notification_none)
+                if( ((notifyType != sameDayAndTimeNotification) and (notifyType != noNotification)) and (notifyAt <=0)){
+
+                    Toast.makeText(requireContext(),"Notify at must value is greater than 0 $notifyType $notifyAt",Toast.LENGTH_SHORT).show()
+                    return
+                }
+
+                notifyAtDialogFragment.dismiss()
+
+                if(notifyType == requireContext().resources.getString(R.string.none)){
+                    mCreateEditTodoFragmentViewModel.mNotifyAt.value = 0
+                    mCreateEditTodoFragmentViewModel.mNotifyEveryType.value = requireContext().resources.getString(R.string.none)
+                    return
+                }
+                mCreateEditTodoFragmentViewModel.mNotifyAt.value = notifyAt
+                mCreateEditTodoFragmentViewModel.mNotifyEveryType.value = notifyType
+            }
+
+        })
+
+        notifyAtDialogFragment.show(childFragmentManager,"notify_at_dialog")
+    }
+    private fun showDialogToEnterTaskName(){
+        val customConfirmationDialog = CustomConfirmationDialog(requireContext())
+        customConfirmationDialog.setCustomMessage("Task name must not empty. Set now?")
+        customConfirmationDialog.createNegativeButton("No")
+        customConfirmationDialog.createPositiveButton("Yes")
+        customConfirmationDialog.setButtonClickListener(View.OnClickListener {view->
+
+            customConfirmationDialog.mAlertDialog.dismiss()
+            if(view.id == CustomConfirmationDialog.POSITIVE_BUTTON_ID){
+
+                val taskNameEditText = mFragmentCreateEditTodoBinding.taskNameTextInputEditText
+                taskNameEditText.requestFocus()
+                taskNameEditText.postDelayed({
+                    // Show the soft keyboard
+                    val inputMethodManager = requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+                    inputMethodManager.showSoftInput(taskNameEditText, InputMethodManager.SHOW_IMPLICIT)
+                }, 100)
+            }
+        })
+        customConfirmationDialog.show()
+    }
     private fun repeatEveryDisplay(selectedRepeat:String){
 
         val indexOfSelectedRepeat = context?.resources?.getStringArray(R.array.todo_recurring)?.indexOf(selectedRepeat)
@@ -712,6 +772,14 @@ class CreateEditTodoFragment : Fragment() {
     private fun showTimePicker(date: String){
         val calendar = DateUtil.getCustomCalendar()
 
+        if(showCalendarFor == SHOW_CALENDAR_FOR_REPEAT_UNTIL && mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null){
+            val dueDateCalendar =  mCreateEditTodoFragmentViewModel.mDueDateCalendar.value!!
+
+            calendar.set(Calendar.HOUR_OF_DAY, dueDateCalendar.get(Calendar.HOUR_OF_DAY))
+            calendar.set(Calendar.MINUTE, dueDateCalendar?.get(Calendar.MINUTE))
+            calendar.set(Calendar.SECOND, dueDateCalendar?.get(Calendar.SECOND))
+        }
+
         val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->
             calendar.set(Calendar.HOUR_OF_DAY, hour)
             calendar.set(Calendar.MINUTE, minute)
@@ -751,10 +819,21 @@ class CreateEditTodoFragment : Fragment() {
     private fun saveTodo(){
 
 
-        val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
-        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
+        val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString().trim()
+        if(taskName.isEmpty()){
+            showDialogToEnterTaskName()
+            return
+        }
+        if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+            showDialogToSetDueDateConfirmation()
+            return
+        }
+
+
+
+        val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString().trim()
         val repeatEvery = if(mCreateEditTodoFragmentViewModel.mRepeatEvery.value == null) 0 else  mCreateEditTodoFragmentViewModel.mRepeatEvery.value!! //0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
-        val repeatEveryType = mCreateEditTodoFragmentViewModel.mRepeatEveryType.value!! //mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
+        val repeatEveryType = if(mCreateEditTodoFragmentViewModel.mRepeatEveryType.value == null) requireContext().getString(R.string.none) else mCreateEditTodoFragmentViewModel.mRepeatEveryType.value //mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
         val notifyEvery =  if(mCreateEditTodoFragmentViewModel.mNotifyAt.value != null) mCreateEditTodoFragmentViewModel.mNotifyAt.value!! else 0 //if(mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.notifyTextInputEditText.text.toString().toInt() else 0
         val notifyEveryType = if(mCreateEditTodoFragmentViewModel.mNotifyEveryType.value != null) mCreateEditTodoFragmentViewModel.mNotifyEveryType.value!! else requireContext().resources.getString(R.string.none) // mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
@@ -828,6 +907,45 @@ class CreateEditTodoFragment : Fragment() {
 
 
         when(repeatEveryType){
+            requireContext().getString(R.string.none)->{
+                var todoUniqueId = UUID.randomUUID().toString()
+                val todosEntity = TodoEntity(
+                    uniqueId = todoUniqueId,
+                    groupUniqueId=taskUniqueGroupId,
+                    name = taskName,
+                    description = taskDescription,
+                    dueDate = simpleDateFormat.format(dueDateCopy.time),
+                    repeatEvery = repeatEvery,
+                    repeatEveryType = repeatEveryType,
+                    repeatUntil = repeatUntilDateTimeFormatted,
+                    notifyAt = notifyEvery,
+                    notifyEveryType = notifyEveryType,
+                    isSetInMonday = isSetInMonday,
+                    isSetInTuesday = isSetInTuesday,
+                    isSetInWednesday = isSetInWednesday,
+                    isSetInThursday = isSetInThursday,
+                    isSetInFriday = isSetInFriday,
+                    isSetInSaturday = isSetInSaturday,
+                    isSetInSunday = isSetInSunday,
+                    itemStatus = TodoEntity.NOT_DELETED_STATUS,
+                    uploaded = TodoEntity.NOT_UPLOADED,
+                    isFinished = TodoEntity.NOT_FINISHED,
+                    datetimeFinished ="",
+                    created = currentDatetime,
+                    modified = currentDatetime
+                )
+
+                todoEntities.add(todosEntity)
+                mCreateEditTodoFragmentViewModel.mTodoSubTask!!.value!!.forEach { todoSubTaskEntity->
+                    var todoSubTaskUniqueId = UUID.randomUUID().toString()
+                    val todoSubTaskEntityCopy = todoSubTaskEntity.copy()
+                    todoSubTaskEntityCopy.uniqueId = todoSubTaskUniqueId
+                    todoSubTaskEntityCopy.todoUniqueId = todoUniqueId
+                    todoSubTaskEntityCopy.created = currentDatetime
+                    todoSubTaskEntityCopy.modified = currentDatetime
+                    todoSubTaskEntities.add(todoSubTaskEntityCopy)
+                }
+            }
             requireContext().getString(R.string.day)->{
                 do {
 
@@ -1196,6 +1314,19 @@ class CreateEditTodoFragment : Fragment() {
 //
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+
+        if(taskName.isEmpty()){
+            showDialogToEnterTaskName()
+            return
+        }
+        if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+            showDialogToSetDueDateConfirmation()
+            return
+        }
+
+
+
+
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mCreateEditTodoFragmentViewModel.mRepeatEvery.value == null) 0 else  mCreateEditTodoFragmentViewModel.mRepeatEvery.value!! //0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mCreateEditTodoFragmentViewModel.mRepeatEveryType.value!! //mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
@@ -1690,6 +1821,18 @@ class CreateEditTodoFragment : Fragment() {
 //        val dueDateTimeFormatted = if(mCreateEditTodoFragmentViewModel.mDueDateCalendar.value != null) SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value?.time) else "0000-00-00 00:00:00"
 
         val taskName = mFragmentCreateEditTodoBinding.taskNameTextInputEditText.text.toString()
+
+        if(taskName.isEmpty()){
+            showDialogToEnterTaskName()
+            return
+        }
+        if( mCreateEditTodoFragmentViewModel.mDueDateCalendar.value == null){
+            showDialogToSetDueDateConfirmation()
+            return
+        }
+
+
+
         val taskDescription = mFragmentCreateEditTodoBinding.taskDescriptionTextInputEditText.text.toString()
         val repeatEvery = if(mCreateEditTodoFragmentViewModel.mRepeatEvery.value == null) 0 else  mCreateEditTodoFragmentViewModel.mRepeatEvery.value!! //0//if(mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().trim().isNotEmpty()) mFragmentCreateEditTodoBinding.repeatEveryTextInputEditText.text.toString().toInt() else 0
         val repeatEveryType = mCreateEditTodoFragmentViewModel.mRepeatEveryType.value!! //mFragmentCreateEditTodoBinding.repeatSpinner.selectedItem.toString()
