@@ -1,9 +1,12 @@
 package com.example.allhome.todo.custom_binding_adapter
 
 import android.content.Context
+import android.media.MicrophoneInfo.Coordinate3F
 import android.view.View
 import android.widget.ImageButton
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.databinding.BindingAdapter
 import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
@@ -127,10 +130,13 @@ fun todoDescription(textview:TextView,todoEntity:TodoEntity?){
 fun todoRepeatUntil(textView:TextView,repeatUntilDate:String?){
     if(repeatUntilDate == "0000-00-00 00:00:00" || repeatUntilDate == null){
         textView.visibility = View.GONE
+
+        (textView.parent as ConstraintLayout).findViewById<TextView>(R.id.repeatUntilLabelTextView).visibility = View.GONE
         return
     }
 
     textView.visibility = View.VISIBLE
+    (textView.parent as ConstraintLayout).findViewById<TextView>(R.id.repeatUntilLabelTextView).visibility = View.VISIBLE
     if(repeatUntilDate.contains("00:00:00")){
         val dueDateDateTime = DateTime.parse(repeatUntilDate.replace("00:00:00","").trim(), DateTimeFormat.forPattern("yyyy-MM-dd"))
         val dueDateFormattedString = SimpleDateFormat("MMM dd, y").format(dueDateDateTime.toDate())
@@ -150,6 +156,7 @@ fun todoRepeatEvery(textview:TextView,todoEntity:TodoEntity?){
     }
     if(todoEntity.repeatEveryType == textview.context.getString(R.string.none)){
         textview.visibility = View.GONE
+        (textview.parent as ConstraintLayout).findViewById<TextView>(R.id.repeatEveryLabelTextView).visibility = View.GONE
         return
     }
 
@@ -199,12 +206,14 @@ fun todoNotifyBefore(textview:TextView,todoEntity: TodoEntity?){
     }
 
     textview.visibility = View.VISIBLE
+    (textview.parent as ConstraintLayout).findViewById<TextView>(R.id.notifyLabelTextView).visibility = View.VISIBLE
 
     val notifyAt = todoEntity.notifyAt
     when(todoEntity.notifyEveryType){ //mFragmentCreateEditTodoBinding.notifyEveryTypeSpinner.selectedItem.toString()
         textview.context.getString(R.string.none)->{
             textview.text = ""
             textview.visibility = View.GONE
+            (textview.parent as ConstraintLayout).findViewById<TextView>(R.id.notifyLabelTextView).visibility = View.GONE
         }
         textview.context.getString(R.string.grocery_notification_same_day_and_time)->{
             textview.text = "Same day and time of due date"
