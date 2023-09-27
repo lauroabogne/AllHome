@@ -26,6 +26,13 @@ interface TodosDAO {
     fun getTodo(uniqueId:String):TodoEntity
     @Query("SELECT COUNT(*) FROM todos WHERE group_unique_id =:groupUniqueId")
     fun getTodoCountByGroupUniqueId(groupUniqueId:String):Integer
+    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS}")
+    fun getTodoCountByDate(dueDate:String):Int
+    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS} AND is_finished =${TodoEntity.NOT_FINISHED}")
+    fun getTodoOverdueCountByDate(dueDate:String):Int
+    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS} AND is_finished =${TodoEntity.FINISHED}")
+    fun getTodoAccomplishedCountByDate(dueDate:String):Int
+
     @Query("UPDATE todos SET uploaded= ${TodoEntity.NOT_UPLOADED}, item_status =${TodoEntity.DELETED_STATUS} WHERE unique_id=:uniqueId")
     fun updateAsDeleted(uniqueId: String):Int
     @Query("UPDATE todos SET modified=  datetime('now'), uploaded= ${TodoEntity.NOT_UPLOADED}, item_status =${TodoEntity.DELETED_STATUS} " +

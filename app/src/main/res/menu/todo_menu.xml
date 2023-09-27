@@ -18,12 +18,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <item
-        android:title="Overdue"
-        android:id="@+id/todoOverdue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-    <item
         android:title="Custom date"
         android:id="@+id/todoCustomDate"
         android:layout_width="wrap_content"
@@ -31,15 +25,15 @@
 
         />
     <item
-        android:title="Set Alart"
-        android:id="@+id/setAlartMenu"
+        android:title="Overdue"
+        android:id="@+id/todoOverdue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
         />
+
     <item
-        android:title="Cancel Alart"
-        android:id="@+id/cancelAlartMenu"
+        android:title="Calendar View"
+        android:id="@+id/todoCalendarViewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 

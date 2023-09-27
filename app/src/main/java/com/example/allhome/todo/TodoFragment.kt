@@ -8,11 +8,15 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.CompoundButton
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
@@ -24,6 +28,7 @@ import com.example.allhome.data.entities.TodoChecklistEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 import com.example.allhome.databinding.FragmentTodoBinding
 import com.example.allhome.databinding.TodoItemBinding
+import com.example.allhome.todo.calendar.TodoCalendarViewFragment
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
 import com.google.android.material.tabs.TabLayout
@@ -45,6 +50,8 @@ class TodoFragment : Fragment() {
     private var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
     private var readableDateFormatter = DateTimeFormatter.ofPattern("MMMM d, yyyy")
     private var selectedFilter:Int = R.id.todoToday
+    private var parentActivity:Int = MAIN_ACTIVITY
+    private var hasChanges = false
 
 
     private val mTodoFragmentViewModel: TodoFragmentViewModel by viewModels{
@@ -54,29 +61,28 @@ class TodoFragment : Fragment() {
         TodoFragmentViewModelFactory(todosDAO,logsDAO)
 
     }
-
     private val addOrUpdateTodoListResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         if(activityResult.resultCode == Activity.RESULT_OK){
 
             val action = activityResult.data?.getIntExtra(ACTION_TAG,0)
             if(action == RELOAD_ACTION_TAG){
+                hasChanges = true
                 getTodos()
             }
 
         }
     }
-
     private val viewTodoResultContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         if(activityResult.resultCode == Activity.RESULT_OK){
             val action = activityResult.data?.getIntExtra(ACTION_TAG,0)
             if(action == RELOAD_ACTION_TAG){
+                hasChanges = true
                 getTodos()
             }
         }
     }
-
     lateinit var mFragmentTodoBinding:FragmentTodoBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -87,7 +93,37 @@ class TodoFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
     {
+
         mFragmentTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo,null,false)
+
+        parentActivity = arguments?.getInt(PARENT_ACTIVITY_TAG)!!
+
+
+
+        if(parentActivity == OTHER_ACTIVITY){
+
+            val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+            toolbar.visibility = View.VISIBLE
+
+            val activity = requireActivity() as AppCompatActivity
+            activity.setSupportActionBar(toolbar)
+            //show menu icon on action bar
+            activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+            val selectedDateString = arguments?.getString(SELECTED_DATE_TAG)
+            selectedDate = SimpleDateFormat("yyyy-MM-dd").parse(selectedDateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
+            getTodos()
+
+            selectedFilter = R.id.todoCustomDate
+            setTodDateLabel()
+
+
+        }
+
+
+
 
 
         //val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
@@ -137,54 +173,11 @@ class TodoFragment : Fragment() {
         }
 
 
-        mFragmentTodoBinding.todoTabLayout.addOnTabSelectedListener(object :TabLayout.OnTabSelectedListener{
-            override fun onTabSelected(tab: TabLayout.Tab?) {
-
-                when (tab?.text.toString()) {
-                    resources.getString(R.string.yesterday_todo) -> {
-
-                        selectedDate = currentDate.minusDays(1)
-                        getTodos()
-
-                        
-                    }
-                    resources.getString(R.string.today_todo) -> {
-
-                        selectedDate = currentDate
-                        getTodos()
-
-                    }
-                    resources.getString(R.string.tomorrow_todo) -> {
-
-                        selectedDate = currentDate.plusDays(1)
-                        getTodos()
-
-                    }
-                }
-
-            }
-
-            override fun onTabUnselected(tab: TabLayout.Tab?) {
-
-            }
-
-            override fun onTabReselected(tab: TabLayout.Tab?) {
-
-            }
-
-        })
-
-        val customViewTabItem = mFragmentTodoBinding.todoTabLayout.getTabAt(3);
-        customViewTabItem?.view?.setOnClickListener {
-            showCalendar()
-        }
-
-
         mFragmentTodoBinding.swipeRefresh.setOnRefreshListener {
             getTodos()
             mFragmentTodoBinding.swipeRefresh.isRefreshing = false
         }
-        mFragmentTodoBinding.todoTabLayout.getTabAt(1)?.select()
+
 
         return mFragmentTodoBinding.root
     }
@@ -275,7 +268,6 @@ class TodoFragment : Fragment() {
 
         return PendingIntent.getBroadcast(requireContext(), 123, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE)
     }
-
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.todo_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -307,49 +299,71 @@ class TodoFragment : Fragment() {
                 showCalendar()
 
             }
-            R.id.setAlartMenu->{
+            R.id.todoCalendarViewMenu->{
 
-                Toast.makeText(requireContext(), "Alarm set",Toast.LENGTH_SHORT).show()
-
-
-                val alarmDateTimeMilli = DateTime.now().plusSeconds(10).millis
-                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(requireContext(), NotificationReceiver::class.java)
-
-                intent.apply {
-                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
-                    addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-
+                requireActivity().supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.home_fragment_container,TodoCalendarViewFragment())
+                    commit()
                 }
-
-                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmDateTimeMilli, pendingIntent)
-
             }
-            R.id.cancelAlartMenu->{
-                Toast.makeText(requireContext(), "Alarm cancelled",Toast.LENGTH_SHORT).show()
-                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-                val intent = Intent(requireContext(), NotificationReceiver::class.java)
+            android.R.id.home->{
 
-                intent.apply {
-                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
-
-                }
-
-                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE)
-
-                if(pendingIntent != null){
-                    Toast.makeText(requireContext(),"Alarm is set",Toast.LENGTH_SHORT).show()
-                    alarmManager.cancel(pendingIntent)
-
+                if(hasChanges){
+                    val intent = Intent()
+                    activity?.setResult(Activity.RESULT_OK, intent)
+                    activity?.finish()
                 }else{
-                    Toast.makeText(requireContext(),"Alarm is  not set",Toast.LENGTH_SHORT).show()
+                    activity?.finish()
                 }
 
-//                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-//                alarmManager.cancel(pendingIntent)
+
+
+
             }
+
+//            R.id.setAlartMenu->{
+//
+//                Toast.makeText(requireContext(), "Alarm set",Toast.LENGTH_SHORT).show()
+//
+//
+//                val alarmDateTimeMilli = DateTime.now().plusSeconds(10).millis
+//                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//                val intent = Intent(requireContext(), NotificationReceiver::class.java)
+//
+//                intent.apply {
+//                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
+//                    addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
+//                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
+//
+//                }
+//
+//                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmDateTimeMilli, pendingIntent)
+//
+//            }
+//            R.id.cancelAlartMenu->{
+//                Toast.makeText(requireContext(), "Alarm cancelled",Toast.LENGTH_SHORT).show()
+//                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//                val intent = Intent(requireContext(), NotificationReceiver::class.java)
+//
+//                intent.apply {
+//                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
+//
+//                }
+//
+//                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE)
+//
+//                if(pendingIntent != null){
+//                    Toast.makeText(requireContext(),"Alarm is set",Toast.LENGTH_SHORT).show()
+//                    alarmManager.cancel(pendingIntent)
+//
+//                }else{
+//                    Toast.makeText(requireContext(),"Alarm is  not set",Toast.LENGTH_SHORT).show()
+//                }
+//
+////                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
+////                alarmManager.cancel(pendingIntent)
+//            }
         }
         return true
     }
@@ -398,6 +412,7 @@ class TodoFragment : Fragment() {
             val readableDate = SimpleDateFormat("MMMM d,yyyy").format(date)
 
             selectedDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+
             getTodos()
 
             selectedFilter = R.id.todoCustomDate
@@ -423,12 +438,17 @@ class TodoFragment : Fragment() {
     }
     companion object {
         const val ACTION_TAG = "ACTION_TAG"
+        const val SELECTED_DATE_TAG = "SELECTED_DATE_TAG"
+        const val PARENT_ACTIVITY_TAG = "PARENT_ACTIVITY_TAG"
+        const val MAIN_ACTIVITY = 0
+        const val OTHER_ACTIVITY = 1
+
         const val RELOAD_ACTION_TAG = 1
-        @JvmStatic fun newInstance(param1: String, param2: String) =
+        @JvmStatic fun newInstance(parentActivity : Int = MAIN_ACTIVITY , selectedDateString: String) =
             TodoFragment().apply {
                 arguments = Bundle().apply {
-                    putString(ARG_PARAM1, param1)
-                    putString(ARG_PARAM2, param2)
+                    putInt(PARENT_ACTIVITY_TAG, parentActivity)
+                    putString(SELECTED_DATE_TAG, selectedDateString)
                 }
             }
     }

@@ -113,7 +113,7 @@ class MainActivity : AppCompatActivity() {
                     }
                     R.id.nav_todo -> {
 
-                        fragmentProcessor(TodoFragment.newInstance("", ""))
+                        fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, ""))
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                 }
@@ -148,7 +148,7 @@ class MainActivity : AppCompatActivity() {
                 }
                 NotificationReceiver.TODO_NOTIFICATION_ACTION -> {
 
-                    fragmentProcessor(TodoFragment.newInstance("", ""))
+                    fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, ""))
 
                     intent.getStringExtra(CreateEditTodoFragment.TODO_UNIQUE_ID_TAG)?.let {todoUniqueId->
                         Toast.makeText(this,"Todo must open $todoUniqueId",Toast.LENGTH_SHORT).show()

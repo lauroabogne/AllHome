@@ -3,6 +3,7 @@ package com.example.allhome.todo
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.appcompat.widget.Toolbar
 import com.example.allhome.R
 import com.example.allhome.storage.StorageAddItemActivity
 
@@ -12,6 +13,7 @@ class TodoFragmentContainerActivity : AppCompatActivity() {
         const val FRAGMENT_NAME_TAG = "FRAGMENT_NAME_TAG"
         const val CREATE_TODO_FRAGMENT = "CREATE_TODO_FRAGMENT"
         const val VIEW_TODO_FRAGMENT = "VIEW_TODO_FRAGMENT"
+        const val VIEW_TODO_LIST_FRAGMENT = "VIEW_TODO_LIST_FRAGMENT"
 
     }
 
@@ -44,6 +46,13 @@ class TodoFragmentContainerActivity : AppCompatActivity() {
                     replace(R.id.fragmentContainer,ViewTodoFragment.newInstance(todoUniqueId))
                     commit()
                 }
+            }else if(fragmentName == VIEW_TODO_LIST_FRAGMENT){
+
+                supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.fragmentContainer,TodoFragment.newInstance(TodoFragment.OTHER_ACTIVITY, intent.getStringExtra(TodoFragment.SELECTED_DATE_TAG)!!))
+                    commit()
+                }
+
             }
 
         }
