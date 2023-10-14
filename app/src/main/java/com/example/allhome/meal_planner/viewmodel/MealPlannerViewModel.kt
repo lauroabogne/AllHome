@@ -11,7 +11,7 @@ import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class MealPlannerViewModel: ViewModel() {
+class MealPlannerViewModel(): ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("MealPlannerViewModel"))
 
     suspend fun saveMealPlan(context: Context,mealEntity:MealEntity):Long{

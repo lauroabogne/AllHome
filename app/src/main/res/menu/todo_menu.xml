@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
         android:title="Today"
@@ -18,12 +19,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
     <item
-        android:title="Overdue"
-        android:id="@+id/todoOverdue"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        />
-    <item
         android:title="Custom date"
         android:id="@+id/todoCustomDate"
         android:layout_width="wrap_content"
@@ -31,17 +26,25 @@
 
         />
     <item
-        android:title="Set Alart"
-        android:id="@+id/setAlartMenu"
+        android:title="Overdue"
+        android:id="@+id/todoOverdue"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        />
 
+    <item
+        android:title="Calendar View"
+        android:id="@+id/todoCalendarViewMenu"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:showAsAction="always"
         />
     <item
-        android:title="Cancel Alart"
-        android:id="@+id/cancelAlartMenu"
+        android:title="List View"
+        android:id="@+id/todoListViewMenu"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        app:showAsAction="always"
+        android:visible="false"
         />
 </menu>
