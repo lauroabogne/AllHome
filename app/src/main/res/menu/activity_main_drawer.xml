@@ -5,7 +5,10 @@
 
     <group android:checkableBehavior="single"
         android:id="@+id/group1">
-
+        <item
+            android:id="@+id/nav_todo"
+            android:icon="@drawable/ic_todo_list"
+            android:title="@string/menu_todo" />
         <item
             android:id="@+id/nav_grocery_list"
             android:icon="@drawable/ic_grocery_list"
@@ -30,10 +33,7 @@
             android:id="@+id/nav_expenses_summary"
             android:icon="@drawable/ic_report_summary"
             android:title="@string/menu_expenses_summary" />
-        <item
-            android:id="@+id/nav_todo"
-            android:icon="@drawable/ic_todo_list"
-            android:title="@string/menu_todo" />
+
     </group>
     <group android:checkableBehavior="single"
         android:id="@+id/group2">

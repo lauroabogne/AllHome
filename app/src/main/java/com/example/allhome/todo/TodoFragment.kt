@@ -13,7 +13,6 @@ import android.view.*
 import androidx.fragment.app.Fragment
 import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -31,7 +30,6 @@ import com.example.allhome.databinding.TodoItemBinding
 import com.example.allhome.todo.calendar.TodoCalendarViewFragment
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
-import com.google.android.material.tabs.TabLayout
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
 import java.text.SimpleDateFormat
@@ -52,7 +50,7 @@ class TodoFragment : Fragment() {
     private var selectedFilter:Int = R.id.todoToday
     private var parentActivity:Int = MAIN_ACTIVITY
     private var hasChanges = false
-
+    private var viewing = LIST_VIEW
 
     private val mTodoFragmentViewModel: TodoFragmentViewModel by viewModels{
 
@@ -69,6 +67,12 @@ class TodoFragment : Fragment() {
             if(action == RELOAD_ACTION_TAG){
                 hasChanges = true
                 getTodos()
+
+                if(parentFragment != null && parentFragment is TodoFragmentCommunication){
+                    val todoFragmentCommunication  = parentFragment as TodoFragmentCommunication
+                    todoFragmentCommunication.onDataChanged()
+                }
+
             }
 
         }
@@ -95,10 +99,8 @@ class TodoFragment : Fragment() {
     {
 
         mFragmentTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo,null,false)
-
         parentActivity = arguments?.getInt(PARENT_ACTIVITY_TAG)!!
-
-
+        viewing = arguments!!.getInt(PARENT_ACTIVITY_TAG)
 
         if(parentActivity == OTHER_ACTIVITY){
 
@@ -119,11 +121,7 @@ class TodoFragment : Fragment() {
             selectedFilter = R.id.todoCustomDate
             setTodDateLabel()
 
-
         }
-
-
-
 
 
         //val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
@@ -131,10 +129,7 @@ class TodoFragment : Fragment() {
 
         val todoListRecyclerviewViewAdapter = TodoListRecyclerviewViewAdapter(arrayListOf())
         mFragmentTodoBinding.todoListRecyclerview.adapter = todoListRecyclerviewViewAdapter
-
-
         mFragmentTodoBinding.fab.setOnClickListener {
-
 
             /**
              * @todo Remove this code below in production 2023-08-06
@@ -178,11 +173,15 @@ class TodoFragment : Fragment() {
             mFragmentTodoBinding.swipeRefresh.isRefreshing = false
         }
 
-
+        getTodos()
         return mFragmentTodoBinding.root
     }
 
 
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        Log.e("parent","${parentFragment}")
+    }
     private fun triggerNotificationTest(){
         /**
          * @todo Remove this code below in production 2023-08-06
@@ -231,7 +230,6 @@ class TodoFragment : Fragment() {
         }
 
     }
-
     private fun generatedAlarmDatetime(notifyValue: Int, notifyType: String, dueDateTimeFormatted: String):Long{
 
         if(dueDateTimeFormatted.isEmpty() || dueDateTimeFormatted == "0000-00-00 00:00:00"){
@@ -268,6 +266,36 @@ class TodoFragment : Fragment() {
 
         return PendingIntent.getBroadcast(requireContext(), 123, intent, PendingIntent.FLAG_CANCEL_CURRENT or PendingIntent.FLAG_MUTABLE)
     }
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+
+        val todoTodayMenu = menu.findItem(R.id.todoToday)
+        val todoTomorrowMenu = menu.findItem(R.id.todoTomorrow)
+        val todoCustomDateMenu = menu.findItem(R.id.todoCustomDate)
+        val todoOverdueMenu = menu.findItem(R.id.todoOverdue)
+        val todoYesterdaymenu = menu.findItem(R.id.todoYesterday)
+
+
+        val todoListViewMenu = menu.findItem(R.id.todoListViewMenu)
+        val todoCalendarViewMenu = menu.findItem(R.id.todoCalendarViewMenu)
+
+        if(viewing == CALENDAR_VIEW){
+            todoListViewMenu.isVisible = true
+            todoCalendarViewMenu.isVisible = false
+
+            todoTodayMenu.isVisible = false
+            todoTomorrowMenu.isVisible = false
+            todoCustomDateMenu.isVisible = false
+            todoOverdueMenu.isVisible = false
+            todoYesterdaymenu.isVisible = false
+        }
+        if(viewing == LIST_VIEW){
+            todoListViewMenu.isVisible = false
+            todoCalendarViewMenu.isVisible = true
+        }
+
+
+    }
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.todo_menu, menu)
         super.onCreateOptionsMenu(menu, inflater)
@@ -299,6 +327,16 @@ class TodoFragment : Fragment() {
                 showCalendar()
 
             }
+            R.id.todoListViewMenu->{
+
+                val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                val stringDate = dateFormat.format(Date().time)
+                requireActivity().supportFragmentManager.beginTransaction().apply {
+                    replace(R.id.home_fragment_container,TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, stringDate))
+                    commit()
+                }
+
+            }
             R.id.todoCalendarViewMenu->{
 
                 requireActivity().supportFragmentManager.beginTransaction().apply {
@@ -308,62 +346,8 @@ class TodoFragment : Fragment() {
             }
             android.R.id.home->{
 
-                if(hasChanges){
-                    val intent = Intent()
-                    activity?.setResult(Activity.RESULT_OK, intent)
-                    activity?.finish()
-                }else{
-                    activity?.finish()
-                }
-
-
-
 
             }
-
-//            R.id.setAlartMenu->{
-//
-//                Toast.makeText(requireContext(), "Alarm set",Toast.LENGTH_SHORT).show()
-//
-//
-//                val alarmDateTimeMilli = DateTime.now().plusSeconds(10).millis
-//                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//                val intent = Intent(requireContext(), NotificationReceiver::class.java)
-//
-//                intent.apply {
-//                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
-//                    addFlags(Intent.FLAG_INCLUDE_STOPPED_PACKAGES)
-//                    addFlags(Intent.FLAG_RECEIVER_FOREGROUND)
-//
-//                }
-//
-//                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-//                alarmManager.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, alarmDateTimeMilli, pendingIntent)
-//
-//            }
-//            R.id.cancelAlartMenu->{
-//                Toast.makeText(requireContext(), "Alarm cancelled",Toast.LENGTH_SHORT).show()
-//                val alarmManager = requireContext().getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//                val intent = Intent(requireContext(), NotificationReceiver::class.java)
-//
-//                intent.apply {
-//                    action = NotificationReceiver.DAILY_NOTIFICATION_ACTION
-//
-//                }
-//
-//                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_NO_CREATE)
-//
-//                if(pendingIntent != null){
-//                    Toast.makeText(requireContext(),"Alarm is set",Toast.LENGTH_SHORT).show()
-//                    alarmManager.cancel(pendingIntent)
-//
-//                }else{
-//                    Toast.makeText(requireContext(),"Alarm is  not set",Toast.LENGTH_SHORT).show()
-//                }
-//
-////                val pendingIntent = PendingIntent.getBroadcast(requireContext(), NotificationReceiver.NOTIFICATION_REQUEST_CODE, intent, PendingIntent.FLAG_CANCEL_CURRENT)
-////                alarmManager.cancel(pendingIntent)
-//            }
         }
         return true
     }
@@ -392,7 +376,7 @@ class TodoFragment : Fragment() {
                 } else if (selectedDate.isEqual(currentDate.plusDays(1))) {
                     mFragmentTodoBinding.todoDateLabel.text = "Tomorrow -  ${readableDateFormatter.format(selectedDate)}"
                 } else {
-                    mFragmentTodoBinding.todoDateLabel.text = "Custom date -  ${readableDateFormatter.format(selectedDate)}"
+                    mFragmentTodoBinding.todoDateLabel.text = "${readableDateFormatter.format(selectedDate)}"
                 }
 
 
@@ -440,20 +424,22 @@ class TodoFragment : Fragment() {
         const val ACTION_TAG = "ACTION_TAG"
         const val SELECTED_DATE_TAG = "SELECTED_DATE_TAG"
         const val PARENT_ACTIVITY_TAG = "PARENT_ACTIVITY_TAG"
+        const val VIEWING_TAG = "VIEWING_TAG"
         const val MAIN_ACTIVITY = 0
         const val OTHER_ACTIVITY = 1
+        const val CALENDAR_VIEW = 1
+        const val LIST_VIEW = 2
 
         const val RELOAD_ACTION_TAG = 1
-        @JvmStatic fun newInstance(parentActivity : Int = MAIN_ACTIVITY , selectedDateString: String) =
+        @JvmStatic fun newInstance(parentActivity : Int = MAIN_ACTIVITY , selectedDateString: String, viewing : Int = LIST_VIEW) =
             TodoFragment().apply {
                 arguments = Bundle().apply {
                     putInt(PARENT_ACTIVITY_TAG, parentActivity)
                     putString(SELECTED_DATE_TAG, selectedDateString)
+                    putInt(VIEWING_TAG,viewing)
                 }
             }
     }
-
-
     inner class TodoListRecyclerviewViewAdapter(var todosWithSubTaskCount:ArrayList<TodosWithSubTaskCount>): RecyclerView.Adapter<TodoListRecyclerviewViewAdapter.ItemViewHolder>() {
 
         private val itemOnCheckChangeListener = CompoundButton.OnCheckedChangeListener { buttonView, isChecked ->
@@ -468,6 +454,12 @@ class TodoFragment : Fragment() {
 
             mTodoFragmentViewModel.updateTodoAsFinished(selectedTodo.todoEntity.uniqueId, currentDatetime, isFinished )
 
+            if(parentFragment != null && parentFragment is TodoFragmentCommunication){
+                val todoFragmentCommunication  = parentFragment as TodoFragmentCommunication
+                todoFragmentCommunication.onDataChanged()
+            }
+
+
         }
 
         override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ItemViewHolder {
@@ -479,8 +471,8 @@ class TodoFragment : Fragment() {
             val todoWithSubTaskCount = todosWithSubTaskCount[position]
             holder.todoItemBinding.todosWithSubTaskCount = todoWithSubTaskCount
             holder.todoItemBinding.checkBox2.tag = position
-            holder.todoItemBinding.checkBox2.setOnCheckedChangeListener(itemOnCheckChangeListener)
             holder.todoItemBinding.checkBox2.isChecked = todoWithSubTaskCount.todoEntity.isFinished == TodoChecklistEntity.FINISHED
+            holder.todoItemBinding.checkBox2.setOnCheckedChangeListener(itemOnCheckChangeListener)
             holder.todoItemBinding.root.setOnClickListener(holder)
             holder.todoItemBinding.executePendingBindings()
         }
@@ -502,5 +494,8 @@ class TodoFragment : Fragment() {
             }
 
         }
+    }
+    interface TodoFragmentCommunication {
+        fun onDataChanged()
     }
 }

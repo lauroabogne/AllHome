@@ -1,11 +1,8 @@
 package com.example.allhome.data.DAO
 
-import androidx.room.ColumnInfo
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
-import com.example.allhome.data.entities.BillEntity
-import com.example.allhome.data.entities.ExpensesEntity
 import com.example.allhome.data.entities.TodoEntity
 import com.example.allhome.data.entities.TodosWithSubTaskCount
 
@@ -26,13 +23,12 @@ interface TodosDAO {
     fun getTodo(uniqueId:String):TodoEntity
     @Query("SELECT COUNT(*) FROM todos WHERE group_unique_id =:groupUniqueId")
     fun getTodoCountByGroupUniqueId(groupUniqueId:String):Integer
-    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS}")
+    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =DATE(:dueDate) AND item_status =${TodoEntity.NOT_DELETED_STATUS}")
     fun getTodoCountByDate(dueDate:String):Int
-    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS} AND is_finished =${TodoEntity.NOT_FINISHED}")
+    @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND due_date <  DATETIME('now','localtime') AND item_status =${TodoEntity.NOT_DELETED_STATUS} AND is_finished =${TodoEntity.NOT_FINISHED}")
     fun getTodoOverdueCountByDate(dueDate:String):Int
     @Query("SELECT COUNT(*) FROM todos WHERE DATE(due_date) =:dueDate AND item_status =${TodoEntity.NOT_DELETED_STATUS} AND is_finished =${TodoEntity.FINISHED}")
     fun getTodoAccomplishedCountByDate(dueDate:String):Int
-
     @Query("UPDATE todos SET uploaded= ${TodoEntity.NOT_UPLOADED}, item_status =${TodoEntity.DELETED_STATUS} WHERE unique_id=:uniqueId")
     fun updateAsDeleted(uniqueId: String):Int
     @Query("UPDATE todos SET modified=  datetime('now'), uploaded= ${TodoEntity.NOT_UPLOADED}, item_status =${TodoEntity.DELETED_STATUS} " +

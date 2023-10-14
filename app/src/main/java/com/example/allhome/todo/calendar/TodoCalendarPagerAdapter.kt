@@ -1,23 +1,18 @@
 package com.example.allhome.todo.calendar
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
-import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.todo.calendar.views.MonthView
 import com.example.allhome.todo.viewmodel.TodoCalendarViewFragmentViewModel
-import com.example.allhome.todo.viewmodel.TodoCalendarViewFragmentViewModelFactory
-import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
-import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
-import com.example.allhome.utils.NumberUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,7 +71,6 @@ class TodoCalendarPagerAdapter(var viewPagerItemArrayList: Array<TodoMonthPagerI
                 monthView.setYearMonthAndDates( viewPagerItem,dates)
                 val formattedDate = dateFormat.format(viewPagerItem.calendar.time)
                 holder.dateTextView.text = formattedDate
-                holder.totalCostTextView.text = "Total cost : 1000"
 
             }
 
@@ -126,15 +120,24 @@ class TodoCalendarPagerAdapter(var viewPagerItemArrayList: Array<TodoMonthPagerI
         val calendarArray:Array<Array<MonthDate?>>? = Array(MonthView.numberOfColumns) { row ->
             Array(MonthView.numberOfRows) { col ->
                 val date = calendar.time
+
+                //dueDatetime
+                val formattedCDateOfDay = SimpleDateFormat("yyyy-MM-dd").format(date.time)
+                //val formattedStartingDateOfDay = SimpleDateFormat("yyyy-MM-dd").format(date.time)
+                //val formattedEndingDateOfDay = SimpleDateFormat("yyyy-MM-dd 23:59:59").format(date.time)
                 calendar.add(Calendar.DAY_OF_MONTH, 1)
 
                 val isSelectedDateBeforeCurrentDate = date.before(Date())
 
                 //@todo get all todos
-                val todoCountForDate = mTodoCalendarViewFragmentViewModel.getTaskCount(SimpleDateFormat("yyyy-MM-dd").format(date.time))
-                val accomplishedTask = if( !isSelectedDateBeforeCurrentDate) 0 else mTodoCalendarViewFragmentViewModel.getAccomplishedTaskCount(SimpleDateFormat("yyyy-MM-dd").format(date.time))
-                val overdueTask = if(!isSelectedDateBeforeCurrentDate) 0 else mTodoCalendarViewFragmentViewModel.getOverdueTaskCount(SimpleDateFormat("yyyy-MM-dd").format(date.time))
+                val todoCountForDate = mTodoCalendarViewFragmentViewModel.getTaskCount(formattedCDateOfDay)
+                val accomplishedTask =  mTodoCalendarViewFragmentViewModel.getAccomplishedTaskCount(formattedCDateOfDay)
+                val overdueTask = if(!isSelectedDateBeforeCurrentDate) 0 else mTodoCalendarViewFragmentViewModel.getOverdueTaskCount(formattedCDateOfDay)
+
+                Log.e("accomplished","${todoCountForDate} ${accomplishedTask} ${overdueTask} ${formattedCDateOfDay}")
+
                 MonthDate(date, todoCountForDate, accomplishedTask, overdueTask )
+
 
             }
         }
@@ -146,12 +149,12 @@ class TodoCalendarPagerAdapter(var viewPagerItemArrayList: Array<TodoMonthPagerI
 
         var monthView: MonthView
         var dateTextView: TextView
-        var totalCostTextView: TextView
+
 
         init {
             monthView = itemView.findViewById(R.id.monthView)
             dateTextView = itemView.findViewById(R.id.dateTextView)
-            totalCostTextView = itemView.findViewById(R.id.totalCostTextView)
+
 
             monthView.setOnDateSelectedListener(object: MonthView.OnDateSelectedListener{
                 override fun dateSelected(date: Date, monthView: MonthView) {

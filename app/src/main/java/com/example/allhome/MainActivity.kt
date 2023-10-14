@@ -36,15 +36,17 @@ import com.example.allhome.todo.CreateEditTodoFragment
 import com.example.allhome.todo.TodoFragment
 import com.example.allhome.todo.TodoFragmentContainerActivity
 import com.example.allhome.todo.ViewTodoFragment
+import com.example.allhome.todo.calendar.TodoCalendarViewFragment
 import com.example.allhome.utils.CustomAlarmManager
 import org.joda.time.DateTime
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var appBarConfiguration: AppBarConfiguration
     lateinit var drawerLayout: DrawerLayout
-    var selectedDrawerItem = R.id.nav_grocery_list
+    var selectedDrawerItem = R.id.nav_todo
 
     companion object {
         const val REQUEST_POST_PERMISSIONS_CODE = 1161986
@@ -60,7 +62,7 @@ class MainActivity : AppCompatActivity() {
         //show menu icon on action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         drawerLayout = findViewById(R.id.drawer_layout)
-        // for drawerlayout
+        // for drawer layout
         val drawerToggle = object : ActionBarDrawerToggle(this, drawerLayout, R.string.navigation_drawer_open, R.string.navigation_drawer_close) {
             override fun onDrawerClosed(drawerView: View) {
                 super.onDrawerClosed(drawerView)
@@ -87,24 +89,11 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     R.id.nav_meal_planner -> {
-
-
-                        //fragmentProcessor(MealPlannerFragment.newInstance("", ""))
                         fragmentProcessor(com.example.allhome.meal_planner_v2.MealPlannerFragment.newInstance("", ""))
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                     R.id.nav_bills -> {
-//                        fragmentProcessor(BillsFragment.newInstance("", ""))
-//                        drawerLayout.closeDrawer(GravityCompat.START)
-
-
-
-                        if(!isAlarmActive()){
-                            createAlarm()
-                            Toast.makeText(this@MainActivity,"Alarm is not active", Toast.LENGTH_SHORT).show()
-                        }else{
-                            Toast.makeText(this@MainActivity,"Alarm is already active", Toast.LENGTH_SHORT).show()
-                        }
+                        fragmentProcessor(BillsFragment.newInstance("", ""))
 
                     }
                     R.id.nav_expenses_summary -> {
@@ -112,8 +101,12 @@ class MainActivity : AppCompatActivity() {
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                     R.id.nav_todo -> {
+                        //val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+                        //val stringDate = dateFormat.format(Date().time)
+                        //fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, stringDate))
 
-                        fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, ""))
+                        fragmentProcessor(TodoCalendarViewFragment())
+
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                 }
@@ -160,19 +153,14 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
                 else -> {
-                    fragmentProcessor(GroceryListFragment())
+                    fragmentProcessor(TodoCalendarViewFragment())
                 }
             }
-        }?:run{
         }
-
         requestPostNotificationsPermission()
 
         if(!isAlarmActive()){
             createAlarm()
-            Toast.makeText(this,"Alarm is not active", Toast.LENGTH_SHORT).show()
-        }else{
-            Toast.makeText(this,"Alarm is already active", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -181,7 +169,6 @@ class MainActivity : AppCompatActivity() {
             replace(R.id.home_fragment_container,fragment)
             commit()
         }
-
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -193,19 +180,14 @@ class MainActivity : AppCompatActivity() {
                 fragmentProcessor(GroceryListFragment())
             }
             R.id.grocery_list_trash_menu->{
-
                 fragmentProcessor(TrashGroceryListFragment())
-
-
             }
         }
-
         return super.onOptionsItemSelected(item)
     }
 
     override fun onNewIntent(intent: Intent?) {
         super.onNewIntent(intent)
-
 
         /**
          * @see NotificationReceiver
@@ -239,8 +221,6 @@ class MainActivity : AppCompatActivity() {
 
 
     }
-
-
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
 
@@ -252,7 +232,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
     }
-
     private fun requestPostNotificationsPermission() {
         val permission = POST_NOTIFICATIONS
 
@@ -267,7 +246,6 @@ class MainActivity : AppCompatActivity() {
         // Request the permission
         ActivityCompat.requestPermissions(this, arrayOf(permission), REQUEST_POST_PERMISSIONS_CODE)
     }
-
     private fun isAlarmActive(): Boolean {
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
         intent.apply {
@@ -275,7 +253,6 @@ class MainActivity : AppCompatActivity() {
         }
         return CustomAlarmManager.isAlarmActive(this,NotificationReceiver.NOTIFICATION_REQUEST_CODE,intent)
     }
-
     private fun createAlarm(){
         val alarmDateTimeMilli = DateTime.now().plusSeconds(1).millis
         val intent = Intent(applicationContext, NotificationReceiver::class.java)
@@ -287,7 +264,6 @@ class MainActivity : AppCompatActivity() {
         CustomAlarmManager.createAlarm(this,NotificationReceiver.NOTIFICATION_REQUEST_CODE,intent,alarmDateTimeMilli)
 
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 

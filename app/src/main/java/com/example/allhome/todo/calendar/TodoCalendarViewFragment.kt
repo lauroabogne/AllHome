@@ -1,34 +1,26 @@
 package com.example.allhome.todo.calendar
 
 import android.app.Activity
-import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.databinding.DataBindingUtil
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.get
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentTodoCalendarViewBinding
-import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.todo.TodoFragment
 import com.example.allhome.todo.TodoFragmentContainerActivity
 import com.example.allhome.todo.viewmodel.TodoCalendarViewFragmentViewModel
 import com.example.allhome.todo.viewmodel.TodoCalendarViewFragmentViewModelFactory
-import com.example.allhome.todo.viewmodel.TodoFragmentViewModel
-import com.example.allhome.todo.viewmodel.TodoFragmentViewModelFactory
-import com.example.simplecalendar.calendar.CalendarPagerAdapter
-import com.example.simplecalendar.calendar.MonthPagerItem
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -36,12 +28,12 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 
-class TodoCalendarViewFragment : Fragment() {
+class TodoCalendarViewFragment : Fragment(),TodoFragment.TodoFragmentCommunication {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private val numberOfMonths: Int = 151
+   // private val numberOfMonths: Int = 151
     var todoCalendarViewPager: ViewPager2? = null
 
 
@@ -80,10 +72,11 @@ class TodoCalendarViewFragment : Fragment() {
         calendarPagerAdapter.setItemDateSelectedListener(object: TodoCalendarPagerAdapter.ItemDateSelectedListener{
             override fun onDateSelected(date: Date, position: Int) {
 
-                val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
-                intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG, TodoFragmentContainerActivity.VIEW_TODO_LIST_FRAGMENT)
-                intent.putExtra(TodoFragment.SELECTED_DATE_TAG,SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(date))
-                viewTodoListResultContract.launch(intent)
+                val todoMonthPagerItem = (todoCalendarViewPager!!.adapter as TodoCalendarPagerAdapter).viewPagerItemArrayList[position]
+                todoMonthPagerItem.selectedDate = date
+               // displayTaskInListView(position)
+                showListOfTodo(date)
+
 
             }
 
@@ -92,32 +85,47 @@ class TodoCalendarViewFragment : Fragment() {
         todoCalendarViewPager!!.adapter = calendarPagerAdapter
         todoCalendarViewPager!!.clipToPadding = false
         todoCalendarViewPager!!.clipChildren = false
-        todoCalendarViewPager!!.offscreenPageLimit = 1
-        todoCalendarViewPager!!.setCurrentItem(74, false)
+        todoCalendarViewPager!!.offscreenPageLimit = OFF_SCREEN_PAGE_LIMIT
+
 
         todoCalendarViewPager!!.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                Log.e("Position selected","${position} ${ todoCalendarViewPager!!.currentItem}")
-                val monthView: TodoMonthPagerItem = monthPagerItems.get(position)
-                Log.e("Position selected","${ todoCalendarViewPager!!.getChildAt(0)}")
+                super.onPageSelected(position)
+                todoCalendarViewPager!!.postDelayed({
+                    //displayTaskInListView(position)
+                    val todoMonthPagerItem = (todoCalendarViewPager!!.adapter as TodoCalendarPagerAdapter).viewPagerItemArrayList[position]
+                    showListOfTodo(todoMonthPagerItem.selectedDate)
+                },500)
             }
         })
-
+        todoCalendarViewPager!!.setCurrentItem(DEFAULT_POSITION, false)
 
         return mFragmentTodoCalendarViewBinding.root
+    }
+
+    private fun showListOfTodo(date: Date){
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+        val formattedDate = dateFormat.format(date.time)
+
+        TodoFragment.newInstance(TodoFragment.OTHER_ACTIVITY, formattedDate)
+
+        childFragmentManager
+            .beginTransaction()
+            .replace(R.id.listViewTaskContainer,  TodoFragment.newInstance(TodoFragment.OTHER_ACTIVITY, formattedDate,TodoFragment.CALENDAR_VIEW))
+            .commit();
     }
 
     private fun generateMonthPagerItems(): Array<TodoMonthPagerItem> {
 
         val calendar = Calendar.getInstance()
         // subtract 75 months to get the starting month
-        calendar.add(Calendar.MONTH, -(numberOfMonths/2))
+        calendar.add(Calendar.MONTH, -(NUMBER_OF_MONTHS/2))
 
 
-        val monthPagerItems = Array(numberOfMonths) { i ->
+        val monthPagerItems = Array(NUMBER_OF_MONTHS) { i ->
             calendar.add(Calendar.MONTH, 1)
             val month = calendar.clone() as Calendar
-            TodoMonthPagerItem(month)
+            TodoMonthPagerItem(month,month.time)
 
         }
 
@@ -126,17 +134,11 @@ class TodoCalendarViewFragment : Fragment() {
         return monthPagerItems
 
     }
-
     companion object {
-        /**
-         * Use this factory method to create a new instance of
-         * this fragment using the provided parameters.
-         *
-         * @param param1 Parameter 1.
-         * @param param2 Parameter 2.
-         * @return A new instance of fragment TodoCalendarViewFragment.
-         */
-        // TODO: Rename and change types and number of parameters
+
+        const val  NUMBER_OF_MONTHS = 151
+        const val OFF_SCREEN_PAGE_LIMIT = 1
+        const val DEFAULT_POSITION = 74
         @JvmStatic fun newInstance(param1: String, param2: String) =
             TodoCalendarViewFragment().apply {
                 arguments = Bundle().apply {
@@ -145,4 +147,11 @@ class TodoCalendarViewFragment : Fragment() {
                 }
             }
     }
+
+    override fun onDataChanged() {
+        todoCalendarViewPager!!.adapter?.notifyDataSetChanged()
+
+    }
+
+
 }
