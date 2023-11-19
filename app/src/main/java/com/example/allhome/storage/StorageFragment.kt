@@ -240,6 +240,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
            data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
                displayItemForInserting(it)
+
            }
         }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_STORAGE_REQUEST_CODE){
             data?.getParcelableExtra<StorageEntity>(STORAGE_ENTITY_TAG)?.let {
@@ -404,6 +405,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
                 }
 
+                showOrHideNoStorageTextView()
                 Handler(Looper.getMainLooper()).postDelayed({
                     animateElement(newItemIndex, -1)
 
@@ -543,6 +545,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                     (mDataBindingUtil.storageStorageRecyclerview.adapter as StorageViewForTransferingItemsAdapter).notifyDataSetChanged()
                 }
 
+                showOrHideNoStorageTextView()
 
             }
         }
@@ -554,6 +557,8 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             withContext(Main){
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStoragesInnerScope
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
+                showOrHideNoItemTextView()
+
             }
         }
     }
@@ -569,6 +574,23 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).mStorageEntitiesWithExpirationsAndStorages = storageEntitiesWithExpirationsAndStoragesInnerScope
                 (mDataBindingUtil.storageStorageRecyclerview.adapter as StoragePerItemRecyclerviewViewAdapater).notifyDataSetChanged()
             }
+        }
+    }
+    private fun showOrHideNoStorageTextView(){
+        if(mStorageViewModel.storageEntitiesWithExtraInformation.isEmpty()){
+            mDataBindingUtil.noStorageOrItemTextView.visibility = View.VISIBLE
+            mDataBindingUtil.noStorageOrItemTextView.text = "No Storage"
+        }else{
+            mDataBindingUtil.noStorageOrItemTextView.visibility = View.GONE
+        }
+    }
+
+    private fun showOrHideNoItemTextView(){
+        if(mStorageViewModel.storageEntitiesWithExpirationsAndStorages.isEmpty()){
+            mDataBindingUtil.noStorageOrItemTextView.visibility = View.VISIBLE
+            mDataBindingUtil.noStorageOrItemTextView.text = "No Items"
+        }else{
+            mDataBindingUtil.noStorageOrItemTextView.visibility = View.GONE
         }
     }
     private fun showFilterByQuantityPopup(){
@@ -1483,6 +1505,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
             withContext(Main){
                 mDataBindingUtil.storageStorageRecyclerview.adapter?.notifyItemRemoved(index)
+                showOrHideNoStorageTextView()
 
             }
 
@@ -1644,6 +1667,7 @@ class StorageViewAdapter(val storageFragment: StorageFragment): RecyclerView.Ada
                             R.id.deleteStorageMenu -> {
 
                                 storageFragment.deleteStorage(storageEntityWithExpirations)
+
 
 
                             }

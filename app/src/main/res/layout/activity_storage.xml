@@ -91,6 +91,15 @@
         android:visibility="invisible"
         android:background="#80000000"
         android:contentDescription="The zoom"/>
+    <TextView
+        android:id="@+id/noItemTextView"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="No item"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:visibility="gone" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

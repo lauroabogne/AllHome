@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.view.*
 import android.widget.CheckBox
 import android.widget.CompoundButton
+import android.widget.Toast
 import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
 import androidx.core.content.res.ResourcesCompat
@@ -295,7 +296,7 @@ class GroceryItemRecyclerViewAdapter(private val contextParams: Context, private
                             notifyDataSetChanged()
                             //notifyItemRangeChanged(adapterPosition, singleGroceryListActivity.mGroceryListViewModel.selectedGroceryListItemList.size)
 
-
+                            mSingleGroceryListActivity.hideOrShowGroceryNoItemTextView()
                         }
                     }
 

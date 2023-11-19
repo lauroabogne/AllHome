@@ -55,34 +55,98 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
     }
 
     private val openRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
-
         if(activityResult.resultCode == Activity.RESULT_OK){
+            val activityResultAction = activityResult.data?.getIntExtra(AddRecipeActivity.ACTION_TAG,0)
+            if(activityResultAction == AddRecipeActivity.EDIT_ACTION){
+                activityResult.data?.let {
+                    it.getParcelableExtra<RecipeEntity>(ViewRecipeFragment.RECIPE_INTENT_TAG)?.let{recipeEntity->
 
-            activityResult.data?.let {
-               it.getParcelableExtra<RecipeEntity>(ViewRecipeFragment.RECIPE_INTENT_TAG)?.let{recipeEntity->
+                        if(mFragmentRecipesBinding.recipesRecyclerview.adapter is RecipesRecyclerviewViewAdapter){
 
-                   val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapter
-                   val recipeEntitiesWithTotalIngredient = adapter.mRecipeStepEntities
+                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewAdapter
+                            val recipeEntitiesWithTotalIngredient = adapter.mRecipeStepEntities
 
-                   mRecipesFragmentViewModel.mCoroutineScope.launch {
-                       val recipeEntityWithTotalIngredient = mRecipesFragmentViewModel.getRecipe(requireContext(),recipeEntity.uniqueId)
-                       val index = recipeEntitiesWithTotalIngredient.indexOfFirst {
-                           it.recipeEntity.uniqueId == recipeEntityWithTotalIngredient.recipeEntity.uniqueId
+                            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                                val recipeEntityWithTotalIngredient = mRecipesFragmentViewModel.getRecipe(requireContext(),recipeEntity.uniqueId)
+                                val index = recipeEntitiesWithTotalIngredient.indexOfFirst {
+                                    it.recipeEntity.uniqueId == recipeEntityWithTotalIngredient.recipeEntity.uniqueId
+                                }
+                                if(index >=0){
+                                    recipeEntitiesWithTotalIngredient.set(index,recipeEntityWithTotalIngredient)
+                                }
+                                withContext(Main){
+                                    adapter.notifyItemChanged(index)
+                                }
+
+                            }
+                        }else{
+
+                            val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewGridAdapter
+                            val recipeEntitiesWithTotalIngredient = adapter.mRecipeStepEntities
+
+                            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                                val recipeEntityWithTotalIngredient = mRecipesFragmentViewModel.getRecipe(requireContext(),recipeEntity.uniqueId)
+                                val index = recipeEntitiesWithTotalIngredient.indexOfFirst {
+                                    it.recipeEntity.uniqueId == recipeEntityWithTotalIngredient.recipeEntity.uniqueId
+                                }
+                                if(index >=0){
+                                    recipeEntitiesWithTotalIngredient.set(index,recipeEntityWithTotalIngredient)
+                                }
+                                withContext(Main){
+                                    adapter.notifyItemChanged(index)
+                                }
+
+                            }
+
                         }
-                        if(index >=0){
-                          recipeEntitiesWithTotalIngredient.set(index,recipeEntityWithTotalIngredient)
-                        }
-                       withContext(Main){
-                           adapter.notifyItemChanged(index)
-                       }
 
-                   }
-               }
+                    }
 
+                }
+            }else{
+                val searchQuery = mSearchView?.query.toString()
+                mRecipesFragmentViewModel.mCoroutineScope.launch {
+                    val searchResult = getSearchItems(searchQuery)
+                    withContext(Main){
+                        setUpRecyclierView(searchResult)
+
+                        mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
+                    }
+                }
             }
+
 
         }
     }
+
+    private val addRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+
+            val searchQuery = mSearchView?.query.toString()
+            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                val searchResult = getSearchItems(searchQuery)
+                withContext(Main){
+                    setUpRecyclierView(searchResult)
+                    mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
+                }
+            }
+        }
+    }
+    private val webBrowseRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+
+            val searchQuery = mSearchView?.query.toString()
+            mRecipesFragmentViewModel.mCoroutineScope.launch {
+                val searchResult = getSearchItems(searchQuery)
+                withContext(Main){
+                    setUpRecyclierView(searchResult)
+                    mFragmentRecipesBinding.swipeRefresh.isRefreshing = false
+                }
+            }
+        }
+    }
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -112,10 +176,11 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
             }
         }
 
-        mFragmentRecipesBinding.fab.setOnClickListener {
+        mFragmentRecipesBinding.addRecipeFab.setOnClickListener {
 
             val intent = Intent(requireContext(),AddRecipeActivity::class.java)
-            startActivity(intent)
+            addRecipeContract.launch(intent)
+
         }
 
 
@@ -133,7 +198,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
         }
 
         if(action == ADDING_MEAL_VIEWING){
-            mFragmentRecipesBinding.fab.visibility = View.GONE
+            mFragmentRecipesBinding.addRecipeFab.visibility = View.GONE
         }
 
         mFragmentRecipesBinding.toggleViewMoreButton.setOnClickListener {
@@ -234,6 +299,12 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
             val adapter = mFragmentRecipesBinding.recipesRecyclerview.adapter as RecipesRecyclerviewViewGridAdapter
             adapter.mRecipeStepEntities = recipeEntityWithTotalIngredients as ArrayList<RecipeEntityWithTotalIngredient>
             adapter.notifyDataSetChanged()
+        }
+
+        if(recipeEntityWithTotalIngredients.isEmpty()){
+            mFragmentRecipesBinding.noRecipeTextView.visibility = View.VISIBLE
+        }else{
+            mFragmentRecipesBinding.noRecipeTextView.visibility = View.GONE
         }
     }
 
@@ -338,7 +409,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
             R.id.browseRecipe->{
 
                 val webBrowseRecipeActivity = Intent(view?.context, WebBrowseRecipeActivity::class.java)
-                view?.context?.startActivity(webBrowseRecipeActivity)
+                webBrowseRecipeContract.launch(webBrowseRecipeActivity)
             }
 
         }

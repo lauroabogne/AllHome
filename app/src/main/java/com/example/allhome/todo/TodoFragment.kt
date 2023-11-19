@@ -20,6 +20,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.viewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.allhome.AllHomeBaseApplication
+import com.example.allhome.MainActivity
 import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
 import com.example.allhome.data.entities.TodoEntity
@@ -93,6 +94,7 @@ class TodoFragment : Fragment() {
         super.onCreate(savedInstanceState)
         setHasOptionsMenu(true)
         requireActivity().title = "To Do List"
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View?
@@ -100,29 +102,36 @@ class TodoFragment : Fragment() {
 
         mFragmentTodoBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo,null,false)
         parentActivity = arguments?.getInt(PARENT_ACTIVITY_TAG)!!
-        viewing = arguments!!.getInt(PARENT_ACTIVITY_TAG)
+        viewing = arguments!!.getInt(VIEWING_TAG)
 
-        if(parentActivity == OTHER_ACTIVITY){
+//        if(parentActivity == OTHER_ACTIVITY){
+//
+//            val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
+//            toolbar.visibility = View.VISIBLE
+//
+//            val activity = requireActivity() as AppCompatActivity
+//            activity.setSupportActionBar(toolbar)
+//            //show menu icon on action bar
+//            activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//
+//
+//            val selectedDateString = arguments?.getString(SELECTED_DATE_TAG)
+//            selectedDate = SimpleDateFormat("yyyy-MM-dd").parse(selectedDateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
+//
+//            getTodos()
+//
+//            selectedFilter = R.id.todoCustomDate
+//            setTodDateLabel()
+//
+//        }
 
-            val toolbar = requireActivity().findViewById<Toolbar>(R.id.toolbar)
-            toolbar.visibility = View.VISIBLE
+        val selectedDateString = arguments?.getString(SELECTED_DATE_TAG)
+        selectedDate = SimpleDateFormat("yyyy-MM-dd").parse(selectedDateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
 
-            val activity = requireActivity() as AppCompatActivity
-            activity.setSupportActionBar(toolbar)
-            //show menu icon on action bar
-            activity.supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        getTodos()
 
-
-            val selectedDateString = arguments?.getString(SELECTED_DATE_TAG)
-            selectedDate = SimpleDateFormat("yyyy-MM-dd").parse(selectedDateString).toInstant().atZone(ZoneId.systemDefault()).toLocalDate()
-
-            getTodos()
-
-            selectedFilter = R.id.todoCustomDate
-            setTodDateLabel()
-
-        }
-
+        selectedFilter = R.id.todoCustomDate
+        setTodDateLabel()
 
         //val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
         //mFragmentTodoBinding.todoListRecyclerview.addItemDecoration(decorator)
@@ -163,7 +172,7 @@ class TodoFragment : Fragment() {
             todoListRecyclerviewViewAdapter.notifyDataSetChanged()
 
             setTodDateLabel()
-
+            hideOrShowGroceryNoItemTextView()
 
         }
 
@@ -176,11 +185,13 @@ class TodoFragment : Fragment() {
         getTodos()
         return mFragmentTodoBinding.root
     }
+    private fun hideOrShowGroceryNoItemTextView(){
+        if(mTodoFragmentViewModel.mTodoEntities.isEmpty()){
+            mFragmentTodoBinding.noTodoTextView.visibility = View.VISIBLE
+        }else{
+            mFragmentTodoBinding.noTodoTextView.visibility = View.GONE
+        }
 
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.e("parent","${parentFragment}")
     }
     private fun triggerNotificationTest(){
         /**
@@ -278,6 +289,8 @@ class TodoFragment : Fragment() {
 
         val todoListViewMenu = menu.findItem(R.id.todoListViewMenu)
         val todoCalendarViewMenu = menu.findItem(R.id.todoCalendarViewMenu)
+
+        Log.e("VIEWING","${viewing}")
 
         if(viewing == CALENDAR_VIEW){
             todoListViewMenu.isVisible = true
@@ -433,6 +446,7 @@ class TodoFragment : Fragment() {
         const val RELOAD_ACTION_TAG = 1
         @JvmStatic fun newInstance(parentActivity : Int = MAIN_ACTIVITY , selectedDateString: String, viewing : Int = LIST_VIEW) =
             TodoFragment().apply {
+                Log.e("viewing","the viewing ${viewing}")
                 arguments = Bundle().apply {
                     putInt(PARENT_ACTIVITY_TAG, parentActivity)
                     putString(SELECTED_DATE_TAG, selectedDateString)

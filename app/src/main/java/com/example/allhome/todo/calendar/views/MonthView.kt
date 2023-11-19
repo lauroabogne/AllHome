@@ -162,9 +162,9 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
                         textPaint.color = getContrastColor(getThemePrimaryColor())
                     }else{
                         if(doDateIsSaturdayOrSunday){
-                            textPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(weekendTextColor,0.3f)  else weekendTextColor
+                            textPaint.color = if(isDateNotInSelectedMonth) weekendTextColor else adjustOpacity(weekendTextColor,0.3f)
                         }else{
-                            textPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorBlack,0.3f) else textColorBlack
+                            textPaint.color = if(isDateNotInSelectedMonth)  textColorBlack else adjustOpacity(textColorBlack,0.3f)
                         }
 
                     }
@@ -241,14 +241,14 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
 
     }
     private fun doDateNotInSelectedMonth(date: Date, year: Int, month: Int): Boolean {
-        val selectedCalendarDate = Calendar.getInstance()
-        selectedCalendarDate.set(Calendar.YEAR, year) // set year to 2023
-        selectedCalendarDate.set(Calendar.MONTH, month) // set month to May (0-based index)
+//        val selectedCalendarDate = Calendar.getInstance()
+//        selectedCalendarDate.set(Calendar.YEAR, year) // set year to 2023
+//        selectedCalendarDate.set(Calendar.MONTH, month) // set month to May (0-based index)
 
         val calendarParams = Calendar.getInstance()
         calendarParams.time = date
-        return calendarParams.get(Calendar.MONTH) != selectedCalendarDate.get(Calendar.MONTH) ||
-                calendarParams.get(Calendar.YEAR) != selectedCalendarDate.get(Calendar.YEAR)
+        return calendarParams.get(Calendar.MONTH) == month &&
+                calendarParams.get(Calendar.YEAR) == year
     }
     private fun drawWeekLetters(canvas: Canvas) {
         for (i in 0 until 7) {
@@ -337,50 +337,62 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
         }
 
         val startingXOfText = startX  + (dayWidth /  2 )
-        val remainingTodoCount = todoCount - (accomplishedTaskCount+ overdueTaskCount)
+        val remainingTodoCount = todoCount - (accomplishedTaskCount + overdueTaskCount)
 
 
         if(isFastDate){
 
             if(accomplishedTaskCount >0 && overdueTaskCount > 0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorGreen,0.3f) else textColorGreen
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorGreen else adjustOpacity(textColorGreen,0.3f)
                 canvas.drawText("$accomplishedTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
 
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorRed,0.3f) else textColorRed
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorRed else adjustOpacity(textColorRed,0.3f)
                 canvas.drawText("$overdueTaskCount task", startingXOfText , startY + (dayHeight * .8f )+20, todoTextPaint)
 
             }else if(accomplishedTaskCount >0 && overdueTaskCount <= 0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorGreen,0.3f) else textColorGreen
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorGreen else adjustOpacity(textColorGreen,0.3f)
                 canvas.drawText("$accomplishedTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
             }else if(accomplishedTaskCount <=0 && overdueTaskCount > 0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorRed,0.3f) else textColorRed
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorRed else adjustOpacity(textColorRed,0.3f)
                 canvas.drawText("$overdueTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
             }
 
         }else{
 
             if(accomplishedTaskCount >0 && overdueTaskCount > 0 && remainingTodoCount > 0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorGreen,0.3f) else textColorGreen
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorGreen else adjustOpacity(textColorGreen,0.3f)
                 canvas.drawText("$accomplishedTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
 
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorRed,0.3f) else textColorRed
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorRed else adjustOpacity(textColorRed,0.3f)
                 canvas.drawText("${overdueTaskCount} task", startingXOfText , startY + (dayHeight * .8f )+20, todoTextPaint)
 
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorBlack,0.3f) else textColorBlack
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorBlack else adjustOpacity(textColorBlack,0.3f)
                 canvas.drawText("${remainingTodoCount} task", startingXOfText , startY + (dayHeight * .8f )+40, todoTextPaint)
 
             }else if(accomplishedTaskCount >0 && ( todoCount - accomplishedTaskCount) <=0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorGreen,0.3f) else textColorGreen
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorGreen else adjustOpacity(textColorGreen,0.3f)
                 canvas.drawText("$accomplishedTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
             }else if(accomplishedTaskCount >0 && (todoCount - accomplishedTaskCount) > 0 ){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorGreen,0.3f) else textColorGreen
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorGreen else adjustOpacity(textColorGreen,0.3f)
                 canvas.drawText("$accomplishedTaskCount task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
 
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorBlack,0.3f) else textColorBlack
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorBlack else adjustOpacity(textColorBlack,0.3f)
                 canvas.drawText("${todoCount - accomplishedTaskCount } task", startingXOfText , startY + (dayHeight * .8f )+20, todoTextPaint)
-            }else if(accomplishedTaskCount <=0 && (todoCount - accomplishedTaskCount) > 0){
-                todoTextPaint.color = if(isDateNotInSelectedMonth) adjustOpacity(textColorBlack,0.3f) else textColorBlack
+            }else if(accomplishedTaskCount <=0 && (todoCount - accomplishedTaskCount) > 0 && overdueTaskCount <=0){
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorBlack else adjustOpacity(textColorBlack,0.3f)
                 canvas.drawText("${todoCount} task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
+            }else if(remainingTodoCount > 0 && overdueTaskCount > 0 ){
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorRed else adjustOpacity(textColorRed,0.3f)
+                canvas.drawText("${overdueTaskCount} task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
+
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorBlack else adjustOpacity(textColorBlack,0.3f)
+                canvas.drawText("${remainingTodoCount } task", startingXOfText , startY + (dayHeight * .8f ) + 20, todoTextPaint)
+
+            }else if(remainingTodoCount <= 0 && overdueTaskCount > 0 ){
+                todoTextPaint.color = if(isDateNotInSelectedMonth)  textColorRed else adjustOpacity(textColorRed,0.3f)
+                canvas.drawText("${overdueTaskCount} task", startingXOfText , startY + (dayHeight * .8f ), todoTextPaint)
+
+
             }
 
         }

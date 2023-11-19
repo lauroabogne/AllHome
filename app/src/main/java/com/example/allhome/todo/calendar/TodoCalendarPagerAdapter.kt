@@ -134,7 +134,7 @@ class TodoCalendarPagerAdapter(var viewPagerItemArrayList: Array<TodoMonthPagerI
                 val accomplishedTask =  mTodoCalendarViewFragmentViewModel.getAccomplishedTaskCount(formattedCDateOfDay)
                 val overdueTask = if(!isSelectedDateBeforeCurrentDate) 0 else mTodoCalendarViewFragmentViewModel.getOverdueTaskCount(formattedCDateOfDay)
 
-                Log.e("accomplished","${todoCountForDate} ${accomplishedTask} ${overdueTask} ${formattedCDateOfDay}")
+
 
                 MonthDate(date, todoCountForDate, accomplishedTask, overdueTask )
 

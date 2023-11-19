@@ -1,5 +1,6 @@
 package com.example.allhome.recipes
 
+import android.app.Activity
 import android.app.DownloadManager
 import android.content.Context.DOWNLOAD_SERVICE
 import android.content.Intent
@@ -17,6 +18,8 @@ import android.webkit.WebView.RENDERER_PRIORITY_BOUND
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat.getSystemService
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
@@ -62,6 +65,15 @@ class BrowseRecipeFragment : Fragment() {
     var mIngredients = arrayListOf<IngredientEntity>()
     var mRecipeStepEntities = arrayListOf<RecipeStepEntity>()
     var mProgressDialogFragment:ProgressDialogFragment = ProgressDialogFragment()
+    var mHasSavedRecipe = false
+
+
+
+    private val addRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
+        if(activityResult.resultCode == Activity.RESULT_OK){
+            mHasSavedRecipe = true
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,8 +89,6 @@ class BrowseRecipeFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
-
-
         mFragmentBrowseRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_browse_recipe, container, false)
         mFragmentBrowseRecipeBinding.progressBar.max = 100
         mFragmentBrowseRecipeBinding.parseButton.setOnClickListener {
@@ -88,6 +98,10 @@ class BrowseRecipeFragment : Fragment() {
         toolBar.title = "Browse recipe"
         toolBar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
         toolBar.setNavigationOnClickListener {
+
+            if(mHasSavedRecipe){
+                activity?.setResult(Activity.RESULT_OK)
+            }
             activity?.finish()
         }
 
@@ -113,6 +127,9 @@ class BrowseRecipeFragment : Fragment() {
                 if(mFragmentBrowseRecipeBinding.webview.canGoBack()){
                     mFragmentBrowseRecipeBinding.webview.goBack()
                     return
+                }
+                if(mHasSavedRecipe){
+                    activity?.setResult(Activity.RESULT_OK)
                 }
                 activity?.finish()
 
@@ -455,11 +472,7 @@ class BrowseRecipeFragment : Fragment() {
 
     }
     suspend fun parseDataForMicroData(microDataFormatElement: Element){
-
         createRecipeEntityFromMicroDataFormat(microDataFormatElement)
-
-
-
     }
     suspend fun createRecipeEntityFromMicroDataFormat(microDataFormatElement: Element){
         //val recipeName = microDataFormatElement.selectFirst("[itemprop=name]")
@@ -784,7 +797,7 @@ class BrowseRecipeFragment : Fragment() {
                 intent.putExtra(AddRecipeActivity.RECIPE_TAG,recipe)
                 intent.putParcelableArrayListExtra(AddRecipeActivity.INGREDIENTS_TAG,ingredientsArrayList)
                 intent.putParcelableArrayListExtra(AddRecipeActivity.STEPS_TAG,recipeStepsArrayList)
-                startActivity(intent)
+                addRecipeContract.launch(intent)
             }
 
 

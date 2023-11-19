@@ -1,20 +1,15 @@
 package com.example.allhome.grocerylist.viewmodel
 
 import android.content.Context
-import android.net.Uri
-import android.util.Log
-import androidx.databinding.Bindable
 import androidx.lifecycle.*
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.GroceryItemEntity
-import com.example.allhome.data.entities.GroceryItemEntityValues
 import com.example.allhome.data.entities.GroceryListEntity
-import com.example.allhome.data.entities.GroceryListWithItemCount
 import kotlinx.coroutines.CoroutineName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 
-class TrashGroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, groceryItemParams: GroceryItemEntity?) : ViewModel() {
+class ArchivedGroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, groceryItemParams: GroceryItemEntity?) : ViewModel() {
 
     val coroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("TrashGroceryListViewModel"))
 

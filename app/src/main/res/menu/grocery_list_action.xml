@@ -20,6 +20,6 @@
         android:id="@+id/duplicate_menu"
         android:title="Duplicate" />
     <item
-        android:id="@+id/delete_menu"
-        android:title="Delete" />
+        android:id="@+id/move_to_archive"
+        android:title="Move to archive" />
 </menu>

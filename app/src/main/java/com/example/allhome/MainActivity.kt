@@ -1,15 +1,9 @@
 package com.example.allhome
 
 import android.Manifest.permission.POST_NOTIFICATIONS
-import android.app.AlarmManager
-import android.app.PendingIntent
-import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.os.PersistableBundle
 import android.util.Log
 import android.view.MenuItem
 import android.view.View
@@ -29,7 +23,7 @@ import com.example.allhome.expenses.ExpensesFragment
 import com.example.allhome.grocerylist.AddGroceryListItemFragment
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
-import com.example.allhome.grocerylist.trash_grocery_list.TrashGroceryListFragment
+import com.example.allhome.grocerylist.archived_grocery_list.TrashGroceryListFragment
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.todo.CreateEditTodoFragment
@@ -101,9 +95,9 @@ class MainActivity : AppCompatActivity() {
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
                     R.id.nav_todo -> {
-                        //val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
-                        //val stringDate = dateFormat.format(Date().time)
-                        //fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, stringDate))
+//                        val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+//                        val stringDate = dateFormat.format(Date().time)
+//                        fragmentProcessor(TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, stringDate))
 
                         fragmentProcessor(TodoCalendarViewFragment())
 
@@ -175,12 +169,6 @@ class MainActivity : AppCompatActivity() {
         when(item.itemId){
             android.R.id.home->{
                 drawerLayout.openDrawer(GravityCompat.START)
-            }
-            R.id.grocery_list_menu->{
-                fragmentProcessor(GroceryListFragment())
-            }
-            R.id.grocery_list_trash_menu->{
-                fragmentProcessor(TrashGroceryListFragment())
             }
         }
         return super.onOptionsItemSelected(item)
@@ -264,13 +252,5 @@ class MainActivity : AppCompatActivity() {
         CustomAlarmManager.createAlarm(this,NotificationReceiver.NOTIFICATION_REQUEST_CODE,intent,alarmDateTimeMilli)
 
     }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-
-        Log.e("RESULT","RECEIVED")
-
-    }
-
-
 
 }

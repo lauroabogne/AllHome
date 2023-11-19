@@ -154,7 +154,8 @@ class RecipesFragmentViewModel : ViewModel() {
                 "  WHERE " +
                 " ${RecipeEntity.COLUMN_NAME} LIKE ? AND " +
                 " ${RecipeEntity.TABLE_NAME}.${RecipeEntity.COLUMN_UNIQUE_ID} IN " +
-                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)";
+                " (SELECT ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_UNIQUE_ID}  FROM ${RecipeCategoryAssignmentEntity.TABLE_NAME} WHERE ${RecipeCategoryAssignmentEntity.COLUMN_RECIPE_CATEGORY_UNIQUE_ID} = ? AND ${RecipeCategoryAssignmentEntity.COLUMN_STATUS}  = 0)" +
+                " ORDER BY ${RecipeEntity.COLUMN_NAME}";
 
         return query
 

@@ -3,7 +3,6 @@ package com.example.allhome.recipes
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -18,7 +17,6 @@ import com.example.allhome.R
 import com.example.allhome.data.entities.RecipeCategoryEntity
 import com.example.allhome.data.entities.RecipeEntity
 import com.example.allhome.databinding.FragmentViewRecipeBinding
-import com.example.allhome.global_ui.CustomMessageDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.google.android.material.tabs.TabLayout
 import kotlinx.coroutines.Dispatchers.Main
@@ -38,7 +36,7 @@ class ViewRecipeFragment : Fragment() {
     lateinit var mRecipesFragmentViewModel: RecipesFragmentViewModel
 
     val mFragmentList = arrayListOf<Fragment>()
-    var mGroceryListEdited =false
+    var mRecipeEdited =false
 
     private val editRecipeContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
@@ -54,8 +52,7 @@ class ViewRecipeFragment : Fragment() {
 
                     val adapter = ViewPagerFragmentAdapter(mFragmentList,requireActivity().supportFragmentManager,lifecycle)
                     mFragmentViewRecipeBinding.viewPager.adapter = adapter
-
-                    mGroceryListEdited = true
+                    mRecipeEdited = true
                 }
             }
 
@@ -108,10 +105,12 @@ class ViewRecipeFragment : Fragment() {
         mFragmentViewRecipeBinding.customToolbar.inflateMenu(R.menu.view_recipe_menu)
         mFragmentViewRecipeBinding.customToolbar.setNavigationOnClickListener {
 
-            if(mGroceryListEdited){
+            if(mRecipeEdited){
 
-                val result = Intent().putExtra(RECIPE_INTENT_TAG, mRecipeEntity)
-                activity?.setResult(Activity.RESULT_OK,result)
+                val intent = Intent()
+                intent.putExtra(RECIPE_INTENT_TAG, mRecipeEntity)
+                intent.putExtra(AddRecipeActivity.ACTION_TAG,AddRecipeActivity.EDIT_ACTION)
+                activity?.setResult(Activity.RESULT_OK,intent)
 
             }
 
@@ -152,16 +151,17 @@ class ViewRecipeFragment : Fragment() {
 
         return mFragmentViewRecipeBinding.root
     }
-    fun deleteRecipe(){
+    private fun deleteRecipe(){
         mRecipesFragmentViewModel.mCoroutineScope.launch {
             mRecipesFragmentViewModel.deleteRecipe(requireContext(),mRecipeEntity.uniqueId)
             withContext(Main){
                 Toast.makeText(requireContext(),"DELETED",Toast.LENGTH_SHORT).show()
+                activity?.setResult(Activity.RESULT_OK)
                 activity?.finish()
             }
         }
     }
-    fun editRecipe(){
+    private fun editRecipe(){
 
         val viewRecipeInformationFragment:ViewRecipeInformationFragment = mFragmentList[0] as ViewRecipeInformationFragment
         val viewRecipeIngredientsFragment:ViewRecipeIngredientsFragment = mFragmentList[1] as ViewRecipeIngredientsFragment

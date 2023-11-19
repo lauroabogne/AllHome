@@ -88,7 +88,7 @@
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@{GroceryUtil.INSTANCE.formatDeletedDatetimeString(groceryListWithCount.groceryListEntity.datetimeStatusUpdated)}"
-                        tools:text="deleted: Dec 31,2021" />
+                        tools:text="archived: Dec 31,2021" />
                 </LinearLayout>
             </LinearLayout>
 

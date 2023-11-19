@@ -73,7 +73,7 @@ class CalendarPagerAdapter(var viewPagerItemArrayList: Array<MonthPagerItem>,var
                     monthView.setYearMonthAndDates( viewPagerItem,dates)
                     val formattedDate = dateFormat.format(viewPagerItem.calendar.time)
                     holder.dateTextView.text = formattedDate
-                    holder.totalCostTextView.text = "Total cost : ${NumberUtils.formatNumber(totalCostForTheMonth)}"
+                    holder.totalCostTextView.text = "Meal cost for month : ${NumberUtils.formatNumber(totalCostForTheMonth)}"
 
            }
         }

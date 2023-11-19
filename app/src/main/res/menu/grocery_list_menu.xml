@@ -7,7 +7,7 @@
         android:title="List"
         app:showAsAction="always" />
     <item
-        android:id="@+id/grocery_list_trash_menu"
-        android:title="Trash"
+        android:id="@+id/grocery_list_archived_menu"
+        android:title="Archived"
         app:showAsAction="always" />
 </menu>
