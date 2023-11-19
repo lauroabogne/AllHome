@@ -129,5 +129,15 @@
             android:visibility="invisible"
             android:background="#80000000"
             android:contentDescription="The zoom" />
+
+        <TextView
+            android:id="@+id/noGroceryItemTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No grocery item"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
     </FrameLayout>
 </layout>

@@ -279,6 +279,7 @@ class ViewMealOfTheDayFragment : Fragment() {
             val mealEntity = mMealEntities[position]
             holder.setOnClickListener()
             holder.setText(mealEntity.name)
+            holder.setCost(mealEntity.cost)
 
         }
 
@@ -289,17 +290,20 @@ class ViewMealOfTheDayFragment : Fragment() {
         inner class  ItemViewHolder(val mealItemBinding: MealItemBinding): RecyclerView.ViewHolder(mealItemBinding.root),View.OnClickListener{
 
             fun setText(text:String){
-                mealItemBinding.textView.setText(text)
+                mealItemBinding.textView.text = text
+            }
+            fun setCost(cost:Double){
+                mealItemBinding.textView120.text = "Cost : ${NumberUtils.formatNumber(cost)}"
             }
             fun setOnClickListener(){
-                mealItemBinding.textView.setOnClickListener(this)
+                mealItemBinding.constraintLayout.setOnClickListener(this)
                 mealItemBinding.moreActionImageBtn.setOnClickListener(this)
             }
 
             override fun onClick(v: View?) {
                 val mealEntity = mMealEntities[adapterPosition]
                 when(v!!.id){
-                    R.id.textView ->{
+                    R.id.constraintLayout ->{
 
                         if(mealEntity.kind == MealEntity.RECIPE_KIND){
                             val recipeUniqueId = mealEntity.recipeUniqueId

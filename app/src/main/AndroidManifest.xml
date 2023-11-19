@@ -47,11 +47,11 @@
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
-            android:name=".meal_planner.ViewerActivity"
+            android:name=".meal_planner_v2.ViewerActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
-            android:name=".meal_planner.ViewMealOfTheDayActivity"
+            android:name=".meal_planner_v2.ViewMealOfTheDayActivity"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:theme="@style/Theme.AllHome.NoActionBar" />
         <activity
@@ -82,7 +82,7 @@
             android:name=".storage.StorageAddItemActivity" />
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:name=".grocerylist.trash_grocery_list.TrashSingleGroceryListActivity" />
+            android:name=".grocerylist.archived_grocery_list.ArchivedSingleGroceryListActivity" />
 
         <receiver
             android:name=".NotificationReceiver"

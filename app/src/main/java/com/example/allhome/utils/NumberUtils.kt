@@ -12,6 +12,7 @@ object NumberUtils {
     val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
     val withoutCommaAndWithoutDecimalFormater = DecimalFormat("####")
     val withoutCommaAndWithDecimalFormater = DecimalFormat("####.00")
+
     fun formatNumber(anyNumber: Double) : String{
 
         return if(anyNumber % 1 == 0.0 ) withCommaAndWithoutDecimalFormater.format(anyNumber) else withCommaAndWithDecimalFormater.format(anyNumber)

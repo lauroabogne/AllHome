@@ -17,9 +17,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentMealPlanner2Binding
 import com.example.allhome.databinding.FragmentMealTypeBinding
-import com.example.allhome.meal_planner.ViewMealOfTheDayActivity
-import com.example.allhome.meal_planner.ViewMealOfTheDayFragment
-import com.example.allhome.meal_planner.calendar.CalendarFragment
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.meal_planner_v2.calendar.views.MonthView
 import com.example.allhome.recipes.IngredientDialogFragment

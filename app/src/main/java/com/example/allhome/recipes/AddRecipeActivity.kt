@@ -82,12 +82,10 @@ class AddRecipeActivity : AppCompatActivity() {
 
         }else if(mAction == ADD_FROM_BROWSER_ACTION){
             intent.getParcelableExtra<RecipeEntity>(RECIPE_TAG)?.let {
-
                 mFragmentList.add( AddRecipeInformationFragment.newInstanceForAddingRecipeFromBrowser(it))
-
-
             }
-            intent.getParcelableArrayListExtra<IngredientEntity>(INGREDIENTS_TAG)?.let{
+            intent.getParcelableArrayListExtra<IngredientEntity>(INGREDIENTS_TAG,)?.let{
+
 
                 mFragmentList.add( AddRecipeIngredientsFragment.newInstanceForAddingRecipeFromBrowser(it))
             }
@@ -194,6 +192,7 @@ class AddRecipeActivity : AppCompatActivity() {
                     }
                 withContext(Main){
                     Toast.makeText(this@AddRecipeActivity,"Recipe saved successfully",Toast.LENGTH_SHORT).show()
+                    this@AddRecipeActivity.setResult(RESULT_OK)
                     this@AddRecipeActivity.finish()
                 }
 

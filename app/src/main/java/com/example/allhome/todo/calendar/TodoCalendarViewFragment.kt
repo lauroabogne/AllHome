@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.AllHomeBaseApplication
+import com.example.allhome.MainActivity
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentTodoCalendarViewBinding
 import com.example.allhome.todo.TodoFragment
@@ -41,6 +42,9 @@ class TodoCalendarViewFragment : Fragment(),TodoFragment.TodoFragmentCommunicati
     lateinit var mFragmentTodoCalendarViewBinding:FragmentTodoCalendarViewBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
+        activity?.title = "To Do List"
+
         arguments?.let {
             param1 = it.getString(ARG_PARAM1)
             param2 = it.getString(ARG_PARAM2)
@@ -107,11 +111,10 @@ class TodoCalendarViewFragment : Fragment(),TodoFragment.TodoFragmentCommunicati
         val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
         val formattedDate = dateFormat.format(date.time)
 
-        TodoFragment.newInstance(TodoFragment.OTHER_ACTIVITY, formattedDate)
 
         childFragmentManager
             .beginTransaction()
-            .replace(R.id.listViewTaskContainer,  TodoFragment.newInstance(TodoFragment.OTHER_ACTIVITY, formattedDate,TodoFragment.CALENDAR_VIEW))
+            .replace(R.id.listViewTaskContainer,  TodoFragment.newInstance(TodoFragment.MAIN_ACTIVITY, formattedDate,TodoFragment.CALENDAR_VIEW))
             .commit();
     }
 

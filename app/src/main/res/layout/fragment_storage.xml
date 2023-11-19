@@ -73,5 +73,15 @@
             android:contentDescription="The zoom"
             app:elevation="6dp"
             android:elevation="6dp"/>
+
+        <TextView
+            android:id="@+id/noStorageOrItemTextView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:text="No storage"
+            android:textSize="24sp"
+            android:textStyle="bold"
+            android:visibility="visible" />
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>

@@ -112,6 +112,7 @@ class StorageActivity : AppCompatActivity() {
         mActivityPantryStorageBinding.lifecycleOwner = this
         mActivityPantryStorageBinding.pantryStorageViewModel = mStorageViewModel
         mActivityPantryStorageBinding.storageEntity = mStorageEntity
+        //mActivityPantryStorageBinding.customCollapsingToolbarLayout.setCollapsedTitleTextColor()
 
 
         mActivityPantryStorageBinding.customToolbar.title = mStorageEntity.name
@@ -177,7 +178,6 @@ class StorageActivity : AppCompatActivity() {
             }
             R.id.expiredMenu -> {
 
-
                 filterByExpiredItem()
             }
         }
@@ -198,6 +198,7 @@ class StorageActivity : AppCompatActivity() {
                 val storageRecyclerviewViewAdapater = mActivityPantryStorageBinding.pantryStorageRecyclerview.adapter as StorageRecyclerviewViewAdapater
                 storageRecyclerviewViewAdapater.mStorageItemWithExpirations = pantryItemWithExpirations
                 storageRecyclerviewViewAdapater.notifyDataSetChanged()
+                hideOrShowNoItemTextView()
             }
         }
     }
@@ -217,6 +218,17 @@ class StorageActivity : AppCompatActivity() {
                 storageRecyclerviewViewAdapater.notifyDataSetChanged()
             }
         }
+    }
+     fun hideOrShowNoItemTextView(){
+
+        if(mStorageViewModel.storageItemWithExpirations.isEmpty()){
+
+            mActivityPantryStorageBinding.noItemTextView.visibility = View.VISIBLE
+
+        }else{
+            mActivityPantryStorageBinding.noItemTextView.visibility = View.GONE
+        }
+
     }
     private fun showStockWeightPopupForFilter(){
         val choices = arrayOf(
@@ -524,6 +536,7 @@ class StorageActivity : AppCompatActivity() {
 
                 displayItem(storageItemUniqueId, ADDED_NEW_ELEMENT)
 
+
             }else if(resultCode == Activity.RESULT_OK && requestCode == UPDATE_ITEM_REQUEST_CODE){
 
                 if(mIsSearching){
@@ -724,6 +737,7 @@ class StorageActivity : AppCompatActivity() {
                 pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations = storageItemWithExpirations
 
 
+                hideOrShowNoItemTextView()
 
                 val newIndexOfItem = pantryStorageRecyclerviewViewAdapater.mStorageItemWithExpirations.indexOfFirst {
                     it.storageItemEntity.uniqueId == storageItemUniqueId
@@ -1157,7 +1171,7 @@ interface OnItemRemovedListener{
 
                         itemViewHolder.storageRecyclerviewViewAdapater.doneRemoving(adapterPostion)
 
-
+                        storageActivity.hideOrShowNoItemTextView()
                     }
 
                 }

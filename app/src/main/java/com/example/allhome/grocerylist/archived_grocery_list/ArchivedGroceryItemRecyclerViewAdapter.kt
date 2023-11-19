@@ -1,44 +1,22 @@
-package com.example.allhome.grocerylist.trash_grocery_list
+package com.example.allhome.grocerylist.archived_grocery_list
 
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
-import android.util.Log
 import android.view.*
 import android.widget.CompoundButton
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.widget.PopupMenu
 import androidx.cardview.widget.CardView
-import androidx.core.content.res.ResourcesCompat
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
-import com.example.allhome.data.entities.GroceryItemEntityValues
-import com.example.allhome.data.entities.GroceryListEntityValues
-import com.example.allhome.databinding.GroceryListProductBinding
 import com.example.allhome.databinding.TrashGroceryListProductBinding
-import com.example.allhome.grocerylist.viewmodel.GroceryListViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Dispatchers.IO
-import kotlinx.coroutines.Dispatchers.Main
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
 
-class TrashGroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<TrashGroceryItemRecyclerViewAdapter.ItemViewHolder>() {
+class ArchivedGroceryItemRecyclerViewAdapter(val contextParams: Context, val productImageClickListener:View.OnClickListener) : RecyclerView.Adapter<ArchivedGroceryItemRecyclerViewAdapter.ItemViewHolder>() {
 
     var mGroceryItems: List<GroceryItemEntity> = arrayListOf()
     var context: Context = contextParams
-    val mSingleGroceryListActivity: TrashSingleGroceryListActivity = contextParams as TrashSingleGroceryListActivity
+    val mSingleGroceryListActivity: ArchivedSingleGroceryListActivity = contextParams as ArchivedSingleGroceryListActivity
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrashGroceryItemRecyclerViewAdapter.ItemViewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ArchivedGroceryItemRecyclerViewAdapter.ItemViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
         val groceryListItemBinding = TrashGroceryListProductBinding.inflate(layoutInflater, parent, false)
         val itemViewHolder = ItemViewHolder(groceryListItemBinding,productImageClickListener)

@@ -1,9 +1,7 @@
 package com.example.allhome.data.entities
 
 import android.os.Parcelable
-import android.view.View
 import android.widget.Spinner
-import androidx.cardview.widget.CardView
 import androidx.databinding.BindingAdapter
 import androidx.room.ColumnInfo
 import androidx.room.Embedded
@@ -11,8 +9,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.example.allhome.R
 import kotlinx.android.parcel.Parcelize
-import java.io.Serializable
-
 
 
 @Parcelize
@@ -47,7 +43,7 @@ class GroceryListEntityValues{
         const val UPLOADED = 1
         const val NOT_YET_UPLOADED = 0
         const val ACTIVE_STATUS = 0
-        const val DELETED_STATUS = 1
+        const val ARCHIVE = 1
         const val PERMANENTLY_DELETED_STATUS = 2
     }
 }
