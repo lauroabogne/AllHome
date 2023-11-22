@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.widget.Toolbar
@@ -23,7 +24,7 @@ import com.example.allhome.data.entities.RecipeEntityWithTotalIngredient
 import com.example.allhome.databinding.FragmentRecipesBinding
 import com.example.allhome.databinding.RecipeItemBinding
 import com.example.allhome.databinding.RecipeItemGridBinding
-import com.example.allhome.meal_planner.AddMealDialogFragment
+import com.example.allhome.meal_planner_v2.AddMealDialogFragment
 import com.example.allhome.recipes.viewmodel.RecipesFragmentViewModel
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
 import kotlinx.coroutines.*
@@ -730,6 +731,7 @@ class RecipesFragment(val action:Int = NORMAL_RECIPE_VIEWING, val recipeSelected
             }
             override fun onClick(view: View?) {
                 val recipeEntity = recipesRecyclerviewViewAdapater.mRecipeStepEntities[adapterPosition]
+
 
                 if(mRecipesFragment.mAction == ADDING_MEAL_VIEWING){
                     mRecipesFragment.recipeSelectedListener?.onSelect(recipeEntity.recipeEntity)

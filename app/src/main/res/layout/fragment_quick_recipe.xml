@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="com.example.allhome.meal_planner.QuickRecipeFragment"/>
+        <import type="com.example.allhome.meal_planner_v2.QuickRecipeFragment"/>
         <variable
             name="action"
             type="Integer" />
