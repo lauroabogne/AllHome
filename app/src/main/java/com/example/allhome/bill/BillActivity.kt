@@ -5,13 +5,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
-import android.widget.Toast
-import androidx.appcompat.widget.Toolbar
 import com.example.allhome.R
-import com.example.allhome.data.entities.BillEntity
 import com.example.allhome.data.entities.BillEntityWithTotalPayment
 import com.example.allhome.data.entities.BillPaymentEntity
-import com.example.allhome.meal_planner.ViewerActivity
 
 class BillActivity : AppCompatActivity() {
 

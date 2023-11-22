@@ -1,18 +1,15 @@
 package com.example.allhome.meal_planner.calendar
 
-import android.content.Intent
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
@@ -22,8 +19,6 @@ import com.example.allhome.R
 import com.example.allhome.data.entities.MealEntity
 import com.example.allhome.data.entities.MealTypes
 import com.example.allhome.databinding.CalendarBinding
-import com.example.allhome.meal_planner.ViewMealOfTheDayActivity
-import com.example.allhome.meal_planner.ViewMealOfTheDayFragment
 import com.example.allhome.meal_planner.viewmodel.MealPlannerViewModel
 import com.example.allhome.utils.NumberUtils
 import kotlinx.coroutines.Dispatchers.Main

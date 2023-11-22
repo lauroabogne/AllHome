@@ -5,13 +5,10 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
@@ -21,10 +18,6 @@ import androidx.viewpager2.adapter.FragmentViewHolder
 import androidx.viewpager2.widget.ViewPager2
 import com.example.allhome.R
 import com.example.allhome.databinding.FragmentCalendarBinding
-import com.example.allhome.grocerylist.AddGroceryListItemActivity
-import com.example.allhome.grocerylist.AddGroceryListItemFragment
-import com.example.allhome.meal_planner.ViewMealOfTheDayActivity
-import com.example.allhome.meal_planner.ViewMealOfTheDayFragment
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -158,10 +151,10 @@ class CalendarFragment : Fragment(),Calendar.OnDateSelectedChangeListener {
 //        intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,selectedDate)
 //        startActivity(intent)
 
-        val intent = Intent(requireContext(), ViewMealOfTheDayActivity::class.java)
-        intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,selectedDate)
-
-        openViewMealOfTheDayActivityContract.launch(intent)
+//        val intent = Intent(requireContext(), ViewMealOfTheDayActivity::class.java)
+//        intent.putExtra(ViewMealOfTheDayFragment.DATE_SELECTED_PARAM,selectedDate)
+//
+//        openViewMealOfTheDayActivityContract.launch(intent)
 
 
 //            val viewMealOfTheDayFragment = ViewMealOfTheDayFragment.newInstance(mSelectedDateString)
