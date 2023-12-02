@@ -322,7 +322,12 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
         curPaint.color = paintColor
 
 
-        val startingXOfCircle = startX  + (dayWidth / if(numberOfCircles == 1) 2 else numberOfCircles)
+
+        if(numberOfCircles > 0){
+            Log.e("month_view","day width : ${dayWidth}")
+        }
+       // val startingXOfCircle = startX  + (dayWidth / if(numberOfCircles == 1) 2 else numberOfCircles)
+        val startingXOfCircle = startX + radius  + ((dayWidth - (diameter * numberOfCircles))/2)
         repeat(numberOfCircles) { index ->
             val mealType = mealTypes[index]
             when (mealType.type) {

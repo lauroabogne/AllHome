@@ -110,9 +110,6 @@ class MealPlannerFragment : Fragment() {
                 Log.e("Position selected","${ calendarViewPager!!.getChildAt(0)}")
 
 
-
-
-
             }
         })
 
