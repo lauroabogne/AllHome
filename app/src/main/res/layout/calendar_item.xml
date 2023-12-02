@@ -34,7 +34,7 @@
         android:paddingTop="14dp"
         android:paddingRight="14dp"
         android:paddingBottom="14dp"
-        android:text="Meal cost for month"
+        android:text=""
         android:textSize="20sp"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"

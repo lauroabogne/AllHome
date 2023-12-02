@@ -50,6 +50,7 @@ class MealPlannerViewModel(): ViewModel() {
     }
     suspend fun getTotalCostInTheMonth(context: Context,startDateOfTheMonth:String,endDateOfTheMonth:String):Double{
 
+        Log.e("Cost for month","${startDateOfTheMonth} ${endDateOfTheMonth}")
         val mealDAO = AllHomeDatabase.getDatabase(context).getMealDAO()
         val totalCost = mealDAO.getTotalCostInTheMonth(startDateOfTheMonth,endDateOfTheMonth)
         return totalCost?.toDouble() ?: 0.0
