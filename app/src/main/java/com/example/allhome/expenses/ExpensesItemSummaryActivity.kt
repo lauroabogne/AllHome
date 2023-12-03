@@ -1,9 +1,10 @@
 package com.example.allhome.expenses
 
 import android.app.DatePickerDialog
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.widget.Toast
+import android.view.MenuItem
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import com.example.allhome.R
@@ -29,6 +30,10 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val actionBar: ActionBar? = supportActionBar
+        actionBar?.setDisplayHomeAsUpEnabled(true)
+
         title = "Expenses items breakdown"
         setContentView(R.layout.expenses_item_summary_activity)
         mExpensesItemSummaryActivityBinding = DataBindingUtil.setContentView<ExpensesItemSummaryActivityBinding>(this, R.layout.expenses_item_summary_activity)
@@ -72,7 +77,7 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
     }
 
-    fun displayDate() {
+    private fun displayDate() {
         val readableFromDate = SimpleDateFormat("MMM d,yyyy").format(mDateFromFilter.time)
         val readableToDate = SimpleDateFormat("MMM d,yyyy").format(mDateToFilter.time)
         mExpensesItemSummaryActivityBinding.fromTextInputEditText.setText(readableFromDate)
@@ -80,15 +85,13 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
 
     }
-
     fun fragmentProcessor(fragment: Fragment) {
         supportFragmentManager.beginTransaction().apply {
             replace(R.id.fragmentContainer, fragment)
             commit()
         }
     }
-
-    val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
+    private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
         override fun onTabSelected(tab: TabLayout.Tab?) {
             if (tab!!.position == 0) {
                 mCurrentActiveFragment = ExpensesSummaryViewByItemsFragment.newInstance(mDateFromFilter, mDateToFilter)
@@ -115,7 +118,6 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
         override fun onTabReselected(tab: TabLayout.Tab?) {
         }
     }
-
     fun showCalendar(dateTypeRequest: Int) {
         val calendar = Calendar.getInstance()
         val year = calendar.get(Calendar.YEAR)
@@ -148,5 +150,14 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
     }
 
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
+    }
 
 }

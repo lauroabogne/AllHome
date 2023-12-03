@@ -32,6 +32,7 @@
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:text="Total amount due :"
+                android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
@@ -40,7 +41,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{NumberUtils.INSTANCE.formatNumber(billViewModel.mTotalAmountDue)}"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/textView133"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -53,6 +54,7 @@
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:text="Total amount paid :"
+                android:textSize="18sp"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView133" />
 
@@ -61,7 +63,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{NumberUtils.INSTANCE.formatNumber(billViewModel.mTotalAmountPaid)}"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/textView136"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -74,6 +76,7 @@
                 android:layout_height="wrap_content"
                 android:padding="2dp"
                 android:text="Total amout overdue :"
+                android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/textView136" />
@@ -83,7 +86,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:text="@{NumberUtils.INSTANCE.formatNumber(billViewModel.mTotalAmountDue - billViewModel.mTotalAmountPaid)}"
-                android:textSize="16sp"
+                android:textSize="18sp"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="@+id/textView138"
                 app:layout_constraintEnd_toEndOf="parent"

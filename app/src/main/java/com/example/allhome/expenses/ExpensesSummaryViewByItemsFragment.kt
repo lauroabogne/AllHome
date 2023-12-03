@@ -38,6 +38,8 @@ class ExpensesSummaryViewByItemsFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
         mExpensesSummaryViewByItemsFragmentViewModel = ViewModelProvider(this).get(ExpensesSummaryViewByItemsFragmentViewModel::class.java)
 
         arguments?.let {
