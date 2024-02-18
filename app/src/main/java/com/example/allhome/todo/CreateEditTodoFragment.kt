@@ -776,8 +776,8 @@ class CreateEditTodoFragment : Fragment() {
             val dueDateCalendar =  mCreateEditTodoFragmentViewModel.mDueDateCalendar.value!!
 
             calendar.set(Calendar.HOUR_OF_DAY, dueDateCalendar.get(Calendar.HOUR_OF_DAY))
-            calendar.set(Calendar.MINUTE, dueDateCalendar?.get(Calendar.MINUTE))
-            calendar.set(Calendar.SECOND, dueDateCalendar?.get(Calendar.SECOND))
+            calendar.set(Calendar.MINUTE, dueDateCalendar.get(Calendar.MINUTE))
+            calendar.set(Calendar.SECOND, dueDateCalendar.get(Calendar.SECOND))
         }
 
         val timeSetListener = TimePickerDialog.OnTimeSetListener { timePicker, hour, minute ->

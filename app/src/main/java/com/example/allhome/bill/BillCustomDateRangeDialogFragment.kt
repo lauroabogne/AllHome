@@ -11,6 +11,7 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.DialogFragment
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.databinding.BillCustomDateRangeDialogFragmentBinding
 import java.text.SimpleDateFormat
@@ -55,12 +56,10 @@ class BillCustomDateRangeDialogFragment: DialogFragment() {
         alertDialogBuilder.setView(mBillCustomDateRangeDialogFragmentBinding.root)
         val alertDialog = alertDialogBuilder.create()
 
-        alertDialog.setOnShowListener({
-            val positveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
-            positveButton?.let{
-                it.setOnClickListener(mOnClickListener)
-            }
-        })
+        alertDialog.setOnShowListener {
+            val positiveButton = alertDialog.getButton(AlertDialog.BUTTON_POSITIVE)
+            positiveButton?.setOnClickListener(mOnClickListener)
+        }
 
         alertDialog.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_VISIBLE)
 
@@ -98,7 +97,9 @@ class BillCustomDateRangeDialogFragment: DialogFragment() {
             }
         }
 
-        val datePickerDialog = DatePickerDialog(requireContext(), dateSetListener, year, month, day)
+        val themeDatePicker = (context?.applicationContext as AllHomeBaseApplication).themeDatePicker
+
+        val datePickerDialog = DatePickerDialog(requireContext(),themeDatePicker, dateSetListener, year, month, day)
         datePickerDialog.show()
 
     }

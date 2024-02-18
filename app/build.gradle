@@ -2,13 +2,15 @@ plugins {
     id 'com.android.application'
     id 'kotlin-android'
     id  'kotlin-kapt'
-    id 'kotlin-android-extensions'
 }
 
 android {
     compileSdkVersion 33
     buildToolsVersion "30.0.3"
 
+    buildFeatures {
+        viewBinding = true
+    }
     defaultConfig {
         applicationId "com.example.allhome"
         minSdkVersion 16
@@ -34,7 +36,7 @@ android {
         jvmTarget = '1.8'
     }
     buildFeatures {
-        dataBinding true
+        dataBinding = true
     }
     androidExtensions {
         experimental = true

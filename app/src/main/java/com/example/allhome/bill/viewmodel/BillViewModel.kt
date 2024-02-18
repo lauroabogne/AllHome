@@ -17,13 +17,14 @@ class BillViewModel: ViewModel() {
     val mCoroutineScope = CoroutineScope(Dispatchers.IO + CoroutineName("BillViewModel"))
     var mTotalAmountDue:Double = 0.0
     var mTotalAmountPaid:Double = 0.0
+    var mTotalAmountOverdue:Double = 0.0
 
     var mStartingCalendar: Calendar = Calendar.getInstance()
     var mEndingCalendar: Calendar = Calendar.getInstance()
 
     var mVIEWING = BillsFragment.MONTH_VIEWING
 
-    suspend fun addBills(context: Context, bills: ArrayList<BillEntity>):List<Long>{
+     fun addBills(context: Context, bills: ArrayList<BillEntity>):List<Long>{
 
         val billDAO = AllHomeDatabase.getDatabase(context).getBillItemDAO()
         return billDAO.saveBills(bills)
@@ -106,6 +107,10 @@ class BillViewModel: ViewModel() {
     suspend fun saveBillCategory(context: Context,billCategory:BillCategoryEntity){
         val billCategoryDAO = AllHomeDatabase.getDatabase(context).getBillCategoryDAO()
         billCategoryDAO.saveCategory(billCategory)
+    }
+    suspend fun getOverdueAmount(context:Context,startDate:String,endDate:String):Double{
+        val billDAO = AllHomeDatabase.getDatabase(context).getBillItemDAO()
+        return billDAO.getTotalOverdue(startDate,endDate)
     }
 
 

@@ -77,6 +77,7 @@ class BillsFragment : Fragment() {
                 val endDateString = SimpleDateFormat("yyyy-MM-dd").format(mBillViewModel.mEndingCalendar.time)
                 mBillViewModel.mTotalAmountDue = mBillViewModel.getTotalAmountDue(requireContext(),startDateString,endDateString)
                 mBillViewModel.mTotalAmountPaid = mBillViewModel.getTotalPaymentAmount(requireContext(),startDateString,endDateString)
+                mBillViewModel.mTotalAmountOverdue = mBillViewModel.getOverdueAmount(requireContext(),startDateString,endDateString)
                 val newBillEntityWithTotalPayment = mBillViewModel.getBillWithTotalPayment(requireContext(), billEntityWithTotalPayment?.billEntity!!.uniqueId)
                 withContext(Main){
                     val adapter = mFragmentBillsBinding.recyclerView.adapter as BillRecyclerviewViewAdapater
@@ -231,7 +232,7 @@ class BillsFragment : Fragment() {
             val bills = mBillViewModel.getBillsByDateRange(requireContext(),startDateString,endDateString)
             mBillViewModel.mTotalAmountDue = mBillViewModel.getTotalAmountDue(requireContext(),startDateString,endDateString)
             mBillViewModel.mTotalAmountPaid = mBillViewModel.getTotalPaymentAmount(requireContext(),startDateString,endDateString)
-
+            mBillViewModel.mTotalAmountOverdue = mBillViewModel.getOverdueAmount(requireContext(),startDateString,endDateString)
 
             withContext(Main){
 

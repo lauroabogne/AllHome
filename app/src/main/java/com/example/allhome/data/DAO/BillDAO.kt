@@ -148,5 +148,26 @@ interface BillDAO {
     )
     fun getExpensesWithItemNameAndType(fromDate: String, toDate: String): List<ExpensesEntityWithItemNameAndType>
 
+    @Query(
+            "SELECT SUM(total_overdue) AS total_result " +
+            " FROM ( " +
+            "    SELECT " +
+            "        ( " +
+            "            SELECT bills_two.amount - " +
+            "            (" +
+            "                CASE " +
+            "                    WHEN SUM(bill_payments.payment_amount) > 0 THEN SUM(bill_payments.payment_amount) " +
+            "                    ELSE 0 " +
+            "                END " +
+            "            ) " +
+            "            FROM bills AS bills_two " +
+            "            LEFT JOIN bill_payments ON bills_two.unique_id = bill_payments.bill_unique_id " +
+            "            WHERE bills.due_date < date('now') and bill_payments.status = ${BillPaymentEntity.NOT_DELETED_STATUS} AND bills_two.unique_id = bills.unique_id " +
+            "        ) AS total_overdue " +
+            "    FROM bills " +
+            "    WHERE due_date >= :fromDate AND due_date <= :toDate" +
+            ") AS total_results;"
+    )
+    fun getTotalOverdue(fromDate: String, toDate: String):Double
 
 }

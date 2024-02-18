@@ -31,18 +31,103 @@
     <style name="ThemeYellow" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <item name="colorPrimary">@color/yellow</item>
         <item name="colorPrimaryVariant">@color/yellow</item>
-        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorOnPrimary">@color/red</item>
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/yellow</item>
         <item name="colorSecondaryVariant">@color/yellow</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <!-- Status bar color.
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        -->
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+    </style>
+
+    <style name="ThemeYellowDatepicker" parent="Theme.MaterialComponents.Light.Dialog">
+        <item name="colorAccent">@color/yellow</item>
+        <item name="colorControlActivated">@color/yellow</item>
+        <item name="selectableItemBackgroundBorderless">@color/yellow</item>
+        <!-- Define button styles -->
+        <item name="materialButtonStyle">@style/MyMaterialButtonStyle</item>
+    </style>
+
+    <!-- Style for the positive button -->
+    <style name="MyMaterialButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton">
+        <!-- Change the button text color -->
+        <item name="android:textColor">@color/yellow</item> <!-- Set the text color to white -->
+
+        <!-- Add any other customizations for the button -->
+    </style>
+
+    <style name="ThemeWhite" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/yellow</item>
+        <item name="colorPrimaryVariant">@color/yellow</item>
+        <item name="colorOnPrimary">@color/black</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/yellow</item>
+        <item name="colorSecondaryVariant">@color/white</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <!-- Status bar color. -->
+        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+
+        <item name="android:textColorPrimary">@color/black</item>
+        <item name="android:textColorSecondary">@color/black</item>
+
+    </style>
+    <style name="ThemeDark" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorPrimaryVariant">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <!-- Secondary brand color. -->
+        <item name="colorSecondary">@color/black</item>
+        <item name="colorSecondaryVariant">@color/white</item>
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-        <item name="android:textColor">@color/black</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="android:textColorSecondary">@color/white</item>
+
     </style>
 
+
+    <style name="ThemeYellowToolbar1" parent="Widget.AppCompat.Toolbar">
+        <item name="android:background">?attr/colorPrimary</item>
+        <item name="titleTextAppearance">@style/ToolbarTitleText</item>
+        <item name="colorPrimary">@color/blue</item>
+        <item name="android:textColorPrimary">@color/white</item>
+    <item name="android:textColorSecondary">@color/white</item>
+
+    </style>
+
+    <!-- Define the text appearance style for the Toolbar title -->
+    <style name="ToolbarTitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
+        <!-- Customize title text appearance -->
+        <item name="android:textColor">@color/red</item>
+        <!-- Add more text appearance customizations as needed -->
+    </style>
+
+
+    <style name="ThemeYellowToolbar" parent="@style/ThemeOverlay.AppCompat.DayNight.ActionBar">
+        <!-- android:textColorPrimary is the color of the title text in the Toolbar  -->
+        <item name="android:textColorPrimary">@color/red</item>
+        <!-- actionMenuTextColor is the color of the text of action (menu) items  -->
+        <item name="actionMenuTextColor">@color/red</item>
+        <!-- Tints the input fields like checkboxes and text fields -->
+        <item name="colorAccent">@color/red</item>
+        <!-- Applies to views in their normal state. -->
+        <item name="colorControlNormal">@color/red</item>
+    </style>
+
+    <style name="ThemeOverlay.AppTheme.AppBarText" parent="">
+        <item name="android:textColor">@color/black</item>
+    </style>
 
     <style name="Theme.AllHome.NoActionBar">
         <item name="windowActionBar">false</item>
@@ -50,7 +135,9 @@
         <item name="android:textColor">@color/black</item>
     </style>
 
-    <style name="Theme.AllHome.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.AllHome.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
+        <item name="android:textColorPrimary">@color/blue</item>
+    </style>
 
     <style name="Theme.AllHome.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
