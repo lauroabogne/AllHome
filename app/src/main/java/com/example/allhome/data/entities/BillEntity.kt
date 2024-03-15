@@ -83,9 +83,7 @@ data class BillEntity(
         TODO("Not yet implemented")
     }
 
-    override fun writeToParcel(dest: Parcel, flags: Int) {
-        TODO("Not yet implemented")
-    }
+
 
 }
 @Parcelize
