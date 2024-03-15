@@ -286,6 +286,7 @@ class TodoFragment : Fragment() {
         val todoOverdueMenu = menu.findItem(R.id.todoOverdue)
         val todoYesterdaymenu = menu.findItem(R.id.todoYesterday)
 
+      //  Log.e("menu", todoYesterdaymenu.toString());
 
         val todoListViewMenu = menu.findItem(R.id.todoListViewMenu)
         val todoCalendarViewMenu = menu.findItem(R.id.todoCalendarViewMenu)
@@ -305,6 +306,7 @@ class TodoFragment : Fragment() {
         if(viewing == LIST_VIEW){
             todoListViewMenu.isVisible = false
             todoCalendarViewMenu.isVisible = true
+            todoListViewMenu
         }
 
 

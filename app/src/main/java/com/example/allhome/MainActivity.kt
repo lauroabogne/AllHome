@@ -3,6 +3,7 @@ package com.example.allhome
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -48,10 +49,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
-        setTheme(R.style.ThemeBlue)
-        super.onCreate(savedInstanceState)
+        //setTheme(R.style.ThemeBlue)
+        //setTheme(R.style.ThemeYellow)
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+
+        setTheme(theme)
+
+
         setContentView(R.layout.activity_main)
-        val toolbar: Toolbar = findViewById(R.id.toolbar)
+        val toolbar: Toolbar = this.findViewById(R.id.toolbar)
+        super.onCreate(savedInstanceState)
+
         setSupportActionBar(toolbar)
         //show menu icon on action bar
         supportActionBar?.setDisplayHomeAsUpEnabled(true)

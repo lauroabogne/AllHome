@@ -31,6 +31,8 @@ class AllHomeBaseApplication : Application() {
     val todoSubTasksDAO by lazy{database.getTodoSubTasksDAO()}
     val logsDAO by lazy{database.getLogsDAO()}
     val alarmsRecordsDAO by lazy{database.getAlarmsRecordsDAO()}
+    val theme by lazy { R.style.ThemeYellow }
+    val themeDatePicker by lazy { R.style.ThemeYellowDatepicker }
 
 
 }

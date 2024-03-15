@@ -25,5 +25,6 @@
 
     <color name="green">#00ff00</color>
     <color name="light_gray">#d3d3d3</color>
+    <color name="text_input_text_color">@color/black</color>
 
 </resources>

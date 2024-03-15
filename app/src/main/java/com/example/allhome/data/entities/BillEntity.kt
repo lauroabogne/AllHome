@@ -4,6 +4,7 @@ import android.graphics.Color
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.os.Build
+import android.os.Parcel
 import android.os.Parcelable
 import android.view.View
 import android.widget.ImageView
@@ -28,8 +29,9 @@ import java.util.*
 import kotlin.math.absoluteValue
 
 
-@Parcelize
+
 @Entity(tableName = BillEntity.TABLE_NAME)
+@Parcelize
 data class BillEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String,
@@ -76,12 +78,21 @@ data class BillEntity(
         const val COLUMN_MODIFIED ="modified"
 
     }
+
+    override fun describeContents(): Int {
+        TODO("Not yet implemented")
+    }
+
+
+
 }
 @Parcelize
 data class BillEntityWithTotalPayment(
     @Embedded val billEntity: BillEntity,
     var totalPayment:Double = 0.0
-):Parcelable
+):Parcelable {
+
+}
 
 @BindingAdapter("android:setDueDateWithNumberOfDays")
 fun setDueDateWithNumberOfDays(textView: TextView, dueDateString:String){
