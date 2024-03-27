@@ -6,10 +6,10 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.widget.FrameLayout
+import androidx.core.content.ContextCompat
 import androidx.core.graphics.ColorUtils
 import androidx.core.view.forEach
 import com.example.allhome.R
@@ -87,7 +87,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
         circleStrokePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
             style = Paint.Style.STROKE
             strokeWidth = resources.getDimension(R.dimen.circle_stroke_width)
-            color = getThemePrimaryColor()
+            color = getThemeCurrentDateBGColor()
         }
         startOfWeekDay = startOfWeek()
         days = if(startOfWeekDay == Calendar.SUNDAY) listOf(WEEKENDSUNDAY, "MON", "TUE", "WED", "THU", "FRI", WEEKENDSATURDAY) else listOf("MON", "TUE", "WED", "THU", "FRI", WEEKENDSATURDAY,WEEKENDSUNDAY)
@@ -159,7 +159,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
 
                     if(doDateIsCurrentDate){
                         canvas.drawCircle(xPosCenter, yPos + textPaint.textSize, textPaint.textSize * .8f, getCirclePaint())
-                        textPaint.color = getContrastColor(getThemePrimaryColor())
+                        textPaint.color = getContrastColor(getThemeCurrentDateBGColor())
                     }else{
                         if(doDateIsSaturdayOrSunday){
                             textPaint.color = if(isDateNotInSelectedMonth) weekendTextColor else adjustOpacity(weekendTextColor,0.3f)
@@ -265,7 +265,7 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
     }
     private fun getCirclePaint(): Paint {
         val curPaint = Paint(textPaint)
-        var paintColor = getThemePrimaryColor()
+        var paintColor = getThemeCurrentDateBGColor()
         curPaint.color = paintColor
         return curPaint
     }
@@ -325,10 +325,10 @@ class MonthView (context: Context, attrs: AttributeSet, defStyle: Int) : FrameLa
         val alpha = (255 * opacity).toInt() // convert opacity to alpha value (0-255)
         return ColorUtils.setAlphaComponent(color, alpha)
     }
-    private fun getThemePrimaryColor(): Int {
+    private fun getThemeCurrentDateBGColor(): Int {
         val typedValue = TypedValue()
         val currentTheme = context.theme
-        currentTheme.resolveAttribute(androidx.appcompat.R.attr.colorPrimary, typedValue, true)
+        currentTheme.resolveAttribute(R.attr.calendarCurrentDateBgColor,typedValue, true)
         return typedValue.data
     }
     private fun drawNumberOfTaskText(startX: Float, startY: Float, canvas: Canvas, todoCount: Int  = 0,accomplishedTaskCount:Int =0, overdueTaskCount:Int = 0, isDateNotInSelectedMonth:Boolean = false, isFastDate:Boolean = false){

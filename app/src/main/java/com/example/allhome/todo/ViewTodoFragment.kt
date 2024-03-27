@@ -105,7 +105,6 @@ class ViewTodoFragment : Fragment() {
         toolbar.setOnMenuItemClickListener {
             when (it.itemId) {
                 R.id.view_todo_edit_menu -> {
-                   // Toast.makeText(requireContext(),"Edit test",Toast.LENGTH_SHORT).show()
                     val intent = Intent(requireContext(), TodoFragmentContainerActivity::class.java)
                     intent.putExtra(CreateEditTodoFragment.TODO_UNIQUE_ID_TAG,todoUniqueId)
                     intent.putExtra(TodoFragmentContainerActivity.FRAGMENT_NAME_TAG,TodoFragmentContainerActivity.CREATE_TODO_FRAGMENT)
@@ -142,8 +141,8 @@ class ViewTodoFragment : Fragment() {
 
 
 
-        val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
-        mFragmentViewTodoBinding.subTodoTaskRecyclerView.addItemDecoration(decorator)
+       // val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
+      //  mFragmentViewTodoBinding.subTodoTaskRecyclerView.addItemDecoration(decorator)
 
         val subTodoTaskRecyclerViewAdapter = SubTodoTaskRecyclerViewAdapter(arrayListOf())
         mFragmentViewTodoBinding.subTodoTaskRecyclerView.adapter = subTodoTaskRecyclerViewAdapter
@@ -286,7 +285,6 @@ class ViewTodoFragment : Fragment() {
             holder.todoItemSubTaskBinding.executePendingBindings()
         }
         override fun getItemCount(): Int {
-            Log.e("THE_COUNT","${todoSubTasksEntities.size}")
             return todoSubTasksEntities.size
         }
         private fun itemClicked(itemPosition:Int, view: View){

@@ -53,7 +53,6 @@ class MainActivity : AppCompatActivity() {
         //setTheme(R.style.ThemeYellow)
 
         val theme = (applicationContext as AllHomeBaseApplication).theme
-
         setTheme(theme)
 
 

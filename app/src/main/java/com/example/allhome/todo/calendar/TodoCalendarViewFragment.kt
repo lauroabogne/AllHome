@@ -71,6 +71,8 @@ class TodoCalendarViewFragment : Fragment(),TodoFragment.TodoFragmentCommunicati
 
         mFragmentTodoCalendarViewBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_todo_calendar_view, container, false)
         todoCalendarViewPager = mFragmentTodoCalendarViewBinding.todoCalendarViewPager
+
+
         val monthPagerItems = generateMonthPagerItems()
         val calendarPagerAdapter = TodoCalendarPagerAdapter(monthPagerItems,requireContext(),mTodoCalendarViewFragmentViewModel)
         calendarPagerAdapter.setItemDateSelectedListener(object: TodoCalendarPagerAdapter.ItemDateSelectedListener{
