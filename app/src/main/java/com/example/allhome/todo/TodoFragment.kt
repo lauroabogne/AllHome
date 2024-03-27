@@ -285,13 +285,8 @@ class TodoFragment : Fragment() {
         val todoCustomDateMenu = menu.findItem(R.id.todoCustomDate)
         val todoOverdueMenu = menu.findItem(R.id.todoOverdue)
         val todoYesterdaymenu = menu.findItem(R.id.todoYesterday)
-
-      //  Log.e("menu", todoYesterdaymenu.toString());
-
         val todoListViewMenu = menu.findItem(R.id.todoListViewMenu)
         val todoCalendarViewMenu = menu.findItem(R.id.todoCalendarViewMenu)
-
-        Log.e("VIEWING","${viewing}")
 
         if(viewing == CALENDAR_VIEW){
             todoListViewMenu.isVisible = true

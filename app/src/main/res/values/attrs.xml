@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+
+    <attr name="toolbarTextAndIconColor" format="reference" />
+    <attr name="dialogFragmentButtonColor" format="reference" />
+
+    <attr name="fabBackgroundColor" format="reference" />
+    <attr name="fabIconColor" format="reference" />
+    <!-- TOOLBAR COLOR-->
+    <attr name="toolbarBgColor" format="reference"/>
+    <!-- NAVIGATION COLORS-->
+    <attr name="navViewBackgroundColor" format="reference"/>
+    <attr name="navViewActiveIndicatorColor" format="reference"/>
+    <!-- CUSTOM CALENDAR COLORS-->
+    <attr name="calendarContainerBgColor" format="reference"/>
+    <attr name="calendarCurrentDateBgColor" format="reference"/>
+    <!-- TAB LAYOUT COLOR-->
+    <attr name="tabLayoutBgColor" format="reference"/>
+    <attr name="tabLayoutTextColor" format="reference"/>
+    <attr name="tabLayoutSelectedTextColor" format="reference"/>
+    <!-- CHECKBOX COLOR -->
+    <attr name="checkboxButtonTint" format="reference"/>
+    <attr name="checkboxButtonIconTint" format="reference"/>
+    <!-- TEXTINPUTLAYOUT -->
+    <attr name="textInputLayoutColorPrimary" format="reference"/>
+    <attr name="textInputLayoutColorOnSurfaceVariant" format="reference"/>
+
+</resources>

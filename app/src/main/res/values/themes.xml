@@ -2,7 +2,7 @@
     <!-- Base application theme. -->
     <style name="Theme.AllHome" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
-        <item name="colorPrimary">@color/colorPrimaryVariant</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
         <item name="colorOnPrimary">@color/white</item>
         <!-- Secondary brand color. -->
@@ -11,134 +11,209 @@
         <item name="colorOnSecondary">@color/white</item>
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
+
         <!-- Customize your theme here. -->
-    </style>
 
-    <style name="ThemeBlue" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/colorPrimaryVariant</item>
-        <item name="colorPrimaryVariant">@color/colorPrimaryVariant</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/colorPrimary</item>
-        <item name="colorSecondaryVariant">@color/colorSecondaryVariant</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:textColor">@color/black</item>
-    </style>
-    <style name="ThemeYellow" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryVariant">@color/yellow</item>
-        <item name="colorOnPrimary">@color/red</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/yellow</item>
-        <item name="colorSecondaryVariant">@color/yellow</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <!-- Status bar color.
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        -->
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
 
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/white</item>
-    </style>
-
-    <style name="ThemeYellowDatepicker" parent="Theme.MaterialComponents.Light.Dialog">
-        <item name="colorAccent">@color/yellow</item>
-        <item name="colorControlActivated">@color/yellow</item>
-        <item name="selectableItemBackgroundBorderless">@color/yellow</item>
-        <!-- Define button styles -->
-        <item name="materialButtonStyle">@style/MyMaterialButtonStyle</item>
-    </style>
-
-    <!-- Style for the positive button -->
-    <style name="MyMaterialButtonStyle" parent="@style/Widget.MaterialComponents.Button.TextButton">
-        <!-- Change the button text color -->
-        <item name="android:textColor">@color/yellow</item> <!-- Set the text color to white -->
-
-        <!-- Add any other customizations for the button -->
-    </style>
-
-    <style name="ThemeWhite" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/yellow</item>
-        <item name="colorPrimaryVariant">@color/yellow</item>
-        <item name="colorOnPrimary">@color/black</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/yellow</item>
-        <item name="colorSecondaryVariant">@color/white</item>
-        <item name="colorOnSecondary">@color/black</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-
-        <item name="android:textColorPrimary">@color/black</item>
-        <item name="android:textColorSecondary">@color/black</item>
-
-    </style>
-    <style name="ThemeDark" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
-        <item name="colorPrimary">@color/black</item>
-        <item name="colorPrimaryVariant">@color/black</item>
-        <item name="colorOnPrimary">@color/white</item>
-        <!-- Secondary brand color. -->
-        <item name="colorSecondary">@color/black</item>
-        <item name="colorSecondaryVariant">@color/white</item>
-        <item name="colorOnSecondary">@color/white</item>
-        <!-- Status bar color. -->
-        <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-        <item name="android:textColorPrimary">@color/white</item>
-        <item name="android:textColorSecondary">@color/white</item>
-
-    </style>
-
-
-    <style name="ThemeYellowToolbar1" parent="Widget.AppCompat.Toolbar">
-        <item name="android:background">?attr/colorPrimary</item>
-        <item name="titleTextAppearance">@style/ToolbarTitleText</item>
-        <item name="colorPrimary">@color/blue</item>
-        <item name="android:textColorPrimary">@color/white</item>
-    <item name="android:textColorSecondary">@color/white</item>
-
-    </style>
-
-    <!-- Define the text appearance style for the Toolbar title -->
-    <style name="ToolbarTitleText" parent="TextAppearance.Widget.AppCompat.Toolbar.Title">
-        <!-- Customize title text appearance -->
-        <item name="android:textColor">@color/red</item>
-        <!-- Add more text appearance customizations as needed -->
-    </style>
-
-
-    <style name="ThemeYellowToolbar" parent="@style/ThemeOverlay.AppCompat.DayNight.ActionBar">
-        <!-- android:textColorPrimary is the color of the title text in the Toolbar  -->
-        <item name="android:textColorPrimary">@color/red</item>
-        <!-- actionMenuTextColor is the color of the text of action (menu) items  -->
-        <item name="actionMenuTextColor">@color/red</item>
-        <!-- Tints the input fields like checkboxes and text fields -->
-        <item name="colorAccent">@color/red</item>
-        <!-- Applies to views in their normal state. -->
-        <item name="colorControlNormal">@color/red</item>
-    </style>
-
-    <style name="ThemeOverlay.AppTheme.AppBarText" parent="">
-        <item name="android:textColor">@color/black</item>
     </style>
 
     <style name="Theme.AllHome.NoActionBar">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="Theme.AllHome.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
+    <style name="Theme.AllHome.PopupOverlay" parent="ThemeOverlay.Material3.Light" />
+
+
+    <style name="AppTheme" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer</item>
+        <item name="colorError">@color/black</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer</item>
+        <item name="colorOnError">@color/md_theme_light_onError</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground</item>
+        <item name="colorSurface">@color/md_theme_light_surface</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant</item>
+        <item name="colorOutline">@color/md_theme_light_outline</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary</item>
+        <item name="popupTheme">@style/PopupMenuStyle</item>
+        <item name="android:popupTheme">@style/PopupMenuStyle</item>
+
+        <!--TOOLBAR-->
+        <item name="toolbarTextAndIconColor">@color/black</item>
+        <item name="navViewBackgroundColor">@color/white</item>
+        <!-- NAVIGATION VIEW -->
+        <item name="navViewActiveIndicatorColor">@color/black90</item>
+        <!--CUSTOM CALENDAR-->
+        <item name="calendarCurrentDateBgColor">@color/black</item>
+
+    </style>
+
+    <style name="AppThemeA" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/md_theme_light_primary1</item>
+        <item name="colorOnPrimary">@color/md_theme_light_onPrimary1</item>
+        <item name="colorPrimaryContainer">@color/md_theme_light_primaryContainer1</item>
+        <item name="colorOnPrimaryContainer">@color/md_theme_light_onPrimaryContainer1</item>
+        <item name="colorSecondary">@color/md_theme_light_secondary1</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary1</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer1</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer1</item>
+        <item name="colorTertiary">@color/md_theme_light_tertiary1</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary1</item>
+        <item name="colorTertiaryContainer">@color/md_theme_light_tertiaryContainer1</item>
+        <item name="colorOnTertiaryContainer">@color/md_theme_light_onTertiaryContainer1</item>
+        <item name="colorError">@color/md_theme_light_error1</item>
+        <item name="colorOnError">@color/md_theme_light_onError1</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer1</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer1</item>
+        <item name="colorOutline">@color/md_theme_light_outline1</item>
+        <item name="android:colorBackground">@color/md_theme_light_background1</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground1</item>
+        <item name="colorSurface">@color/md_theme_light_surface1</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface1</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant1</item>
+        <item name="colorOnSurfaceVariant">@color/md_theme_light_onSurfaceVariant1</item>
+        <item name="colorSurfaceInverse">@color/md_theme_light_inverseSurface1</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface1</item>
+        <item name="colorPrimaryInverse">@color/md_theme_light_inversePrimary1</item>
+        <item name="popupTheme">@style/PopupMenuStyle</item>
+        <item name="android:popupTheme">@style/PopupMenuStyle</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!--TOOLBAR-->
+        <item name="toolbarTextAndIconColor">@color/black</item>
+        <item name="navViewBackgroundColor">@color/white</item>
+        <!-- NAVIGATION VIEW -->
+        <item name="navViewActiveIndicatorColor">@color/black90</item>
+        <!--CUSTOM CALENDAR-->
+        <item name="calendarCurrentDateBgColor">@color/black</item>
+
+
+    </style>
+
+    <style name="AppThemeB" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/black</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/black90</item>
+        <item name="colorOnPrimaryContainer">@color/black</item>
+        <item name="colorSecondary">@color/black45</item>
+        <item name="colorOnSecondary">@color/md_theme_light_onSecondary1</item>
+        <item name="colorSecondaryContainer">@color/md_theme_light_secondaryContainer1</item>
+        <item name="colorOnSecondaryContainer">@color/md_theme_light_onSecondaryContainer1</item>
+        <item name="colorTertiary">@color/black45</item>
+        <item name="colorOnTertiary">@color/md_theme_light_onTertiary1</item>
+        <item name="colorTertiaryContainer">@color/black65</item>
+        <item name="colorOnTertiaryContainer">@color/black</item>
+        <item name="colorError">@color/md_theme_light_error1</item>
+        <item name="colorOnError">@color/md_theme_light_onError1</item>
+        <item name="colorErrorContainer">@color/md_theme_light_errorContainer1</item>
+        <item name="colorOnErrorContainer">@color/md_theme_light_onErrorContainer1</item>
+        <item name="colorOutline">@color/md_theme_light_outline1</item>
+        <item name="android:colorBackground">@color/white</item>
+        <item name="colorOnBackground">@color/md_theme_light_onBackground1</item>
+        <item name="colorSurface">@color/md_theme_light_surface1</item>
+        <item name="colorOnSurface">@color/md_theme_light_onSurface1</item>
+        <item name="colorSurfaceVariant">@color/md_theme_light_surfaceVariant1</item>
+        <item name="colorOnSurfaceVariant">@color/black</item>
+        <item name="colorSurfaceInverse">@color/black</item>
+        <item name="colorOnSurfaceInverse">@color/md_theme_light_inverseOnSurface1</item>
+        <item name="colorPrimaryInverse">@color/black70</item>
+
+
+
+        <item name="popupTheme">@style/PopupMenuStyle</item>
+        <item name="android:popupTheme">@style/PopupMenuStyle</item>
+        <item name="android:navigationBarColor">@color/black</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <!--TOOLBAR AND STATUS BAR-->
+        <item name="toolbarTextAndIconColor">@color/black</item>
+        <item name="toolbarBgColor">@color/white</item>
+        <item name="android:statusBarColor">@color/white</item>
+
+        <!-- NAVIGATION VIEW -->
+        <item name="navViewActiveIndicatorColor">@color/black90</item>
+        <item name="navViewBackgroundColor">@color/white</item>
+        <!--CUSTOM CALENDAR-->
+        <item name="calendarContainerBgColor">@color/white</item>
+        <item name="calendarCurrentDateBgColor">@color/black</item>
+        <!-- TAB LAYOUT -->
+        <item name="tabLayoutBgColor">@color/white</item>
+        <item name="tabLayoutTextColor">@color/black</item>
+        <item name="tabLayoutSelectedTextColor">@color/black</item>
+
+        <!-- CHECKBOX -->
+        <item name="checkboxButtonTint">@color/black</item>
+        <item name="checkboxButtonIconTint">@color/white</item>
+        <item name="checkboxStyle" >@style/CheckboxStyle</item>
+
+        <!-- TEXTINPUTLAYOUT -->
+        <item name="textInputLayoutColorPrimary">@color/black</item>
+        <item name="textInputLayoutColorOnSurfaceVariant">@color/black60</item>
+        <!--
+        <item name="textInputStyle">@style/TextInputLayoutTheme</item>
+        -->
+        <item name="buttonStyle">@style/ElevatedButtonStyle</item>
+    
+    </style>
+    <style name="PopupMenuStyle" parent="Widget.Material3.PopupMenu">
+        <!-- Customize the appearance of the options menu -->
         <item name="android:textColor">@color/black</item>
+        <!-- Add more customizations as needed -->
     </style>
-
-    <style name="Theme.AllHome.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar">
-        <item name="android:textColorPrimary">@color/blue</item>
+    <style name="AppBarTheme" parent="ThemeOverlay.Material3.Light">
+        <!-- Customize the appearance of the options menu -->
+        <item name="android:textColorPrimary">?attr/toolbarTextAndIconColor</item>
+        <item name="colorControlNormal">?attr/toolbarTextAndIconColor</item>
     </style>
-
-    <style name="Theme.AllHome.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
-
+    <style name="NavigationViewTheme" parent="ThemeOverlay.Material3.NavigationView">
+        <!-- Customize attributes specific to NavigationView -->
+        <item name="colorSecondaryContainer">?attr/navViewActiveIndicatorColor</item>
+        <item name="android:textColor">@color/black</item>
+        <!-- Add other attributes as needed -->
+    </style>
+    <style name="TabLayoutTheme" parent="ThemeOverlay.Material3.TabLayout">
+        <item name="colorPrimary">?attr/tabLayoutSelectedTextColor</item>
+        <item name="colorOnSurfaceVariant">?attr/tabLayoutSelectedTextColor</item>
+    </style>
+    <style name="CheckboxStyle" parent="Widget.Material3.CompoundButton.CheckBox">
+        <!-- Customize attributes specific to Checkbox -->
+        <item name="buttonTint">?attr/checkboxButtonTint</item>
+        <item name="buttonIconTint">?attr/checkboxButtonIconTint</item>
+    </style>
+    <style name="TextInputLayoutStyle" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="hintTextColor">@color/black</item> <!-- Color of the outline stroke -->
+        <item name="boxStrokeColor">@color/black</item> <!-- Color of the outline stroke -->
+        <item name="android:textColorHint">@color/gray</item>
+    </style>
+    <style name="TextInputLayoutTheme" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="colorPrimary">?attr/textInputLayoutColorPrimary</item>
+        <item name="colorOnSurfaceVariant">?attr/textInputLayoutColorOnSurfaceVariant</item>
+    </style>
+    <style name="ElevatedButtonStyle" parent="Widget.Material3.Button.ElevatedButton">
+        <item name="android:textColor">?attr/toolbarTextAndIconColor</item>
+        <item name="materialThemeOverlay">@style/ElevatedButtonTheme</item>
+    </style>
+    <style name="ElevatedButtonTheme" parent="ThemeOverlay.Material3.Button.ElevatedButton">
+        <item name="colorContainer">?attr/colorPrimaryContainer</item>
+    </style>
 </resources>

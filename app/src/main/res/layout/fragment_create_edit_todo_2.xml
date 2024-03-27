@@ -15,15 +15,15 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toTopOf="parent"
+            android:theme="@style/AppBarTheme">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="?attr/colorPrimary"
                 android:minHeight="?attr/actionBarSize"
-                android:theme="?attr/actionBarTheme"
+                android:background="?attr/toolbarBgColor"
                 app:menu="@menu/add_grocery_item">
 
             </androidx.appcompat.widget.Toolbar>
@@ -47,8 +47,8 @@
                     android:orientation="vertical">
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:theme="@style/TextInputLayoutTheme"
                         android:id="@+id/textInputLayout22"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         app:layout_constraintEnd_toEndOf="parent"
@@ -64,8 +64,8 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.textfield.TextInputLayout
+                        android:theme="@style/TextInputLayoutTheme"
                         android:id="@+id/textInputLayout26"
-                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
 
@@ -223,14 +223,17 @@
                             tools:text="2 Minutes" />
                     </LinearLayout>
 
-                    <Button
+                    <com.google.android.material.button.MaterialButton
+                        style="@style/ElevatedButtonStyle"
+                        android:elevation="50dp"
                         android:id="@+id/addChecklistBtn"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:text="Add Check List"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@+id/notifyAtLinearLayout" />
+                        app:layout_constraintTop_toBottomOf="@+id/notifyAtLinearLayout"
+                        android:layout_margin="8dp"/>
 
                     <androidx.recyclerview.widget.RecyclerView
                         android:id="@+id/todo_sub_task_list_recyclerview"

@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.storage.StorageAddItemActivity
 
@@ -19,6 +20,10 @@ class TodoFragmentContainerActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         setContentView(R.layout.activity_todo_fragment_container)
 
         val fragmentName = intent.getStringExtra(FRAGMENT_NAME_TAG)

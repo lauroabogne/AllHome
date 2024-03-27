@@ -97,9 +97,9 @@ class BillCustomDateRangeDialogFragment: DialogFragment() {
             }
         }
 
-        val themeDatePicker = (context?.applicationContext as AllHomeBaseApplication).themeDatePicker
+        //val themeDatePicker = (context?.applicationContext as AllHomeBaseApplication).themeDatePicker
 
-        val datePickerDialog = DatePickerDialog(requireContext(),themeDatePicker, dateSetListener, year, month, day)
+        val datePickerDialog = DatePickerDialog(requireContext(), dateSetListener, year, month, day)
         datePickerDialog.show()
 
     }
