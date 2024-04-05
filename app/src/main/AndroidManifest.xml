@@ -95,7 +95,8 @@
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
             android:name=".grocerylist.SingleGroceryListActivity"
-            android:launchMode="singleTop" />
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.AllHome" />
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
             android:name=".grocerylist.CreateGroceryListActivity"
