@@ -163,7 +163,7 @@ class GroceryListFragment : Fragment(),OnItemAdded {
                 updateRecyclerViewList(groceryListUniqueId!!)
 
             }
-        }else if(requestCode == OPEN_SINGLE_GROCERY_LIST_REQUEST){
+        }else if(requestCode == OPEN_SINGLE_GROCERY_LIST_REQUEST && resultCode == Activity.RESULT_OK){
 
             val groceryListUniqueId = data?.getStringExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)
             updateRecyclerViewList(groceryListUniqueId!!)
