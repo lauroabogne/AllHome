@@ -837,7 +837,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
     }
     private val productImageClickListener = View.OnClickListener {
 
-
         val groceryItemEntity:GroceryItemEntity = it.tag as GroceryItemEntity
         groceryItemEntity.imageName
         val imageUri = GroceryUtil.getImageFromPath(it.context, groceryItemEntity.imageName)

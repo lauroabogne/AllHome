@@ -12,11 +12,12 @@
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppBarTheme">
 
         <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
-            android:background="?attr/colorPrimary"
+            android:background="?attr/toolbarBgColor"
             android:minHeight="?attr/actionBarSize"
             android:theme="?attr/actionBarTheme"
             android:layout_width="match_parent"
@@ -28,8 +29,9 @@
     <ProgressBar
         android:id="@+id/progressBar"
         style="?android:attr/progressBarStyleHorizontal"
+
         android:layout_width="0dp"
-        android:layout_height="4dp"
+        android:layout_height="2dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/appbar" />
