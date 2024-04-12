@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 
 class BrowserItemImageActivity : AppCompatActivity() {
@@ -12,9 +13,13 @@ class BrowserItemImageActivity : AppCompatActivity() {
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_browser_item_image)
-        Log.e(TAG,"no data available")
+
 
         val itemName = intent.getStringExtra( AddGroceryListItemFragment.GROCERY_LIST_ITEM_NAME_TAG)!!
         val unit = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_ITEM_UNIT_TAG)!!
@@ -24,10 +29,6 @@ class BrowserItemImageActivity : AppCompatActivity() {
         val note = intent.getStringExtra(AddGroceryListItemFragment.ITEM_NOTES)!!
         val imageName = intent.getStringExtra(AddGroceryListItemFragment.IMAGE_TEMP_NAME)!!
         val groceryListUniqueId = intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)!!
-
-        Log.e(TAG,"GROCERY_LIST_UNIQUE_ID: $groceryListUniqueId")
-
-
 
         val action = intent.getIntExtra(AddGroceryListItemFragment.GROCERY_LIST_ACTION_EXTRA_DATA_TAG,-1)
 

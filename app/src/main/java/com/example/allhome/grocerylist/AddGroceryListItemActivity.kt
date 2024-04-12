@@ -29,6 +29,7 @@ import com.example.allhome.recipes.ViewRecipeActivity
 import com.example.allhome.recipes.ViewRecipeFragment
 import com.example.allhome.utils.ImageUtil
 import com.canhub.cropper.*
+import com.example.allhome.AllHomeBaseApplication
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -45,6 +46,10 @@ class AddGroceryListItemActivity : AppCompatActivity() {
     private val TAG = "AddGroceryListItemActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_add_grocery_list_item)
 

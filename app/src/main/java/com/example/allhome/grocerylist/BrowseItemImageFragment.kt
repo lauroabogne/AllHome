@@ -274,7 +274,6 @@ class BrowseItemImageFragment : Fragment() {
             val response: Response = call.execute()
 
             if (response.code == 200 || response.code == 201) {
-
                 var inputStream: InputStream? = null
                 try {
                     inputStream =response.body?.byteStream()
@@ -430,10 +429,13 @@ class BrowseItemImageFragment : Fragment() {
 
     private val webChromeClient = object: WebChromeClient() {
         override fun onProgressChanged(view: WebView?, newProgress: Int) {
-            Log.e("PROGRESS","${newProgress}")
-            mFragmentBrowseItemImageBinding.progressBar.progress = newProgress
-           // mFragmentBrowseRecipeBinding.progressBar.progress = newProgress
 
+            mFragmentBrowseItemImageBinding.progressBar.progress = newProgress
+            if(newProgress <100){
+                mFragmentBrowseItemImageBinding.progressBar.visibility = View.VISIBLE
+            }else{
+                mFragmentBrowseItemImageBinding.progressBar.visibility = View.INVISIBLE
+            }
             super.onProgressChanged(view, newProgress)
         }
 
