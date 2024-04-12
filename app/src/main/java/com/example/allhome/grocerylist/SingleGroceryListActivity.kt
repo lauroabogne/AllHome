@@ -15,6 +15,7 @@ import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
@@ -44,6 +45,8 @@ class SingleGroceryListActivity : AppCompatActivity() {
     lateinit var dataBindingUtil: ActivitySingleGroceryListBinding
     lateinit var mItemTouchHelper: ItemTouchHelper
     var groceryListUniqueId: String = ""
+    var isViewingImage:Boolean = false
+    lateinit var selectedImageThumbnailView:View
 
     // Hold a reference to the current animator,
     // so that it can be canceled mid-way.
@@ -78,7 +81,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
             manipulateListUIAfterAddedItemSuccessfullyAction()
         }
     }
-
     private val openAddGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         if(activityResult.resultCode == RESULT_OK){
@@ -121,7 +123,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
 
         }
     }
-
     val openEditGroceryListItemContract = registerForActivityResult(ActivityResultContracts.StartActivityForResult()){ activityResult->
 
         if(activityResult.resultCode == RESULT_OK){
@@ -179,7 +180,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
         setTheme(theme)
         super.onCreate(savedInstanceState)
 
-
         intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
@@ -200,8 +200,18 @@ class SingleGroceryListActivity : AppCompatActivity() {
             this.lifecycleOwner = this@SingleGroceryListActivity
             this.groceryListViewModel = mGroceryListViewModel
 
-
         }
+
+        onBackPressedDispatcher.addCallback(this, object: OnBackPressedCallback(true) {
+            override fun handleOnBackPressed() {
+                if(isViewingImage){
+                    dataBindingUtil.imageViewingCloseButton.performClick()
+                }else{
+                    finish()
+                }
+
+            }
+        })
 
         dataBindingUtil.toolbar.inflateMenu((R.menu.single_grocery_item_menu))
         dataBindingUtil.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
@@ -274,6 +284,8 @@ class SingleGroceryListActivity : AppCompatActivity() {
             dataBindingUtil.swipeRefresh.isRefreshing = false
         }
 
+
+        dataBindingUtil.imageViewingCloseButton.setOnClickListener(closeImageViewingClickLister)
         iniItems()
 
     }
@@ -428,7 +440,6 @@ class SingleGroceryListActivity : AppCompatActivity() {
         startActivity(intent)
         Toast.makeText(this, "New intent", Toast.LENGTH_SHORT).show()
     }
-
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
@@ -570,11 +581,8 @@ class SingleGroceryListActivity : AppCompatActivity() {
                             itemViewHolder.groceryListItemBinding.groceryItemParentLayout.startAnimation(fadeInAnimation)
                             dataBindingUtil.groceryItemRecyclerview.removeOnScrollListener(this)
 
-
                             found = true
                         }
-
-
                     }
                 }
 
@@ -639,78 +647,10 @@ class SingleGroceryListActivity : AppCompatActivity() {
             itemViewHolder.groceryListItemBinding.root.startAnimation(fadeInAnimation)*/
 
 
-
-
     }
 
-//    override fun onCreateOptionsMenu(menu: Menu): Boolean {
-//       menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
-//        mMenu = menu
-//        return super.onCreateOptionsMenu(menu)
-//    }
 
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//
-//        menuInflater.inflate(R.menu.single_grocery_item_menu, menu)
-//        mMenu = menu
-//
-//        return true
-//    }
-
-    override fun onBackPressed() {
-        super.onBackPressed()
-        val returnIntent = Intent()
-        returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
-        setResult(RESULT_OK, returnIntent)
-        finish()
-
-    }
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId){
-            android.R.id.home -> {
-
-                val returnIntent = Intent()
-                returnIntent.putExtra(GroceryListInformationActivity.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
-                setResult(RESULT_OK, returnIntent)
-                finish()
-
-
-            }
-            R.id.menu_sort_by_category -> {
-
-                mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.GROUP_BY_CATEGORY
-                mGroceryListViewModel.coroutineScope.launch {
-                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.GROUP_BY_CATEGORY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
-                    mGroceryListViewModel.groupByCategory()
-
-                    withContext(Main) {
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
-                    }
-                }
-
-
-
-            }
-            R.id.menu_sort_by_item -> {
-                mGroceryListViewModel.sortingAndGrouping.value = GroceryListViewModel.SORT_ALPHABETICALLY
-
-                mGroceryListViewModel.coroutineScope.launch {
-                    mGroceryListViewModel.updateGroceryListViewing(this@SingleGroceryListActivity, GroceryListViewModel.SORT_ALPHABETICALLY, mGroceryListViewModel.selectedGroceryList.value!!.autoGeneratedUniqueId)
-                    mGroceryListViewModel.sortAlpahetically(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
-                    mGroceryListViewModel.mergeToBuyAndBoughtItems(mGroceryListViewModel.toBuyGroceryItems, mGroceryListViewModel.boughtGroceryItems)
-
-                    withContext(Main) {
-                        dataBindingUtil.groceryItemRecyclerview.adapter?.notifyDataSetChanged()
-                    }
-                }
-
-
-            }
-        }
-        return true
-    }
-
-    private fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
+    private fun zoomImageFromThumb_backup(thumbView: View, imageUri: Uri) {
         // If there's an animation in progress, cancel it
         // immediately and proceed with this one.
         currentAnimator?.cancel()
@@ -837,13 +777,198 @@ class SingleGroceryListActivity : AppCompatActivity() {
     }
     private val productImageClickListener = View.OnClickListener {
 
+        selectedImageThumbnailView = it
         val groceryItemEntity:GroceryItemEntity = it.tag as GroceryItemEntity
         groceryItemEntity.imageName
         val imageUri = GroceryUtil.getImageFromPath(it.context, groceryItemEntity.imageName)
-
-        zoomImageFromThumb(it, imageUri!!)
+        zoomInImageFromThumb(selectedImageThumbnailView, imageUri!!)
 
     }
+
+    private val closeImageViewingClickLister = View.OnClickListener {
+        zoomOutImageFromThumb(selectedImageThumbnailView)
+    }
+    private fun zoomInImageFromThumb(thumbView: View, imageUri: Uri) {
+
+        isViewingImage = true
+        // If there's an animation in progress, cancel it
+        // immediately and proceed with this one.
+        currentAnimator?.cancel()
+
+        val imageContainer = dataBindingUtil.imageContainer
+        val imageHolder = dataBindingUtil.imageHolder
+        imageHolder.setImageURI(imageUri)
+
+
+        // Calculate the starting and ending bounds for the zoomed-in image.
+        // This step involves lots of math. Yay, math.
+        val startBoundsInt = Rect()
+        val finalBoundsInt = Rect()
+        val globalOffset = Point()
+
+        // The start bounds are the global visible rectangle of the thumbnail,
+        // and the final bounds are the global visible rectangle of the container
+        // view. Also set the container view's offset as the origin for the
+        // bounds, since that's the origin for the positioning animation
+        // properties (X, Y).
+        thumbView.getGlobalVisibleRect(startBoundsInt)
+        findViewById<View>(R.id.container).getGlobalVisibleRect(finalBoundsInt, globalOffset)
+        startBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+        finalBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+
+        val startBounds = RectF(startBoundsInt)
+        val finalBounds = RectF(finalBoundsInt)
+
+        // Adjust the start bounds to be the same aspect ratio as the final
+        // bounds using the "center crop" technique. This prevents undesirable
+        // stretching during the animation. Also calculate the start scaling
+        // factor (the end scaling factor is always 1.0).
+        val startScale: Float
+        if ((finalBounds.width() / finalBounds.height() > startBounds.width() / startBounds.height())) {
+            // Extend start bounds horizontally
+            startScale = startBounds.height() / finalBounds.height()
+            val startWidth: Float = startScale * finalBounds.width()
+            val deltaWidth: Float = (startWidth - startBounds.width()) / 2
+            startBounds.left -= deltaWidth.toInt()
+            startBounds.right += deltaWidth.toInt()
+        } else {
+            // Extend start bounds vertically
+            startScale = startBounds.width() / finalBounds.width()
+            val startHeight: Float = startScale * finalBounds.height()
+            val deltaHeight: Float = (startHeight - startBounds.height()) / 2f
+            startBounds.top -= deltaHeight.toInt()
+            startBounds.bottom += deltaHeight.toInt()
+        }
+
+        // Hide the thumbnail and show the zoomed-in view. When the animation
+        // begins, it will position the zoomed-in view in the place of the
+        // thumbnail.
+        thumbView.alpha = 0f
+        imageContainer.visibility = View.VISIBLE
+
+        // Set the pivot point for SCALE_X and SCALE_Y transformations
+        // to the top-left corner of the zoomed-in view (the default
+        // is the center of the view).
+        imageContainer.pivotX = 0f
+        imageContainer.pivotY = 0f
+
+        // Construct and run the parallel animation of the four translation and
+        // scale properties (X, Y, SCALE_X, and SCALE_Y).
+        currentAnimator = AnimatorSet().apply {
+            play(
+                ObjectAnimator.ofFloat(
+                    imageContainer,
+                    View.X,
+                    startBounds.left,
+                    finalBounds.left
+                )
+            ).apply {
+                with(ObjectAnimator.ofFloat(imageContainer, View.Y, startBounds.top, finalBounds.top))
+                with(ObjectAnimator.ofFloat(imageContainer, View.SCALE_X, startScale, 1f))
+                with(ObjectAnimator.ofFloat(imageContainer, View.SCALE_Y, startScale, 1f))
+            }
+            duration = shortAnimationDuration.toLong()
+            interpolator = DecelerateInterpolator()
+            addListener(object : AnimatorListenerAdapter() {
+
+                override fun onAnimationEnd(animation: Animator) {
+                    currentAnimator = null
+                }
+
+                override fun onAnimationCancel(animation: Animator) {
+                    currentAnimator = null
+                }
+            })
+            start()
+        }
+
+    }
+
+    private fun zoomOutImageFromThumb(thumbView: View) {
+        isViewingImage = false
+        // If there's an animation in progress, cancel it
+        // immediately and proceed with this one.
+        currentAnimator?.cancel()
+
+        val imageContainer = dataBindingUtil.imageContainer
+
+        // Calculate the starting and ending bounds for the zoomed-in image.
+        // This step involves lots of math. Yay, math.
+        val startBoundsInt = Rect()
+        val finalBoundsInt = Rect()
+        val globalOffset = Point()
+
+        // The start bounds are the global visible rectangle of the thumbnail,
+        // and the final bounds are the global visible rectangle of the container
+        // view. Also set the container view's offset as the origin for the
+        // bounds, since that's the origin for the positioning animation
+        // properties (X, Y).
+        thumbView.getGlobalVisibleRect(startBoundsInt)
+        findViewById<View>(R.id.container).getGlobalVisibleRect(finalBoundsInt, globalOffset)
+        startBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+        finalBoundsInt.offset(-globalOffset.x, -globalOffset.y)
+
+        val startBounds = RectF(startBoundsInt)
+        val finalBounds = RectF(finalBoundsInt)
+
+        // Adjust the start bounds to be the same aspect ratio as the final
+        // bounds using the "center crop" technique. This prevents undesirable
+        // stretching during the animation. Also calculate the start scaling
+        // factor (the end scaling factor is always 1.0).
+        val startScale: Float
+        if ((finalBounds.width() / finalBounds.height() > startBounds.width() / startBounds.height())) {
+            // Extend start bounds horizontally
+            startScale = startBounds.height() / finalBounds.height()
+            val startWidth: Float = startScale * finalBounds.width()
+            val deltaWidth: Float = (startWidth - startBounds.width()) / 2
+            startBounds.left -= deltaWidth.toInt()
+            startBounds.right += deltaWidth.toInt()
+        } else {
+            // Extend start bounds vertically
+            startScale = startBounds.width() / finalBounds.width()
+            val startHeight: Float = startScale * finalBounds.height()
+            val deltaHeight: Float = (startHeight - startBounds.height()) / 2f
+            startBounds.top -= deltaHeight.toInt()
+            startBounds.bottom += deltaHeight.toInt()
+        }
+
+
+            // Upon clicking the zoomed-in image, it should zoom back down
+            // to the original bounds and show the thumbnail instead of
+            // the expanded image.
+
+
+            // Animate the four positioning/sizing properties in parallel,
+            // back to their original values.
+            currentAnimator = AnimatorSet().apply {
+                play(ObjectAnimator.ofFloat(imageContainer, View.X, startBounds.left)).apply {
+                    with(ObjectAnimator.ofFloat(imageContainer, View.Y, startBounds.top))
+                    with(ObjectAnimator.ofFloat(imageContainer, View.SCALE_X, startScale))
+                    with(ObjectAnimator.ofFloat(imageContainer, View.SCALE_Y, startScale))
+                }
+                duration = shortAnimationDuration.toLong()
+                interpolator = DecelerateInterpolator()
+                addListener(object : AnimatorListenerAdapter() {
+
+                    override fun onAnimationEnd(animation: Animator) {
+                        thumbView.alpha = 1f
+                        imageContainer.visibility = View.GONE
+                        currentAnimator = null
+                    }
+
+                    override fun onAnimationCancel(animation: Animator) {
+                        thumbView.alpha = 1f
+                        imageContainer.visibility = View.GONE
+                        currentAnimator = null
+                    }
+                })
+                start()
+            }
+
+    }
+
+
+
 
 
 }
