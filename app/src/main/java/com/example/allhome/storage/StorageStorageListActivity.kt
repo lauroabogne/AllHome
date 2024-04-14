@@ -5,18 +5,28 @@ import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
 import android.widget.Toast
+import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.entities.*
+import com.example.allhome.databinding.ActivityStorageStogeListBinding
 
 class StorageStorageListActivity : AppCompatActivity() {
+
+    lateinit var mActivityStorageStogeListBinding:ActivityStorageStogeListBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_storage_stoge_list)
 
-        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        mActivityStorageStogeListBinding = DataBindingUtil.setContentView(this, R.layout.activity_storage_stoge_list)
 
-        title = "Select storage"
+        mActivityStorageStogeListBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        mActivityStorageStogeListBinding.toolbar.setNavigationOnClickListener { finish() }
+        mActivityStorageStogeListBinding.toolbar.title = "Select storage"
+        setSupportActionBar(mActivityStorageStogeListBinding.toolbar)
 
         val action = intent.getIntExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_TRASFERING_ITEM_ACTION)
 

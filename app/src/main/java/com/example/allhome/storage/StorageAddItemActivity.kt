@@ -33,6 +33,7 @@ import com.example.allhome.storage.viewmodel.StorageAddItemViewModel
 import com.example.allhome.utils.ImageUtil
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.canhub.cropper.*
+import com.example.allhome.AllHomeBaseApplication
 import kotlinx.coroutines.*
 import kotlinx.coroutines.Dispatchers.IO
 import kotlinx.coroutines.Dispatchers.Main
@@ -84,12 +85,13 @@ class StorageAddItemActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
 
-
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
-
-
 
         mStorageAddItemViewModel = ViewModelProvider(this).get(StorageAddItemViewModel::class.java)
         intent.getParcelableExtra<StorageEntity>(STORAGE_TAG)?.let{
@@ -177,6 +179,10 @@ class StorageAddItemActivity : AppCompatActivity() {
         categoryAutoSuggestCustomAdapter.suggestType = StringAutoSuggestCustomAdapter.CATEGORY_SUGGESTION_TYPE
         mActivityPantryAddItemBinding.categoryItemTextinput.setAdapter(categoryAutoSuggestCustomAdapter)
         mActivityPantryAddItemBinding.categoryItemTextinput.threshold = 0
+
+        mActivityPantryAddItemBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        mActivityPantryAddItemBinding.toolbar.setNavigationOnClickListener { finish() }
+        setSupportActionBar(mActivityPantryAddItemBinding.toolbar)
 
     }
 

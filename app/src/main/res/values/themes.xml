@@ -216,4 +216,15 @@
     <style name="ElevatedButtonTheme" parent="ThemeOverlay.Material3.Button.ElevatedButton">
         <item name="colorContainer">?attr/colorPrimaryContainer</item>
     </style>
+
+    <style name="CustomCollapsingToolbarStyle" parent="Widget.Material3.CollapsingToolbar">
+        <!-- Customize collapsing toolbar attributes -->
+        <item name="android:background">@color/white</item>
+        <!--
+        <item name="collapsedTitleTextAppearance">@style/CollapsedTitleText</item>
+        <item name="expandedTitleTextAppearance">@style/ExpandedTitleText</item>
+         Add more customizations as needed -->
+    </style>
+
+
 </resources>

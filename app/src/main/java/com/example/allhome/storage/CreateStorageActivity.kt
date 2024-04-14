@@ -12,6 +12,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Parcelable
 import android.provider.MediaStore
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
@@ -26,6 +27,8 @@ import com.example.allhome.grocerylist.GroceryUtil
 import com.example.allhome.storage.viewmodel.StorageViewModel
 import com.example.allhome.utils.ImageUtil
 import com.canhub.cropper.*
+import com.example.allhome.AllHomeBaseApplication
+import com.example.allhome.grocerylist.GroceryListInformationActivity
 import kotlinx.coroutines.Dispatchers.Main
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -66,9 +69,13 @@ class CreateStorageActivity : AppCompatActivity() {
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
 
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+        //supportActionBar?.setDisplayHomeAsUpEnabled(true)
         mAction = intent.getIntExtra(CreateStorageActivity.ACTION_TAG, ADD_NEW_RECORD_ACTION)
 
         mStorageViewModel = ViewModelProvider(this).get(StorageViewModel::class.java)
@@ -84,17 +91,23 @@ class CreateStorageActivity : AppCompatActivity() {
             }
 
         }
-        mActivityCreateStorageBinding = DataBindingUtil.setContentView<ActivityCreateStorageBinding>(this,R.layout.activity_create_storage).apply {
+        mActivityCreateStorageBinding = DataBindingUtil.setContentView<ActivityCreateStorageBinding>(
+            this,R.layout.activity_create_storage
+        ).apply {
             lifecycleOwner = this@CreateStorageActivity
             storageViewModel = mStorageViewModel
         }
 
         mActivityCreateStorageBinding.storageItemAddImageBtn.setOnClickListener{
-
             ImageUtil.deleteAllTemporaryImages(this)
-
             showIntentChooser()
         }
+
+        mActivityCreateStorageBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        mActivityCreateStorageBinding.toolbar.setNavigationOnClickListener { finish() }
+        mActivityCreateStorageBinding.toolbar.title = "Add Storage"
+        setSupportActionBar(mActivityCreateStorageBinding.toolbar)
+
     }
 
     override fun onPrepareOptionsMenu(menu: Menu?): Boolean {

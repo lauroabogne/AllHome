@@ -1,8 +1,6 @@
 package com.example.allhome.storage
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,6 +15,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.DAO.StorageItemDAO
@@ -34,7 +33,6 @@ import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
-import java.io.IOException
 import java.lang.Exception
 import java.nio.channels.FileChannel
 import java.text.SimpleDateFormat
@@ -44,7 +42,7 @@ import kotlin.collections.ArrayList
 class StorageGroceryListActivity : AppCompatActivity() {
 
     lateinit var mStorageViewModel: StorageViewModel
-    lateinit var mActivityCreateStorageBinding: ActivityStorageGroceryListBinding
+    lateinit var mActivityStorageGroceryListBinding: ActivityStorageGroceryListBinding
 
     var mAction = ADD_SINGLE_PRODUCT_ACTION
     lateinit var mStorageName:String
@@ -62,6 +60,9 @@ class StorageGroceryListActivity : AppCompatActivity() {
         const val ADD_MULTIPLE_PRODUCT_ACTION = 1
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Select grocery list"
@@ -96,24 +97,29 @@ class StorageGroceryListActivity : AppCompatActivity() {
             }
         }
 
-        mActivityCreateStorageBinding = DataBindingUtil.setContentView<ActivityStorageGroceryListBinding>(this,R.layout.activity_storage_grocery_list).apply {
+        mActivityStorageGroceryListBinding = DataBindingUtil.setContentView<ActivityStorageGroceryListBinding>(this,R.layout.activity_storage_grocery_list).apply {
             lifecycleOwner = this@StorageGroceryListActivity
             storageViewModel = mStorageViewModel
         }
 
         val pantryStorageRecyclerviewViewAdapater = StorageGroceryListRecyclerviewViewAdapater(this)
-        mActivityCreateStorageBinding.storageGroceryListRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
+        mActivityStorageGroceryListBinding.storageGroceryListRecyclerview.adapter = pantryStorageRecyclerviewViewAdapater
         mStorageViewModel.coroutineScope.launch {
             mStorageViewModel.getGroceryLists(this@StorageGroceryListActivity)
-            val storageGroceryListRecyclerviewViewAdapater= mActivityCreateStorageBinding.storageGroceryListRecyclerview.adapter as StorageGroceryListRecyclerviewViewAdapater
+            val storageGroceryListRecyclerviewViewAdapater= mActivityStorageGroceryListBinding.storageGroceryListRecyclerview.adapter as StorageGroceryListRecyclerviewViewAdapater
             storageGroceryListRecyclerviewViewAdapater.mGroceryListWithItemCount = mStorageViewModel.groceryLists
             withContext(Main){
                 storageGroceryListRecyclerviewViewAdapater.notifyDataSetChanged()
             }
         }
-        mActivityCreateStorageBinding.fab.setOnClickListener{
+        mActivityStorageGroceryListBinding.fab.setOnClickListener{
             showGroceryListNameInput()
         }
+
+
+        mActivityStorageGroceryListBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        mActivityStorageGroceryListBinding.toolbar.setNavigationOnClickListener { finish() }
+        setSupportActionBar(mActivityStorageGroceryListBinding.toolbar)
 
     }
     private fun showGroceryListNameInput(){
@@ -149,7 +155,7 @@ class StorageGroceryListActivity : AppCompatActivity() {
                 }
                 withContext(Main){
                     groceryListNameInputDialog.mAlertDialog.dismiss()
-                    mActivityCreateStorageBinding.storageGroceryListRecyclerview.adapter?.notifyDataSetChanged()
+                    mActivityStorageGroceryListBinding.storageGroceryListRecyclerview.adapter?.notifyDataSetChanged()
                 }
             }
 
