@@ -4,27 +4,24 @@
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-
-
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".storage.StorageActivity">
         <LinearLayout
+            android:id="@+id/linearLayout5"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            >
+            android:orientation="vertical">
 
             <com.google.android.material.tabs.TabLayout
-                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget"
                 android:id="@+id/storageTabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@style/TabLayoutTheme"
                 android:background="@drawable/tab_layout_background"
-                >
+                android:theme="@style/TabLayoutTheme"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/viewByStorage"
@@ -39,11 +36,12 @@
                     android:text="View all items" />
 
             </com.google.android.material.tabs.TabLayout>
+
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                xmlns:android="http://schemas.android.com/apk/res/android"
                 android:id="@+id/swipeRefresh"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
+
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/storageStorageRecyclerview"
                     android:layout_width="match_parent"
@@ -51,32 +49,21 @@
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                    tools:listitem="@layout/storage_item"/>
+                    tools:listitem="@layout/storage_item" />
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
         </LinearLayout>
-
 
         <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
-            android:text="Add storage"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_input_add"
-            app:icon="@android:drawable/ic_input_add"/>
-
-
-        <ImageView
-            android:id="@+id/expanded_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="invisible"
-            android:background="#80000000"
-            android:contentDescription="The zoom"
-            app:elevation="6dp"
-            android:elevation="6dp"/>
-
+            android:text="Add storage"
+            app:icon="@android:drawable/ic_input_add"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:srcCompat="@android:drawable/ic_input_add" />
         <TextView
             android:id="@+id/noStorageOrItemTextView"
             android:layout_width="match_parent"
@@ -85,6 +72,16 @@
             android:text="No storage"
             android:textSize="24sp"
             android:textStyle="bold"
-            android:visibility="visible" />
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+            android:visibility="visible"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <include
+            android:id="@+id/imageContainerIncludedLayout"
+            layout="@layout/zoomable_image_layout" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

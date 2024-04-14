@@ -1,28 +1,22 @@
 package com.example.allhome.storage
 
 import android.animation.Animator
-import android.animation.AnimatorListenerAdapter
-import android.animation.AnimatorSet
-import android.animation.ObjectAnimator
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.DatePickerDialog
 import android.content.Intent
-import android.graphics.Point
-import android.graphics.Rect
-import android.graphics.RectF
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.view.*
 import android.view.animation.Animation
-import android.view.animation.DecelerateInterpolator
 import android.view.animation.ScaleAnimation
 import android.view.inputmethod.InputMethodManager
-import android.widget.ImageView
 import android.widget.SearchView
 import android.widget.Toast
+import androidx.activity.OnBackPressedCallback
+import androidx.activity.OnBackPressedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
@@ -54,8 +48,8 @@ import java.util.*
 
 class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     internal lateinit var mStorageViewModel: StorageViewModel
-    private lateinit var mDataBindingUtil: FragmentStorageBinding
-
+    lateinit var mDataBindingUtil: FragmentStorageBinding
+    lateinit var mSelectedImageThumbnailView:View
     private val TAG = "StorageFragment"
     // Hold a reference to the current animator,
     // so that it can be canceled mid-way.
@@ -71,7 +65,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
 
     var mViewing = VIEW_BY_STORAGE
-
     var mSearchJob = Job()
     var mSearchView: SearchView? = null
     var mSelectedMenuItem:MenuItem? = null
@@ -82,6 +75,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     var mQuantityFilterFirstValue = 0
     var mQuantityFilterSecondValue = 0
 
+    var isViewingImage:Boolean = false
 
 
     companion object{
@@ -141,7 +135,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }
         }
 
-
         mDataBindingUtil = DataBindingUtil.inflate(inflater, R.layout.fragment_storage, container, false)
         mDataBindingUtil.lifecycleOwner = this
 
@@ -182,19 +175,26 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
                 }
             }
-
             override fun onTabUnselected(tab: TabLayout.Tab?) {
 
             }
-
             override fun onTabReselected(tab: TabLayout.Tab?) {
 
+            }
+        })
+
+
+        requireActivity().onBackPressedDispatcher.addCallback(object:OnBackPressedCallback(true){
+            override fun handleOnBackPressed() {
+
+                if(isViewingImage){
+                    closeImageViewing()
+                }
             }
 
         })
 
-
-
+        mDataBindingUtil.imageContainerIncludedLayout.imageViewingCloseButton.setOnClickListener(closeImageViewingClickLister)
         mDataBindingUtil.swipeRefresh.setOnRefreshListener {
             loadItems()
             mDataBindingUtil.swipeRefresh.isRefreshing = false
@@ -205,6 +205,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         mDataBindingUtil.swipeRefresh.isRefreshing = false
         return mDataBindingUtil.root
     }
+
     private fun loadItems(){
         val storageViewAdapter:RecyclerView.Adapter<RecyclerView.ViewHolder>?
 
@@ -452,7 +453,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         }
     }
     private fun animateElement(indexOfNewItem: Int, itemChangeType: Int){
-
 
         val fadeInAnimation = ScaleAnimation(0f, 1f, 0f, 1f, Animation.RELATIVE_TO_SELF, 0.5f, Animation.RELATIVE_TO_SELF, 0.5f)
         fadeInAnimation.duration = 250
@@ -836,141 +836,30 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         )
     }
     private fun hideKeyboard() {
-
         activity?.window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN)
+    }
+    private val closeImageViewingClickLister = View.OnClickListener {
+        closeImageViewing()
 
+    }
+    fun closeImageViewing(){
 
+        val mainLayout = mDataBindingUtil.container
+        val imageContainer = mDataBindingUtil.imageContainerIncludedLayout.imageContainer
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+        ImageUtil.zoomOutImageFromThumb(mSelectedImageThumbnailView, mainLayout,  imageContainer, animationDuration)
+        isViewingImage = false
     }
     fun zoomImageFromThumb(thumbView: View, imageUri: Uri) {
 
-        // The system "short" animation time duration, in milliseconds. This
-        // duration is ideal for subtle animations or animations that occur
-        // very frequently.
-        val shortAnimationDuration: Int = 200
+        mSelectedImageThumbnailView = thumbView
+        val mainLayout = mDataBindingUtil.container
+        val imageContainer = mDataBindingUtil.imageContainerIncludedLayout.imageContainer
+        val imageHolder = mDataBindingUtil.imageContainerIncludedLayout.imageHolder
+        val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+        ImageUtil.zoomInImageFromThumb(thumbView, imageUri, mainLayout,  imageContainer, imageHolder, animationDuration)
 
-        // If there's an animation in progress, cancel it
-        // immediately and proceed with this one.
-        currentAnimator?.cancel()
-
-        // Load the high-resolution "zoomed-in" image.
-        val expandedImageView: ImageView? = activity?.findViewById(R.id.expanded_image)
-        expandedImageView!!.setImageURI(imageUri)
-
-        // Calculate the starting and ending bounds for the zoomed-in image.
-        // This step involves lots of math. Yay, math.
-        val startBoundsInt = Rect()
-        val finalBoundsInt = Rect()
-        val globalOffset = Point()
-
-        // The start bounds are the global visible rectangle of the thumbnail,
-        // and the final bounds are the global visible rectangle of the container
-        // view. Also set the container view's offset as the origin for the
-        // bounds, since that's the origin for the positioning animation
-        // properties (X, Y).
-        thumbView.getGlobalVisibleRect(startBoundsInt)
-        activity?.findViewById<View>(R.id.container)?.getGlobalVisibleRect(finalBoundsInt, globalOffset)
-        startBoundsInt.offset(-globalOffset.x, -globalOffset.y)
-        finalBoundsInt.offset(-globalOffset.x, -globalOffset.y)
-
-        val startBounds = RectF(startBoundsInt)
-        val finalBounds = RectF(finalBoundsInt)
-
-        // Adjust the start bounds to be the same aspect ratio as the final
-        // bounds using the "center crop" technique. This prevents undesirable
-        // stretching during the animation. Also calculate the start scaling
-        // factor (the end scaling factor is always 1.0).
-        val startScale: Float
-        if ((finalBounds.width() / finalBounds.height() > startBounds.width() / startBounds.height())) {
-            // Extend start bounds horizontally
-            startScale = startBounds.height() / finalBounds.height()
-            val startWidth: Float = startScale * finalBounds.width()
-            val deltaWidth: Float = (startWidth - startBounds.width()) / 2
-            startBounds.left -= deltaWidth.toInt()
-            startBounds.right += deltaWidth.toInt()
-        } else {
-            // Extend start bounds vertically
-            startScale = startBounds.width() / finalBounds.width()
-            val startHeight: Float = startScale * finalBounds.height()
-            val deltaHeight: Float = (startHeight - startBounds.height()) / 2f
-            startBounds.top -= deltaHeight.toInt()
-            startBounds.bottom += deltaHeight.toInt()
-        }
-
-        // Hide the thumbnail and show the zoomed-in view. When the animation
-        // begins, it will position the zoomed-in view in the place of the
-        // thumbnail.
-        thumbView.alpha = 0f
-        expandedImageView.visibility = View.VISIBLE
-
-        // Set the pivot point for SCALE_X and SCALE_Y transformations
-        // to the top-left corner of the zoomed-in view (the default
-        // is the center of the view).
-        expandedImageView.pivotX = 0f
-        expandedImageView.pivotY = 0f
-
-        // Construct and run the parallel animation of the four translation and
-        // scale properties (X, Y, SCALE_X, and SCALE_Y).
-        currentAnimator = AnimatorSet().apply {
-            play(
-                ObjectAnimator.ofFloat(
-                    expandedImageView,
-                    View.X,
-                    startBounds.left,
-                    finalBounds.left
-                )
-            ).apply {
-                with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top, finalBounds.top))
-                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale, 1f))
-                with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale, 1f))
-            }
-            duration = shortAnimationDuration.toLong()
-            interpolator = DecelerateInterpolator()
-            addListener(object : AnimatorListenerAdapter() {
-
-                override fun onAnimationEnd(animation: Animator) {
-                    currentAnimator = null
-                }
-
-                override fun onAnimationCancel(animation: Animator) {
-                    currentAnimator = null
-                }
-            })
-            start()
-        }
-
-        // Upon clicking the zoomed-in image, it should zoom back down
-        // to the original bounds and show the thumbnail instead of
-        // the expanded image.
-        expandedImageView.setOnClickListener {
-            currentAnimator?.cancel()
-
-            // Animate the four positioning/sizing properties in parallel,
-            // back to their original values.
-            currentAnimator = AnimatorSet().apply {
-                play(ObjectAnimator.ofFloat(expandedImageView, View.X, startBounds.left)).apply {
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.Y, startBounds.top))
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_X, startScale))
-                    with(ObjectAnimator.ofFloat(expandedImageView, View.SCALE_Y, startScale))
-                }
-                duration = shortAnimationDuration.toLong()
-                interpolator = DecelerateInterpolator()
-                addListener(object : AnimatorListenerAdapter() {
-
-                    override fun onAnimationEnd(animation: Animator) {
-                        thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
-                        currentAnimator = null
-                    }
-
-                    override fun onAnimationCancel(animation: Animator) {
-                        thumbView.alpha = 1f
-                        expandedImageView.visibility = View.GONE
-                        currentAnimator = null
-                    }
-                })
-                start()
-            }
-        }
+        isViewingImage = true
     }
     fun showTransferStorageItemAlertDialog(storageEntity: StorageEntity){
 
@@ -1310,8 +1199,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
     }
     @Throws(Exception::class)
     fun replaceStorageItem(distinationStorageEntity: StorageEntity){
-
-
         val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val currentDatetime: String = simpleDateFormat.format(Date())
 
@@ -1554,8 +1441,6 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             }
         }
     }
-
-
     private fun copyGroceryItemImageImage( groceryItemImageName:String,groceryItemName:String,storageItemUniqueId:String): String? {
 
         if(groceryItemImageName == null || groceryItemImageName.isEmpty()){
@@ -1845,11 +1730,6 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
     }
 
     inner class  ItemViewHolder(var storageItemLayoutBinding: StoragePerItemLayoutBinding, val storageRecyclerviewViewAdapater: StoragePerItemRecyclerviewViewAdapater): RecyclerView.ViewHolder(storageItemLayoutBinding.root),View.OnClickListener{
-        init {
-
-
-        }
-
         fun setChipClickListener(){
             val flexboxChildCount = storageItemLayoutBinding.storageFlexboxLayout.childCount
             repeat(flexboxChildCount){ index->
@@ -1869,6 +1749,16 @@ class StoragePerItemRecyclerviewViewAdapater(val storageFragment: StorageFragmen
 
                 val imageUri = StorageUtil.getStorageItemImageUriFromPath(it.context, storageItemEntity.imageName)
                 storageFragment.zoomImageFromThumb(it, imageUri!!)
+
+
+//                val mainLayout = storageRecyclerviewViewAdapater.storageFragment.mDataBindingUtil.container
+//                val imageContainer = dataBindingUtil.imageContainerIncludedLayout.imageContainer
+//                val imageHolder = dataBindingUtil.imageContainerIncludedLayout.imageHolder
+//                val animationDuration = resources.getInteger(android.R.integer.config_shortAnimTime).toLong()
+//
+//                ImageUtil.zoomInImageFromThumb(selectedImageThumbnailView, imageUri!!, mainLayout,  imageContainer, imageHolder, animationDuration)
+//                isViewingImage = true
+
 
             }
         }

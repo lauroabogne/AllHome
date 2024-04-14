@@ -106,5 +106,9 @@
         android:textStyle="bold"
         android:visibility="gone" />
 
+    <include
+        android:id="@+id/imageContainerIncludedLayout"
+        layout="@layout/zoomable_image_layout" />
+
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
