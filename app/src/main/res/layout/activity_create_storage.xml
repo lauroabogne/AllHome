@@ -19,6 +19,25 @@
         android:padding="5dp"
         >
 
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:theme="@style/AppBarTheme">
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:minHeight="?attr/actionBarSize"
+                android:background="?attr/toolbarBgColor">
+
+            </androidx.appcompat.widget.Toolbar>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/storageNameTextinputLayout"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
@@ -26,14 +45,14 @@
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
+            app:layout_constraintTop_toBottomOf="@+id/appbar">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/storageNameTextinput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Storage name"
-                android:text="@{storageViewModel.storageEntity.name}"/>
+                android:text="@{storageViewModel.storageEntity.name}" />
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -51,7 +70,7 @@
                 android:gravity="top"
                 android:hint="Description"
                 android:inputType="textMultiLine"
-                android:text="@{storageViewModel.storageEntity.description}"/>
+                android:text="@{storageViewModel.storageEntity.description}"
                 android:minLines="2" />
         </com.google.android.material.textfield.TextInputLayout>
 

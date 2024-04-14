@@ -24,14 +24,16 @@
         android:layout_width="match_parent"
         android:layout_height="256dp"
         android:fitsSystemWindows="true"
-        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+        android:theme="@style/AppBarTheme">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/customCollapsingToolbarLayout"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:fitsSystemWindows="true"
-            app:contentScrim="@color/colorPrimary"
+            android:background="?attr/toolbarBgColor"
+            app:contentScrim="?attr/toolbarBgColor"
+            app:scrimAnimationDuration="0"
             app:expandedTitleMarginStart="15dp"
             app:expandedTitleMarginBottom="20dp"
             app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
@@ -77,13 +79,16 @@
         tools:listitem="@layout/storage_item_layout"
        />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
         android:id="@+id/fab"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        android:text="Add Item"
+        app:icon="@android:drawable/ic_input_add"
+        app:srcCompat="@android:drawable/ic_input_add"
+        />
     <ImageView
         android:id="@+id/expanded_image"
         android:layout_width="match_parent"

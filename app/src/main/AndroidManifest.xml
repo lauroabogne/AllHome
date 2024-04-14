@@ -69,7 +69,7 @@
             android:name=".storage.StorageGroceryListActivity" />
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
-            android:name=".storage.CreateStorageActivity" />
+            android:name=".storage.CreateStorageActivity"/>
         <activity
             android:windowSoftInputMode="stateAlwaysHidden"
             android:name=".recipes.RecipeGroceryListActivity" />

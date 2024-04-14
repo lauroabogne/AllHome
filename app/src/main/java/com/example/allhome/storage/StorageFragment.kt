@@ -1320,6 +1320,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             val allHomeDatabase = AllHomeDatabase.getDatabase(this@StorageFragment.requireContext())
             val storageItemEntity = mStorageViewModel.getItemByNameAndUnitAndStorage(this@StorageFragment.requireContext(), mStorageItemWithExpirationsToTransfer.storageItemEntity.name, mStorageItemWithExpirationsToTransfer.storageItemEntity.unit, distinationStorageEntity.name)
             var movedSuccessfully = true
+
             try{
                 allHomeDatabase.withTransaction {
 
@@ -1358,6 +1359,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
             try{
                 allHomeDatabase.withTransaction {
                     storageItemEntity?.let {
+
                         insertStorageItemThatExistsInSelectedStorage(it)
                     }?:run {
                         // item not exists just insert
@@ -1400,6 +1402,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
 
         val newStorageEntity = mStorageItemWithExpirationsToTransfer.storageItemEntity
         newStorageEntity.uniqueId = itemUniqueID
+        newStorageEntity.storageUniqueId = distinationStorageEntity.uniqueId
         newStorageEntity.storage = distinationStorageEntity.name
         newStorageEntity.created = currentDatetime
         newStorageEntity.modified = currentDatetime

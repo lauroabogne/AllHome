@@ -63,7 +63,8 @@
             android:layout_gravity="bottom|end"
             android:text="Add storage"
             android:layout_margin="@dimen/fab_margin"
-            app:srcCompat="@android:drawable/ic_input_add" />
+            app:srcCompat="@android:drawable/ic_input_add"
+            app:icon="@android:drawable/ic_input_add"/>
 
 
         <ImageView

@@ -31,6 +31,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.room.withTransaction
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.StorageEntity
@@ -102,6 +103,8 @@ class StorageActivity : AppCompatActivity() {
 
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
         super.onCreate(savedInstanceState)
 
         mStorageEntity  = intent.getParcelableExtra(STORAGE_EXTRA_TAG)!!
@@ -114,6 +117,9 @@ class StorageActivity : AppCompatActivity() {
         mActivityPantryStorageBinding.storageEntity = mStorageEntity
         //mActivityPantryStorageBinding.customCollapsingToolbarLayout.setCollapsedTitleTextColor()
 
+        mActivityPantryStorageBinding.customCollapsingToolbarLayout.isTitleEnabled = false
+        // Disable collapsing behavior (expand by default)
+        mActivityPantryStorageBinding.appBar.setExpanded(false)
 
         mActivityPantryStorageBinding.customToolbar.title = mStorageEntity.name
         // customCollapsingToolbarLayout.title = "Collapsing Toolbar"
@@ -1125,13 +1131,13 @@ interface OnItemRemovedListener{
             R.id.pantryItemMoveStorageMenu -> {
 
 
+
                 val storageItemEntity = storageActivity.mStorageViewModel.storageItemWithExpirations[adapterPostion]
                 val storageStorageListActiviy = Intent(context, StorageStorageListActivity::class.java)
 
                 storageStorageListActiviy.putExtra(StorageFragment.ACTION_TAG,StorageFragment.STORAGE_TRASFERING_ITEM_ACTION)
                 storageStorageListActiviy.putExtra(StorageFragment.STORAGE_ITEM_ENTITY_TAG, storageItemEntity)
                 storageStorageListActiviy.putExtra(StorageFragment.STORAGE_ENTITY_TAG, storageActivity.mStorageEntity)
-
 
                 val storageActivity = context as StorageActivity
                 storageActivity.startActivity(storageStorageListActiviy)
