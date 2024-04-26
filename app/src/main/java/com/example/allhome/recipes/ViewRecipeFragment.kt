@@ -98,6 +98,8 @@ class ViewRecipeFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
 
         mFragmentViewRecipeBinding = DataBindingUtil.inflate(inflater, R.layout.fragment_view_recipe, container, false)
+        mFragmentViewRecipeBinding.customCollapsingToolbarLayout.isTitleEnabled = false
+        mFragmentViewRecipeBinding.appBar.setExpanded(false)
 
         mFragmentViewRecipeBinding.customToolbar.title = mRecipeEntity.name
         mFragmentViewRecipeBinding.recipeEntity = mRecipeEntity

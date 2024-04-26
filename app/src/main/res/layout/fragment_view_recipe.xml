@@ -34,76 +34,84 @@
             android:layout_height="wrap_content"
             android:fitsSystemWindows="true"
             android:background="?attr/colorPrimary"
-            android:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar">
+            android:theme="@style/AppBarTheme">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
                 android:id="@+id/customCollapsingToolbarLayout"
                 android:layout_width="match_parent"
-                android:layout_height="256dp"
+                android:layout_height="wrap_content"
                 android:fitsSystemWindows="true"
                 app:expandedTitleMarginBottom="?attr/actionBarSize"
                 app:layout_scrollFlags="scroll|exitUntilCollapsed"
-                app:contentScrim="?attr/colorPrimary">
+                android:background="?attr/toolbarBgColor"
+                app:contentScrim="?attr/toolbarBgColor">
 
                 <ImageView
                     android:id="@+id/ivHeader"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
+
+                    android:layout_height="256dp"
                     android:fitsSystemWindows="true"
                     android:scaleType="centerCrop"
                     android:setRecipeImage="@{recipeEntity.uniqueId}"
                     app:layout_collapseMode="parallax" />
 
                 <androidx.appcompat.widget.Toolbar
+
+                    android:layout_gravity="top"
+                    app:title="TEST"
+                    app:navigationIcon="?attr/homeAsUpIndicator"
+
                     android:id="@+id/customToolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    app:contentInsetStart="0dp"
+                    app:contentInsetStartWithNavigation="0dp"
                     app:layout_collapseMode="pin"
-                    android:layout_gravity="top"
-                    app:title="TEST"
-                    android:layout_marginBottom="?attr/actionBarSize"
-                    app:navigationIcon="?attr/homeAsUpIndicator"
+                    app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
+
                     />
 
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/viewRecipeTabLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom"
-                    app:tabMode="scrollable">
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/viewByStorage"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Information"
-                        android:textAllCaps="false"
-                        />
-
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/viewPerProduct"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Ingredients" />
-                    <com.google.android.material.tabs.TabItem
-                        android:id="@+id/viewPerProduct1"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:text="Steps" />
-                </com.google.android.material.tabs.TabLayout>
-
             </com.google.android.material.appbar.CollapsingToolbarLayout>
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/viewRecipeTabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                app:tabMode="scrollable"
+                android:background="@drawable/tab_layout_background"
+                android:theme="@style/TabLayoutTheme"
+                app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/viewByStorage"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Information"
+                    android:textAllCaps="false"
+                    />
 
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/viewPerProduct"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Ingredients" />
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/viewPerProduct1"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="Steps" />
+            </com.google.android.material.tabs.TabLayout>
         </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
+                android:layout_height="match_parent"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
         </androidx.core.widget.NestedScrollView>
 
 
