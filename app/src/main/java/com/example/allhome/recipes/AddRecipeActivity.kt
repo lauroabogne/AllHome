@@ -19,6 +19,7 @@ import androidx.room.ColumnInfo
 import androidx.room.PrimaryKey
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import androidx.viewpager2.widget.ViewPager2.OnPageChangeCallback
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.bill.BillsFragment
 import com.example.allhome.data.entities.*
@@ -61,11 +62,18 @@ class AddRecipeActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         title = "Create recipe"
         mAddRecipeActivityViewModel = ViewModelProvider(this).get(AddRecipeActivityViewModel::class.java)
         mActivityAddRecipeBinding = DataBindingUtil.setContentView(this, R.layout.activity_add_recipe)
+
+        mActivityAddRecipeBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        setSupportActionBar(mActivityAddRecipeBinding.toolbar)
+
 
        mAction = intent.getIntExtra(ACTION_TAG, ADD_ACTION)
 
