@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.entities.MealEntity
 import com.example.allhome.recipes.RecipesFragment
@@ -14,6 +15,9 @@ class ViewerActivity : AppCompatActivity() {
         const val TITLE_TAG = "title"
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
 
         setContentView(R.layout.activity_viewer)
