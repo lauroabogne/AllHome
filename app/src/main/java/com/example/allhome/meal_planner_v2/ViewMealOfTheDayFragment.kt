@@ -86,7 +86,6 @@ class ViewMealOfTheDayFragment : Fragment() {
         mFragmentViewMealOfTheDayBinding.toolbar.setOnMenuItemClickListener(toolbarMenuItemClickListener)
 
         mFragmentViewMealOfTheDayBinding.breakfastBtn.setOnClickListener {
-                Toast.makeText(requireContext(),"snack btn clicked "+getString(R.string.breakfast),Toast.LENGTH_SHORT).show()
 
             var dialog = AddMealDialogFragment(mDateSelected!!,getString(R.string.breakfast))
             dialog.mDialogDettachedListener  = dialogDettachedListener
@@ -250,8 +249,6 @@ class ViewMealOfTheDayFragment : Fragment() {
                         }
 
                     }
-                    Toast.makeText(requireContext(),"addToGroceryList",Toast.LENGTH_SHORT).show()
-
 
                 }
             }

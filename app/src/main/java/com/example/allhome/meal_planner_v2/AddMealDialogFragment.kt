@@ -70,23 +70,6 @@ class AddMealDialogFragment(private val mDate: Date, private val singleMealType:
 
         return mlayoutBinding.root
     }
-//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-//        val inflater = LayoutInflater.from(requireContext())
-//        mlayoutBinding = DataBindingUtil.inflate(inflater, R.layout.add_meal_dialog_fragment,null,true)
-//        mlayoutBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
-//        mlayoutBinding.toolbar.setNavigationOnClickListener(toolbarNavigationClickListener)
-//
-//
-//
-//        mlayoutBinding.nextBtn.setOnClickListener(nextBtnClickListener)
-//
-//        val alertDialogBuilder: AlertDialog.Builder = AlertDialog.Builder(activity)
-//        alertDialogBuilder.setView(mlayoutBinding.root)
-//        val alertDialog = alertDialogBuilder.create()
-//
-//        return alertDialog
-//
-//    }
 
     override fun onResume() {
         super.onResume()
