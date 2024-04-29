@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.View
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.entities.BillEntityWithTotalPayment
 import com.example.allhome.data.entities.BillPaymentEntity
@@ -19,6 +20,10 @@ class BillActivity : AppCompatActivity() {
         const val BILL_INFORMATIONS_VIEWING = 2
     }
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_bill)
 
