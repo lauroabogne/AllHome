@@ -51,19 +51,13 @@ class ExpensesFragmentViewModel(private val expensesDAO: ExpensesDAO,private val
            val id =  withContext(IO){
                 expensesDAO.saveExpense(expensesEntity)
             }
-            Log.e("ID ===>","$id");
             if(expensesEntity.name.equals("failed")){
-                Log.e("DATA","FAILED DAPAT")
                 mSaveSuccessfully.postValue(false)
             }else{
                 mSaveSuccessfully.postValue(id  > 0)
             }
-
-
         }
     }
-
-
 }
 
 class ExpensesFragmentViewModelViewModelFactory(private val expensesDAO: ExpensesDAO, private val billDAO: BillDAO) : ViewModelProvider.Factory {

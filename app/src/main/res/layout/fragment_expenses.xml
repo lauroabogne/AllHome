@@ -116,14 +116,15 @@
                     app:srcCompat="@drawable/ic_calendar"
                     tools:ignore="VectorDrawableCompat" />
 
-                <Button
+                <com.google.android.material.button.MaterialButton
                     android:id="@+id/filterButton"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:text="Filter"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout3" />
+                    app:layout_constraintTop_toBottomOf="@+id/textInputLayout3"
+                    style="@style/ElevatedButtonStyle"/>
 
                 <TextView
                     android:id="@+id/filterAmountTextView"

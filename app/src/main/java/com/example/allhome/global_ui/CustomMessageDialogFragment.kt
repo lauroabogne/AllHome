@@ -29,9 +29,9 @@ class CustomMessageDialogFragment(val title:String?,val message:String,val isErr
             alertDialogBuilder.setTitle(title)
         }
 
-//        if(isErrorMessage){
-//            messageLayoutBinding.messageTextView.setTextColor(Color.RED)
-//        }
+        if(isErrorMessage){
+            messageLayoutBinding.messageTextView.setTextColor(Color.RED)
+        }
         messageLayoutBinding.messageTextView.text = message
         alertDialogBuilder.setView(messageLayoutBinding.root)
         alertDialogBuilder.setPositiveButton("Close", DialogInterface.OnClickListener { dialog, which ->

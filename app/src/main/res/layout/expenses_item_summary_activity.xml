@@ -8,26 +8,51 @@
     android:layout_height="match_parent"
     tools:context=".expenses.ExpensesItemSummaryActivity">
 
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:theme="@style/AppBarTheme">
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:minHeight="?attr/actionBarSize"
+            android:background="?attr/toolbarBgColor">
+
+        </androidx.appcompat.widget.Toolbar>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
     <com.google.android.material.tabs.TabLayout
         android:id="@+id/viewingTabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/appbar"
+        android:background="@drawable/tab_layout_background"
+        android:theme="@style/TabLayoutTheme"
+        app:tabTextAppearance="@android:style/TextAppearance.Widget.TabWidget">
 
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="All expenses" />
+
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Grocery expenses" />
+
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Bill expenses" />
+
         <com.google.android.material.tabs.TabItem
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -90,7 +115,9 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             android:layout_marginTop="4dp"
-            app:srcCompat="@drawable/ic_search_black_24dp" />
+            android:padding="8dp"
+            app:srcCompat="@drawable/filter"
+            android:background="?android:attr/selectableItemBackgroundBorderless"/>
     </LinearLayout>
 
     <FrameLayout

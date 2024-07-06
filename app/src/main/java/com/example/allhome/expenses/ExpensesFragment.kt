@@ -21,9 +21,12 @@ import com.example.allhome.bill.BillCustomDateRangeDialogFragment
 import com.example.allhome.data.DAO.BillDAO
 import com.example.allhome.data.DAO.ExpensesGroceryItemDAO
 import com.example.allhome.data.DAO.ExpensesGroceryListDAO
+import com.example.allhome.data.entities.ExpensesCategoriesEntity
 import com.example.allhome.data.entities.ExpensesEntity
 import com.example.allhome.databinding.ExpensesMonthlyItemBinding
 import com.example.allhome.databinding.FragmentExpensesBinding
+import com.example.allhome.expenses.viewmodel.ExpensesCategoriesViewModel
+import com.example.allhome.expenses.viewmodel.ExpensesCategoriesViewModelFactory
 import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModel
 import com.example.allhome.expenses.viewmodel.ExpensesFragmentViewModelViewModelFactory
 import com.example.allhome.expenses.viewmodel.ExpensesSummaryByGroceryItemsViewModel
@@ -46,12 +49,24 @@ class ExpensesFragment : Fragment() {
     private var param1: String? = null
     private var param2: String? = null
 
+    private val addExpenseDialogFragment:AddExpenseDialogFragment by lazy {
+        AddExpenseDialogFragment(addExpenseListener, addExpenseCategoryListener)
+    }
+
 
     private val mExpensesFragmentViewModel:ExpensesFragmentViewModel by viewModels{
         val expensesDAO = (context?.applicationContext as AllHomeBaseApplication).expensesDAO
         val billDAO = (context?.applicationContext as AllHomeBaseApplication).billDAO
         ExpensesFragmentViewModelViewModelFactory(expensesDAO,billDAO)
     }
+
+    private val mExpensesCategoriesViewModel:ExpensesCategoriesViewModel by viewModels{
+        val expensesCategoryDAO = (context?.applicationContext as AllHomeBaseApplication).expensesCategoryDAO
+        ExpensesCategoriesViewModelFactory(expensesCategoryDAO)
+    }
+
+
+
     lateinit var mFragmentExpensesBinding:FragmentExpensesBinding
     var mContext:Context? = null
 
@@ -60,11 +75,26 @@ class ExpensesFragment : Fragment() {
             mExpensesFragmentViewModel.addExpense(expenseEntity)
         }
     }
+    private val addExpenseCategoryListener = object :ExpensesAddCategoryDialogFragment.AddExpensesCategoryListener{
+        override fun onExpenseCategorySet(expensesCategoriesEntity: ExpensesCategoriesEntity) {
+            mExpensesCategoriesViewModel.insert(expensesCategoriesEntity)
+        }
+
+    }
     private val savingExpensesObserver = Observer<Boolean> {saveSuccessfully->
         if(saveSuccessfully){
             Toast.makeText(requireContext(),"Save successfully.",Toast.LENGTH_SHORT).show()
+            addExpenseDialogFragment.dialog?.dismiss()
         }else{
             Toast.makeText(requireContext(),"Failed to save.",Toast.LENGTH_SHORT).show()
+        }
+    }
+    private val savingExpensesCategoryObserver = Observer<Boolean> {saveSuccessfully->
+        if(saveSuccessfully){
+            addExpenseDialogFragment.expensesAddCategoryDialogFragment.dialog?.dismiss()
+            Toast.makeText(requireContext(), "Category save successfully.", Toast.LENGTH_SHORT).show()
+        }else{
+            Toast.makeText(requireContext(), "Category Failed to save.", Toast.LENGTH_SHORT).show()
         }
     }
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -115,6 +145,7 @@ class ExpensesFragment : Fragment() {
         }
 
 
+
         val decorator = DividerItemDecoration(requireContext(), LinearLayoutManager.VERTICAL)
         mFragmentExpensesBinding.monthlyExpensesRecyclerview.addItemDecoration(decorator)
 
@@ -129,6 +160,7 @@ class ExpensesFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mExpensesFragmentViewModel.mSaveSuccessfully.observe(viewLifecycleOwner,savingExpensesObserver)
+        mExpensesCategoriesViewModel.insertSuccessLiveData.observe(viewLifecycleOwner,savingExpensesCategoryObserver)
 
     }
     override fun onAttach(context: Context) {
@@ -142,7 +174,6 @@ class ExpensesFragment : Fragment() {
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             R.id.add_expenses_menu->{
-                val addExpenseDialogFragment  = AddExpenseDialogFragment(addExpenseListener)
                 addExpenseDialogFragment.show(requireActivity().supportFragmentManager,"AddExpenseDialogFragment")
             }
         }
@@ -243,7 +274,6 @@ class ExpensesFragment : Fragment() {
     private val fromDateOnClick = View.OnClickListener { showCalendar(FROM_DATE_REQUEST) }
     private val toDateOnClick = View.OnClickListener { showCalendar(TO_DATE_REQUEST) }
     private val filterBtnOnClick = View.OnClickListener {
-        Toast.makeText(requireContext(),"CLicked",Toast.LENGTH_SHORT).show()
         getFilteredExpenses()
     }
 
