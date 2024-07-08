@@ -7,6 +7,7 @@ import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.bill.BillCustomDateRangeDialogFragment
 import com.example.allhome.databinding.ExpensesItemSummaryActivityBinding
@@ -29,14 +30,22 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
+
         super.onCreate(savedInstanceState)
 
         val actionBar: ActionBar? = supportActionBar
         actionBar?.setDisplayHomeAsUpEnabled(true)
 
         title = "Expenses items breakdown"
-        setContentView(R.layout.expenses_item_summary_activity)
+       // setContentView(R.layout.expenses_item_summary_activity)
         mExpensesItemSummaryActivityBinding = DataBindingUtil.setContentView<ExpensesItemSummaryActivityBinding>(this, R.layout.expenses_item_summary_activity)
+
+        mExpensesItemSummaryActivityBinding.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        setSupportActionBar(mExpensesItemSummaryActivityBinding.toolbar)
+
         mExpensesItemSummaryActivityBinding.viewingTabLayout.addOnTabSelectedListener(onTabSelectedListener)
 
         mDateFromFilter = intent.getSerializableExtra(DATE_FROM_TAG) as Calendar
@@ -76,6 +85,7 @@ class ExpensesItemSummaryActivity : AppCompatActivity() {
 
 
     }
+
 
     private fun displayDate() {
         val readableFromDate = SimpleDateFormat("MMM d,yyyy").format(mDateFromFilter.time)

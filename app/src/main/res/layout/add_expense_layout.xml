@@ -23,6 +23,7 @@
             android:id="@+id/expenseNameTextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:inputType="textCapWords"
             android:hint="Name" />
     </com.google.android.material.textfield.TextInputLayout>
 
@@ -40,24 +41,48 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:inputType="numberDecimal"
-            android:hint="Amount" />
+            android:hint="Amount"
+            />
     </com.google.android.material.textfield.TextInputLayout>
+
+
+
+
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout21"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/expenseAddCategoryImageView"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout20">
 
-        <com.google.android.material.textfield.TextInputEditText
+        <AutoCompleteTextView
             android:id="@+id/expenseCategoryTextField"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Category" />
+            android:hint="Category"
+            android:textSize="16sp"
+            android:padding="14dp"
+            />
+
     </com.google.android.material.textfield.TextInputLayout>
+
+    <ImageView
+        android:id="@+id/expenseAddCategoryImageView"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:background="?selectableItemBackgroundBorderless"
+        android:paddingLeft="12dp"
+        android:paddingTop="10dp"
+        android:paddingRight="12dp"
+        android:paddingBottom="10dp"
+        app:layout_constraintBottom_toBottomOf="@+id/textInputLayout21"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/textInputLayout21"
+        app:srcCompat="@drawable/ic_add"
+        tools:ignore="VectorDrawableCompat" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/textInputLayout14"
@@ -93,6 +118,7 @@
         app:layout_constraintTop_toTopOf="@+id/textInputLayout14"
         app:srcCompat="@drawable/ic_calendar"
         tools:ignore="VectorDrawableCompat" />
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

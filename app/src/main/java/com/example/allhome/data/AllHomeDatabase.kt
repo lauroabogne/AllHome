@@ -11,7 +11,7 @@ import com.example.allhome.data.entities.*
     StorageEntity::class,RecipeEntity::class,IngredientEntity::class,RecipeStepEntity::class,MealEntity::class,BillEntity::class,
     BillPaymentEntity::class,BillCategoryEntity::class,GroceryListItemCategoryEntity::class,RecipeCategoryEntity::class,
     RecipeCategoryAssignmentEntity::class,AppSettingEntity::class,ExpensesGroceryListEntity::class,ExpensesGroceryItemEntity::class,ExpensesGroceryListItemCategoryEntity::class,
-    ExpensesEntity::class,TodoEntity::class,TodoChecklistEntity::class,LogsEntity::class,AlarmRecordsEntity::class,
+    ExpensesEntity::class,TodoEntity::class,TodoChecklistEntity::class,LogsEntity::class,AlarmRecordsEntity::class,ExpensesCategoriesEntity::class
     ),version = 4)
 abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun groceryItemDAO(): GroceryItemDAO
@@ -38,6 +38,7 @@ abstract class AllHomeDatabase : RoomDatabase() {
     abstract fun getTodoSubTasksDAO():TodoSubTasksDAO
     abstract fun getLogsDAO():LogsDAO
     abstract fun getAlarmsRecordsDAO():AlarmRecordsDAO
+    abstract fun getExpensesCategoriesDAO():ExpensesCategoriesDAO
 
 
 

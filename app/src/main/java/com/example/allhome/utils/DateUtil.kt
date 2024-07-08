@@ -20,4 +20,10 @@ object DateUtil {
 
         return calendar.getDisplayName(Calendar.DAY_OF_WEEK, Calendar.LONG, Locale.getDefault())
     }
+
+    fun getCurrentDateTime(): String {
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val cal = Calendar.getInstance()
+        return dateFormat.format(cal.time)
+    }
 }
