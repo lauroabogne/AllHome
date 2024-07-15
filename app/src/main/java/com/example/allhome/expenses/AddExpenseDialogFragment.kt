@@ -52,8 +52,6 @@ class AddExpenseDialogFragment(val addExpenseListener:AddExpenseListener, val ad
         mAddExpenseLayoutBinding.expenseAddCategoryImageView.setOnClickListener {
             expensesAddCategoryDialogFragment.show(requireActivity().supportFragmentManager,"ExpensesAddCategoryDialogFragment")
         }
-        val suggestions = listOf("Apple", "Banana", "Orange", "Mango", "Grapes")
-        val adapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, suggestions)
 
         val expensesCategoryAutoSuggestCustomAdapter = ExpensesCategoryAutoSuggestCustomAdapter(requireContext(), arrayListOf())
 
