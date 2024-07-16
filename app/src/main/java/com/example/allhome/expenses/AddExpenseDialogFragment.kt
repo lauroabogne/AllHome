@@ -148,7 +148,6 @@ class AddExpenseDialogFragment(val addExpenseListener:AddExpenseListener, val ad
                             results.count = searchResults.size
                         }
                     }
-                    // return the result
                     results
                 }
                 return suggestion

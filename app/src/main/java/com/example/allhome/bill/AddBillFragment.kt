@@ -2,11 +2,15 @@ package com.example.allhome.bill
 
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
 import android.widget.AdapterView
+import android.widget.ArrayAdapter
+import android.widget.Filter
 import android.widget.RadioGroup
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -14,13 +18,18 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import com.example.allhome.R
 import com.example.allhome.bill.viewmodel.BillViewModel
+import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.BillCategoryEntity
 import com.example.allhome.data.entities.BillEntity
+import com.example.allhome.data.entities.ExpensesCategoriesEntity
 import com.example.allhome.databinding.FragmentAddBillBinding
 import com.example.allhome.global_ui.DateInMonthDialogFragment
 import com.example.allhome.utils.MinMaxInputFilter
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Dispatchers.Main
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.*
@@ -56,7 +65,6 @@ class AddBillFragment : Fragment() {
         toolbar?.title = "Create bill"
         toolbar?.inflateMenu(R.menu.create_bill_menu)
         toolbar?.setNavigationOnClickListener {
-
            activity?.finish()
         }
         toolbar?.setOnMenuItemClickListener {
@@ -74,6 +82,8 @@ class AddBillFragment : Fragment() {
             }
             true
         }
+
+
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -88,6 +98,11 @@ class AddBillFragment : Fragment() {
         mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.setSelection(2)// set Month as default selected
         mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
         mFragmentAddBillBinding.recurringBillIncludeLayout.recurringConditionRadioGroup.setOnCheckedChangeListener(recurringConditionRadioGroupOnChangeCheckedListener)
+
+        val billNameAutoSuggestCustomAdapter = BillNameAutoSuggestCustomAdapter(requireContext(), arrayListOf())
+
+        mFragmentAddBillBinding.billNameTextInput.threshold = 1
+        mFragmentAddBillBinding.billNameTextInput.setAdapter(billNameAutoSuggestCustomAdapter)
 
 
         return mFragmentAddBillBinding.root
@@ -887,5 +902,71 @@ class AddBillFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    inner class BillNameAutoSuggestCustomAdapter(context: Context, expensesCategories:List<String>): ArrayAdapter<String>(context,0,expensesCategories){
+        private var filter  = object: Filter(){
+            private var searchJob: Job? = null
+
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                searchJob?.cancel()
+                val suggestion =  runBlocking {
+                    val results = FilterResults()
+                    searchJob = launch(Dispatchers.IO) {
+                        val searchTerm = if(constraint == null) "" else constraint.toString()
+                        //val searchResults = AllHomeDatabase.getDatabase(context).getExpensesCategoriesDAO().searchCategories(searchTerm)
+
+                        val searchResults = AllHomeDatabase.getDatabase(context).getBillItemDAO().searchDistinctNamesCaseSensitive(searchTerm)
+
+
+
+//                        val searchResults = arrayListOf(
+//                            "Groceries",
+//                            "Rent",
+//                            "Utilities",
+//                            "Transportation",
+//                            "Entertainment",
+//                            "Dining Out",
+//                            "Clothing",
+//                            "Travel",
+//                            "Medical",
+//                            "Education"
+//                        )
+                        results.apply {
+                            results.values = searchResults
+                            results.count = searchResults.size
+                        }
+                    }
+                    results
+                }
+                return suggestion
+            }
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                if(results?.values == null){
+                    return
+                }
+                clear()
+                addAll(results.values as ArrayList<String>)
+            }
+            override fun convertResultToString(resultValue: Any?): CharSequence {
+                return resultValue.toString()
+            }
+
+        }
+
+        override fun getFilter(): Filter {
+            return filter
+        }
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val textView: TextView? = if(convertView == null){
+                LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false) as TextView?
+            }else{
+                convertView as TextView?
+            }
+            val billName = getItem(position)
+            textView!!.text = billName
+
+            return textView
+        }
     }
 }
