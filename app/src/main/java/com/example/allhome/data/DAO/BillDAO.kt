@@ -170,4 +170,7 @@ interface BillDAO {
     )
     fun getTotalOverdue(fromDate: String, toDate: String):Double
 
+    @Query("SELECT DISTINCT name FROM bills WHERE name LIKE '%' || :searchTerm || '%' LIMIT 20")
+    fun searchDistinctNamesCaseSensitive(searchTerm: String): List<String>
+
 }
