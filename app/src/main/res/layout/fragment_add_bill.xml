@@ -45,20 +45,40 @@
                 android:hint="Amount"
                 android:inputType="numberDecimal" />
         </com.google.android.material.textfield.TextInputLayout>
+
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/textInputLayout16"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintTop_toBottomOf="@+id/amountTextinputLayout"
-            tools:layout_editor_absoluteX="4dp">
+            app:layout_constraintEnd_toStartOf="@+id/billAddCategoryImageView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/amountTextinputLayout">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/categoryAmountTextinput"
+            <AutoCompleteTextView
+                android:id="@+id/bill_category_textinput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Category" />
+                android:hint="Category"
+                android:padding="14dp"
+                android:textSize="16sp" />
+
         </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/billAddCategoryImageView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:background="?selectableItemBackgroundBorderless"
+            android:paddingLeft="12dp"
+            android:paddingTop="10dp"
+            android:paddingRight="12dp"
+            android:paddingBottom="10dp"
+            app:layout_constraintBottom_toBottomOf="@+id/textInputLayout16"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/textInputLayout16"
+            app:srcCompat="@drawable/ic_add"
+            tools:ignore="VectorDrawableCompat" />
 
         <RadioGroup
             android:id="@+id/oneTimeOrRecurringRadioGroup"

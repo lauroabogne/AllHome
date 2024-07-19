@@ -12,4 +12,6 @@ interface BillCategoryDAO {
     fun saveCategory(bill:BillCategoryEntity):Long
     @Query("Select * from ${BillCategoryEntity.TABLE_NAME} WHERE ${BillCategoryEntity.COLUMN_NAME} = :name LIMIT 1")
      fun getCategory(name:String):BillCategoryEntity
+    @Query("SELECT DISTINCT ${BillCategoryEntity.COLUMN_NAME} FROM ${BillCategoryEntity.TABLE_NAME} WHERE ${BillCategoryEntity.COLUMN_NAME} LIKE '%' || :searchTerm || '%' LIMIT 20")
+    fun searchDistinctNamesCaseSensitive(searchTerm: String): List<String>
 }

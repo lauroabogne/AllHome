@@ -21,7 +21,6 @@ import com.example.allhome.bill.viewmodel.BillViewModel
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.BillCategoryEntity
 import com.example.allhome.data.entities.BillEntity
-import com.example.allhome.data.entities.ExpensesCategoriesEntity
 import com.example.allhome.databinding.FragmentAddBillBinding
 import com.example.allhome.global_ui.DateInMonthDialogFragment
 import com.example.allhome.utils.MinMaxInputFilter
@@ -49,6 +48,27 @@ class AddBillFragment : Fragment() {
     var mDueDate:String? = null
     var mRepeatUntilDate:String? = null
 
+
+    private val mAddExpenseDialogFragment: BillAddCategoryDialogFragment by lazy {
+        BillAddCategoryDialogFragment(mAddExpenseCategoryListener)
+    }
+
+    private val mAddExpenseCategoryListener = object : BillAddCategoryDialogFragment.AddBillCategoryListener{
+        override fun onExpenseCategorySet(billCategoryEntity: BillCategoryEntity) {
+
+            mBillViewModel.mCoroutineScope.launch {
+                val id =  mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
+                withContext(Main){
+                    if(id > 0){
+                        mAddExpenseDialogFragment.dialog?.dismiss()
+                        Toast.makeText(requireContext(),"Bill category save successfully.",Toast.LENGTH_SHORT).show()
+                    }else{
+                        Toast.makeText(requireContext(),"Failed to save bill. Please try again.",Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+        }
+    }
 
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,8 +102,6 @@ class AddBillFragment : Fragment() {
             }
             true
         }
-
-
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -99,10 +117,19 @@ class AddBillFragment : Fragment() {
         mFragmentAddBillBinding.recurringBillIncludeLayout.repeatSpinner.onItemSelectedListener = repeatSpinnerOnItemSelectedListener
         mFragmentAddBillBinding.recurringBillIncludeLayout.recurringConditionRadioGroup.setOnCheckedChangeListener(recurringConditionRadioGroupOnChangeCheckedListener)
 
-        val billNameAutoSuggestCustomAdapter = BillNameAutoSuggestCustomAdapter(requireContext(), arrayListOf())
+        mFragmentAddBillBinding.billAddCategoryImageView.setOnClickListener {
 
+            mAddExpenseDialogFragment.show(requireActivity().supportFragmentManager,"BillAddCategoryDialogFragment")
+
+        }
+
+        val billNameAutoSuggestCustomAdapter = BillNameAutoSuggestCustomAdapter(requireContext(), arrayListOf())
         mFragmentAddBillBinding.billNameTextInput.threshold = 1
         mFragmentAddBillBinding.billNameTextInput.setAdapter(billNameAutoSuggestCustomAdapter)
+
+        val billCategoryAutoSuggestCustomAdapter = BillCategoryAutoSuggestCustomAdapter(requireContext(), arrayListOf())
+        mFragmentAddBillBinding.billCategoryTextinput.threshold = 1
+        mFragmentAddBillBinding.billCategoryTextinput.setAdapter(billCategoryAutoSuggestCustomAdapter)
 
 
         return mFragmentAddBillBinding.root
@@ -127,7 +154,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
-        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
+        val category = mFragmentAddBillBinding.billCategoryTextinput.text.toString().trim()
 
         val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
         val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
@@ -403,7 +430,7 @@ class AddBillFragment : Fragment() {
         mBillViewModel.mCoroutineScope.launch {
             val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
             if(category.isNotEmpty() && billCategoryEntity == null){
-                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category,"", status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
                 mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
             }
 
@@ -428,7 +455,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
-        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
+        val category = mFragmentAddBillBinding.billCategoryTextinput.text.toString().trim()
 
         val repeatEveryString = mFragmentAddBillBinding.recurringBillIncludeLayout.repeatEveryTextInputEditText.text.toString().trim()
         val repeatEveryInt = if(repeatEveryString.isEmpty()) 0 else repeatEveryString.toInt()
@@ -674,7 +701,7 @@ class AddBillFragment : Fragment() {
         mBillViewModel.mCoroutineScope.launch {
             val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
             if(category.isNotEmpty() && billCategoryEntity == null){
-                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category,"", status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
                 mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
 
             }
@@ -696,7 +723,7 @@ class AddBillFragment : Fragment() {
         val billAmountDouble = if(billAmountString.isNullOrEmpty()) 0.0 else billAmountString.toDouble()
 
         val billName = mFragmentAddBillBinding.billNameTextInput.text.toString().trim()
-        val category = mFragmentAddBillBinding.categoryAmountTextinput.text.toString().trim()
+        val category = mFragmentAddBillBinding.billCategoryTextinput.text.toString().trim()
         if(billAmountDouble <=0){
             Toast.makeText(requireContext(),"Please input bill amount.",Toast.LENGTH_SHORT).show()
             return
@@ -743,7 +770,7 @@ class AddBillFragment : Fragment() {
 
             val billCategoryEntity = mBillViewModel.getCategory(requireContext(),category)
             if(category.isNotEmpty() && billCategoryEntity == null){
-                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category, status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
+                val billCategoryEntity = BillCategoryEntity(uniqueId = UUID.randomUUID().toString(), name=category,"", status = BillCategoryEntity.NOT_DELETED_STATUS, uploaded = BillCategoryEntity.NOT_UPLOADED, created = currentDatetime, modified = currentDatetime)
                 mBillViewModel.saveBillCategory(requireContext(),billCategoryEntity)
 
             }
@@ -904,34 +931,17 @@ class AddBillFragment : Fragment() {
             }
     }
 
-    inner class BillNameAutoSuggestCustomAdapter(context: Context, expensesCategories:List<String>): ArrayAdapter<String>(context,0,expensesCategories){
+    inner class BillNameAutoSuggestCustomAdapter(context: Context, billNames:List<String>): ArrayAdapter<String>(context,0,billNames){
         private var filter  = object: Filter(){
             private var searchJob: Job? = null
-
             override fun performFiltering(constraint: CharSequence?): FilterResults {
                 searchJob?.cancel()
                 val suggestion =  runBlocking {
                     val results = FilterResults()
                     searchJob = launch(Dispatchers.IO) {
                         val searchTerm = if(constraint == null) "" else constraint.toString()
-                        //val searchResults = AllHomeDatabase.getDatabase(context).getExpensesCategoriesDAO().searchCategories(searchTerm)
-
                         val searchResults = AllHomeDatabase.getDatabase(context).getBillItemDAO().searchDistinctNamesCaseSensitive(searchTerm)
 
-
-
-//                        val searchResults = arrayListOf(
-//                            "Groceries",
-//                            "Rent",
-//                            "Utilities",
-//                            "Transportation",
-//                            "Entertainment",
-//                            "Dining Out",
-//                            "Clothing",
-//                            "Travel",
-//                            "Medical",
-//                            "Education"
-//                        )
                         results.apply {
                             results.values = searchResults
                             results.count = searchResults.size
@@ -953,7 +963,54 @@ class AddBillFragment : Fragment() {
             }
 
         }
+        override fun getFilter(): Filter {
+            return filter
+        }
+        override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+            val textView: TextView? = if(convertView == null){
+                LayoutInflater.from(context).inflate(android.R.layout.simple_list_item_1, parent, false) as TextView?
+            }else{
+                convertView as TextView?
+            }
+            val billName = getItem(position)
+            textView!!.text = billName
 
+            return textView
+        }
+    }
+
+    inner class BillCategoryAutoSuggestCustomAdapter(context: Context, billCategories:List<String>): ArrayAdapter<String>(context,0,billCategories){
+        private var filter  = object: Filter(){
+            private var searchJob: Job? = null
+            override fun performFiltering(constraint: CharSequence?): FilterResults {
+                searchJob?.cancel()
+                val suggestion =  runBlocking {
+                    val results = FilterResults()
+                    searchJob = launch(Dispatchers.IO) {
+                        val searchTerm = if(constraint == null) "" else constraint.toString()
+                        val searchResults = AllHomeDatabase.getDatabase(context).getBillCategoryDAO().searchDistinctNamesCaseSensitive(searchTerm)
+
+                        results.apply {
+                            results.values = searchResults
+                            results.count = searchResults.size
+                        }
+                    }
+                    results
+                }
+                return suggestion
+            }
+            override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
+                if(results?.values == null){
+                    return
+                }
+                clear()
+                addAll(results.values as ArrayList<String>)
+            }
+            override fun convertResultToString(resultValue: Any?): CharSequence {
+                return resultValue.toString()
+            }
+
+        }
         override fun getFilter(): Filter {
             return filter
         }

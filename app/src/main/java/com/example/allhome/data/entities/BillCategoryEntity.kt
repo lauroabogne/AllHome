@@ -18,6 +18,7 @@ data class BillCategoryEntity(
     @PrimaryKey(autoGenerate = false)
     @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String,
     @ColumnInfo(name= COLUMN_NAME) var name:String,
+    @ColumnInfo(name = COLUMN_DESCRIPTION) val category: String?,
     @ColumnInfo(name= COLUMN_STATUS,defaultValue="${NOT_DELETED_STATUS}") var status:Int,
     @ColumnInfo(name= COLUMN_UPLOADED,defaultValue="${NOT_UPLOADED}") var uploaded:Int,
     @ColumnInfo(name= COLUMN_CREATED,defaultValue="CURRENT_TIMESTAMP") var created:String,
@@ -31,6 +32,7 @@ data class BillCategoryEntity(
         const val TABLE_NAME ="bill_categories"
         const val COLUMN_UNIQUE_ID ="unique_id"
         const val COLUMN_NAME ="name"
+        const val COLUMN_DESCRIPTION="description"
         const val COLUMN_STATUS ="status"
         const val COLUMN_UPLOADED ="uploaded"
         const val COLUMN_CREATED ="created"
