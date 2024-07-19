@@ -104,9 +104,9 @@ class BillViewModel: ViewModel() {
         return billCategoryDAO.getCategory(name)
 
     }
-    suspend fun saveBillCategory(context: Context,billCategory:BillCategoryEntity){
+    suspend fun saveBillCategory(context: Context,billCategory:BillCategoryEntity): Long{
         val billCategoryDAO = AllHomeDatabase.getDatabase(context).getBillCategoryDAO()
-        billCategoryDAO.saveCategory(billCategory)
+        return billCategoryDAO.saveCategory(billCategory)
     }
     suspend fun getOverdueAmount(context:Context,startDate:String,endDate:String):Double{
         val billDAO = AllHomeDatabase.getDatabase(context).getBillItemDAO()
