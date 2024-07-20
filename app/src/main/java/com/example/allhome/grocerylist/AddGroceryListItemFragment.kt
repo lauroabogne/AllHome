@@ -21,6 +21,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.FileProvider
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.allhome.R
 import com.example.allhome.data.AllHomeDatabase
 import com.example.allhome.data.entities.GroceryItemEntity
@@ -735,21 +736,19 @@ class AddGroceryListItemFragment : Fragment() {
             private var searchJob: Job? = null
 
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+
+                val results = FilterResults()
                 searchJob?.cancel()
-                val suggestion =  runBlocking {
-                    val results = FilterResults()
-                    searchJob = launch(Dispatchers.IO) {
-                        val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntitiesForAutoSuggest(searchTerm,groceryListUniqueId)
-                        results.apply {
-                            results.values = arrayList
-                            results.count = arrayList.size
-                        }
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val searchTerm = if (constraint == null) "" else constraint.toString()
+                    val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntitiesForAutoSuggest(searchTerm, groceryListUniqueId)
+                    withContext(Dispatchers.Main) {
+                        results.values = arrayList
+                        results.count = arrayList.size
+                        publishResults(constraint, results)
                     }
-                    // return the result
-                    results
                 }
-                return suggestion
+                return results
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
@@ -795,7 +794,7 @@ class AddGroceryListItemFragment : Fragment() {
     /**
      * Item unit auto suggest adapter
      */
-    class UnitAutoSuggestCustomAdapter(context: Context, var groceryItemEntityUnitsParams: List<String>):
+    inner class UnitAutoSuggestCustomAdapter(context: Context, var groceryItemEntityUnitsParams: List<String>):
         ArrayAdapter<String>(context, 0, groceryItemEntityUnitsParams) {
         private var groceryItemEntityUnits: List<String>? = null
         init{
@@ -806,21 +805,21 @@ class AddGroceryListItemFragment : Fragment() {
             private var searchJob: Job? = null
 
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+
+                val results = FilterResults()
                 searchJob?.cancel()
-                val suggestion =  runBlocking {
-                    val results = FilterResults()
-                    searchJob = launch(Dispatchers.IO) {
-                        val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntityUnits(searchTerm)
-                        results.apply {
-                            results.values = arrayList
-                            results.count = arrayList.size
-                        }
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val searchTerm = if (constraint == null) "" else constraint.toString()
+                    val suggestion = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntityUnits(searchTerm)
+                    withContext(Dispatchers.Main) {
+                        results.values = suggestion
+                        results.count = suggestion.size
+                        publishResults(constraint, results)
                     }
-                    // return the result
-                    results
                 }
-                return suggestion
+                return results
+
+
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
@@ -855,7 +854,7 @@ class AddGroceryListItemFragment : Fragment() {
     /**
      * Item category auto suggest adapter
      */
-    class CategoryAutoSuggestCustomAdapter(context: Context, var groceryItemEntityCategoriesParams: List<String>):
+    inner class CategoryAutoSuggestCustomAdapter(context: Context, var groceryItemEntityCategoriesParams: List<String>):
         ArrayAdapter<String>(context, 0, groceryItemEntityCategoriesParams) {
         private var groceryItemEntityCategories: List<String>? = null
         init{
@@ -866,21 +865,21 @@ class AddGroceryListItemFragment : Fragment() {
             private var searchJob: Job? = null
 
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+
+                val results = FilterResults()
                 searchJob?.cancel()
-                val suggestion =  runBlocking {
-                    val results = FilterResults()
-                    searchJob = launch(Dispatchers.IO) {
-                        val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val arrayList = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntityCategories(searchTerm)
-                        results.apply {
-                            results.values = arrayList
-                            results.count = arrayList.size
-                        }
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val searchTerm = if (constraint == null) "" else constraint.toString()
+                    val suggestion = AllHomeDatabase.getDatabase(context).groceryItemDAO().getGroceryItemEntityCategories(searchTerm)
+                    withContext(Dispatchers.Main) {
+                        results.values = suggestion
+                        results.count = suggestion.size
+                        publishResults(constraint, results)
                     }
-                    // return the result
-                    results
                 }
-                return suggestion
+                return results
+
+
             }
 
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {

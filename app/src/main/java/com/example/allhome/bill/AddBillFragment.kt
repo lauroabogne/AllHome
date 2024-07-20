@@ -934,9 +934,11 @@ class AddBillFragment : Fragment() {
 
     inner class BillNameAutoSuggestCustomAdapter(context: Context, billNames:List<String>): ArrayAdapter<String>(context,0,billNames){
         private var filter  = object: Filter(){
+            private var searchJob: Job? = null
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+                searchJob?.cancel()
                 val results = FilterResults()
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val searchTerm = if (constraint == null) "" else constraint.toString()
                     val searchResults = AllHomeDatabase.getDatabase(context).getBillItemDAO().searchDistinctNamesCaseSensitive(searchTerm)
 
@@ -980,9 +982,11 @@ class AddBillFragment : Fragment() {
 
     inner class BillCategoryAutoSuggestCustomAdapter(context: Context, billCategories:List<String>): ArrayAdapter<String>(context,0,billCategories){
         private var filter  = object: Filter(){
+            private var searchJob: Job? = null
             override fun performFiltering(constraint: CharSequence?): FilterResults {
+                searchJob?.cancel()
                 val results = FilterResults()
-                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                searchJob = viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
                     val searchTerm = if (constraint == null) "" else constraint.toString()
                     val searchResults = AllHomeDatabase.getDatabase(context).getBillCategoryDAO().searchDistinctNamesCaseSensitive(searchTerm)
 
