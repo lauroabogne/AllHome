@@ -16,6 +16,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.example.allhome.R
 import com.example.allhome.bill.viewmodel.BillViewModel
 import com.example.allhome.data.AllHomeDatabase
@@ -933,23 +934,21 @@ class AddBillFragment : Fragment() {
 
     inner class BillNameAutoSuggestCustomAdapter(context: Context, billNames:List<String>): ArrayAdapter<String>(context,0,billNames){
         private var filter  = object: Filter(){
-            private var searchJob: Job? = null
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                searchJob?.cancel()
-                val suggestion =  runBlocking {
-                    val results = FilterResults()
-                    searchJob = launch(Dispatchers.IO) {
-                        val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val searchResults = AllHomeDatabase.getDatabase(context).getBillItemDAO().searchDistinctNamesCaseSensitive(searchTerm)
+                val results = FilterResults()
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val searchTerm = if (constraint == null) "" else constraint.toString()
+                    val searchResults = AllHomeDatabase.getDatabase(context).getBillItemDAO().searchDistinctNamesCaseSensitive(searchTerm)
 
+                    withContext(Dispatchers.Main) {
                         results.apply {
-                            results.values = searchResults
-                            results.count = searchResults.size
+                            values = searchResults
+                            count = searchResults.size
                         }
+                        publishResults(constraint, results)
                     }
-                    results
                 }
-                return suggestion
+                return results
             }
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 if(results?.values == null){
@@ -981,23 +980,21 @@ class AddBillFragment : Fragment() {
 
     inner class BillCategoryAutoSuggestCustomAdapter(context: Context, billCategories:List<String>): ArrayAdapter<String>(context,0,billCategories){
         private var filter  = object: Filter(){
-            private var searchJob: Job? = null
             override fun performFiltering(constraint: CharSequence?): FilterResults {
-                searchJob?.cancel()
-                val suggestion =  runBlocking {
-                    val results = FilterResults()
-                    searchJob = launch(Dispatchers.IO) {
-                        val searchTerm = if(constraint == null) "" else constraint.toString()
-                        val searchResults = AllHomeDatabase.getDatabase(context).getBillCategoryDAO().searchDistinctNamesCaseSensitive(searchTerm)
+                val results = FilterResults()
+                viewLifecycleOwner.lifecycleScope.launch(Dispatchers.IO) {
+                    val searchTerm = if (constraint == null) "" else constraint.toString()
+                    val searchResults = AllHomeDatabase.getDatabase(context).getBillCategoryDAO().searchDistinctNamesCaseSensitive(searchTerm)
 
+                    withContext(Dispatchers.Main) {
                         results.apply {
-                            results.values = searchResults
-                            results.count = searchResults.size
+                            values = searchResults
+                            count = searchResults.size
                         }
+                        publishResults(constraint, results)
                     }
-                    results
                 }
-                return suggestion
+                return results
             }
             override fun publishResults(constraint: CharSequence?, results: FilterResults?) {
                 if(results?.values == null){
