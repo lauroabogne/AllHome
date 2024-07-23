@@ -436,7 +436,7 @@ class SingleGroceryListActivity : AppCompatActivity() {
         groceryItemRecyclerViewAdapter.mTouchHelper = mItemTouchHelper
 
     }
-    override fun onNewIntent(intent: Intent?) {
+    override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
         finish()
