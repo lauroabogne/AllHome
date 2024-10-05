@@ -3,7 +3,9 @@ package com.example.allhome.data.DAO
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
+import androidx.room.Update
 import com.example.allhome.data.entities.*
+import com.example.allhome.network.uploads.BillsUpload
 
 @Dao
 interface BillDAO {
@@ -172,5 +174,14 @@ interface BillDAO {
 
     @Query("SELECT DISTINCT name FROM bills WHERE name LIKE '%' || :searchTerm || '%' LIMIT 20")
     fun searchDistinctNamesCaseSensitive(searchTerm: String): List<String>
-
+    @Query("SELECT * FROM bills WHERE uploaded = :notUploaded")
+    suspend fun getBillsToUpload(notUploaded: Int): List<BillEntity>
+    @Query("SELECT ${BillEntity.COLUMN_UNIQUE_ID} FROM ${BillEntity.TABLE_NAME} WHERE ${BillEntity.COLUMN_UPLOADED} = :notUpload ORDER BY created")
+    suspend fun getUniqueIdsToUpload(notUpload: Int): List<String>
+    @Update
+    suspend fun updateBill(bill: BillEntity)
+    @Query("UPDATE ${BillEntity.TABLE_NAME} SET ${BillEntity.COLUMN_UPLOADED} = :uploaded WHERE ${BillEntity.COLUMN_UNIQUE_ID} = :uniqueId")
+    suspend fun updateBillAsUploaded(uniqueId: String, uploaded: Int):Int
+    @Query("SELECT * FROM bills WHERE ${BillEntity.COLUMN_UNIQUE_ID} = :uniqueId")
+    suspend fun getBillByUniqueId(uniqueId: String): BillEntity?
 }
