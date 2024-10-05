@@ -40,9 +40,13 @@
         android:id="@+id/group2">
 
         <item
-            android:id="@+id/setting"
+            android:id="@+id/nav_setting"
             android:icon="@drawable/ic_baseline_settings_24"
             android:title="Setting" />
+        <item
+            android:id="@+id/nav_sync"
+            android:icon="@drawable/ic_baseline_settings_24"
+            android:title="Sync" />
     </group>
 
 </menu>

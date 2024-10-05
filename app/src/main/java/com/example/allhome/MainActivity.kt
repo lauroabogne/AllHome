@@ -3,7 +3,6 @@ package com.example.allhome
 import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
 import android.view.MenuItem
@@ -19,12 +18,17 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import com.example.allhome.bill.BillsFragment
 import com.example.allhome.expenses.ExpensesFragment
 import com.example.allhome.grocerylist.AddGroceryListItemFragment
 import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
-import com.example.allhome.grocerylist.archived_grocery_list.TrashGroceryListFragment
+import com.example.allhome.network.RetrofitInstance
+import com.example.allhome.network.Sync
+import com.example.allhome.network.datamodels.BillUploadDataModel
+import com.example.allhome.network.datamodels.BillPaymentDataModel
+import com.example.allhome.network.uploads.BillsUpload
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
 import com.example.allhome.todo.CreateEditTodoFragment
@@ -33,9 +37,11 @@ import com.example.allhome.todo.TodoFragmentContainerActivity
 import com.example.allhome.todo.ViewTodoFragment
 import com.example.allhome.todo.calendar.TodoCalendarViewFragment
 import com.example.allhome.utils.CustomAlarmManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import org.joda.time.DateTime
-import java.text.SimpleDateFormat
-import java.util.*
 
 class MainActivity : AppCompatActivity() {
 
@@ -112,6 +118,16 @@ class MainActivity : AppCompatActivity() {
 
                         //drawerLayout.closeDrawer(GravityCompat.START)
                     }
+                    R.id.nav_setting -> {
+
+                        Toast.makeText(this@MainActivity,"Setting",Toast.LENGTH_SHORT).show()
+
+                    }
+                    R.id.nav_sync -> {
+                        Toast.makeText(this@MainActivity, "Sync", Toast.LENGTH_SHORT).show()
+                        testUpload()
+                    }
+
                 }
 
             }
@@ -182,7 +198,6 @@ class MainActivity : AppCompatActivity() {
         }
         return super.onOptionsItemSelected(item)
     }
-
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
 
@@ -262,4 +277,45 @@ class MainActivity : AppCompatActivity() {
 
     }
 
+
+    private val billsUpload: BillsUpload by lazy {
+        // Initialize ExpensesUpload with your ApiService and ExpensesDAO
+        val billDAO = (applicationContext as AllHomeBaseApplication).billDAO
+        BillsUpload(RetrofitInstance.api, billDAO)
+    }
+
+
+    private fun testUpload_(){
+
+        val syncNotification = SyncNotificationProgress(this)
+        CoroutineScope(Dispatchers.IO).launch {
+            val totalItemsToSync = 30 //Set this based on the number of items you need to sync
+            for (i in 1..totalItemsToSync) {
+                // Upload data...
+                val perItemTotalItemToSync = 10;
+                for(x in 1 ..perItemTotalItemToSync){
+                    // Update notification progress
+                    delay(1000)
+                    //syncNotification.showProgressNotification(i, totalItemsToSync, x, perItemTotalItemToSync)
+                }
+
+            }
+
+            // Once sync is complete
+            syncNotification.completeSync()
+        }
+
+
+    }
+
+    private fun testUpload(){
+        Sync.getInstance(applicationContext).startSync()
+
+
+//        lifecycleScope.launch {
+//            Log.e("Test", "Test network call")
+//            billsUpload.uploadBills()
+//        }
+
+    }
 }
