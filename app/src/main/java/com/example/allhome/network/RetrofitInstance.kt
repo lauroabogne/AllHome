@@ -23,6 +23,7 @@ object RetrofitInstance {
         return "QVcwR+LaLSZw07ORhiIvujT+H71nDPcUHNQ78cHAAdieqsrcgnj0EWyD9+T28TmlpSvGXg1OKpLcxjjLC6yypK+9+DCar0RHBZsn31FvxiF+4VnHpPgx4fue/O2yS8BzD7bA3ZfADZKcTaM9NC9Lpw=="
     }
 
+
     private val okHttpClient = OkHttpClient.Builder()
         .cookieJar(SimpleCookieJar()) // Use the SimpleCookieJar
         .addInterceptor(csrfInterceptor) // Add CSRF Token Interceptor

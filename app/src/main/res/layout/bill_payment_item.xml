@@ -62,7 +62,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:paddingLeft="8dp"
-            android:text="@{DateUtil.INSTANCE.formatDateString(billPaymentEntity.paymentDate,`MMMM dd, yyyy`)}"
+            android:text="@{DateUtil.INSTANCE.formatDateTimeString(billPaymentEntity.paymentDate,`MMMM dd, yyyy h:mm a`)}"
             android:textColor="#000000"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="@+id/amountTextView"

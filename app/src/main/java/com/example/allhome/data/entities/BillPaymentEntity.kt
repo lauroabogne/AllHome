@@ -59,16 +59,6 @@ fun setImageInImageView(view: View, paymentOldImageUri: Uri?, paymentNewImageUri
         (view as ImageView).setImageURI(paymentOldImageUri)
     }
 }
-/*@BindingAdapter(value=["bind:billPaymentImage","bind:noBillPaymentImage"],requireAll = false)
-fun setBillPaymentImage(view: View, billPaymentImage: Uri?, noBillPaymentImage: Uri?){
-
-    if(noBillPaymentImage !=null){
-        (view as ImageView).setImageURI(noBillPaymentImage)
-    }else if(noBillPaymentImage ==null && billPaymentImage !=null){
-        (view as ImageView).setImageURI(billPaymentImage)
-    }
-}*/
-
 @BindingAdapter(value = ["billPaymentImage","noImageDrawable"],requireAll = false)
 fun billPaymentImage(view: View, billPaymentImage: Uri?,noImageDrawable: Drawable?){
 

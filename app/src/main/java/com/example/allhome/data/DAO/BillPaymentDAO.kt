@@ -46,5 +46,11 @@ interface BillPaymentDAO {
     fun getTotalBillPaymentExpenses(fromDate: String, toDate: String): Double
 
 
+    @Query("SELECT ${BillPaymentEntity.COLUMN_UNIQUE_ID} FROM ${BillPaymentEntity.TABLE_NAME} WHERE ${BillPaymentEntity.COLUMN_UPLOADED} = :notUpload ORDER BY created")
+    fun getUniqueIdsToUpload(notUpload: Int): List<String>
+    @Query("SELECT * FROM ${BillPaymentEntity.TABLE_NAME} WHERE ${BillPaymentEntity.COLUMN_UNIQUE_ID} = :uniqueId")
+    suspend fun getBillPaymentByUniqueId(uniqueId: String): BillPaymentEntity?
+    @Query("UPDATE ${BillPaymentEntity.TABLE_NAME} SET ${BillPaymentEntity.COLUMN_UPLOADED} = :uploaded WHERE ${BillPaymentEntity.COLUMN_UNIQUE_ID} = :uniqueId")
+    suspend fun updateBillPaymentAsUploaded(uniqueId: String, uploaded: Int):Int
 
 }

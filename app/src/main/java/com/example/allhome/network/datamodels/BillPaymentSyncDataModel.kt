@@ -1,6 +1,6 @@
 package com.example.allhome.network.datamodels
 
-data class BillPaymentDataModel(
+data class BillPaymentSyncDataModel(
     val uniqueId: String,
     val billUniqueId: String,
     val billGroupUniqueId: String,

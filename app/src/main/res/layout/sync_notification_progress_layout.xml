@@ -25,7 +25,7 @@
         android:id="@+id/overall_progress_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Overall progress: 0/2" />
+        android:text="" />
 
     <!-- Detailed progress bar -->
     <ProgressBar
@@ -40,5 +40,5 @@
         android:id="@+id/detailed_progress_text"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Detailed progress: 0/20" />
+        android:text="" />
 </LinearLayout>

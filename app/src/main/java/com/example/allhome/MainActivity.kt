@@ -4,7 +4,6 @@ import android.Manifest.permission.POST_NOTIFICATIONS
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -18,7 +17,6 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.GravityCompat
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.lifecycleScope
 import com.example.allhome.bill.BillsFragment
 import com.example.allhome.expenses.ExpensesFragment
 import com.example.allhome.grocerylist.AddGroceryListItemFragment
@@ -26,8 +24,6 @@ import com.example.allhome.grocerylist.GroceryListFragment
 import com.example.allhome.grocerylist.SingleGroceryListActivity
 import com.example.allhome.network.RetrofitInstance
 import com.example.allhome.network.Sync
-import com.example.allhome.network.datamodels.BillUploadDataModel
-import com.example.allhome.network.datamodels.BillPaymentDataModel
 import com.example.allhome.network.uploads.BillsUpload
 import com.example.allhome.recipes.RecipesFragment
 import com.example.allhome.storage.StorageFragment
