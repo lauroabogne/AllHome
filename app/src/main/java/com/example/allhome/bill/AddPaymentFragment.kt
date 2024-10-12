@@ -180,7 +180,7 @@ class AddPaymentFragment : Fragment() {
     private fun initUI(){
 
         if(mAction == ADD_ACTION){
-            val paymentDateString = SimpleDateFormat("MMMM dd,yyyy").format(mSelectedPaymentDateCalendar.time)
+            val paymentDateString = SimpleDateFormat("MMMM dd,yyyy hh:mm a").format(mSelectedPaymentDateCalendar.time)
             mFragmentAddPaymentBinding.paymentDateTextInputEditText.setText(paymentDateString)
         }else{
             mSelectedPaymentDateCalendar = Calendar.getInstance()
@@ -221,7 +221,7 @@ class AddPaymentFragment : Fragment() {
                 billUniqueId = billEntityWithTotalPayment.billEntity.uniqueId,
                 billGroupUniqueId = billEntityWithTotalPayment.billEntity.groupUniqueId,
                 paymentAmount = paymentDouble,
-                paymentDate = SimpleDateFormat("yyyy-MM-dd").format(mSelectedPaymentDateCalendar.time),
+                paymentDate = SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(mSelectedPaymentDateCalendar.time),
                 paymentNote = paymentNoteString,
                 imageName = imageName,
                 status = BillPaymentEntity.NOT_DELETED_STATUS,

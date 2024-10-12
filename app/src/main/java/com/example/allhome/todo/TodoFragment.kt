@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import android.widget.CompoundButton
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.databinding.DataBindingUtil
@@ -44,6 +45,7 @@ private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
 class TodoFragment : Fragment() {
+    @RequiresApi(Build.VERSION_CODES.O)
     private var currentDate = LocalDate.now()
     private var selectedDate = LocalDate.now()
     private var dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")

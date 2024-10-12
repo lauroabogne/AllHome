@@ -25,7 +25,6 @@ class BillsUpload(
        return billDAO.updateBillAsUploaded(uniqueId,BillEntity.UPLOADED)
     }
     suspend fun uploadBill(bill: BillEntity):SyncResult {
-        Log.e("Sync", "uploading")
         // Convert BillEntity to BillUploadDataModel
         val billUploadDataModel = BillUploadDataModel(
             uniqueId = bill.uniqueId,

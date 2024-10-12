@@ -24,6 +24,7 @@ import com.github.chrisbanes.photoview.PhotoView
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
+import java.io.InputStream
 import java.io.OutputStream
 
 
@@ -132,6 +133,10 @@ class ImageUtil {
                 return ImageDecoder.decodeBitmap(source)
 
             }
+        }
+
+        fun getInputStreamFromUri(context: Context, uri: Uri): InputStream? {
+            return context.contentResolver.openInputStream(uri)
         }
 
          fun saveImage(context:Context,imageUri: Uri, imageName: String,dirName:String):Boolean{

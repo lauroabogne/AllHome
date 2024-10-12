@@ -5,6 +5,7 @@ import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
+import android.util.Log
 import android.widget.RemoteViews
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -14,9 +15,12 @@ class SyncNotificationProgress(private val context: Context) {
 
     private val channelId = "SYNC_CHANNEL_ID"
     private val notificationId = 1
+    private lateinit var notificationBuilder: NotificationCompat.Builder
+    private val customNotificationLayout: RemoteViews = RemoteViews(context.packageName, R.layout.sync_notification_progress_layout)
 
     init {
         createNotificationChannel()
+        initNotificationBuilder()
     }
 
     // Create a notification channel (required for Android O and higher)
@@ -35,99 +39,54 @@ class SyncNotificationProgress(private val context: Context) {
         }
     }
 
-    // Show notification with two progress bars
-//    @SuppressLint("MissingPermission")
-//    fun showProgressNotification(overallProgress: Int, maxOverall: Int, detailedProgress: Int, maxDetailed: Int) {
-//        // Inflate custom layout
-//        val customNotificationLayout = RemoteViews(context.packageName, R.layout.sync_notification_progress_layout)
-//
-//        // Set text and progress for the overall sync progress
-//        customNotificationLayout.setTextViewText(R.id.overall_progress_text, "Overall progress: $overallProgress/$maxOverall")
-//        customNotificationLayout.setProgressBar(R.id.progress_bar_overall, maxOverall, overallProgress, false)
-//
-//        // Set text and progress for the detailed sync progress (e.g., individual records)
-//        customNotificationLayout.setTextViewText(R.id.detailed_progress_text, "Detailed progress: $detailedProgress/$maxDetailed")
-//        customNotificationLayout.setProgressBar(R.id.progress_bar_detailed, maxDetailed, detailedProgress, false)
-//
-//        // Build the notification with the custom layout
-//        val builder = NotificationCompat.Builder(context, channelId)
-//            .setSmallIcon(R.drawable.ic_close_icon) // Add your app's sync icon here
-//            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-//            .setCustomContentView(customNotificationLayout)
-//            .setOnlyAlertOnce(true)
-//
-//        // Show the notification
-//        with(NotificationManagerCompat.from(context)) {
-//            notify(notificationId, builder.build())
-//        }
-//    }
+    private fun initNotificationBuilder() {
+        notificationBuilder = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.ic_close_icon) // Add your app's sync icon here
+            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
+            .setCustomContentView(customNotificationLayout)
+            .setOnlyAlertOnce(true)
+            .setOngoing(true) // Keep the notification active until the sync completes
+    }
 
     @SuppressLint("MissingPermission")
     fun showOverallProgressNotification(overallProgress: Int, maxOverall: Int) {
-        // Inflate custom layout
-        val customNotificationLayout = RemoteViews(context.packageName, R.layout.sync_notification_progress_layout)
-
         // Set text and progress for the overall sync progress
-        customNotificationLayout.setTextViewText(R.id.overall_progress_text, "Overall progress: $overallProgress/$maxOverall")
-        customNotificationLayout.setProgressBar(R.id.progress_bar_overall, maxOverall, overallProgress, false)
+        customNotificationLayout.setTextViewText(
+            R.id.overall_progress_text, "Overall progress: $overallProgress/$maxOverall"
+        )
+        customNotificationLayout.setProgressBar(
+            R.id.progress_bar_overall, maxOverall, overallProgress, false
+        )
 
+        Log.e("Progress", "Overall progress: $overallProgress/$maxOverall")
 
-        // Build the notification with the custom layout
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_close_icon) // Add your app's sync icon here
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(customNotificationLayout)
-            .setOnlyAlertOnce(true)
-
-        // Show the notification
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
-        }
+        // Notify the system to update the notification
+        NotificationManagerCompat.from(context).notify(notificationId, notificationBuilder.build())
     }
 
-    // Show notification with two progress bars
     @SuppressLint("MissingPermission")
     fun showDetailedProgressNotification(message: String, detailedProgress: Int, maxDetailed: Int) {
-        // Inflate custom layout
-        val customNotificationLayout = RemoteViews(context.packageName, R.layout.sync_notification_progress_layout)
+        // Set text and progress for the detailed sync progress
+        customNotificationLayout.setTextViewText(
+            R.id.detailed_progress_text, "$message : $detailedProgress/$maxDetailed"
+        )
+        customNotificationLayout.setProgressBar(
+            R.id.progress_bar_detailed, maxDetailed, detailedProgress, false
+        )
 
-        // Set text and progress for the detailed sync progress (e.g., individual records)
-        customNotificationLayout.setTextViewText(R.id.detailed_progress_text, "$message : $detailedProgress/$maxDetailed")
-        customNotificationLayout.setProgressBar(R.id.progress_bar_detailed, maxDetailed, detailedProgress, false)
+        Log.e("Progress", "$message : $detailedProgress/$maxDetailed")
 
-        // Build the notification with the custom layout
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_close_icon) // Add your app's sync icon here
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(customNotificationLayout)
-            .setOnlyAlertOnce(true)
-
-        // Show the notification
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
-        }
+        // Notify the system to update the notification
+        NotificationManagerCompat.from(context).notify(notificationId, notificationBuilder.build())
     }
 
     @SuppressLint("MissingPermission")
     fun showDetailedProgressMessageNotification(message: String) {
-        // Inflate custom layout
-        val customNotificationLayout = RemoteViews(context.packageName, R.layout.sync_notification_progress_layout)
-
-        // Set text and progress for the detailed sync progress (e.g., individual records)
+        // Set the message for the detailed sync progress
         customNotificationLayout.setTextViewText(R.id.detailed_progress_text, message)
 
-
-        // Build the notification with the custom layout
-        val builder = NotificationCompat.Builder(context, channelId)
-            .setSmallIcon(R.drawable.ic_close_icon) // Add your app's sync icon here
-            .setStyle(NotificationCompat.DecoratedCustomViewStyle())
-            .setCustomContentView(customNotificationLayout)
-            .setOnlyAlertOnce(true)
-
-        // Show the notification
-        with(NotificationManagerCompat.from(context)) {
-            notify(notificationId, builder.build())
-        }
+        // Notify the system to update the notification
+        NotificationManagerCompat.from(context).notify(notificationId, notificationBuilder.build())
     }
 
     // Hide notification once sync is complete

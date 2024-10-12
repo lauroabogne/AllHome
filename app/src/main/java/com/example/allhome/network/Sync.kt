@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.Log
 import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.SyncNotificationProgress
+import com.example.allhome.network.uploads.BillsPaymentsUpload
 import com.example.allhome.network.uploads.BillsUpload
+import com.example.allhome.utils.ImageUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -31,8 +33,12 @@ class Sync private constructor(private val context: Context) {
         BillsUpload(RetrofitInstance.api, billDAO)
     }
 
+    private val billPaymentsUpload: BillsPaymentsUpload by lazy {
+        val billPaymentDAO = (context as AllHomeBaseApplication).billPaymentDAO
+        BillsPaymentsUpload(RetrofitInstance.api, billPaymentDAO)
+    }
     // List of tables to sync
-    private val NEED_TO_SYNC = arrayOf("Bills", "Expenses")
+    private val NEED_TO_SYNC = arrayOf("Bills","Bills Payments", "Expenses")
 
     // Notification instance
     private val syncNotification = SyncNotificationProgress(context)
@@ -56,20 +62,37 @@ class Sync private constructor(private val context: Context) {
             for ((index, table) in NEED_TO_SYNC.withIndex()) {
                 when (table) {
                     "Bills" -> {
-                        syncNotification.showOverallProgressNotification(overallProgress, NEED_TO_SYNC.size)
-                        syncNotification.showDetailedProgressMessageNotification("Preparing to upload bills")
-                        delay(5000)
+
+
                         billsUpload();
+                        delay(1000)
+                        syncNotification.showDetailedProgressMessageNotification("Preparing to upload bills $index")
+
+
+
                     }
+                    "Bills Payments" -> {
+
+                        billPaymentsUpload()
+                        delay(1000) // Simulate bill payments upload delay
+                        syncNotification.showDetailedProgressMessageNotification("Preparing to upload bills payments")
+
+
+
+                    }
+                    // Add more cases for other tables as needed
                     "Expenses" -> {
-                        // Handle expense upload if needed
-                        // You can add detailed progress update here if needed
-                        syncNotification.showOverallProgressNotification(overallProgress, NEED_TO_SYNC.size)
-                        delay(1000) // Simulate expense upload delay
+
+                        // Simulate expense upload delay
+                        delay(1000)
+
+                        syncNotification.showDetailedProgressMessageNotification("Preparing to upload expenses")
+
                     }
                 }
-                overallProgress = index + 1
+
                 // Update overall progress
+                overallProgress ++
                 syncNotification.showOverallProgressNotification(overallProgress, totalItemsToSync)
             }
 
@@ -96,16 +119,37 @@ class Sync private constructor(private val context: Context) {
                 }
             }
 
-            syncNotification.showDetailedProgressNotification("Bill upload : ",index + 1 , uniqueIdsToUpload.size);
+            syncNotification.showDetailedProgressNotification("Bill upload ",index + 1 , uniqueIdsToUpload.size);
         }
 
-//        val perItemTotalItemToSync = 10
-//        for (x in 1..uniqueIdsToUpload.size) {
-//            billsUpload.uploadBills() // Adjust as necessary
-//            // Update detailed progress
-//            syncNotification.showDetailedProgressNotification("Bill upload : ",x , perItemTotalItemToSync);
-//
-//            delay(1000) // Adjust delay as necessary
-//        }
+    }
+    private suspend fun billPaymentsUpload(){
+        val uniqueIdsToUpload =  billPaymentsUpload.getBillsPaymentToUpload()
+
+        uniqueIdsToUpload.forEachIndexed(){ index, billPaymentUniqueId ->
+            val billPaymentEntity = billPaymentsUpload.getBillPaymentByUniqueId(billPaymentUniqueId)
+            billPaymentEntity?.let {
+
+                val imageURI = ImageUtil.getImageUriFromPath(context, ImageUtil.BILL_PAYMENT_IMAGES_FINAL_LOCATION, billPaymentEntity.imageName)
+                val imageInputStream = if(imageURI != null) ImageUtil.getInputStreamFromUri(context, imageURI) else null
+               // Log.e("Sync", "Bill Payment upload: $imageURI")
+
+                val syncResult =  billPaymentsUpload.uploadBillPayments(billPaymentEntity, imageInputStream)
+
+                if(syncResult.isSuccess){
+                    // update as uploaded
+                    billPaymentsUpload.updateBillPaymentAsUploaded(billPaymentUniqueId)
+
+                    Log.e("Sync", "Bill Payment uploaded: $billPaymentUniqueId ${syncResult.message}")
+                }else{
+                    // Create log
+                    Log.e("Sync", "Failed to upload Bill Payment: $billPaymentUniqueId ${syncResult.errorMessage}")
+                }
+            }
+
+            syncNotification.showDetailedProgressNotification("Bill payments upload ",index + 1 , uniqueIdsToUpload.size);
+            delay(3000)
+        }
+
     }
 }

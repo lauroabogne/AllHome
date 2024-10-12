@@ -11,6 +11,13 @@ object DateUtil {
 
     }
 
+    fun formatDateTimeString(date: String,format:String) : String{
+
+
+        return SimpleDateFormat(format).format(SimpleDateFormat("yyyy-MM-dd HH:mm:ss").parse(date)).replace("AM", "am").replace("PM", "pm")
+
+    }
+
     fun getCustomCalendar(): Calendar {
         val customCalendar = Calendar.getInstance()
         customCalendar.firstDayOfWeek = Calendar.SUNDAY
