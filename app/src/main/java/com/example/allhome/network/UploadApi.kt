@@ -21,16 +21,14 @@ interface UploadApi {
     suspend fun uploadBill(@Body bill: BillUploadDataModel): Response<ResponseBody>
     @Multipart
     @POST("mobileapi/MobileApiBillsPayments/addOrUpdateIfExists")
-    suspend fun uploadBillPayment(@PartMap billData: Map<String, @JvmSuppressWildcards RequestBody>,
-                                  @Part image: MultipartBody.Part? = null
-    ): Response<ResponseBody>
+    suspend fun uploadBillPayment(@PartMap billData: Map<String, @JvmSuppressWildcards RequestBody>, @Part image: MultipartBody.Part? = null): Response<ResponseBody>
 
+    @Multipart
+    @POST("mobileapi/MobileApiExpenses/uploadExpense")
+    suspend fun uploadExpenses(@PartMap billData: Map<String, @JvmSuppressWildcards RequestBody>): Response<ResponseBody>
 
-//    @POST("upload/expenses")
-//    suspend fun uploadExpenses(@Body expenses: List<ExpensesEntity>): Response<Any>
-
-    @POST("/")
-    suspend fun uploadExpenses(@Body expenses: List<ExpensesEntity>): Response<ResponseBody>
-    @POST("upload/grocery-lists")
+//    @POST("/")
+//    suspend fun uploadExpenses(@Body expenses: List<ExpensesEntity>): Response<ResponseBody>
+//    @POST("upload/grocery-lists")
     suspend fun uploadGroceryLists(@Body groceryLists: List<GroceryListEntity>): Response<ResponseBody>
 }
