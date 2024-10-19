@@ -217,7 +217,7 @@ class ExpensesFragment : Fragment() {
                 if(expensesEntity !=null){
                     mExpensesFragmentViewModel.mExpensesPerMonth.add(expensesEntity)
                 }else{
-                    mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity("","","",month,0.0))
+                    mExpensesFragmentViewModel.mExpensesPerMonth.add(ExpensesEntity("","","",month,0.0,0,0,"",""))
                 }
             }
 

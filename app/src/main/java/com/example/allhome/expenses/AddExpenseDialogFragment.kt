@@ -103,7 +103,8 @@ class AddExpenseDialogFragment(val addExpenseListener:AddExpenseListener, val ad
         addExpenseListener.let {addExpenseListenerParam->
             val expenseUniqueId = UUID.randomUUID().toString()
             val expenseDate = SimpleDateFormat("yyyy-MM-dd").format(mExpenseDate)
-            val expensesEntity = ExpensesEntity(expenseUniqueId,expenseName,expenseCategory,expenseDate,expenseAmountString.toDouble())
+            val expensesEntity = ExpensesEntity(expenseUniqueId,expenseName,expenseCategory,expenseDate,expenseAmountString.toDouble(),
+                ExpensesEntity.NOT_DELETED_STATUS, ExpensesEntity.NOT_UPLOADED, expenseDate, expenseDate)
             addExpenseListenerParam.onExpenseSet(expensesEntity)
         }
 

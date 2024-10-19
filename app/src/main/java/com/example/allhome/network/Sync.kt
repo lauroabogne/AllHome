@@ -6,6 +6,7 @@ import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.SyncNotificationProgress
 import com.example.allhome.network.uploads.BillsPaymentsUpload
 import com.example.allhome.network.uploads.BillsUpload
+import com.example.allhome.network.uploads.ExpensesUpload
 import com.example.allhome.utils.ImageUtil
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -36,6 +37,11 @@ class Sync private constructor(private val context: Context) {
     private val billPaymentsUpload: BillsPaymentsUpload by lazy {
         val billPaymentDAO = (context as AllHomeBaseApplication).billPaymentDAO
         BillsPaymentsUpload(RetrofitInstance.api, billPaymentDAO)
+    }
+
+    private val expensesUpload: ExpensesUpload by lazy {
+        val expensesDAO = (context as AllHomeBaseApplication).expensesDAO
+        ExpensesUpload(RetrofitInstance.api, expensesDAO)
     }
     // List of tables to sync
     private val NEED_TO_SYNC = arrayOf("Bills","Bills Payments", "Expenses")
@@ -83,9 +89,8 @@ class Sync private constructor(private val context: Context) {
                     // Add more cases for other tables as needed
                     "Expenses" -> {
 
-                        // Simulate expense upload delay
+                        expensesUpload()
                         delay(1000)
-
                         syncNotification.showDetailedProgressMessageNotification("Preparing to upload expenses")
 
                     }
@@ -104,7 +109,6 @@ class Sync private constructor(private val context: Context) {
 
         val uniqueIdsToUpload =  billsUpload.getBillsToUpload()
 
-       // Log.e("uniqueIdsToUpload", uniqueIdsToUpload.size.toString())
         uniqueIdsToUpload.forEachIndexed() { index, billUniqueId ->
             val billEntity = billsUpload.getBillByUniqueId(billUniqueId)
             billEntity?.let {
@@ -132,8 +136,6 @@ class Sync private constructor(private val context: Context) {
 
                 val imageURI = ImageUtil.getImageUriFromPath(context, ImageUtil.BILL_PAYMENT_IMAGES_FINAL_LOCATION, billPaymentEntity.imageName)
                 val imageInputStream = if(imageURI != null) ImageUtil.getInputStreamFromUri(context, imageURI) else null
-               // Log.e("Sync", "Bill Payment upload: $imageURI")
-
                 val syncResult =  billPaymentsUpload.uploadBillPayments(billPaymentEntity, imageInputStream)
 
                 if(syncResult.isSuccess){
@@ -149,6 +151,30 @@ class Sync private constructor(private val context: Context) {
 
             syncNotification.showDetailedProgressNotification("Bill payments upload ",index + 1 , uniqueIdsToUpload.size);
             delay(3000)
+        }
+
+    }
+
+    private suspend fun expensesUpload(){
+
+        val uniqueIdsToUpload =  expensesUpload.getExpensesToUpload()
+
+        uniqueIdsToUpload.forEachIndexed() { index, expenseUniqueId ->
+            val expensesEntity = expensesUpload.getExpensesByUniqueId(expenseUniqueId)
+            expensesEntity?.let {
+                val syncResult = expensesUpload.uploadExpense(expensesEntity)
+                Log.e("Sync", "Expense to upload: $syncResult")
+                if(syncResult.isSuccess){
+                    // update as uploaded
+                    expensesUpload.updateExpensesAsUploaded(expenseUniqueId)
+
+                }else{
+                    // Create log
+//                    Log.e("Sync", "Failed to upload bill: $billUniqueId ${syncResult.errorMessage}")
+                }
+            }
+            delay(3000)
+            syncNotification.showDetailedProgressNotification("Expense upload ",index + 1 , uniqueIdsToUpload.size);
         }
 
     }
