@@ -23,6 +23,25 @@
             android:orientation="vertical"
             android:background="@color/gray_background"
             tools:context=".grocerylist.SingleGroceryListActivity">
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/appbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:theme="@style/AppBarTheme">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:minHeight="?attr/actionBarSize"
+                    android:background="?attr/toolbarBgColor"
+                    app:menu="@menu/add_grocery_item">
+
+                </androidx.appcompat.widget.Toolbar>
+            </com.google.android.material.appbar.AppBarLayout>
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/grocery_item_recyclerview"
                 android:layout_width="match_parent"

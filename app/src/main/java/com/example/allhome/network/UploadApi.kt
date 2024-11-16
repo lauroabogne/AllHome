@@ -27,6 +27,13 @@ interface UploadApi {
     @POST("mobileapi/MobileApiExpenses/uploadExpense")
     suspend fun uploadExpenses(@PartMap billData: Map<String, @JvmSuppressWildcards RequestBody>): Response<ResponseBody>
 
+    @Multipart
+    @POST("mobileapi/MobileApiGroceryLists/uploadGroceryListWithItems")
+    suspend fun uploadGroceryListWithItems(
+        @PartMap groceryListData: Map<String, @JvmSuppressWildcards RequestBody>,
+        @Part images: List<MultipartBody.Part>? =null
+    ): Response<ResponseBody>
+
 //    @POST("/")
 //    suspend fun uploadExpenses(@Body expenses: List<ExpensesEntity>): Response<ResponseBody>
 //    @POST("upload/grocery-lists")

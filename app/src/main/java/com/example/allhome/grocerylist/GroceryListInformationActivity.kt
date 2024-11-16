@@ -16,8 +16,10 @@ import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.NotificationReceiver
 import com.example.allhome.R
+import com.example.allhome.data.entities.GroceryListEntity
 import com.example.allhome.databinding.ActivityGroceryListInformationBinding
 import com.example.allhome.grocerylist.viewmodel.GroceryListInformationActivityViewModel
 import kotlinx.coroutines.Dispatchers.Main
@@ -43,6 +45,8 @@ class GroceryListInformationActivity : AppCompatActivity() {
     }
     @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_grocery_list_information)
 
@@ -65,6 +69,56 @@ class GroceryListInformationActivity : AppCompatActivity() {
         }
 
 
+        mDataBindingUtil.toolbar.inflateMenu((R.menu.grocery_list_information_activity_menu))
+        mDataBindingUtil.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        mDataBindingUtil.toolbar.title = "Update Grocery List"
+        mDataBindingUtil.toolbar.setNavigationOnClickListener {
+            finish()
+        }
+
+        mDataBindingUtil.toolbar.setOnMenuItemClickListener {item->
+
+            when(item.itemId){
+                android.R.id.home -> {
+                    finish()
+                }
+                R.id.update_menu -> {
+
+
+
+                    val notifyType = mDataBindingUtil.notificationSpinner.selectedItem.toString()
+                    val notifyText = mDataBindingUtil.notificationTextInputEditText.text.toString()
+                    val notifyInt =  if(notifyText.trim().length <=0 ) 0 else notifyText.toInt()
+
+                    mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.name = mDataBindingUtil.nameTextInputEditText.text.toString().trim()
+                    mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.location = mDataBindingUtil.locationTextInputEditText.text.toString().trim()
+                    mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.notify = notifyInt
+                    mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.notifyType = notifyType
+                    mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity.uploaded = GroceryListEntity.NOT_YET_UPLOADED
+
+                    mGroceryListInformationActivityViewModel.coroutineScope.launch {
+                        mGroceryListInformationActivityViewModel.updateGroceryList(this@GroceryListInformationActivity, mGroceryListInformationActivityViewModel.mGroceryListWithItemCount.groceryListEntity)
+
+                        withContext(Main) {
+
+                            createAlarm(groceryListUniqueId)
+                            val intent = Intent()
+                            intent.putExtra(GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                            intent.putExtra(GroceryListFragment.ACTION_TAG, GroceryListFragment.UPDATED_ACTION)
+                            setResult(RESULT_OK, intent)
+                            this@GroceryListInformationActivity.finish()
+                        }
+                    }
+                }
+                R.id.go_shopping_menu -> {
+                    val intent = Intent(this, SingleGroceryListActivity::class.java)
+                    intent.putExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG, groceryListUniqueId)
+                    this.startActivity(intent)
+                    this.finish()
+                }
+            }
+            true
+        }
 
         mDataBindingUtil.calendarImageView.setOnClickListener {
             showCalendar()
@@ -88,10 +142,7 @@ class GroceryListInformationActivity : AppCompatActivity() {
         menuInflater.inflate(R.menu.grocery_list_information_activity_menu, menu)
         return super.onCreateOptionsMenu(menu)
     }
-//    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
-//        menuInflater.inflate(R.menu.grocery_list_information_activity_menu, menu)
-//        return true
-//    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId){
             android.R.id.home -> {
@@ -100,10 +151,6 @@ class GroceryListInformationActivity : AppCompatActivity() {
             R.id.update_menu -> {
 
 
-                /*if (true) {
-                    Toast.makeText(this, "Alarmed set", Toast.LENGTH_SHORT).show()
-                    return false
-                }*/
 
                 val notifyType = mDataBindingUtil.notificationSpinner.selectedItem.toString()
                 val notifyText = mDataBindingUtil.notificationTextInputEditText.text.toString()

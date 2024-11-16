@@ -7,6 +7,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryItemEntityForAutoSuggest
+import com.example.allhome.data.entities.GroceryListEntity
 
 @Dao
 interface GroceryItemDAO {
@@ -22,6 +23,8 @@ interface GroceryItemDAO {
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId AND item_status=:status")
     fun getGroceryListItems(groceryListUniqueId:String,status:Int): List<GroceryItemEntity>
 
+    @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId")
+    fun getGroceryListItems(groceryListUniqueId:String): List<GroceryItemEntity>?
 
     @Query("SELECT * from grocery_items WHERE grocery_list_unique_id = :groceryListUniqueId ORDER BY unique_id DESC LIMIT 1")
     fun getGroceryListItem(groceryListUniqueId:String):GroceryItemEntity
@@ -38,13 +41,13 @@ interface GroceryItemDAO {
     @Query("UPDATE grocery_items SET item_status=:itemStatus WHERE unique_id=:id AND grocery_list_unique_id =:groceryListUniqueId ")
     fun updateGroceryItemAsDeleted(id:String,groceryListUniqueId: String,itemStatus:Int)
 
-    @Query("UPDATE grocery_items SET item_name=:itemName,quantity=:quantity,unit=:unit,price_per_unit=:pricePerUnit,category=:category,notes=:notes,image_name=:imageName, datetime_modified= :datetimeModified WHERE unique_id=:id")
-    fun updateItem(itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,imageName:String,id:String,datetimeModified:String):Int
+    @Query("UPDATE grocery_items SET item_name=:itemName,quantity=:quantity,unit=:unit,price_per_unit=:pricePerUnit,category=:category,notes=:notes,image_name=:imageName, datetime_modified= :datetimeModified, uploaded = :uploaded WHERE unique_id=:id")
+    fun updateItem(itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,imageName:String,id:String,datetimeModified:String, uploaded: Int):Int
     @Query("UPDATE grocery_items SET datetime_modified= :datetimeModified WHERE unique_id=:id")
     fun updateItemQuantityDatetimeModified(id:String,datetimeModified:String):Int
 
-    @Query("UPDATE grocery_items SET bought = :bought,datetime_modified=:datetimeModified WHERE unique_id=:id AND item_name = :itemName")
-    fun updateItem(bought:Int,id:String,itemName: String,datetimeModified:String):Int
+    @Query("UPDATE grocery_items SET bought = :bought,datetime_modified=:datetimeModified, uploaded = :uploaded WHERE unique_id=:id AND item_name = :itemName")
+    fun updateItem(bought:Int,id:String,itemName: String,datetimeModified:String, uploaded: Int):Int
     @Query("SELECT item_name from grocery_items WHERE item_name LIKE '%'||:itemName||'%' ORDER BY item_name")
     fun getItems(itemName:String):List<String>
 
@@ -75,6 +78,9 @@ interface GroceryItemDAO {
     fun getBoughtGroceryListItemsAndTotalAmountGreaterZero(groceryListUniqueId:String): List<GroceryItemEntity>
     @Query("SELECT price_per_unit from grocery_items WHERE item_name = :itemName AND unit=:unit AND item_status= 0")
     fun getLatestPrice(itemName:String,unit:String):Double
+
+    @Query("UPDATE ${GroceryItemEntity.TABLE_NAME} SET ${GroceryItemEntity.COLUMN_UPLOADED} = :uploaded WHERE ${GroceryItemEntity.COLUMN_GROCERY_LIST_UNIQUE_ID} = :groceryListUniqueId")
+    suspend fun updateGroceryListItemsAsUploaded(groceryListUniqueId: String, uploaded: Int):Int
 
 
 

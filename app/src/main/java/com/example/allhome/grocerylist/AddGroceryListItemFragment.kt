@@ -562,7 +562,7 @@ class AddGroceryListItemFragment : Fragment() {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
             mGroceryListViewModel.updateGroceryListAsNotUploaded(requireContext(),groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
-            mGroceryListViewModel.updateGroceryItem(requireContext(), itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime)
+            mGroceryListViewModel.updateGroceryItem(requireContext(), itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime, GroceryItemEntity.NOT_YET_UPLOADED)
 
 
             withContext(Dispatchers.Main){
@@ -594,7 +594,7 @@ class AddGroceryListItemFragment : Fragment() {
                 imageUri = ImageUtil.getImageUriFromPath(requireContext(), imageFileFromTempStorage.parentFile.name,mGroceryListViewModel.selectedGroceryItem!!.imageName)
 
             }else{
-                val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)!!
                 if(!finalStorageDir.exists()){
                     storageDir.mkdir()
                 }
@@ -676,7 +676,7 @@ class AddGroceryListItemFragment : Fragment() {
 
         val imageWidthAndHeight = ImageUtil.getProportionImageSize(targetMaxWidthOrHeight, imageWidth,imageHeight)
         val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, imageWidthAndHeight["width"]!!, imageWidthAndHeight["height"]!!, false)
-        val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+        val storageDir: File = requireContext().getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()

@@ -27,6 +27,19 @@ android {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
+        debug {
+            // Ensure debuggable is true for Network Inspector to work
+            debuggable true
+
+            // Disable minification for debug builds
+            minifyEnabled false
+
+            // Optional: Add debug-specific ProGuard rules if necessary
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules-debug.pro'
+
+            // Optional: Allow cleartext traffic for easier testing (useful for local servers)
+            buildConfigField "boolean", "ALLOW_CLEAR_TEXT", "true"
+        }
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17

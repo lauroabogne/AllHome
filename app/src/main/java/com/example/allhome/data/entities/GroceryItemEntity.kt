@@ -17,29 +17,53 @@ import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 @Parcelize
-@Entity(tableName = "grocery_items")
+@Entity(tableName = GroceryItemEntity.TABLE_NAME)
  data class GroceryItemEntity constructor (
     @PrimaryKey(autoGenerate = false)
-    @ColumnInfo(name= "unique_id") var uniqueId:String  = "",
-    @ColumnInfo(name = "grocery_list_unique_id") var groceryListUniqueId:String,
-    @ColumnInfo(name = "sequence") val sequence:Int = 0,
-    @ColumnInfo(name = "item_name") var itemName:String = "",
-    @ColumnInfo(name = "quantity") var quantity:Double = 0.0,
-    @ColumnInfo(name = "unit") var unit:String = "",
-    @ColumnInfo(name = "price_per_unit") var pricePerUnit:Double= 0.0,
-    @ColumnInfo(name="category") var category:String = "",
-    @ColumnInfo(name = "notes") var notes:String = "",
-    @ColumnInfo(name = "image_name") var imageName:String = "",
-    @ColumnInfo(name = "bought",defaultValue = "0") var bought:Int = 0,
-    @ColumnInfo(name = "item_status",defaultValue = "0") var itemStatus:Int = 0,
-    @ColumnInfo(name = "datetime_created",defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String = "",
-    @ColumnInfo(name = "datetime_modified",defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String = ""
+    @ColumnInfo(name= COLUMN_UNIQUE_ID) var uniqueId:String  = "",
+    @ColumnInfo(name = COLUMN_GROCERY_LIST_UNIQUE_ID) var groceryListUniqueId:String,
+    @ColumnInfo(name = COLUMN_SEQUENCE) val sequence:Int = 0,
+    @ColumnInfo(name = COLUMN_ITEM_NAME) var itemName:String = "",
+    @ColumnInfo(name = COLUMN_QUANTITY) var quantity:Double = 0.0,
+    @ColumnInfo(name = COLUMN_UNIT) var unit:String = "",
+    @ColumnInfo(name = COLUMN_PRICE_PER_UNIT) var pricePerUnit:Double= 0.0,
+    @ColumnInfo(name=COLUMN_CATEGORY) var category:String = "",
+    @ColumnInfo(name = COLUMN_NOTES) var notes:String = "",
+    @ColumnInfo(name = COLUMN_IMAGE_NAME) var imageName:String = "",
+    @ColumnInfo(name = COLUMN_BOUGHT,defaultValue = "0") var bought:Int = 0,
+    @ColumnInfo(name = COLUMN_ITEM_STATUS,defaultValue = "0") var itemStatus:Int = 0,
+    @ColumnInfo(name = COLUMN_UPLOADED,defaultValue = "$NOT_YET_UPLOADED") var uploaded:Int = 0,
+    @ColumnInfo(name = COLUMN_DATETIME_CREATED,defaultValue = "CURRENT_TIMESTAMP") var datetimeCreated:String = "",
+    @ColumnInfo(name = COLUMN_DATETIME_MODIFIED,defaultValue = "CURRENT_TIMESTAMP") var datetimeModified:String = ""
      ):Parcelable{
-    @Ignore
-    var index:Int = 0
-    @Ignore
-    var forCategoryDivider = false
+        @Ignore
+        var index:Int = 0
+        @Ignore
+        var forCategoryDivider = false
 
+    companion object{
+        const val TABLE_NAME ="grocery_items"
+        const val COLUMN_UNIQUE_ID ="unique_id"
+        const val COLUMN_GROCERY_LIST_UNIQUE_ID = "grocery_list_unique_id"
+        const val COLUMN_SEQUENCE = "sequence"
+        const val COLUMN_ITEM_NAME = "item_name"
+        const val COLUMN_QUANTITY = "quantity"
+        const val COLUMN_UNIT = "unit"
+        const val COLUMN_PRICE_PER_UNIT = "price_per_unit"
+        const val COLUMN_CATEGORY = "category"
+        const val COLUMN_NOTES = "notes"
+        const val COLUMN_IMAGE_NAME = "image_name"
+        const val COLUMN_BOUGHT = "bought"
+        const val COLUMN_ITEM_STATUS = "item_status"
+        const val COLUMN_DATETIME_CREATED = "datetime_created"
+        const val COLUMN_DATETIME_MODIFIED = "datetime_modified"
+
+        const val COLUMN_UPLOADED = "uploaded"
+
+        const val UPLOADED = 1
+        const val NOT_YET_UPLOADED = 0
+        const val ACTIVE_STATUS = 0
+    }
 
 }
 data class GroceryItemEntityForAutoSuggest(

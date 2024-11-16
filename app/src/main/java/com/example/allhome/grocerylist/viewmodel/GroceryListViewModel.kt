@@ -105,12 +105,12 @@ class GroceryListViewModel(groceryListEntityParams: GroceryListEntity? = null, g
         return selectedGroceryItem
     }
     suspend fun updateGroceryItem(context:Context,itemName:String,quantity:Double,unit:String,pricePerUnit:Double,category:String,notes:String,
-                                  imageName:String,id:String,currentDatetime:String){
-        val update = AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItem(itemName,quantity,unit,pricePerUnit,category,notes,imageName,id,currentDatetime)
+                                  imageName:String,id:String,currentDatetime:String, uploadedStatus: Int){
+        val update = AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItem(itemName,quantity,unit,pricePerUnit,category,notes,imageName,id,currentDatetime, uploadedStatus)
 
     }
     suspend  fun updateGroceryItem(context:Context,bought:Int,id:String,itemName:String,datetimeModified:String){
-        val update = AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItem(bought,id,itemName,datetimeModified)
+        val update = AllHomeDatabase.getDatabase(context).groceryItemDAO().updateItem(bought,id,itemName,datetimeModified, GroceryItemEntity.NOT_YET_UPLOADED)
     }
     suspend fun computeTotalAmountToBuy(toBuyGroceryItems:ArrayList<GroceryItemEntity>){
         var total = 0.0
