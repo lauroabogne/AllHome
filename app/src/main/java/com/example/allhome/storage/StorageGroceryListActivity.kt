@@ -187,7 +187,7 @@ class StorageGroceryListActivity : AppCompatActivity() {
             val fileToCopy  = File(storageItemImageDir, storeItemItemImageName)
             if(fileToCopy.exists()){
 
-                val destinationGroceryItemImageDir: File = getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                val destinationGroceryItemImageDir: File = getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)!!
                 if(!destinationGroceryItemImageDir.exists()){
                     destinationGroceryItemImageDir.mkdir()
                 }

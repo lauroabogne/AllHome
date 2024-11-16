@@ -16,6 +16,7 @@ import android.view.animation.DecelerateInterpolator
 import android.widget.ImageView
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
+import com.example.allhome.AllHomeBaseApplication
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryItemEntityValues
@@ -42,11 +43,17 @@ class ArchivedSingleGroceryListActivity : AppCompatActivity() {
     private var shortAnimationDuration: Int = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        val theme = (applicationContext as AllHomeBaseApplication).theme
+        setTheme(theme)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_trash_single_grocery_list)
 
-        title = "Items"
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+//        title = "Items"
+//        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+
+
+
         intent.getStringExtra(AddGroceryListItemFragment.GROCERY_LIST_UNIQUE_ID_EXTRA_DATA_TAG)?.let {
             groceryListUniqueId = it
         }
@@ -70,6 +77,12 @@ class ArchivedSingleGroceryListActivity : AppCompatActivity() {
             this.groceryListViewModel = mGroceryListViewModel
 
 
+        }
+
+        dataBindingUtil.toolbar.setNavigationIcon(R.drawable.ic_baseline_arrow_back_24)
+        dataBindingUtil.toolbar.title = "Items"
+        dataBindingUtil.toolbar.setNavigationOnClickListener {
+            finish()
         }
 
         val groceryItemRecyclerViewAdapter = ArchivedGroceryItemRecyclerViewAdapter(this, productImageClickListener)

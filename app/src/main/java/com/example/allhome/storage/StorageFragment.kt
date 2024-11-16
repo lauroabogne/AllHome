@@ -16,7 +16,6 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.SearchView
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
-import androidx.activity.OnBackPressedDispatcher
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.PopupMenu
 import androidx.core.util.forEach
@@ -1448,7 +1447,7 @@ class StorageFragment : Fragment(),SearchView.OnQueryTextListener {
         }
         val indexOfItemName = groceryItemImageName.indexOf(groceryItemName)
         val groceryItemName = groceryItemImageName.substring(indexOfItemName,groceryItemImageName.length)
-        val storageDir: File? = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)
+        val storageDir: File? = requireContext().getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)
         if(storageDir?.exists() == true){
             val fileToCopy  = File(storageDir, groceryItemImageName)
             if(fileToCopy.exists()){

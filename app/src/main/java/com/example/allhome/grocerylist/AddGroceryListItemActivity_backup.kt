@@ -373,7 +373,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
             val simpleDateFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
             val currentDatetime: String = simpleDateFormat.format(Date())
             mGroceryListViewModel.updateGroceryListAsNotUploaded(this@AddGroceryListItemActivity_backup,groceryListUniqueId,currentDatetime, GroceryListEntityValues.NOT_YET_UPLOADED)
-            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity_backup, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime)
+            mGroceryListViewModel.updateGroceryItem(this@AddGroceryListItemActivity_backup, itemName, doubleQuantity, unit, doublePricePerUnit, category, notes, imageName, groceryListItemId,currentDatetime, GroceryItemEntity.NOT_YET_UPLOADED)
 
 
             withContext(Main){
@@ -430,7 +430,7 @@ class AddGroceryListItemActivity_backup : AppCompatActivity() {
         Log.e("proportion","$imageWidthAndHeight")
 
         val resizedImageBitmap = Bitmap.createScaledBitmap(imageBitmap, imageWidthAndHeight["width"]!!, imageWidthAndHeight["height"]!!, false)
-        val storageDir: File = getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+        val storageDir: File = getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)!!
 
         if(!storageDir.exists()){
             storageDir.mkdir()

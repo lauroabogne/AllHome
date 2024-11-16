@@ -210,7 +210,7 @@ class BrowseItemImageFragment : Fragment() {
                         return
                     }
 
-                    val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.FINAL_IMAGES_LOCATION)!!
+                    val finalStorageDir: File = requireContext().getExternalFilesDir(GroceryUtil.GROCERY_ITEM_IMAGES_LOCATION)!!
                     if(!finalStorageDir.exists()){
                         storageDir.mkdir()
                     }

@@ -2,10 +2,6 @@ package com.example.allhome.grocerylist
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
-import android.view.View
-import androidx.databinding.Bindable
-import androidx.databinding.BindingAdapter
 import com.example.allhome.R
 import com.example.allhome.data.entities.GroceryItemEntity
 import com.example.allhome.data.entities.GroceryListEntity
@@ -20,7 +16,7 @@ import java.util.*
 
 
 object GroceryUtil {
-    const val FINAL_IMAGES_LOCATION = "item_images"
+    const val GROCERY_ITEM_IMAGES_LOCATION = "grocery_item_images"
     const val TEMPORARY_IMAGES_LOCATION = "temporary_images"
     private val withCommaAndWithoutDecimalFormater = DecimalFormat("#,###")
     private val withCommaAndWithDecimalFormater = DecimalFormat("#,###.00")
@@ -212,7 +208,7 @@ object GroceryUtil {
 
     fun doImageFromPathExists(context: Context, imageName:String): Boolean {
 
-        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val storageDir: File =  context.getExternalFilesDir(GROCERY_ITEM_IMAGES_LOCATION)!!
         if(!storageDir.exists()){
             return false
         }
@@ -228,7 +224,7 @@ object GroceryUtil {
 
     fun renameImageFile(context: Context, previousImageName:String, newImageName:String) {
 
-        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val storageDir: File =  context.getExternalFilesDir(GROCERY_ITEM_IMAGES_LOCATION)!!
         val imageFile  = File(storageDir, previousImageName)
         imageFile.renameTo(File(storageDir, newImageName))
 
@@ -236,7 +232,7 @@ object GroceryUtil {
 
     fun deleteImageFile(context: Context, imageName:String) {
 
-        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val storageDir: File =  context.getExternalFilesDir(GROCERY_ITEM_IMAGES_LOCATION)!!
         val imageFile  = File(storageDir, imageName)
         imageFile.delete()
 
@@ -244,7 +240,7 @@ object GroceryUtil {
 
     fun getImageFromPath(context: Context, imageName:String): Uri? {
 
-        val storageDir: File =  context.getExternalFilesDir(FINAL_IMAGES_LOCATION)!!
+        val storageDir: File =  context.getExternalFilesDir(GROCERY_ITEM_IMAGES_LOCATION)!!
         if(!storageDir.exists()){
             return null
         }

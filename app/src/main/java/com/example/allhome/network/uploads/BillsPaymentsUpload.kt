@@ -75,24 +75,24 @@ class BillsPaymentsUpload(
             val response = apiService.uploadBillPayment(billPaymentData, imagePart)
 
 
-            if (response.isSuccessful) {
-                response.body()?.let {
-                    val jsonObjectResponse = JsonParser.parseString(it.string()).asJsonObject
-                    val isSuccess = jsonObjectResponse.get("is_success")?.asBoolean ?: false
-                    val message = jsonObjectResponse.get("message")?.asString ?: "No message"
-
-                    syncResult.isSuccess = isSuccess
-                    syncResult.message = message
-                    syncResult.errorMessage = if (isSuccess) "" else message
-                }
-            } else {
-                val errorCode = response.code()
-                val errorBody = response.errorBody()?.string() ?: "Unknown error"
-
-                syncResult.isSuccess = false
-                syncResult.message = "Failed to upload bill"
-                syncResult.errorMessage = "HTTP error $errorCode: $errorBody"
-            }
+//            if (response.isSuccessful) {
+//                response.body()?.let {
+//                    val jsonObjectResponse = JsonParser.parseString(it.string()).asJsonObject
+//                    val isSuccess = jsonObjectResponse.get("is_success")?.asBoolean ?: false
+//                    val message = jsonObjectResponse.get("message")?.asString ?: "No message"
+//
+//                    syncResult.isSuccess = isSuccess
+//                    syncResult.message = message
+//                    syncResult.errorMessage = if (isSuccess) "" else message
+//                }
+//            } else {
+//                val errorCode = response.code()
+//                val errorBody = response.errorBody()?.string() ?: "Unknown error"
+//
+//                syncResult.isSuccess = false
+//                syncResult.message = "Failed to upload bill"
+//                syncResult.errorMessage = "HTTP error $errorCode: $errorBody"
+//            }
         } catch (e: Exception) {
             syncResult.isSuccess = false
             syncResult.message = ""
